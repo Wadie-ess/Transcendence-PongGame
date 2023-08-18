@@ -1,0 +1,54 @@
+name: CD STAGING
+on: 
+  pull_request:
+    branches:
+      - staging
+permissions:
+  pull-requests: write
+  issues: write
+  repository-projects: write
+
+jobs:
+  front:
+    runs-on : ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3 
+
+      - name: run front end build
+        working-directory: ./frontend/code
+        run: npm ci && npm run build
+  back:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3 
+      - name: run backend build 
+        working-directory: ./backend/code
+        run : npm ci && npm run build
+  label:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs: [front, back]
+    steps:
+    - name: Generate token
+      id: generate_token
+      uses: tibdex/github-app-token@v1.8.0
+      with:
+        app_id: ${{ secrets.APP_ID }}
+        private_key: ${{ secrets.CLIENT_SECRET }}
+    - name: Use token
+      run : echo "save token"
+      env:
+        TOKEN: ${{ steps.generate_token.outputs.token }}
+      
+    - name: Get PR URL
+      run: echo "PR_URL=${{ github.event.pull_request.html_url }}" >> $GITHUB_ENV
+    
+    - name: Add automerge label
+      run: |
+        gh pr edit $PR_URL --add-label "automerge"
+        gh pr merge --auto --merge "$PR_URL"
+      env:
+        GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+        PR_URL: ${{ github.event.pull_request.html_url }}

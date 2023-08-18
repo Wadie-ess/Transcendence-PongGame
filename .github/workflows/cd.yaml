@@ -1,0 +1,16 @@
+name: Staging Deploy
+on:
+ push:
+  branches:
+   - staging
+jobs:
+  deploy:
+    runs-on : ubuntu-latest
+    steps:
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.DC_HOST }}
+          username: ${{ secrets.DC_USER }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: '/root/execute.sh' 
