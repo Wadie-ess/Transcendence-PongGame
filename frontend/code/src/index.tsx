@@ -9,7 +9,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <div>
-      <h1>staging and production</h1>
+      <h1>test pipelines</h1>
     </div>
   </React.StrictMode>
 );
