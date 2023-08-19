@@ -1,8 +1,7 @@
-name: CD STAGING
+name: AutoMrge
 on: 
   pull_request:
-    branches:
-      - staging
+    types: [labeled]
 permissions:
   pull-requests: write
   issues: write
