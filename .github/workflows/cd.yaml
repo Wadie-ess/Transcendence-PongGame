@@ -1,16 +1,34 @@
-name: Staging Deploy
+name: Deploy on server
 on:
  push:
   branches:
-   - staging
+   - main
 jobs:
-  deploy:
+  staging_deploy:
     runs-on : ubuntu-latest
+    environment: 
+      name: Staging
+      url: http://142.93.161.63
     steps:
-      - name: executing remote ssh commands using ssh key
+      - name: executing remote ssh commands using ssh key On satging
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.DC_HOST }}
-          username: ${{ secrets.DC_USER }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
           key: ${{ secrets.PRIVATE_KEY }}
           script: '/root/execute.sh' 
+  production_deploy:
+    runs-on : ubuntu-latest
+    needs: staging_deploy
+    environment: 
+      name: Production
+      url: http://164.92.243.105
+    steps:
+      - name: executing remote ssh commands using ssh key on production
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: '/root/execute.sh' 
+  

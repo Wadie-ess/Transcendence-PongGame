@@ -1,0 +1,41 @@
+version : "3.9"
+services :
+  front:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: frontend_prod:local
+    volumes:
+      - front:/app/build
+    networks:
+      - pongNet
+    init: true
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: backend_prod:local
+    networks:
+      - pongNet
+    restart: always
+    init : true
+    
+  nginx :
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: nginx_prod:local
+    networks:
+      - pongNet
+    volumes :
+      - front:/var/www/html/
+    ports:
+      - 80:80
+    init: true
+   
+      
+volumes: 
+  front:
+networks:
+  pongNet:
+  

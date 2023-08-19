@@ -15,7 +15,6 @@ on:
   push:
     branches: [ "DEV-*" ]
   pull_request:
-    # The branches below must be a subset of the branches above
     branches: [ "main" ]
 
 jobs:
@@ -77,3 +76,33 @@ jobs:
       uses: github/codeql-action/analyze@v2
       with:
         category: "/language:${{matrix.language}}"
+  label:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs: [analyze]
+    steps:
+    - name: Generate token
+      id: generate_token
+      uses: tibdex/github-app-token@v1.8.0
+      with:
+        app_id: ${{ secrets.APP_ID }}
+        private_key: ${{ secrets.CLIENT_SECRET }}
+    - name: Use token
+      run : echo "save token"
+      env:
+        TOKEN: ${{ steps.generate_token.outputs.token }}
+      
+    - name: Get PR URL
+      run: echo "PR_URL=${{ github.event.pull_request.html_url }}" >> $GITHUB_ENV
+    
+    - name: Add CodeQl label
+      run: |
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+            gh pr edit $PR_URL --add-label "codeql"
+        else
+          echo "This is not a pull request event."
+          exit 0
+        fi
+      env:
+        GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+        PR_URL: ${{ github.event.pull_request.html_url }}
