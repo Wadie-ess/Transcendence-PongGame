@@ -12,6 +12,8 @@ jobs:
     runs-on : ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v3 
 
       - name: run front end build
@@ -21,10 +23,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v3 
       - name: run backend build 
         working-directory: ./backend/code
         run : npm ci && npm run build
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses : actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name : run docker
+        run : docker compose up --build -d 
   label:
     runs-on: ubuntu-latest
     permissions: write-all
