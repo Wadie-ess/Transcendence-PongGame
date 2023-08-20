@@ -41,7 +41,7 @@ jobs:
   label:
     runs-on: ubuntu-latest
     permissions: write-all
-    needs: [front, back]
+    needs: [front, back,docker]
     steps:
     - name: Generate token
       id: generate_token
