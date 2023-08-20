@@ -3,6 +3,10 @@ on:
  push:
   branches:
    - main
+  paths: 
+    -  'backend/**'
+    -  'frontend/**'
+    -  'nginx/**'
 jobs:
   staging_deploy:
     runs-on : ubuntu-latest
