@@ -3,3 +3,5 @@ frontend:
 
 backend:
   - backend/**/*
+server:
+  - nginx/**/*
