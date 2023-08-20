@@ -1,0 +1,7 @@
+frontend:
+  - frontend/**/*
+
+backend:
+  - backend/**/*
+server:
+  - nginx/**/*
