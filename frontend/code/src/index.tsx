@@ -11,13 +11,13 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    {/* <img src={bg_landing} alt="" /> */}
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login/>}></Route>
         <Route path="/main" element={<Main/>}></Route>
       </Routes>
     </BrowserRouter>
+
   </React.StrictMode>
 );
 
