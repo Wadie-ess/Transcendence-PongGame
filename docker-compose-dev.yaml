@@ -3,13 +3,15 @@ services :
   front:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
-    image: frontend_prod:local
+      dockerfile: Dockerfile.dev
+    image: frontend_dev:local
     volumes:
-      - front:/app/build
+      - ./frontend/code/src:/app/src
     networks:
       - pongnet
     init: true
+    ports:
+      - 3000:3000
   database:
     image: postgres
     restart: always
@@ -22,30 +24,20 @@ services :
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    image: backend_prod:local
+      dockerfile: Dockerfile.dev
+    image: backend_dev:local
     networks:
       - pongnet
     depends_on: 
       - database
+    volumes:
+      - ./backend/code/src:/app/src
+      - ./backend/code/prisma:/app/prisma
     restart: always
     init : true
-  nginx :
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    image: nginx_prod:local
-    networks:
-      - pongnet
-    volumes :
-      - front:/var/www/html/
     ports:
-      - 80:80
-    init: true
-   
-      
+      - 5555:5555
 volumes: 
-  front:
   database:
 networks:
   pongnet:
