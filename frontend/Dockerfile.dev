@@ -1,0 +1,12 @@
+FROM node:18
+
+WORKDIR /app
+
+COPY ./code/package.json .
+
+RUN npm install
+
+COPY ./code .
+
+CMD  ["sh", "-c","npm start"]
+

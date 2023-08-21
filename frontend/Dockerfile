@@ -6,4 +6,4 @@ COPY ./code .
 
 RUN npm install && npm run build
 
-CMD sleep 10
+CMD sleep 5
