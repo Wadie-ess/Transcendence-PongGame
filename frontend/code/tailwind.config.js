@@ -5,8 +5,14 @@ module.exports = {
     "./src/**/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        poppins: ['Poppins', 'sans-serif'],
+        lexend: ['Lexend Peta', 'sans-serif'],
+      },
+    },
   },
+ 
   plugins: [require("daisyui")],
   daisyui: {
     themes: [
