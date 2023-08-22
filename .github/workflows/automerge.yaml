@@ -39,6 +39,7 @@ jobs:
       - name : run docker
         run : docker compose up --build -d 
   label:
+    if : github.event.pull_request.user.login == 'ismail-kharrobi' || github.event.pull_request.user.login == 'Wadie-ess' || github.event.pull_request.user.login == 'sedeve'
     runs-on: ubuntu-latest
     permissions: write-all
     needs: [front, back,docker]
@@ -56,10 +57,13 @@ jobs:
       
     - name: Get PR URL
       run: echo "PR_URL=${{ github.event.pull_request.html_url }}" >> $GITHUB_ENV
+    - name: add label
+      uses: actions-ecosystem/action-add-labels@v1
+      with:
+        labels: automerge
     
-    - name: Add automerge label
+    - name: merge
       run: |
-        gh pr edit $PR_URL --add-label "automerge"
         gh pr merge --auto --merge "$PR_URL"
       env:
         GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}

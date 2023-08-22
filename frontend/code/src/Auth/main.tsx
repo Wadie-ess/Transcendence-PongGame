@@ -1,4 +1,4 @@
-import Bourki from './images/vid.gif'
+import Bourki from '../images/vid.gif'
 export const Main = () =>
 {
     return (

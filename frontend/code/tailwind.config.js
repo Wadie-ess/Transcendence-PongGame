@@ -2,6 +2,7 @@
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/**/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {},
@@ -11,24 +12,27 @@ module.exports = {
     themes: [
       {
          mytheme: {
-          
- "primary": "#8fea9b",
-          
- "secondary": "#4cdd46",
-          
- "accent": "#aedd1f",
-          
- "neutral": "#161922",
-          
- "base-100": "#335466",
-          
- "info": "#3e9cea",
-          
- "success": "#1ba177",
-          
- "warning": "#99670f",
-          
- "error": "#e93f6f",
+            "base-100": "#1A1C26",
+
+            "base-200":"#272932",
+            
+            "primary": "#7940CF",
+
+            "primary-content" :"#5921CB",
+                      
+            "secondary": "#272932",
+                      
+            "accent": "#aedd1f",
+                      
+            "neutral": "#161922",
+                                       
+            "info": "#3e9cea",
+                      
+            "success": "#1ba177",
+                      
+            "warning": "#99670f",
+                      
+            "error": "#e93f6f",
           },
       },
       "light",

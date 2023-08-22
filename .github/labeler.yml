@@ -4,3 +4,7 @@ backend:
   - backend/**
 server:
   - nginx/**
+ci-cd:
+  - .github
+docker:
+  - docker*
