@@ -5,7 +5,7 @@ import {Login} from './Auth'
 import {Main} from './Auth/main'
 import {Lobby} from './Lobby/index'
 import {Layout} from './Layout/index'
-
+import {Error} from './404/index'
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -20,6 +20,8 @@ root.render(
         <Route path="/main" element={<Main/>}></Route>
         <Route path="/lobby" element={<Lobby/>}></Route>
         <Route path="/layout" element={<Layout/>}></Route>
+        <Route path="/*" element={<Error/>}></Route>
+
       </Routes>
     </BrowserRouter>
 
