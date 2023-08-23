@@ -8,7 +8,7 @@ export const Login =  () =>
     return (
       <div className="overflow-hidden  flex flex-col items-center justify-center h-screen bg-[url(./images/bg.gif)] bg-luxury bg-no-repeat bg-cover bg-center">
       <div className="absolute h-full w-full bg-black opacity-40 z-10"></div>
-      <div className="p-16 absolute top-[25%] sm:top-[30%] xl:top-[35%] z-50 flex flex-col items-center gap-y-20">
+      <div className="absolute top-[25%] sm:top-[30%] xl:top-[35%] z-50 flex flex-col items-center gap-y-20">
           <div className=" flex flex-col justify-center">
               <img  src={pingpong} alt="Logo" />
           </div>
