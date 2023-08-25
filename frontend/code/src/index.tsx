@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import {Login} from './Auth'
-import {Main} from './Auth/main'
-import {Lobby} from './Lobby/index'
-import {Layout} from './Layout/index'
-import {Error} from './404/index'
+import {Login} from './components/Login'
+import {Main} from './components/Login/main'
+import {Lobby} from './components/Lobby/index'
+import {Layout} from './components/Layout/index'
+import {Error} from './components/404/index'
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
