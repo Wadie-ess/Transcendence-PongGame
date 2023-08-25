@@ -1,9 +1,5 @@
-import { FC } from 'react'
 import {BiSearch} from 'react-icons/bi'
-interface scales {
-    w:number;
-    h:number;
-}
+
 export const Search = () => {
     return (
         <div className='hidden sm:flex sm:items-center absolute pr-24 '>

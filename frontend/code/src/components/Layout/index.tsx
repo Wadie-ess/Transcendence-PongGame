@@ -8,12 +8,9 @@ import { Message } from './Assets/Message'
 import { Profile } from './Assets/Profile'
 import { Settings } from './Assets/Settings'
 import { Out } from './Assets/Out'
-import { FC, PropsWithChildren } from 'react'
+import { FC } from 'react'
 
-let phone  = {
-    width :16,
-    height:16
-}
+
 interface myNodetype  {
     children : React.ReactNode
 }
