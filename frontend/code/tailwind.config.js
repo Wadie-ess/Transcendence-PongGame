@@ -9,10 +9,12 @@ module.exports = {
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],
         lexend: ['Lexend Peta', 'sans-serif'],
+        montserrat : ['Montserrat', 'sans-serif']
       },
       backgroundImage: {
         'login': "url('./components/Login/Assets/bg.gif')",
         'gif-error': "url('./components/404/assest/Error.gif')",
+        
       },
 
     },
@@ -31,7 +33,7 @@ module.exports = {
 
             "primary-content" :"#5921CB",
                       
-            "secondary": "#272932",
+            "secondary": "#6A4CFC",
                       
             "accent": "#aedd1f",
                       
