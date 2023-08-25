@@ -1,7 +1,6 @@
 import {  Link } from "react-router-dom";
 import pingpong from '../images/pingpong.svg'
 import {Button} from './Assets/Button'
-import bg from './Assets/bg.gif'
 export const Login =  () =>
 {
 

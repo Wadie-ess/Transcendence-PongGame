@@ -3,7 +3,6 @@ import { Alert } from './Assets/Alert'
 import { Avatar } from './Assets/Avatar'
 import {BiSearch} from 'react-icons/bi'
 
-var test = [{name:"tes"},{name:"Test"}]
 
 export const Layout =  () =>
 {
