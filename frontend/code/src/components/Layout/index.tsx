@@ -21,7 +21,7 @@ export const Layout : FC<myNodetype> =  (Content) : JSX.Element =>
         <div data-theme="mytheme" className=' h-screen bg-slate-50 '> 
            
             <div className=' flex flex-row  w-screen h-[8vh] bg-base-200'> 
-                <div className='flex justify-start z-50 pl-1  sm:pl-2  items-start h-full w-full'>
+                <div className='flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full'>
                     <Logo/>
                 </div>
                 <div className='flex items-center  justify-end pr-6 gap-6 h-full w-full'>
@@ -62,7 +62,7 @@ tart ">
                         <Settings/>                    
                     </button>
                 </div>
-                <div className='sm:absolute sm:w-[91vw] xl:w-[95vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-base-100 sm:rounded-tl-2xl  overflow-scroll'>
+                <div className='sm:absolute sm:w-[91vw] xl:w-[95vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-base-100 sm:rounded-tl-2xl  overflow-auto no-scrollbar'>
                     {Content.children}
                 </div>
             </div>
