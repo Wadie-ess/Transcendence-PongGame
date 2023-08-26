@@ -10,7 +10,8 @@ export const Table = () =>
     const [users, setUsers] = useState<any | undefined>([])
     useEffect( ()  => {
       const fetchdata = async() =>{
-         
+            for (let i = 0 ; i < 10 ; ++i)
+            {
               let response = await fetch(`https://randomuser.me/api/`)
               let data  = await response.json()
               if (data.results && data.results.length > 0) {
@@ -18,7 +19,7 @@ export const Table = () =>
                   setUsers((oldUsers : any) => [...oldUsers, newUser]);
                   console.log(newUser)
               }
-          
+            }
       }
       fetchdata().catch(console.error)  
     },[])
@@ -32,16 +33,16 @@ export const Table = () =>
                 <th>Score</th>
               </tr>
             </thead>
-            <tbody className='flex flex-col justify-start items-center gap-2 sm:gap-4'>
+            <tbody className='flex flex-col justify-between items-center gap-2 sm:gap-4'>
               {users.map((x: any, index: number) => (
                 <tr
                   key={index}
-                  className='bg-accent border-base-200 rounded-3xl w-[80vw] flex justify-start sm:justify-between px-4 sm:px-10 items-center'
+                  className='bg-accent border-base-200 rounded-xl w-[80vw] flex justify-between sm:justify-between px-4 sm:px-10 items-center'
                 >
                   <td>
                     <div className="flex items-center space-x-3">
                       <div className='flex justify-center items-center gap-x-3'>
-                        <Trophy /> {index}
+                        <Trophy /> {index + 1}
                       </div>
                     </div>
                   </td>
@@ -53,7 +54,7 @@ export const Table = () =>
 
                     <div className="flex font-montserrat w-12">{x.name.first}</div>
                   </td>
-                  <td className='flex justify-between items-center'><Daimond/> 14</td>
+                  <td className='flex justify-start items-center gap-x-1 w-16'><Daimond/> 14</td>
                 </tr>
               ))}
             </tbody>
