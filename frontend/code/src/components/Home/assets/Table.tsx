@@ -37,7 +37,7 @@ export const Table = () =>
               {users.map((x: any, index: number) => (
                 <tr
                   key={index}
-                  className='bg-accent border-base-200 rounded-xl w-[80vw] flex justify-between sm:justify-between px-4 sm:px-10 items-center'
+                  className='bg-accent border-base-200 rounded-xl w-11/12 flex justify-between sm:justify-between px-4 h-16 xl:h-20 sm:px-10 items-center'
                 >
                   <td>
                     <div className="flex items-center space-x-3">
@@ -52,9 +52,9 @@ export const Table = () =>
                       <img src={x.picture.thumbnail} alt="Avatar Tailwind CSS Component" />                      </div>
                     </div>
 
-                    <div className="flex font-montserrat w-12">{x.name.first}</div>
+                    <div className="flex font-montserrat w-12 text-neutral font-semibold">{x.name.first}</div>
                   </td>
-                  <td className='flex justify-start items-center gap-x-1 w-16'><Daimond/> 14</td>
+                  <td className='flex justify-start items-center gap-x-1 w-18'><Daimond/> <div>{index + 123}</div></td>
                 </tr>
               ))}
             </tbody>

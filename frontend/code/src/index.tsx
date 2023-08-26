@@ -5,6 +5,7 @@ import {Login} from './components/Login'
 import {Main} from './components/Login/main'
 import {Lobby} from './components/Lobby/index'
 import {Error} from './components/404/index'
+import {Profile} from './components/Profile'
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Home } from './components/Home';
@@ -20,6 +21,7 @@ root.render(
         <Route path="/main" element={<Main/>}></Route>
         <Route path="/lobby" element={<Lobby/>}></Route>
         <Route path="/home" element={<Home/>}></Route>
+        <Route path="/profile" element={<Profile/>}></Route>
         <Route path="/*" element={<Error/>}></Route>
 
       </Routes>

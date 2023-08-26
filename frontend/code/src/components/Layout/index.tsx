@@ -62,7 +62,7 @@ tart ">
                         <Settings/>                    
                     </button>
                 </div>
-                <div className='sm:absolute sm:w-[91vw] xl:w-[95vw] md:w-[92.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-base-100 sm:rounded-tl-2xl  overflow-auto no-scrollbar'>
+                <div className='sm:-ml-4 sm:w-[91vw] xl:w-[95vw] md:w-[92.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-base-100 sm:rounded-tl-2xl  overflow-auto no-scrollbar'>
                     {Content.children}
                 </div>
             </div>
