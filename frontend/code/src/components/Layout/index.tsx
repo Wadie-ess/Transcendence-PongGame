@@ -32,7 +32,7 @@ export const Layout : FC<myNodetype> =  (Content) : JSX.Element =>
             </div>
             <div className='flex'>
            
-            <div className='sm:flex flex-col hidden justify-around items-stretch h-[92vh] bg-base-200  sm:w-[11vw]  md:w-[8vw] xl:w-[7vw]'>
+            <div className='sm:flex flex-col hidden justify-around items-stretch h-[92vh] bg-base-200  sm:w-[11vw]  md:w-[9vw] xl:w-[7vw]'>
                 <div className="flex flex-col pl-[1.4vw] justify-evenly content-start gap-y-10 pb-44 ">
                     <Dash/>
                     <Game/>
@@ -45,7 +45,7 @@ tart ">
                     <Out/>
                 </div>
             </div>
-                <div className=" h-[8vh] sm:hidden btm-nav bg-base-200 ">
+                <div className=" h-[8vh] fixed bottom-0 sm:hidden btm-nav bg-base-200 flex justify-end z-50">
                     <button className="">
                         <Dash/>                    
                     </button>
@@ -62,7 +62,7 @@ tart ">
                         <Settings/>                    
                     </button>
                 </div>
-                <div className='sm:absolute sm:w-[91vw] xl:w-[95vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-base-100 sm:rounded-tl-2xl  overflow-auto no-scrollbar'>
+                <div className='sm:-ml-4 sm:w-[92vw] xl:w-[95vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-base-100 sm:rounded-tl-2xl  overflow-auto no-scrollbar'>
                     {Content.children}
                 </div>
             </div>

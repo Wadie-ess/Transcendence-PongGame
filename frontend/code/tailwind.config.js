@@ -10,6 +10,7 @@ module.exports = {
         poppins: ['Poppins', 'sans-serif'],
         lexend: ['Lexend Peta', 'sans-serif'],
         montserrat : ['Montserrat', 'sans-serif']
+        
       },
       backgroundImage: {
         'login': "url('./components/Login/Assets/bg.gif')",
@@ -37,7 +38,7 @@ module.exports = {
                       
             "accent": "#1A1C26",
                       
-            "neutral": "#161922",
+            "neutral": "#FFFFFF",
                                        
             "info": "#3e9cea",
                       
