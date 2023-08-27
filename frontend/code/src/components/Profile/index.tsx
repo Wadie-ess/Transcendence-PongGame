@@ -32,7 +32,7 @@ export const Profile = () =>{
                     <span className='text-xs font-mono '>bio bla bla bla</span>
                 </div>
                 <div className="  w-full flex flex-col  sm:flex-row justify-between items-center gap-x-4  h-2/6">
-                    <div className="flex flex-col gap-y-2 flex-0 sm:flex-row sm:gap-x-4 justify-start items-start  sm:w-[25vw]">
+                    <div className="flex flex-col gap-y-2 flex-0 sm:flex-row sm:gap-x-4 justify-center items-center sm:justify-start items-start  sm:w-[25vw]">
                         <Message/>
                         <Share/>
                     </div>
