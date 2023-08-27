@@ -45,7 +45,7 @@ tart ">
                     <Out/>
                 </div>
             </div>
-                <div className=" h-[8vh] sm:hidden btm-nav bg-base-200 flex justify-end z-50">
+                <div className=" h-[8vh] fixed bottom-0 sm:hidden btm-nav bg-base-200 flex justify-end z-50">
                     <button className="">
                         <Dash/>                    
                     </button>
@@ -62,7 +62,7 @@ tart ">
                         <Settings/>                    
                     </button>
                 </div>
-                <div className='sm:-ml-4 sm:w-[91vw] xl:w-[95vw] md:w-[92.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-base-100 sm:rounded-tl-2xl  overflow-auto no-scrollbar'>
+                <div className='sm:-ml-4 sm:w-[92vw] xl:w-[95vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-base-100 sm:rounded-tl-2xl  overflow-auto no-scrollbar'>
                     {Content.children}
                 </div>
             </div>
