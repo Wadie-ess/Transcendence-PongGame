@@ -1,7 +1,7 @@
 import './css/style.css'
 export const Button = () => {
     return (
-        <div className="mystyle transition duration-500 hover:-translate-y-1 hover:scale-110 ease-in-out hover:cursor-pointer hover:fill-primary flex absolute justify-center items-center left-[40%] sm:left-[41.4%] top-[60%] sm:top-3/4   w-[22vw] sm:w-[17.5vw]">
+        <div className="mystyle transition duration-500 hover:-translate-y-1 hover:scale-110 ease-in-out hover:cursor-pointer hover:fill-primary flex absolute justify-center items-center left-[36%] sm:left-[41.4%] top-[66%] sm:top-3/4   w-[27vw] sm:w-[17.5vw]">
             <span className=" absolute text-white font-montserrat text-[1.4vw]">PLAY NOW</span>
             <svg width="211" height="57" viewBox="0 0 211 57" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect className="" x="0.84375" width="209.158" height="57" rx="6" fill="url(#paint0_linear_377_5387)"/>
