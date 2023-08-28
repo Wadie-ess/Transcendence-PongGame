@@ -9,7 +9,8 @@ import {Profile} from './components/Profile'
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Home } from './components/Home';
-
+import { Play } from './components/Play';
+import { Setting } from './components/Settings';
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
@@ -22,6 +23,8 @@ root.render(
         <Route path="/lobby" element={<Lobby/>}></Route>
         <Route path="/home" element={<Home/>}></Route>
         <Route path="/profile" element={<Profile/>}></Route>
+        <Route path="/play" element={<Play/>}></Route>
+        <Route path="/Settings" element={<Setting/>}></Route>
         <Route path="/*" element={<Error/>}></Route>
 
       </Routes>

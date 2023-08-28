@@ -20,7 +20,7 @@ export const Layout : FC<myNodetype> =  (Content) : JSX.Element =>
     <>
         <div data-theme="mytheme" className=' h-screen bg-slate-50 '> 
            
-            <div className=' flex flex-row  w-screen h-[8vh] bg-base-200'> 
+            <div className=' flex flex-row  w-screen md:h-[8vh]  bg-base-200'> 
                 <div className='flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full'>
                     <Logo/>
                 </div>
@@ -32,7 +32,7 @@ export const Layout : FC<myNodetype> =  (Content) : JSX.Element =>
             </div>
             <div className='flex'>
            
-            <div className='sm:flex flex-col hidden justify-around items-stretch h-[92vh] bg-base-200  sm:w-[11vw]  md:w-[9vw] xl:w-[7vw]'>
+            <div className='sm:flex flex-col hidden justify-around items-stretch h-[94vh] bg-base-200 overflow-auto md:pt-10  sm:w-[11vw]  md:w-[9vw] xl:w-[7vw]'>
                 <div className="flex flex-col pl-[1.4vw] justify-evenly content-start gap-y-10 pb-44 ">
                     <Dash/>
                     <Game/>
@@ -62,7 +62,7 @@ tart ">
                         <Settings/>                    
                     </button>
                 </div>
-                <div className='sm:-ml-4 sm:w-[92vw] xl:w-[95vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-base-100 sm:rounded-tl-2xl  overflow-auto no-scrollbar'>
+                <div className='sm:-ml-4 sm:w-[92vw] xl:w-[95vw] md:w-[93.5vw] w-screen right-0 z-10 h-[85.6vh] sm:h-[94vh]  bg-base-100 sm:rounded-tl-2xl  overflow-auto no-scrollbar'>
                     {Content.children}
                 </div>
             </div>

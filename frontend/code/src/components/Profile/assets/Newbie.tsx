@@ -6,9 +6,8 @@ export const Newbie = () => {
         maskType: 'alpha',
     };
     return (
-        <svg className="w-[18vw] sm:w-[9vw]" width="137" height="183" viewBox="0 0 150 183" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg className="w-[17vw] sm:w-[9vw]" width="137" height="183" viewBox="0 0 150 183" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clipPath="url(#clip0_152_5031)">
-<rect width="150" height="183" fill="#272932"/>
 <path d="M120.297 0.0463867H31.1882C18.0646 0.0463867 7.42578 10.7015 7.42578 23.8452V159.201C7.42578 172.345 18.0646 183 31.1882 183H120.297C133.421 183 144.059 172.345 144.059 159.201V23.8452C144.059 10.7015 133.421 0.0463867 120.297 0.0463867Z" fill="#1A1C26"/>
 <g filter="url(#filter0_d_152_5031)">
 <path d="M20.7922 41.8242H33.716V72.3852C25.6387 72.3852 20.7922 66.6665 20.7922 62.0196V41.8242Z" fill="url(#paint0_linear_152_5031)"/>

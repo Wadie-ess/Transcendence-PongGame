@@ -2,12 +2,10 @@
 
 @keyframes colorChange {
         0%, 100% {
-          fill:rgb(241, 218, 247);
           transform: translateY(-25%);
           animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
         }
         50% {
-            fill:rgb(202, 127, 143);
 
           transform: translateY(0);
           animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
