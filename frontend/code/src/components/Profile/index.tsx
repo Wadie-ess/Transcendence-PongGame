@@ -11,17 +11,17 @@ import Hero from './assets/Hero.gif'
 export const Profile = () =>{
     return (
     <Layout>
-        <div className="flex flex-col items-center h-full min-h-screen">
-            <div className='relative  pt-12 h-auto max-h-[50vh] w-[85vw]'>
+        <div className=" flex flex-col items-center h-full min-h-screen">
+            <div className='relative pt-12 h-auto max-h-[30vh] w-[85vw]'>
                
-                <img className='flex-1  overflow-auto w-full rounded-t-3xl' src={Hero} alt="bg hero" />
+                <img className='flex-1   w-full h-full  rounded-t-3xl' src={Hero} alt="bg hero" />
                 <Pong/>           
                 <div className="avatar w-[10vw] absolute z-40 -bottom-4 sm:-bottom-6 md:-bottom-11 left-6 sm:left-12 ">
                     <div className="w-[13vw] xl:w-[8vw] rounded-full ring ring-neutral ring-offset-base-100 ring-offset-1">
                         <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" alt="profile avatar" />
                     </div>
                 </div>   
-                <div className='absolute top-0 bg-zinc-800 opacity-20 object-contain h-full  w-full rounded-t-3xl  z-10'></div>
+                <div className='absolute top-0 bg-gray-300-80 opacity-40 object-contain h-full  w-full rounded-t-3xl  z-10'></div>
                   
                
             </div>

@@ -8,13 +8,10 @@ import { Message } from './Assets/Message'
 import { Profile } from './Assets/Profile'
 import { Settings } from './Assets/Settings'
 import { Out } from './Assets/Out'
-import { FC } from 'react'
+import { FC,PropsWithChildren } from 'react'
 
 
-interface myNodetype  {
-    children : React.ReactNode
-}
-export const Layout : FC<myNodetype> =  (Content) : JSX.Element =>
+export const Layout : FC<PropsWithChildren> =  (Content) : JSX.Element =>
 {
     return (
     <>
@@ -32,7 +29,7 @@ export const Layout : FC<myNodetype> =  (Content) : JSX.Element =>
             </div>
             <div className='flex'>
            
-            <div className='sm:flex flex-col hidden justify-around items-stretch h-[94vh] bg-base-200 overflow-auto md:pt-10  sm:w-[11vw]  md:w-[9vw] xl:w-[7vw]'>
+            <div className='sm:flex flex-col hidden justify-around items-stretch h-[94vh] bg-base-200 overflow-auto md:pt-10  sm:w-[11vw]  md:w-[9vw] xl:w-[6vw]'>
                 <div className="flex flex-col pl-[1.4vw] justify-evenly content-start gap-y-10 pb-44 ">
                     <Dash/>
                     <Game/>

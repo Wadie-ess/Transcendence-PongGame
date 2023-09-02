@@ -30,6 +30,7 @@ services :
       - database
     restart: always
     init : true
+    
   nginx :
     build:
       context: ./nginx

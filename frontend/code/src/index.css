@@ -19,5 +19,6 @@
 @layer base {
   html {
       font-family: Montserrat;
+      @apply no-scrollbar
   }
 }

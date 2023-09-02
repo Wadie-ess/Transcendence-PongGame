@@ -3,18 +3,26 @@ import { Avatar } from './assets/Avatar'
 import { Edit } from './assets/Edit'
 import { Master } from '../Profile/assets/Master'
 import { Newbie } from '../Profile/assets/Newbie'
+import { api }from '../../Api/base'
+import toast from 'react-hot-toast'
 // import { useState } from 'react'
 
 export const Setting = () => { 
+    const getdata :any = async() => {
+            const data:any = await api.get("/test")
+          return data
+    }
     return (
         <Layout>
+            
+           
             
            <div className="flex h-[90vh] w-full">
                 <h1 className='pt-6 pl-6 font-poppins font-medium text-xl text-neutral'>Profile Settings</h1>
                 <div className="overflow-auto h-[82%] w-[90%] flex flex-col absolute bottom-0 right-0 bg-base-200 rounded-tl-2xl">
                     <h2 className='pt-4 pl-4 text-neutral'>change preview</h2>
                     <div className="flex justify-center h-full w-full pt-8">
-                        <div className="flex flex-col sm:flex-row justify-between w-[90%] h-auto sm:max-h-[40vh] xl:max-h-[30vh] max-h-[40vh] bg-base-100 border-solid border-gray-400 border-2  rounded-3xl">
+                        <div className="flex flex-col sm:flex-row justify-between w-[90%]  max-h-[20vh] bg-base-100 border-solid border-gray-400 border-2  rounded-3xl">
                             <div className='flex justify-between items-center gap-x-10 px-2 sm:px-0'>
                                 <div className='relative sm:pl-10 pt-2 sm:pt-0'><Avatar/>
                                     <div className="absolute bottom-0 right-0">
@@ -27,7 +35,17 @@ export const Setting = () => {
                                 </div>
                             </div>
                             <div className="flex pr-6 items-center justify-center gap-x-2">
-                                <Master/>
+                             
+                                <div onClick={()=> {toast.promise(
+                                    
+                getdata(),
+                 {
+                   
+                   loading: 'Saving...',
+                   success: <b>fetched</b>,
+                   error: <b>could not fetch</b>,
+                 }
+               );}}><Master/></div>
                                 <Newbie/>
                             </div>
                         </div>

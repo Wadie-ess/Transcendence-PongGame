@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:20
 
 WORKDIR /app
 
@@ -8,4 +8,4 @@ RUN npm install
 
 COPY /code . 
 
-CMD ["sh", "-c","npx prisma migrate dev --name init & npm run start:dev & npx prisma studio"]
+CMD ["sh", "-c","npx prisma migrate dev --name init &  npx prisma studio & npm run start:dev"]
