@@ -1,13 +1,14 @@
 import { Layout } from "../Layout";
 import UserImage from "./assets/aymane.png";
-import yas from "./assets/1.png";
-import yas1 from "./assets/2.png";
+import yas from "./assets/alaoui.png";
+import yas1 from "./assets/alaoui.png";
 import yas2 from "./assets/3.png";
 import yas3 from "./assets/4.png";
 import yas4 from "./assets/5.png";
 import yas5 from "./assets/6.png";
 import SearchIcon from "./assets/Search_icon.svg";
 import EditIcon from "./assets/Edit_icon.svg";
+import More from "./assets/more_icon.svg";
 
 interface myMessageProps {
   username: string;
@@ -18,16 +19,7 @@ interface myMessageProps {
   userImage: string;
 }
 
-const GridContainer = () => {
-  return (
-    <div className="grid grid-cols-3 h-screen">
-      <RowComponent1 />
-      <RowComponent2 />
-      <RowComponent3 />
-    </div>
-  );
-};
-
+// for test
 const RowComponent1 = () => {
   return <div className="bg-blue-200">{/* Your content for Row 1 */}</div>;
 };
@@ -44,14 +36,14 @@ const Chat = () => {
   return (
     <>
       <Layout>
-        <div className="grid grid-cols-10">
+        <div className="grid grid-cols-10  divide-black divide-x-4">
           <div className="col-span-3">
             <RecentMessages />
           </div>
-          <div className="col-span-5 bg-white">
-            <RowComponent2 />
+          <div className="col-span-5 bg-gray-900">
+            <ConversationHeader />
           </div>
-          <div className="col-span-1 bg-black">
+          <div className="col-span-2 bg-gray-500">
             <RowComponent3 />
           </div>
         </div>
@@ -60,6 +52,31 @@ const Chat = () => {
   );
 };
 
+export const ConversationHeader = () => {
+  return (
+    <>
+      <div className="flex flex-row justify-between bg-[#1A1C26] p-4 border-b-2  border-black border- ">
+        <div className="flex flex-row ">
+          <img src={yas} className="w-[18%] h-[95%]" />
+          <div className="flex flex-col pl-2 ">
+            <p className="text-white font-poppins text-base font-medium leading-normal">
+              {" "}
+              Yassine Alaoui
+            </p>
+            <p className="text-green-500 font-poppins text-base font-medium leading-normal">
+              Online
+            </p>
+          </div>
+        </div>
+        <img src={More} />
+      </div>
+    </>
+  );
+};
+
+export const Conversation = () => {
+  return <></>;
+};
 
 // to make it dynamic list later !
 export const RecentMessages = () => {
