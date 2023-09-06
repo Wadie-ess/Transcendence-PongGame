@@ -9,24 +9,15 @@ import yas5 from "./assets/6.png";
 import SearchIcon from "./assets/Search_icon.svg";
 import EditIcon from "./assets/Edit_icon.svg";
 import More from "./assets/more_icon.svg";
-
-interface myMessageProps {
-  username: string;
-  message: string;
-  time: string;
-  isMe: boolean;
-  isRead: boolean;
-  userImage: string;
-}
+import Send from "./assets/send_icon.svg";
+import { useState } from "react";
+import {
+  CurrentUserMessage,
+  MessagePlaceHolder,
+  UserMessage,
+} from "./Components/MessageHelpers";
 
 // for test
-const RowComponent1 = () => {
-  return <div className="bg-blue-200">{/* Your content for Row 1 */}</div>;
-};
-
-const RowComponent2 = () => {
-  return <div className="bg-white">{/* Your content for Row 1 */}</div>;
-};
 
 const RowComponent3 = () => {
   return <div className="bg-black">{/* Your content for Row 1 */}</div>;
@@ -36,14 +27,14 @@ const Chat = () => {
   return (
     <>
       <Layout>
-        <div className="grid grid-cols-10  divide-black divide-x-4">
-          <div className="col-span-3">
+        <div className="flex h-full  divide-black divide-x-4">
+          <div className="w-4/12">
             <RecentMessages />
           </div>
-          <div className="col-span-5 bg-gray-900">
-            <ConversationHeader />
+          <div className="w-6/12 overflow-hidden bg-gray-900">
+            <Conversation />
           </div>
-          <div className="col-span-2 bg-gray-500">
+          <div className="w-3/12 bg-[#1A1C26]">
             <RowComponent3 />
           </div>
         </div>
@@ -60,136 +51,155 @@ export const ConversationHeader = () => {
           <img src={yas} className="w-[18%] h-[95%]" />
           <div className="flex flex-col pl-2 ">
             <p className="text-white font-poppins text-base font-medium leading-normal">
-              {" "}
-              Yassine Alaoui
+              {" Yassine Alaoui"}
             </p>
-            <p className="text-green-500 font-poppins text-base font-medium leading-normal">
+            <p className="text-green-500 font-poppins text-sm font-medium leading-normal">
               Online
             </p>
           </div>
         </div>
-        <img src={More} />
+        <details className="relative pt-2">
+          <summary className="list-none">
+            <img src={More} alt="More" />
+          </summary>
+          <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute  right-full  ">
+            <li>
+              <a className="hover:bg-[#7940CF]">Block</a>
+            </li>
+            <li>
+              <a className="hover:bg-[#7940CF]">Unfriend</a>
+            </li>
+          </ul>
+        </details>
       </div>
     </>
   );
 };
 
+export const MessageTextInput = () => {
+  return (
+    <div className="flex flex-row  m-5 justify-evenly">
+      <input
+        type="text"
+        placeholder="Type Message"
+        className="input w-full shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 font-poppins text-base font-normal leading-normal "
+      />
+
+      <button className="btn btn-square bg-[#8C67F6]">
+        <img src={Send} />
+      </button>
+    </div>
+  );
+};
+
 export const Conversation = () => {
-  return <></>;
+  return (
+    <div className="flex flex-col ">
+      <ConversationHeader />
+      <UserMessage />
+      <CurrentUserMessage />
+      <MessageTextInput />
+    </div>
+  );
 };
 
 // to make it dynamic list later !
 export const RecentMessages = () => {
+  const [Messages, SetMessages] = useState([
+    {
+      userImage: UserImage,
+      username: "a7a 1",
+      message: "a7a test",
+      time: "6:00",
+      isRead: true,
+      isMe: false,
+    },
+    {
+      userImage: yas,
+      username: "a7a 1",
+      message: "a7a test",
+      time: "6:00",
+      isRead: true,
+      isMe: false,
+    },
+    {
+      userImage: yas1,
+      username: "a7a 1",
+      message: "a7a test",
+      time: "6:00",
+      isRead: true,
+      isMe: false,
+    },
+    {
+      userImage: yas2,
+      username: "a7a 1",
+      message: "a7a test",
+      time: "6:00",
+      isRead: true,
+      isMe: false,
+    },
+    {
+      userImage: yas3,
+      username: "a7a 1",
+      message: "a7a test",
+      time: "6:00",
+      isRead: true,
+      isMe: false,
+    },
+    {
+      userImage: yas4,
+      username: "a7a 1",
+      message: "a7a test",
+      time: "6:00",
+      isRead: true,
+      isMe: false,
+    },
+    {
+      userImage: yas5,
+      username: "a7a 1",
+      message: "a7a test",
+      time: "6:00",
+      isRead: true,
+      isMe: false,
+    },
+    {
+      userImage: UserImage,
+      username: "a7a 1",
+      message: "a7a test",
+      time: "6:00",
+      isRead: true,
+      isMe: false,
+    },
+    {
+      userImage: UserImage,
+      username: "a7a 1",
+      message: "a7a test",
+      time: "6:00",
+      isRead: true,
+      isMe: false,
+    },
+  ]);
+
   return (
-    <div className="">
+    <div className="h-full flex flex-col">
       <OnlineNowUsers />
-      <MessagePlaceHolder
-        userImage={UserImage}
-        username="a7a 1"
-        message="a7a test"
-        time="6:00"
-        isRead={true}
-        isMe={false}
-      />
-      <MessagePlaceHolder
-        userImage={yas}
-        username="a7a 2"
-        message="a7a test"
-        time="6:00"
-        isRead={true}
-        isMe={false}
-      />
-      <MessagePlaceHolder
-        userImage={yas2}
-        username="a7a 3"
-        message="a7a test"
-        time="6:00"
-        isRead={true}
-        isMe={false}
-      />
-      <MessagePlaceHolder
-        userImage={yas3}
-        username="a7a 4"
-        message="a7a test"
-        time="6:00"
-        isRead={true}
-        isMe={false}
-      />
-      <MessagePlaceHolder
-        userImage={yas4}
-        username="a7a 5"
-        message="a7a test"
-        time="6:00"
-        isRead={true}
-        isMe={false}
-      />
-      <MessagePlaceHolder
-        userImage={yas5}
-        username="a7a 6"
-        message="a7a test"
-        time="6:00"
-        isRead={true}
-        isMe={false}
-      />
-      <MessagePlaceHolder
-        userImage={yas}
-        username="a7a 7"
-        message="a7a test"
-        time="6:00"
-        isRead={true}
-        isMe={false}
-      />
-      <MessagePlaceHolder
-        userImage={yas}
-        username="a7a 7"
-        message="a7a test"
-        time="6:00"
-        isRead={true}
-        isMe={false}
-      />
+      <div className="flex-grow overflow-y-auto no-scrollbar">
+        {Messages.map((message) => (
+          <MessagePlaceHolder
+            key={message.userImage}
+            username={message.username}
+            message={message.message}
+            time={message.time}
+            isMe={message.isMe}
+            isRead={message.isRead}
+            userImage={message.userImage}
+          />
+        ))}
+      </div>
     </div>
   );
 };
 
-export const MessagePlaceHolder = ({
-  username,
-  message,
-  time,
-  isRead,
-  userImage,
-}: myMessageProps) => {
-  return (
-    <div className="message-container flex   pt-5 pl-5 pb-5 pr-2 hover:bg-[#272932]  bg-[#1A1C26] ">
-      <div className="user-image flex-shrink-0 mr-2">
-        <img
-          className="user-image h-10 w-10 rounded-full"
-          src={userImage}
-          alt={`second's Profile`}
-        />
-      </div>
-      <div className="message-colum align-middle flex flex-col flex-grow">
-        <div className="message-row flex flex-row justify-between">
-          <p className="text-white font-poppins text-base font-normal leading-normal ">
-            {username}
-          </p>
-          <p className="text-gray-400 font-poppins text-sm font-light leading-normal ">
-            {time} PM
-          </p>
-        </div>
-        <div className=" flex flex-row justify-between">
-          <p className="text-gray-400 font-poppins text-sm font-medium leading-normal ">
-            {message}
-          </p>
-          <div className="messages-dot relative inline-flex">
-            <div className="w-4 h-4 bg-red-500 rounded-full text-white flex items-center justify-center">
-              <span className="text-xs  font-medium">5</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 // to refactor it and make it a dynamic list of 5
 export const OnlineNowUsers = () => {
   return (
