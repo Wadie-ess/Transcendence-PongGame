@@ -8,7 +8,22 @@ import { Master } from './assets/Master'
 import { Ultimate } from './assets/Ultimate'
 import { History } from './History'
 import Hero from './assets/Hero.gif'
+import { useState , useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import { Loading } from '../Loading'
 export const Profile = () =>{
+    const params = useParams()
+    const [user, setUser] = useState<null | any>(undefined);
+    useEffect(() => {
+        const fetchUser = async() => {
+            const response = await fetch(`https://randomuser.me/api?seed=${params.id}`)
+            const data = await response.json();
+            const collecteduser = data.results[0]
+            console.log(collecteduser)
+            setUser(collecteduser)
+        }
+        fetchUser();
+    },[params])
     return (
     <Layout>
         <div className=" flex flex-col items-center h-full min-h-screen">
@@ -17,8 +32,11 @@ export const Profile = () =>{
                 <img className='flex-1   w-full h-full  rounded-t-3xl' src={Hero} alt="bg hero" />
                 <Pong/>           
                 <div className="avatar w-[10vw] absolute z-40 -bottom-4 sm:-bottom-6 md:-bottom-11 left-6 sm:left-12 ">
-                    <div className="w-[13vw] xl:w-[8vw] rounded-full ring ring-neutral ring-offset-base-100 ring-offset-1">
-                        <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" alt="profile avatar" />
+                    <div className="w-[13vw] xl:w-[8vw] rounded-full ring ring-neutral flex justify-center items-center ring-offset-base-100 ring-offset-1">
+                        {
+                            user?.picture?.large ? <img src={user?.picture?.large} alt="profile avatar" />: <Loading/>
+                        }
+                        
                     </div>
                 </div>   
                 <div className='absolute top-0 bg-gray-300-80 opacity-40 object-contain h-full  w-full rounded-t-3xl  z-10'></div>
@@ -26,8 +44,9 @@ export const Profile = () =>{
                
             </div>
             <div className='relative flex flex-col gap-y-2 sm:gap-y-0 pl-4 sm:pt-12 pt-6 text-neutral font-montserrat bg-base-200  justify-start  items-start h-[35%] min-h-[30%] rounded-b-3xl w-[85vw] overflow-scroll no-scrollbar'>
-                <h6>Mark Zzzz</h6>
-                <div className="flex justify-center items-center gap-x-2">
+                    {
+                            user?.name?.first ? <h6>{user?.name?.first} </h6>: <Loading/>
+                    }                <div className="flex justify-center items-center gap-x-2">
                     <File/>
                     <span className='text-xs font-mono '>bio bla bla bla</span>
                 </div>
@@ -44,7 +63,7 @@ export const Profile = () =>{
                 </div>
             </div>
             <div className="relative flex w-[85vw] justify-center h-auto">
-                <History/>
+                <History props={params.id}/>
             </div>
         </div>
     </Layout>
