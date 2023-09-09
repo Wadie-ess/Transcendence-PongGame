@@ -9,6 +9,7 @@ services :
       - ./frontend/code/src:/app/src
     networks:
       - pongnet
+    restart: always
     init: true
     ports:
       - 3000:3000

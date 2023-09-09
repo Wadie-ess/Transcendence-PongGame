@@ -13,13 +13,14 @@ import { FC,PropsWithChildren } from 'react'
 
 export const Layout : FC<PropsWithChildren> =  (Content) : JSX.Element =>
 {
+    const obj = {x:"20",y:"16"}
     return (
     <>
         <div data-theme="mytheme" className=' h-screen bg-slate-50 '> 
            
             <div className=' flex flex-row  w-screen md:h-[8vh]  bg-base-200'> 
                 <div className='flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full'>
-                    <Logo/>
+                    <Logo {...obj}/>
                 </div>
                 <div className='flex items-center  justify-end pr-6 gap-6 h-full w-full'>
                     <Search/>

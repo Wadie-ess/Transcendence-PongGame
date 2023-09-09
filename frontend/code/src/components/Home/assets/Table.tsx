@@ -1,13 +1,14 @@
 import { Trophy } from './Trophy' 
 import { useState,useEffect } from 'react'
 import { Daimond } from './Daimond'
-
+import { Loading } from '../../Loading'
 
 
 
 export const Table = () =>
 {
     const [users, setUsers] = useState<any | undefined>([])
+    const [loading , setLoading] = useState<boolean>(true)
     useEffect( ()  => {
       const fetchdata = async() =>{
             for (let i = 0 ; i < 10 ; ++i)
@@ -20,6 +21,7 @@ export const Table = () =>
                   console.log(newUser)
               }
             }
+            setLoading(false)
       }
       fetchdata().catch(console.error)  
     },[])
@@ -34,7 +36,7 @@ export const Table = () =>
               </tr>
             </thead>
             <tbody className='flex flex-col justify-between items-center gap-2 sm:gap-4'>
-              {users.map((x: any, index: number) => (
+              {!loading && users.map((x: any, index: number) => (
                 <tr
                   key={index}
                   className='bg-accent border-base-200 rounded-xl w-11/12 flex justify-between sm:justify-between px-4 h-16 xl:h-20 sm:px-10 items-center'
@@ -57,6 +59,7 @@ export const Table = () =>
                   <td className='flex justify-start items-center gap-x-1 w-18'><Daimond/> <div>{index + 123}</div></td>
                 </tr>
               ))}
+              {loading && (<Loading size={"lg"}/>)}
             </tbody>
           </table>
         </div>

@@ -10,7 +10,7 @@ import { History } from './History'
 import Hero from './assets/Hero.gif'
 import { useState , useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Loading } from '../Loading'
+import { Load } from '../Loading/'
 export const Profile = () =>{
     const params = useParams()
     const [user, setUser] = useState<null | any>(undefined);
@@ -34,7 +34,7 @@ export const Profile = () =>{
                 <div className="avatar w-[10vw] absolute z-40 -bottom-4 sm:-bottom-6 md:-bottom-11 left-6 sm:left-12 ">
                     <div className="w-[13vw] xl:w-[8vw] rounded-full ring ring-neutral flex justify-center items-center ring-offset-base-100 ring-offset-1">
                         {
-                            user?.picture?.large ? <img src={user?.picture?.large} alt="profile avatar" />: <Loading/>
+                            user?.picture?.large ? <img src={user?.picture?.large} alt="profile avatar" />: <Load/>
                         }
                         
                     </div>
@@ -45,7 +45,7 @@ export const Profile = () =>{
             </div>
             <div className='relative flex flex-col gap-y-2 sm:gap-y-0 pl-4 sm:pt-12 pt-6 text-neutral font-montserrat bg-base-200  justify-start  items-start h-[35%] min-h-[30%] rounded-b-3xl w-[85vw] overflow-scroll no-scrollbar'>
                     {
-                            user?.name?.first ? <h6>{user?.name?.first} </h6>: <Loading/>
+                            user?.name?.first ? <h6>{user?.name?.first} </h6>: <Load/>
                     }                <div className="flex justify-center items-center gap-x-2">
                     <File/>
                     <span className='text-xs font-mono '>bio bla bla bla</span>
