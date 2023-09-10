@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        '3xl': '1700px',
+      },
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],
         lexend: ['Lexend Peta', 'sans-serif'],
@@ -13,8 +16,8 @@ module.exports = {
         
       },
       backgroundImage: {
-        'login': "url('./components/Login/Assets/bg.gif')",
-        'gif-error': "url('./components/404/assest/Error.gif')",
+        'login': "url('./Components/Login/Assets/bg.gif')",
+        'gif-error': "url('./Components/Error/assest/Error.gif')",
         
       },
 
@@ -50,9 +53,32 @@ module.exports = {
                       
             "error": "#e93f6f",
           },
+          secondtheme:{
+            
+          
+              "base-100": "#2b2d50",
+                       
+              "base-200": "#1d252f",
+                       
+              "primary": "#fcecb3",
+                       
+              "primary-content": "#be8f04",
+                       
+              "secondary":  "#4c95c9",
+                       
+              "secondary-content": "#79f289",
+                       
+              "accent": "#66ebd9",
+                       
+              "neutral": "#FFFFFF",
+                       
+              "error": "#e93535",
+            },
+          
       },
       "light",
       "dark",
+      "cyberpunk",
     ], // true: all themes | false: only light + dark | array: specific themes like this ["light", "dark", "cupcake"]
     darkTheme: "dark", // name of one of the included themes for dark mode
     base: true, // applies background color and foreground color for root element by default

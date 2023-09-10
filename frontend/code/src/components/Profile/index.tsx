@@ -1,4 +1,3 @@
-import { Layout } from '../Layout/'
 import { Pong } from './assets/Pong'
 import { File } from './assets/File'
 import { Share } from './assets/ShareB'
@@ -9,7 +8,7 @@ import { Ultimate } from './assets/Ultimate'
 import { History } from './History'
 import Hero from './assets/Hero.gif'
 import { useState , useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import {  useParams } from 'react-router-dom'
 import { Load } from '../Loading/'
 export const Profile = () =>{
     const params = useParams()
@@ -19,18 +18,20 @@ export const Profile = () =>{
             const response = await fetch(`https://randomuser.me/api?seed=${params.id}`)
             const data = await response.json();
             const collecteduser = data.results[0]
-            console.log(collecteduser)
             setUser(collecteduser)
         }
         fetchUser();
     },[params])
     return (
-    <Layout>
+        <>
         <div className=" flex flex-col items-center h-full min-h-screen">
-            <div className='relative pt-12 h-auto max-h-[30vh] w-[85vw]'>
+            <div className='relative pt-12 h-auto max-h-[30vh] min-h-[13vh] w-[85vw]'>
                
-                <img className='flex-1   w-full h-full  rounded-t-3xl' src={Hero} alt="bg hero" />
-                <Pong/>           
+                <div className='relative h-full w-full md:px-32 bg-[#2b3bfb] rounded-t-3xl'><img className='flex-1  w-full h-auto object-scale-down md:object-top object-bottom rounded-t-3xl' src={Hero} alt="bg hero"></img>
+                    <div className=' absolute  bg-black top-0 left-0  object-scale-down object-top  opacity-40 h-full w-full rounded-t-3xl  z-10'></div>
+                    <Pong/>
+                </div>
+                     
                 <div className="avatar w-[10vw] absolute z-40 -bottom-4 sm:-bottom-6 md:-bottom-11 left-6 sm:left-12 ">
                     <div className="w-[13vw] xl:w-[8vw] rounded-full ring ring-neutral flex justify-center items-center ring-offset-base-100 ring-offset-1">
                         {
@@ -38,12 +39,9 @@ export const Profile = () =>{
                         }
                         
                     </div>
-                </div>   
-                <div className='absolute top-0 bg-gray-300-80 opacity-40 object-contain h-full  w-full rounded-t-3xl  z-10'></div>
-                  
-               
+                </div>         
             </div>
-            <div className='relative flex flex-col gap-y-2 sm:gap-y-0 pl-4 sm:pt-12 pt-6 text-neutral font-montserrat bg-base-200  justify-start  items-start h-[35%] min-h-[30%] rounded-b-3xl w-[85vw] overflow-scroll no-scrollbar'>
+            <div className='relative flex flex-col gap-y-2 sm:gap-y-0 pl-4 sm:pt-12 pt-6 text-neutral font-montserrat bg-base-200  justify-start  items-start h-[15%] xl:h-[25%] min-h-[20%] rounded-b-3xl w-[85vw] overflow-scroll no-scrollbar'>
                     {
                             user?.name?.first ? <h6>{user?.name?.first} </h6>: <Load/>
                     }                <div className="flex justify-center items-center gap-x-2">
@@ -55,7 +53,7 @@ export const Profile = () =>{
                         <Message/>
                         <Share/>
                     </div>
-                    <div className="flex flex-row gap-x-4 justify-center items-center ">
+                    <div className="flex flex-row gap-x-4 justify-center items-center  w-72 sm:w-auto">
                         <Newbie/>
                         <Master/>
                         <Ultimate/>
@@ -66,6 +64,6 @@ export const Profile = () =>{
                 <History props={params.id}/>
             </div>
         </div>
-    </Layout>
+    </>
     )
 }

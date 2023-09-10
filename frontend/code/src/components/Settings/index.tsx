@@ -1,4 +1,3 @@
-import { Layout } from '../Layout'
 import { Avatar } from './assets/Avatar'
 import { Edit } from './assets/Edit'
 import { Master } from '../Profile/assets/Master'
@@ -13,9 +12,8 @@ export const Setting = () => {
           return data
     }
     return (
-        <Layout>
             
-           
+           <>
             
            <div className="flex h-[90vh] w-full">
                 <h1 className='pt-6 pl-6 font-poppins font-medium text-xl text-neutral'>Profile Settings</h1>
@@ -63,6 +61,6 @@ export const Setting = () => {
                             
                 </div>
            </div>
-        </Layout>
+           </>
     )
 }

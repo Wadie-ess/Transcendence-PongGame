@@ -9,7 +9,7 @@ export const Avatar = () =>{
         </div>
         <ul tabIndex={0} className="dropdown-content z-50 right-0 top-10 menu p-2  shadow bg-base-100 rounded-box w-52">
             <li className="hover:bg-primary hover:rounded-xl transform duration-500"><div>Settings</div></li>
-            <Link to={"/Profile"}><li className="hover:bg-primary hover:rounded-xl transform duration-500"><div>Profile</div></li></Link>
+            <Link to={"Profile"}><li className="hover:bg-primary hover:rounded-xl transform duration-500"><div>Profile</div></li></Link>
         </ul>
         </div>
         

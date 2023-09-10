@@ -21,7 +21,7 @@ export const Login =  () =>
                 <div className=" flex flex-col justify-center">
                     <img  src={pingpong}  alt="Logo" />
                 </div>
-                <Link to="/home">
+                <Link to="home">
                     <Button/>
                 </Link>
             </div>

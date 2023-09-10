@@ -10,6 +10,7 @@ export const Table = (props:any) =>
     const [enemys , setEnemys] = useState<any | undefined>([]);
     const [loading , setLoading] = useState<boolean>(true);
     useEffect( ()  => {
+      setLoading(true)
       setUsers([])
       setEnemys([])
       const fetchdata = async() =>{
@@ -17,10 +18,8 @@ export const Table = (props:any) =>
           let response = await fetch(`https://randomuser.me/api/`)
           let data  = await response.json()
           if (data.results && data.results.length > 0) {
-            console.log(data)
               const newUser = data.results[0];
               newUser.seed = data.info.seed;
-              console.log(newUser)
               setEnemys((oldUsers : any) => [...oldUsers, newUser]);
           }
         }
@@ -30,7 +29,6 @@ export const Table = (props:any) =>
             if (data.results && data.results.length > 0) {
                 const newUser = data.results[0];
                 newUser.seed = data.info.seed;
-                console.log(newUser)
                 setUsers((oldUsers : any) => [...oldUsers, newUser]);
             }
         }

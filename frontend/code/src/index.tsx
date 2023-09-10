@@ -4,8 +4,7 @@ import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';
 import { Toaster } from 'react-hot-toast';
 import { UserContextProvider } from './Context';
-import { AllRouters } from './Routes/ReactTouter';
-
+import { AllRouters } from './ReactRouter';
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );

@@ -2,12 +2,29 @@ import { Trophy } from './Trophy'
 import { useState,useEffect } from 'react'
 import { Daimond } from './Daimond'
 import { Loading } from '../../Loading'
+// import { useLoaderData } from 'react-router'
 
+// export const dataLoader = async() => {
+ 
+//     var users :any[] = [];
+//     for (let i = 0 ; i < 10 ; ++i)
+//     {
+//       let response = await fetch(`https://randomuser.me/api/`)
+//       let data  = await response.json()
+//       if (data.results && data.results.length > 0) {
+//           const newUser = data.results[0];
+//           users.push(newUser)
+//       }
+//     }
+//        return users;
+      
 
-
+// }
 export const Table = () =>
 {
     const [users, setUsers] = useState<any | undefined>([])
+    // const users : any = useLoaderData();
+
     const [loading , setLoading] = useState<boolean>(true)
     useEffect( ()  => {
       const fetchdata = async() =>{
@@ -18,13 +35,13 @@ export const Table = () =>
               if (data.results && data.results.length > 0) {
                   const newUser = data.results[0];
                   setUsers((oldUsers : any) => [...oldUsers, newUser]);
-                  console.log(newUser)
               }
             }
             setLoading(false)
       }
       fetchdata().catch(console.error)  
     },[])
+    
     return (
         <div className="overflow-x-auto no-scrollbar w-full">
           <table className="table w-full">
@@ -36,10 +53,10 @@ export const Table = () =>
               </tr>
             </thead>
             <tbody className='flex flex-col justify-between items-center gap-2 sm:gap-4'>
-              {!loading && users.map((x: any, index: number) => (
+              { !loading && users.map((x: any, index: number) => (
                 <tr
                   key={index}
-                  className='bg-accent border-base-200 rounded-xl w-11/12 flex justify-between sm:justify-between px-4 h-16 xl:h-20 sm:px-10 items-center'
+                  className='bg-accent  border-base-200 rounded-xl w-11/12 flex justify-between sm:justify-between px-4 h-16 xl:h-20 sm:px-10 items-center'
                 >
                   <td>
                     <div className="flex items-center space-x-3">

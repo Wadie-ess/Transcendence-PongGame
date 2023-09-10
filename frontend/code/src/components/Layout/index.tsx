@@ -9,16 +9,26 @@ import { Profile } from './Assets/Profile'
 import { Settings } from './Assets/Settings'
 import { Out } from './Assets/Out'
 import { FC,PropsWithChildren } from 'react'
+import { Outlet ,} from 'react-router'
+import { matchRoutes, useLocation } from "react-router-dom"
 
+const routes = [{ path: "Profile/:id" } , {path : "Settings"} , {path : "Home"}, {path:"Chat"} , {path:"Play"}]
 
-export const Layout : FC<PropsWithChildren> =  (Content) : JSX.Element =>
+const useCurrentPath = () => {
+  const location = useLocation()
+  const  [{route}] :any = matchRoutes(routes, location)
+  return route.path
+}
+
+export const Layout : FC<PropsWithChildren> =  () : JSX.Element =>
 {
-    const obj = {x:"20",y:"16"}
+    const path : string  = useCurrentPath()
+    const obj = {x:"30",y:"20"}
     return (
     <>
         <div data-theme="mytheme" className=' h-screen bg-slate-50 '> 
            
-            <div className=' flex flex-row  w-screen md:h-[8vh]  bg-base-200'> 
+            <div className=' flex flex-row  w-screen h-[8vh]  bg-base-200'> 
                 <div className='flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full'>
                     <Logo {...obj}/>
                 </div>
@@ -30,38 +40,37 @@ export const Layout : FC<PropsWithChildren> =  (Content) : JSX.Element =>
             </div>
             <div className='flex'>
            
-            <div className='sm:flex flex-col hidden justify-around items-stretch h-[94vh] bg-base-200 overflow-auto md:pt-10  sm:w-[11vw]  md:w-[9vw] xl:w-[6vw]'>
+            <div className='sm:flex flex-col hidden justify-around items-stretch h-[94vh] bg-base-200 overflow-auto md:pt-10  sm:w-[11vw]  md:w-[9vw] lg:w-[8vw] xl:w-[7vw] 2xl:w-[6vw] 3xl:w-[5vw]'>
                 <div className="flex flex-col pl-[1.4vw] justify-evenly content-start gap-y-10 pb-44 ">
-                    <Dash/>
-                    <Game/>
-                    <Message/>
-                    <Profile/>
-                    <Settings/>
+                    <Dash selected={path === "Home" ? true : false}/>
+                    <Game selected={path === "Play" ? true : false}/>
+                    <Message selected={path === "Chat" ? true : false}/>
+                    <Profile selected={path === "Profile/:id" ? true : false}/>
+                    <Settings selected={path === "Settings" ? true : false}/>
                 </div>
-                <div className="flex flex-col pl-[1vw] justify-start content-sType '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes'.ts(2559)
-tart ">
+                <div className="flex flex-col pl-[1vw] justify-start">
                     <Out/>
                 </div>
             </div>
                 <div className=" h-[8vh] fixed bottom-0 sm:hidden btm-nav bg-base-200 flex justify-end z-50">
                     <button className="">
-                        <Dash/>                    
+                        <Dash selected={path === "Home" ? true : false} />                    
                     </button>
                     <button className="">
-                        <Game/>                    
+                        <Game selected={path === "Play" ? true : false}/>
                     </button>
                     <button className="">
-                        <Message/>                    
+                        <Message selected={path === "Chat" ? true : false}/>                   
                     </button>
                     <button className="">
-                        <Profile/>                    
+                        <Profile selected={path === "Profile/:id" ? true : false}/>                    
                     </button>
                     <button className="">
-                        <Settings/>                    
+                        <Settings selected={path === "Settings" ? true : false}/>                    
                     </button>
                 </div>
-                <div className='sm:-ml-4 sm:w-[92vw] xl:w-[95vw] md:w-[93.5vw] w-screen right-0 z-10 h-[85.6vh] sm:h-[94vh]  bg-base-100 sm:rounded-tl-2xl  overflow-auto no-scrollbar'>
-                    {Content.children}
+                <div className='sm:-ml-4 sm:w-[92vw] xl:w-[96vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[94vh]  bg-base-100 sm:rounded-tl-2xl  overflow-auto no-scrollbar'>
+                    <Outlet/>
                 </div>
             </div>
         </div>
