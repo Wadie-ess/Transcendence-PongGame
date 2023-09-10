@@ -3,6 +3,7 @@ module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
     "./src/**/**/*.{js,jsx,ts,tsx}",
+    "./src/**/**/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
@@ -17,7 +18,7 @@ module.exports = {
       },
       backgroundImage: {
         'login': "url('./Components/Login/Assets/bg.gif')",
-        'gif-error': "url('./Components/Error/assest/Error.gif')",
+        'gif-error': "url('./Components/Error/Assets/Error.gif')",
         
       },
 

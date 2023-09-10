@@ -1,3 +1,5 @@
+
+
 export const Font = () => {
     return (
         <svg className="absolute flex z-20 items-center top-[28%] left-[32%]  h-2/6 w-2/6 justify-center auth-container " width="720" height="371" viewBox="0 0 720 371" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -1,4 +1,5 @@
-import {Font} from './assest/Font'
+import { Font } from './Assets/Font'
+
 export const Error = () =>
 {
     return (
