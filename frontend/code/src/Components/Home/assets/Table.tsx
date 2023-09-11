@@ -2,6 +2,7 @@ import { Trophy } from './Trophy'
 import { useState,useEffect } from 'react'
 import { Daimond } from './Daimond'
 import { Loading } from '../../Loading'
+import { Link } from 'react-router-dom'
 // import { useLoaderData } from 'react-router'
 
 // export const dataLoader = async() => {
@@ -65,14 +66,17 @@ export const Table = () =>
                       </div>
                     </div>
                   </td>
-                  <td className='flex justify-start items-center gap-x-2'>
-                      <div className="avatar">
+                    <td className='flex justify-start items-center gap-x-2 hover:cursor-pointer'>
+                    <Link to={`/Profile/${x.id.value}`}>
+                      <div className="flex flex justify-start items-center gap-x-2 hover:cursor-pointer"><div className="avatar">
                       <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
                       <img src={x.picture.thumbnail} alt="Avatar Tailwind CSS Component" />                      </div>
                     </div>
 
                     <div className="flex font-montserrat w-12 text-neutral font-semibold">{x.name.first}</div>
-                  </td>
+                    </div>
+                    </Link>
+                    </td>
                   <td className='flex justify-start items-center gap-x-1 w-18'><Daimond/> <div>{index + 123}</div></td>
                 </tr>
               ))}
