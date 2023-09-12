@@ -40,8 +40,11 @@ services :
       - pongnet
     volumes :
       - front:/var/www/html/
+    depends_on:
+      - backend
     ports:
       - 80:80
+      - 3001:3001
     init: true
    
 volumes: 

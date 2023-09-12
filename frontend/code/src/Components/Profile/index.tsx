@@ -36,7 +36,7 @@ export const Profile = () =>{
     return (
         <>
         <div className=" flex flex-col items-center h-full min-h-screen">
-            <div className='relative pt-12 h-auto max-h-[30vh] min-h-[16vh] md:min-h-[28vh] w-[85vw]'>
+            <div className='relative pt-12 h-auto max-h-[30vh] min-h-[16vh] md:min-h-[28vh] xl:min-h-[33vh] w-[85vw]'>
                
                 <div className='relative h-full w-full md:px-32 bg-[#2b3bfb] rounded-t-3xl'><img className='flex-1  w-full h-auto object-scale-down md:object-top object-bottom rounded-t-3xl' src={Hero} alt="bg hero"></img>
                     <div className=' absolute  bg-black top-0 left-0  object-scale-down object-top  opacity-40 h-full w-full rounded-t-3xl  z-10'></div>
@@ -52,7 +52,7 @@ export const Profile = () =>{
                     </div>
                 </div>         
             </div>
-            <div className='relative flex flex-col gap-y-2 sm:gap-y-0 pl-4 sm:pt-12 pt-6 text-neutral font-montserrat bg-base-200  justify-start  items-start h-[15%] xl:h-[25%] min-h-[20%] rounded-b-3xl w-[85vw] overflow-scroll no-scrollbar'>
+            <div className='relative flex flex-col gap-y-2 sm:gap-y-0 pl-4 sm:pt-12 pt-6 text-neutral font-montserrat bg-base-200  justify-start  items-start h-[15%] xl:h-[25%] xl:min-h-[25%] min-h-[20%] rounded-b-3xl w-[85vw] overflow-scroll no-scrollbar'>
                     {
                             users?.name?.first ? <h6>{users?.name?.first} </h6>: <Load/>
                     }                <div className="flex justify-center items-center gap-x-2">
