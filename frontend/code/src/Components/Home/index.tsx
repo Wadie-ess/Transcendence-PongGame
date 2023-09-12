@@ -12,6 +12,9 @@ export const Home : FC = () : JSX.Element =>{
                 <div className='flex justify-center relative items-start pt-6 h-2/6 max-h-48 sm:max-h-96 w-[90vw] sm:h-3/4 sm:w-[85vw]'>
                     <img className='w-full h-full object-cover object-top rounded-3xl' alt='leaderboard hero' src={herosvg} />
                     <Link to={"/Play"}><Button/></Link>
+                    
+                        <div className='absolute xl:text-4xl md:text-3xl sm:text-2xl   flex top-[15%] right-2/6 text-neutral font-lexend font-extrabold'>READY TO PLAY A GAME? </div>
+                   
                 </div>
                 <div className='flex justify-center relative items-start pt-6 h-3/6 w-[90vw] sm:h-3/4 sm:w-[85vw]'>
                     <LeaderBoard/>

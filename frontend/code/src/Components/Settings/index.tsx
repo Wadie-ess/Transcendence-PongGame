@@ -27,7 +27,7 @@ export const Setting = () => {
                 <div className=" h-[82%] w-[90%] flex flex-col absolute bottom-0 right-0 bg-base-200 rounded-tl-2xl">
                     <h2 className='pt-4 pl-4 text-neutral'>change preview</h2>
                     <div className="flex justify-center h-full w-full pt-8">
-                        <div className="flex flex-col sm:flex-row sm:flex-wrap items-center gap-4 justify-between overflow-auto  w-[90%]  max-h-[20vh] bg-base-100 border-solid border-gray-400 border-2  rounded-3xl">
+                        <div className="flex flex-col sm:flex-row sm:flex-wrap items-center gap-4 justify-between overflow-auto  w-[90%]  max-h-[20vh]  bg-base-100 border-solid border-gray-400 border-2  rounded-3xl">
                             <div className='flex justify-between items-center gap-x-10 px-2 sm:px-0'>
                                 <div className='relative sm:pl-10 pt-2 sm:pt-0'><Avatar picture={myuser.picture.medium}/>
                                     <div className="absolute bottom-0 right-0">
