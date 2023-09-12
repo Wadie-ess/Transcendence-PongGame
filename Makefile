@@ -1,7 +1,7 @@
 prod:
-	docker compose -f docker-compose.yaml up --build -d
+	docker compose -f docker-compose.yaml up --build 
 dev:
-	docker compose -f docker-compose-dev.yaml up --build -d
+	docker compose -f docker-compose-dev.yaml up --build
 devdown:
 	docker compose -f docker-compose-dev.yaml down
 proddown:
@@ -14,8 +14,8 @@ cleanv:
 	docker volume rm `docker volume ls -q`
 reprod:
 	docker compose -f docker-compose.yaml down 
-	docker compose -f docker-compose.yaml up --build -d
+	docker compose -f docker-compose.yaml up --build
 redev:
 	docker compose -f docker-compose-dev.yaml down 
-	docker compose -f docker-compose-dev.yaml up --build -d
+	docker compose -f docker-compose-dev.yaml up --build
 	

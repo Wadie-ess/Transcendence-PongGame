@@ -9,6 +9,7 @@ import {Profile} from './components/Profile'
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Home } from './components/Home';
+import Chat from './components/Chat/ChatHome';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -23,6 +24,7 @@ root.render(
         <Route path="/home" element={<Home/>}></Route>
         <Route path="/profile" element={<Profile/>}></Route>
         <Route path="/*" element={<Error/>}></Route>
+        <Route path='/Chat' element= {<Chat/>}> </Route>
 
       </Routes>
     </BrowserRouter>
