@@ -1,5 +1,0 @@
-.mystyle:hover > svg * ,
-.mystyle:hover {
-    transition-duration: 300ms;
-    fill: hsl(var(--p) / 1);
-}  

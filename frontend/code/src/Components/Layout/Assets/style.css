@@ -1,0 +1,16 @@
+.avatar.myonline:before {
+    content: "";
+    position: absolute;
+    z-index: 10;
+    display: block;
+    border-radius: 9999px;
+    --tw-bg-opacity: 1;
+    background-color: hsl(var(--su) / var(--tw-bg-opacity));
+    outline-style: solid;
+    outline-width: 2px;
+    outline-color: hsl(var(--b1) / 1);
+    width: 25%;
+    height: 25%;
+    bottom: 0;
+    right: 0;
+}
