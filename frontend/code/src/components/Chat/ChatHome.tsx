@@ -1,26 +1,16 @@
 import { Layout } from "../Layout";
-import UserImage from "./assets/aymane.png";
-import yas from "./assets/alaoui.png";
-import yas1 from "./assets/alaoui.png";
-import yas2 from "./assets/3.png";
-import yas3 from "./assets/4.png";
-import yas4 from "./assets/5.png";
-import yas5 from "./assets/6.png";
-import SearchIcon from "./assets/Search_icon.svg";
-import EditIcon from "./assets/Edit_icon.svg";
-import More from "./assets/more_icon.svg";
-import Send from "./assets/send_icon.svg";
-import Close from "./assets/close_icon.svg";
-import Bio from "./assets/bio_icon.svg";
+import {UserImage,yas,yas1,yas2,yas3,yas4,SearchIcon,EditIcon,More,Send,Close,Bio,
+} from "../Chat/Components/tools/Assets";
 import { useState } from "react";
 import {
   CurrentUserMessage,
-  MessagePlaceHolder,
+  ChatPlaceHolder,
   UserMessage,
 } from "./Components/MessageHelpers";
+import { MessageDummy } from "../Chat/Components/tools/Assets";
 
 interface ConversationProps {
-  onRemoveUserPreview: () => void; // Define the prop to accept the function
+  onRemoveUserPreview: () => void; 
 }
 
 const Chat = () => {
@@ -105,38 +95,12 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
             </p>
           </div>
         </div>
-        {/* <div className="dropdown pt-2">
-          <label tabIndex={0} className="list-none  cursor-pointer">
-            <img src={More} alt="More" />
-          </label>
-          <ul className="shadow menu p-2 dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute  right-full">
-            <li>
-              <a href="gg" className="hover:bg-[#7940CF]">
-                Block
-              </a>
-            </li>
-            <li>
-              <a href="gg" className="hover:bg-[#7940CF]">
-                Unfriend
-              </a>
-            </li>
-            <li onClick={onRemoveUserPreview}>
-              <a
-                onClick = {
-                  ()=> console.log("hhh")
-                }
-                className="hover:bg-[#7940CF]"
-              >
-                Show User Info
-              </a>
-            </li>
-          </ul>
-        </div> */}
-        <details  className="relative ">
+
+        <details className="relative ">
           <summary className="list-none p-3 cursor-pointer ">
             <img src={More} alt="More" />
           </summary>
-          <ul  className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute  right-full  ">
+          <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute  right-full  ">
             <li>
               <a href="gg" className="hover:bg-[#7940CF]">
                 Block
@@ -148,7 +112,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               </a>
             </li>
             <li>
-              <a onClick={onRemoveUserPreview} className="hover:bg-[#7940CF]">
+              <a onClick={onRemoveUserPreview} href="test" className="hover:bg-[#7940CF]">
                 Show User Info
               </a>
             </li>
@@ -161,16 +125,18 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 
 export const MessageTextInput = () => {
   return (
-    <div className="flex flex-row  m-5 justify-evenly ">
-      <input
-        type="text"
-        placeholder="Type Message"
-        className="input w-full shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 font-poppins text-base font-normal leading-normal "
-      />
+    <div className="">
+      <div className="flex flex-row  m-5 justify-evenly ">
+        <input
+          type="text"
+          placeholder="Type Message"
+          className="input w-full shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 font-poppins text-base font-normal leading-normal "
+        />
 
-      <button className="btn  ml-4 btn-square  bg-[#8C67F6]">
-        <img src={Send} />
-      </button>
+        <button className="btn  ml-4 btn-square  bg-[#8C67F6]">
+          <img src={Send}  alt=""/>
+        </button>
+      </div>
     </div>
   );
 };
@@ -178,82 +144,9 @@ export const MessageTextInput = () => {
 export const Conversation: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
-  const [Messages, SetMessages] = useState([
-    {
-      userImage: UserImage,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas1,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas2,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: true,
-    },
-    {
-      userImage: yas1,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas1,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas1,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas1,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas1,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-  ]);
+  const [Messages] = useState(MessageDummy);
   return (
-    <div className="flex flex-col h-[90%] ">
+    <div className="flex flex-col h-[99%] ">
       <ConversationHeader onRemoveUserPreview={onRemoveUserPreview} />
       <div className="flex-grow overflow-y-auto no-scrollbar">
         {Messages.map((message) =>
@@ -261,7 +154,8 @@ export const Conversation: React.FC<ConversationProps> = ({
         )}
       </div>
 
-      <div className="fixed bottom-2  mx-auto w-[40%]">
+      <div className=" bottom-2   ">
+        {" "}
         <MessageTextInput />
       </div>
     </div>
@@ -270,87 +164,15 @@ export const Conversation: React.FC<ConversationProps> = ({
 
 // to make it dynamic list later !
 export const RecentConversations = () => {
-  const [Conversation, SetConversation] = useState([
-    {
-      userImage: UserImage,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas1,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas2,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas3,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas4,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: yas5,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: UserImage,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-    {
-      userImage: UserImage,
-      username: "a7a 1",
-      message: "a7a test",
-      time: "6:00",
-      isRead: true,
-      isMe: false,
-    },
-  ]);
+  const [Conversation] = useState(MessageDummy
+  );
 
   return (
     <div className="h-full flex flex-col">
       <OnlineNowUsers />
       <div className="flex-grow overflow-y-auto no-scrollbar">
         {Conversation.map((message) => (
-          <MessagePlaceHolder
+          <ChatPlaceHolder
             key={message.userImage}
             username={message.username}
             message={message.message}
@@ -375,8 +197,8 @@ export const OnlineNowUsers = () => {
             Messages
           </p>
           <div className="icons-row flex flex-row  ">
-            <img className="mr-5" src={SearchIcon} />
-            <img src={EditIcon} />
+            <img className="mr-5" alt="" src={SearchIcon} />
+            <img src={EditIcon} alt="" />
           </div>
         </div>
         <div className="message-row flex flex-row pt-2 justify-between">

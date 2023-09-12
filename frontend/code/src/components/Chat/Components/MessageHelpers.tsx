@@ -1,7 +1,6 @@
-import Send from "../assets/send_icon.svg";
-import yas from "../assets/alaoui.png";
+import { Send, yas, check } from "../Components/tools/Assets";
 
-interface myConversationProps {
+export interface myConversationProps {
   username: string;
   message: string;
   time: string;
@@ -12,18 +11,28 @@ interface myConversationProps {
 
 export const CurrentUserMessage = () => {
   return (
-    <div className="chat chat-end p-3">
-      <div className="chat-bubble bg-purple-500 text-white">nn hh </div>
+    <div className="chat chat-end p-2 pl-5 ">
+      <div className="chat-header p-1">
+        <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
+          12:45 PM
+        </time>
+      </div>
+      <div className=" max-w-max chat-bubble bg-purple-500 text-white whitespace-normal  break-words">
+        nn hh{" "}
+      </div>
+      <div className="chat-footer p-1 text-gray-400 font-poppins text-xs font-light leading-normal">
+        Delivered
+      </div>
     </div>
   );
 };
 export const UserMessage = () => {
   return (
     <>
-      <div className="chat chat-start p-3">
+      <div className="chat chat-start p-3 pr-5">
         <div className="chat-image avatar">
           <div className="w-10 rounded-full">
-            <img src={yas} />
+            <img src={yas} alt="" />
           </div>
         </div>
         <div className="chat-header p-1">
@@ -31,9 +40,9 @@ export const UserMessage = () => {
             12:45 PM
           </time>
         </div>
-        <div className="chat-bubble">{"Salam !"}</div>
-        <div className="chat-footer p-1 text-gray-400 font-poppins text-xs font-light leading-normal">
-          Delivered
+
+        <div className="max-w-max chat-bubble whitespace-normal  break-words">
+          {"Salam "}
         </div>
       </div>
     </>
@@ -50,13 +59,13 @@ export const MessageTextInput = () => {
       />
 
       <button className="btn btn-square bg-[#8C67F6]">
-        <img src={Send} />
+        <img src={Send} alt=""/>
       </button>
     </div>
   );
 };
 
-export const MessagePlaceHolder = ({
+export const ChatPlaceHolder = ({
   username,
   message,
   time,
@@ -85,11 +94,11 @@ export const MessagePlaceHolder = ({
           <p className="text-gray-400 font-poppins text-sm font-medium leading-normal ">
             {message}
           </p>
-          <div className="messages-dot relative inline-flex">
+          { isRead === false ? <div className="messages-dot relative inline-flex">
             <div className="w-4 h-4 bg-red-500 rounded-full text-white flex items-center justify-center">
               <span className="text-xs  font-medium">5</span>
-            </div>
-          </div>
+            </div>  
+          </div> : <img alt="" src={check}/>}
         </div>
       </div>
     </div>
