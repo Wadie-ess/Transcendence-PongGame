@@ -1,19 +1,18 @@
-import { Layout } from "../Layout";
 import {UserImage,yas,yas1,yas2,yas3,yas4,SearchIcon,EditIcon,More,Send,Close,Bio,
-} from "../Chat/Components/tools/Assets";
+} from "./Components/tools/Assets";
 import { useState } from "react";
 import {
   CurrentUserMessage,
   ChatPlaceHolder,
   UserMessage,
 } from "./Components/MessageHelpers";
-import { MessageDummy } from "../Chat/Components/tools/Assets";
+import { MessageDummy } from "./Components/tools/Assets";
 
 interface ConversationProps {
   onRemoveUserPreview: () => void; 
 }
 
-const Chat = () => {
+export const Chat = () => {
   const [showUserPreview, setShowUserPreview] = useState(true);
 
   const handleRemoveUserPreview = () => {
@@ -21,7 +20,6 @@ const Chat = () => {
   };
   return (
     <>
-      <Layout>
         <div className="flex h-full divide-black divide-x-4">
           <div className={` ${showUserPreview ? "w-4/12" : "w-4/12"}`}>
             {<RecentConversations />}
@@ -39,7 +37,6 @@ const Chat = () => {
             )}
           </div>
         </div>
-      </Layout>
     </>
   );
 };
@@ -256,4 +253,4 @@ export const OnlineNowUsers = () => {
     </>
   );
 };
-export default Chat;
+

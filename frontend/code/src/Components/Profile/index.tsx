@@ -5,7 +5,7 @@ import { Message } from './assets/MessageB'
 import { History } from './History'
 import Hero from './assets/Hero.gif'
 import { useState , useEffect , useContext} from 'react'
-import {  useParams } from 'react-router-dom'
+import {  Link, useParams } from 'react-router-dom'
 import { Load } from '../Loading/'
 import  Newbie  from '../Badges/Newbie.svg'
 import  Master  from '../Badges/Master.svg'
@@ -66,7 +66,7 @@ export const Profile = () =>{
                             <Share/></>)
                             :
                             (
-                                <Edit/>   
+                                <Link to={"/Settings"}><Edit/></Link>   
                             )
                          
                         }
