@@ -1,4 +1,16 @@
-import {UserImage,yas,yas1,yas2,yas3,yas4,SearchIcon,EditIcon,More,Send,Close,Bio,
+import {
+  UserImage,
+  yas,
+  yas1,
+  yas2,
+  yas3,
+  yas4,
+  SearchIcon,
+  EditIcon,
+  More,
+  Send,
+  Close,
+  Bio,
 } from "./Components/tools/Assets";
 import { useState } from "react";
 import {
@@ -9,7 +21,7 @@ import {
 import { MessageDummy } from "./Components/tools/Assets";
 
 interface ConversationProps {
-  onRemoveUserPreview: () => void; 
+  onRemoveUserPreview: () => void;
 }
 
 export const Chat = () => {
@@ -20,23 +32,23 @@ export const Chat = () => {
   };
   return (
     <>
-        <div className="flex h-full divide-black divide-x-4">
-          <div className={` ${showUserPreview ? "w-4/12" : "w-4/12"}`}>
-            {<RecentConversations />}
-          </div>
-          <div
-            className={` ${
-              showUserPreview ? "w-6/12" : "w-8/12"
-            } overflow-hidden bg-gray-900`}
-          >
-            <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
-          </div>
-          <div className={` ${showUserPreview ? "w-3/12" : ""}  bg-[#1A1C26]`}>
-            {showUserPreview && (
-              <UserPreviewCard onRemoveUserPreview={handleRemoveUserPreview} />
-            )}
-          </div>
+      <div className="flex h-full divide-black divide-x-4">
+        <div className={` ${showUserPreview ? "w-4/12" : "w-4/12"}`}>
+          {<RecentConversations />}
         </div>
+        <div
+          className={` ${
+            showUserPreview ? "w-6/12" : "w-8/12"
+          } overflow-hidden bg-gray-900`}
+        >
+          <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
+        </div>
+        <div className={` ${showUserPreview ? "w-3/12" : ""}  bg-[#1A1C26]`}>
+          {showUserPreview && (
+            <UserPreviewCard onRemoveUserPreview={handleRemoveUserPreview} />
+          )}
+        </div>
+      </div>
     </>
   );
 };
@@ -48,7 +60,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
     <div className="flex flex-col p-4 ">
       <div className="flex flex-row justify-between ">
         <p className="text-white font-poppins font-light text-base">
-          Person Info
+          Yassin's Info
         </p>
         <button onClick={onRemoveUserPreview}>
           <img alt="" src={Close} />
@@ -56,6 +68,9 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
       </div>
       <div className="flex flex-row justify-center p-4">
         <img className="w-36 rounded-full " alt="" src={yas} />
+      </div>
+      <div className="flex flex-row justify-center p-1 text-white font-poppins text-26 font-medium">
+        <p>Yassine Alaoui</p>
       </div>
       <div className="flex flex-row justify-center p-1 text-gray-400 font-poppins font-medium text-base">
         <p>Friend</p>
@@ -93,28 +108,32 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
           </div>
         </div>
 
-        <details className="relative ">
-          <summary className="list-none p-3 cursor-pointer ">
-            <img src={More} alt="More" />
-          </summary>
-          <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute  right-full  ">
+        <div className="dropdown">
+          <label tabIndex={0} className="">
+            <summary className="list-none p-3 cursor-pointer ">
+              <img src={More} alt="More" />
+            </summary>
+          </label>
+          <ul
+            tabIndex={0}
+            className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute  right-full  "
+          >
             <li>
-              <a href="gg" className="hover:bg-[#7940CF]">
-                Block
-              </a>
+              <span className="hover:bg-[#7940CF]">Block</span>
             </li>
             <li>
-              <a href="gg" className="hover:bg-[#7940CF]">
-                Unfriend
-              </a>
+              <span className="hover:bg-[#7940CF]">Unfriend</span>
             </li>
             <li>
-              <a onClick={onRemoveUserPreview} href="test" className="hover:bg-[#7940CF]">
+              <span
+                onClick={onRemoveUserPreview}
+                className="hover:bg-[#7940CF]"
+              >
                 Show User Info
-              </a>
+              </span>
             </li>
           </ul>
-        </details>
+        </div>
       </div>
     </>
   );
@@ -124,15 +143,17 @@ export const MessageTextInput = () => {
   return (
     <div className="">
       <div className="flex flex-row  m-5 justify-evenly ">
-        <input
-          type="text"
-          placeholder="Type Message"
-          className="input w-full shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 font-poppins text-base font-normal leading-normal "
-        />
+        <div className="flex flex-row w-full justify-center ">
+          <input
+            type="text"
+            placeholder="Type Message"
+            className="input w-full shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 font-poppins text-base font-normal leading-normal "
+          />
 
-        <button className="btn  ml-4 btn-square  bg-[#8C67F6]">
-          <img src={Send}  alt=""/>
-        </button>
+          <button className="btn  ml-4 btn-square  bg-[#8C67F6] hover:bg-green-600">
+            <img src={Send} alt="" />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -161,8 +182,7 @@ export const Conversation: React.FC<ConversationProps> = ({
 
 // to make it dynamic list later !
 export const RecentConversations = () => {
-  const [Conversation] = useState(MessageDummy
-  );
+  const [Conversation] = useState(MessageDummy);
 
   return (
     <div className="h-full flex flex-col">
@@ -253,4 +273,3 @@ export const OnlineNowUsers = () => {
     </>
   );
 };
-
