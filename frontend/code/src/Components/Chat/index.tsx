@@ -11,13 +11,16 @@ import {
   Send,
   Close,
   Bio,
+  GroupChat,
 } from "./Components/tools/Assets";
 import { useState } from "react";
 import {
   CurrentUserMessage,
   ChatPlaceHolder,
   UserMessage,
+  OnlineNowUsers,
 } from "./Components/MessageHelpers";
+import { myConversationProps } from "./Components/MessageHelpers";
 import { MessageDummy } from "./Components/tools/Assets";
 
 interface ConversationProps {
@@ -205,70 +208,44 @@ export const RecentConversations = () => {
 };
 
 // to refactor it and make it a dynamic list of 5
-export const OnlineNowUsers = () => {
+
+
+export const SelectedUserTile = ({
+  username,
+  userImage,
+}: myConversationProps) => {
   return (
     <>
-      <div className="online-now-container    pt-5 pl-5 pb-2 pr-3 bg-[#1A1C26]">
-        <div className="messages-header flex flex-row justify-between pb-2">
-          <p className="text-purple-500 font-poppins text-lg font-medium leading-normal ">
-            Messages
-          </p>
-          <div className="icons-row flex flex-row  ">
-            <img className="mr-5" alt="" src={SearchIcon} />
-            <img src={EditIcon} alt="" />
-          </div>
-        </div>
-        <div className="message-row flex flex-row pt-2 justify-between">
-          <p className="text-gray-400 font-poppins text-xs font-medium leading-normal ">
-            Online Now
-          </p>
-          <p className="text-gray-400 font-poppins text-xs font-medium leading-normal ">
-            See All
-          </p>
-        </div>
-        <div className="users-images flex flex-row justify-between pt-3 ">
-          <div className="relative inline-block">
-            <img
-              className="user-image h-10 w-10 rounded-full"
-              src={UserImage}
-              alt={`second's Profile`}
-            />
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-          </div>
+      <div className="overflow-x-auto">
+        <table className="table">
+          {/* head */}
 
-          <div className="relative inline-block">
-            <img
-              className="user-image h-10 w-10 rounded-full"
-              src={yas1}
-              alt={`second's Profile`}
-            />
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-          </div>
-          <div className="relative inline-block">
-            <img
-              className="user-image h-10 w-10 rounded-full"
-              src={yas2}
-              alt={`second's Profile`}
-            />
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-          </div>
-          <div className="relative inline-block">
-            <img
-              className="user-image h-10 w-10 rounded-full"
-              src={yas3}
-              alt={`second's Profile`}
-            />
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-          </div>
-          <div className="relative inline-block">
-            <img
-              className="user-image h-10 w-10 rounded-full"
-              src={yas4}
-              alt={`second's Profile`}
-            />
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-          </div>
-        </div>
+          <tbody>
+            {/* row 1 */}
+            <tr>
+              <th>
+                <label>
+                  <input type="checkbox" className="checkbox" />
+                </label>
+              </th>
+              <td>
+                <div className="flex items-center space-x-3">
+                  <div className="avatar">
+                    <div className="mask mask-squircle w-12 h-12">
+                      <img
+                        src={userImage}
+                        alt="Avatar Tailwind CSS Component"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-bold">{username}</div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </>
   );
