@@ -3,13 +3,13 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtConsts } from 'src/auth/constants/constants';
 import { Tokens } from 'src/auth/types/auth.type';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class JwtUtils {
   constructor(
     private jwtService: JwtService,
-    private prisma: PrismaService,
+    private usersService: UsersService,
   ) {}
   async generateTokens(username: string, userId: string): Promise<Tokens> {
     const [access_token, refresh_token] = await Promise.all([
@@ -36,13 +36,6 @@ export class JwtUtils {
     refeshedHash: string,
   ): Promise<void> {
     const hash = await bcrypt.hash(refeshedHash, 10);
-    await this.prisma.user.update({
-      where: {
-        UUId: userId,
-      },
-      data: {
-        refreshedHash: hash,
-      },
-    });
+    await this.usersService.updateUser(userId, { refreshedHash: hash });
   }
 }

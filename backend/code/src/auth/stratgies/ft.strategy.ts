@@ -1,17 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, Profile, VerifyCallback } from 'passport-42';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
-import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import { JwtUtils } from '../utils/jwt_utils/jwt_utils';
 import { v4 as uuidv4 } from 'uuid';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class FtStrategy extends PassportStrategy(Strategy, '42') {
   constructor(
-    private prisma: PrismaService,
     private jwtUtils: JwtUtils,
+    private usersService: UsersService,
   ) {
     super({
       clientID: process.env.FT_CLIENT_ID,
@@ -28,49 +26,31 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
     profile: Profile,
     cb: VerifyCallback,
   ): Promise<any> {
-    console.log(profile.id);
-    const user = await this.prisma.user.findUnique({
-      where: {
-        intraId: profile.id,
-      },
-    });
     const res = req.res;
+
+    const user = await this.usersService.getUserByIntraId(profile.id);
     if (user) {
       const tokens = await this.jwtUtils.generateTokens(
         user.intraUsername,
-        user.UUId,
+        user.id,
       );
-      await this.jwtUtils.updateRefreshedHash(user.UUId, tokens.refresh_token);
+      await this.jwtUtils.updateRefreshedHash(user.id, tokens.refresh_token);
       res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
       res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
       return cb(null, profile);
     }
 
-    const new_user = await this.prisma.user
-      .create({
-        data: {
-          intraId: profile.id,
-          intraUsername: profile.username,
-          UUId: uuidv4(),
-        },
-      })
-      .catch((err) => {
-        if (err instanceof Prisma.PrismaClientKnownRequestError) {
-          if (err.code === 'P2002') {
-            throw new HttpErrorByCode[409]('User already exists');
-          }
-        }
-        throw new Error('Something went wrong');
-      });
+    const new_user = await this.usersService.createUser({
+      intraId: profile.id,
+      intraUsername: profile.username,
+      id: uuidv4(),
+    });
 
     const tokens = await this.jwtUtils.generateTokens(
       new_user.intraUsername,
-      new_user.UUId,
+      new_user.id,
     );
-    await this.jwtUtils.updateRefreshedHash(
-      new_user.UUId,
-      tokens.refresh_token,
-    );
+    await this.jwtUtils.updateRefreshedHash(new_user.id, tokens.refresh_token);
     res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
     res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
     return cb(null, profile);
