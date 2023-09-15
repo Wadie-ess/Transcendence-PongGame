@@ -9,7 +9,6 @@ const root = ReactDOM.createRoot(
   );
 
 root.render(
-  // <React.StrictMode>
     <>
       <Toaster
       position="top-right"
@@ -23,7 +22,7 @@ root.render(
        <AllRouters/>
     </UserContextProvider>
     </>
-  // </React.StrictMode>
+
 );
 
 

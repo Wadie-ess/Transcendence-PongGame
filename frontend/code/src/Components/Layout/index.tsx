@@ -67,7 +67,7 @@ export const Layout : FC<PropsWithChildren> =  () : JSX.Element =>
     const obj = {x:"30",y:"20"}
     return (
     <>
-        <div data-theme="mytheme" className=' h-screen bg-slate-50 '> 
+        <div data-theme="mytheme" className=' h-screen  '> 
            
             <div className=' flex flex-row  w-screen h-[8vh]  bg-base-200'> 
                 <div className='flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full'>

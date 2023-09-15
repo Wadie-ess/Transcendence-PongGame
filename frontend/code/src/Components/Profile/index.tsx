@@ -35,7 +35,7 @@ export const Profile = () =>{
 
     return (
         <>
-        <div className=" flex flex-col items-center h-full min-h-screen">
+        <div className=" flex flex-col items-center h-full min-h-screen bg-accent">
             <div className='relative pt-12 h-auto max-h-[30vh] min-h-[16vh] md:min-h-[28vh] xl:min-h-[33vh] w-[85vw]'>
                
                 <div className='relative h-full w-full md:px-32 bg-[#2b3bfb] rounded-t-3xl'><img className='flex-1  w-full h-auto object-scale-down md:object-top object-bottom rounded-t-3xl' src={Hero} alt="bg hero"></img>
