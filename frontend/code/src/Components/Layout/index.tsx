@@ -14,7 +14,7 @@ import { matchRoutes, useLocation } from "react-router-dom"
 import { userContext , UserType } from '../../Context'
 import { useContext , useEffect } from 'react'
 
-const routes = [{ path: "Profile/:id" } , {path : "Settings"} , {path : "Home"}, {path:"Chat"} , {path:"Play"}]
+const routes = [{ path: "Profile/:id" } , {path : "Settings"} , {path : "Home"}, {path:"Chat"} , {path:"Play"}, {path:"Pure"}]
 
 const useCurrentPath = () => {
     const location = useLocation()
