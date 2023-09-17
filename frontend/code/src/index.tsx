@@ -2,7 +2,6 @@ import './index.css';
 import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';
 import { Toaster } from 'react-hot-toast';
-import { UserContextProvider } from './Context';
 import { AllRouters } from './Routes';
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -18,9 +17,7 @@ root.render(
         duration: 5000
       }}
     />
-    <UserContextProvider>
        <AllRouters/>
-    </UserContextProvider>
     </>
 
 );

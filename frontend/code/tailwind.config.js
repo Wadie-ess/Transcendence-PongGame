@@ -17,6 +17,7 @@ module.exports = {
         montserrat : ['Montserrat', 'sans-serif']
         
       },
+      
       backgroundImage: {
         'login': "url('./Components/Login/Assets/bg.gif')",
         'gif-error': "url('./Components/Error/Assets/Error.gif')",

@@ -4,16 +4,17 @@ import { Share } from './assets/ShareB'
 import { Message } from './assets/MessageB'
 import { History } from './History'
 import Hero from './assets/Hero.gif'
-import { useState , useEffect , useContext} from 'react'
+import { useState , useEffect } from 'react'
 import {  Link, useParams } from 'react-router-dom'
 import { Load } from '../Loading/'
 import  Newbie  from '../Badges/Newbie.svg'
 import  Master  from '../Badges/Master.svg'
 import  Ultimate  from '../Badges/Ultimate.svg'
-import { userContext } from '../../Context'
 import { Edit } from './assets/Edit'
+import { useUserStore } from '../../Stores/stores'
+
 export const Profile = () =>{
-    const {user} :any = useContext(userContext);
+    const user = useUserStore();
     const params = useParams()
     console.log(`params : ${params.id} type ${typeof(params.id)}`)
     const [users, setUsers] = useState<null | any>(undefined);
@@ -52,7 +53,7 @@ export const Profile = () =>{
                     </div>
                 </div>         
             </div>
-            <div className='relative flex flex-col gap-y-2 sm:gap-y-0 pl-4 sm:pt-12 pt-6 text-neutral font-montserrat bg-base-200  justify-start  items-start h-[15%] xl:h-[25%] xl:min-h-[25%] min-h-[20%] rounded-b-3xl w-[85vw] overflow-scroll no-scrollbar'>
+            <div className='relative flex flex-col gap-y-2 sm:gap-y-0 pl-4 sm:pt-12 pt-6 text-neutral font-montserrat bg-base-200  justify-start  items-start h-[15%] xl:h-[30%] xl:min-h-[30%] min-h-[25%] rounded-b-3xl w-[85vw] overflow-scroll no-scrollbar'>
                     {
                             users?.name?.first ? <h6>{users?.name?.first} </h6>: <Load/>
                     }                <div className="flex justify-center items-center gap-x-2">
@@ -72,9 +73,9 @@ export const Profile = () =>{
                         }
                     </div>
                     <div className="flex flex-row gap-x-4 justify-center items-center  w-72 sm:w-auto sm:pr-4 sm:pt-0 pt-4">
-                        <img className={`h-[10vh] sm:h-[16vh] `} src={Newbie} alt="newbie badge" />
-                        <img className={`h-[10vh] sm:h-[16vh] opacity-30`} src={Master} alt="Master badge" />
-                        <img className={`h-[10vh] sm:h-[16vh] `} src={Ultimate} alt="Ultimate badge" />
+                        <img className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[14vh] 2xl:h-[15vh] `} src={Newbie} alt="newbie badge" />
+                        <img className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[14vh] 2xl:h-[15vh] opacity-30`} src={Master} alt="Master badge" />
+                        <img className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[14vh] 2xl:h-[15vh] `} src={Ultimate} alt="Ultimate badge" />
                     </div>
                 </div>
             </div>

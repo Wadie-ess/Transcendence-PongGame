@@ -5,19 +5,19 @@ import  Master  from '../Badges/Master.svg'
 import  Ultimate  from '../Badges/Ultimate.svg'
 import { api as axsios }from '../../Api/base'
 import toast from 'react-hot-toast'
-import { useContext ,  useState , useEffect} from 'react'
-import { userContext } from '../../Context'
+import {   useState , useEffect} from 'react'
 import { Inputs } from './assets/Inputs'
+import { useUserStore } from '../../Stores/stores'
 export const Setting = () => { 
     const getdata :any = async() => {
         const data:any = await axsios.get("/test")
         return data
     }
     
-    const {user} :any = useContext(userContext);
+    const user = useUserStore();
     const [myuser, setMyuser] = useState(user);
-    const data_names = ["First name","Last name","Email"]
-    const data_content = [user.name.first,user.name.last, user.email]
+    const data_names = ["First name","Last name","Email","Phone","Bio"]
+    const data_content = [user.name.first,user.name.last, user.email,user.phone,user.bio]
 
     useEffect(()=>{
         setMyuser(user)
@@ -25,9 +25,7 @@ export const Setting = () => {
 
   
     return (
-            
            <>
-            
            <div className="flex h-[90vh] w-full font-poppins font-medium">
                 <h1 className='pt-6 pl-6 font-poppins font-medium text-xl text-neutral'>Profile Settings</h1>
                 <div className=" h-[82%] w-[90%] flex flex-col absolute bottom-0 right-0 bg-base-200 rounded-tl-2xl">
@@ -42,7 +40,7 @@ export const Setting = () => {
                                 </div>
                                 <div className='flex flex-col items-stretch justify-evenly gap-y-4'>
                                     <div className='text-neutral break-words break-all font-poppins font-medium text-sm sm:text-xl'> {myuser.name.first} {myuser.name.last} </div>
-                                    <div className='font-poppins font-medium text-sm sm:text-lg'> Flutter Devoloper</div>
+                                    <div className='font-poppins font-medium text-sm sm:text-lg'> {user.bio}</div>
                                 </div>
                             </div>
                             <div className="flex pr-6 items-center justify-center gap-x-2">
@@ -75,12 +73,19 @@ export const Setting = () => {
                                             <Inputs key={index} name={x} data={data_content[index]} />
                                             ) 
                                         })
-                                        
+                                    
                                 }
+                                <div className="flex flex-col gap-y-4">
+                                    <h4 className='font-mono font-bold text-neutral '>How to Enable two factor Auth</h4>
+                                    <div className="flex gap-x-6">
+                                        <div className='flex justify-center h-28 w-28 rounded-2xl border-2 border-violet-600'></div>
+                                        <div className='flex justify-center h-28 w-28 rounded-2xl border-2 border-violet-600'></div>
+                                        <div className='flex justify-center h-28 w-28 rounded-2xl border-2 border-violet-600'></div>
+                                    </div>
+                                </div>
                                 </div>
                         </div>
                     </div>
-                            
                 </div>
            </div>
            </>
