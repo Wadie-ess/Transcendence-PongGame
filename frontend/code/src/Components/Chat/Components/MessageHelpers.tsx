@@ -234,10 +234,10 @@ export const OnlineNowUsers = () => {
                   </div>
 
                   <div className="modal-action">
-                    {
+                  {
                       // eslint-disable-next-line
-                    }<a href="#" className="btn hover:bg-purple-500">
-                      {" "}
+                    }<a href="#" className="btn hover:bg-purple-500"> 
+                      {"Done "}
                     </a>
                   </div>
                 </div>
