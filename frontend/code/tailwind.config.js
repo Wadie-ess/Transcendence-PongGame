@@ -4,6 +4,7 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
     "./src/**/**/*.{js,jsx,ts,tsx}",
     "./src/**/**/**/*.{js,jsx,ts,tsx}",
+    
   ],
   theme: {
     extend: {
@@ -25,7 +26,10 @@ module.exports = {
     },
   },
  
-  plugins: [require("daisyui")],
+  plugins: [
+    require("daisyui"),
+    require('preline/plugin'),
+],
   daisyui: {
     themes: [
       {

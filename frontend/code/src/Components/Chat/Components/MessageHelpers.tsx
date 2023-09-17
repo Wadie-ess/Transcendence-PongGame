@@ -8,11 +8,11 @@ import {
   yas3,
   yas4,
   SearchIcon,
-  EditIcon,
-  More,
+  // EditIcon,
+  // More,
   Send,
-  Close,
-  Bio,
+  // Close,
+  // Bio,
   GroupChat,
   check,
   MessageDummy,
@@ -129,6 +129,11 @@ export const ChatPlaceHolder = ({
 
 export const OnlineNowUsers = () => {
   const [Users] = useState(MessageDummy);
+  const [selectedOption, setSelectedOption] = useState("Public"); // Initialize with a default value
+
+  const handleOptionChange = (e: any) => {
+    setSelectedOption(e.target.value);
+  };
   return (
     <>
       <div className="online-now-container    pt-5 pl-5 pb-2 pr-3 bg-[#1A1C26]">
@@ -162,6 +167,55 @@ export const OnlineNowUsers = () => {
                       />
                     </div>
                   </div>
+
+                  <div className="flex flex-row form-control justify-around">
+                    <label className="label cursor-pointer ">
+                      <span className="label-text pr-2">Public</span>
+                      <input
+                        type="radio"
+                        name="radio-10"
+                        value="Public"
+                        className="radio checked:bg-purple-500"
+                        checked={selectedOption === "Public"}
+                        onChange={handleOptionChange}
+                      />
+                    </label>
+                    <label className="label cursor-pointer">
+                      <span className="label-text pr-2">Private</span>
+                      <input
+                        type="radio"
+                        name="radio-10"
+                        value="Private"
+                        className="radio checked:bg-red-500"
+                        checked={selectedOption === "Private"}
+                        onChange={handleOptionChange}
+                      />
+                    </label>
+                    <label className="label cursor-pointer">
+                      <span className="label-text pr-2">Protected</span>
+                      <input
+                        type="radio"
+                        name="radio-10"
+                        value="Protected"
+                        className="radio checked:bg-orange-500"
+                        checked={selectedOption === "Protected"}
+                        onChange={handleOptionChange}
+                      />
+                    </label>
+                  </div>
+
+                  {/* Conditionally render the text input */}
+                  {selectedOption === "Protected" && (
+                    <div className="flex flex-row p-3">
+                      <div className="flex flex-row w-full justify-center pt-2">
+                        <p>Group Password</p>
+                        <input
+                          type="Password"
+                          className="input w-full shadow-xl max-w-lg bg-[#272932] placeholder:text-gray-400 font-poppins text-base font-normal leading-normal"
+                        />
+                      </div>
+                    </div>
+                  )}
                   <p className="p-2">Select To Add Friends</p>
 
                   {/* Scrollable part */}
@@ -180,8 +234,10 @@ export const OnlineNowUsers = () => {
                   </div>
 
                   <div className="modal-action">
-                    <a href="#" className="btn hover:bg-green-700">
-                      Done!
+                    {
+                      // eslint-disable-next-line
+                    }<a href="#" className="btn hover:bg-purple-500">
+                      {" "}
                     </a>
                   </div>
                 </div>
