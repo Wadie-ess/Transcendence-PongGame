@@ -13,6 +13,7 @@ import Close from "../../assets/close_icon.svg";
 import Bio from "../../assets/bio_icon.svg";
 import check from "../../assets/check_icon.svg";
 import group from "../../assets/groupChat.png";
+import GroupChat from "../../assets/CreateGroupChat.svg"
 import { myConversationProps } from "../MessageHelpers";
 
 export const MessageDummy: myConversationProps[] = [
@@ -106,4 +107,5 @@ export {
   Close,
   Bio,
   check,
+  GroupChat
 };
