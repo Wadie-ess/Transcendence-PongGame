@@ -11,8 +11,8 @@ import { Out } from './Assets/Out'
 import { FC,PropsWithChildren } from 'react'
 import { Outlet ,} from 'react-router'
 import { matchRoutes, useLocation } from "react-router-dom"
-import { userContext , UserType } from '../../Context'
-import { useContext , useEffect } from 'react'
+import { useUserStore } from '../../Stores/stores'
+import { useEffect } from 'react'
 
 const routes = [{ path: "Profile/:id" } , {path : "Settings"} , {path : "Home"}, {path:"Chat"} , {path:"Play"}, {path:"Pure"}]
 
@@ -24,50 +24,14 @@ const useCurrentPath = () => {
 
 export const Layout : FC<PropsWithChildren> =  () : JSX.Element =>
 {
-    const {user , login} :any  = useContext(userContext)
-    useEffect(() => {
-    if (user.isLogged === false){
-            const fetchUser = async() => {
-                const res = await fetch("https://randomuser.me/api");
-                const data = await res.json();
-                const user_data = data.results[0];
-                console.log(user_data)
-           
-                const userInitialValue : UserType= {
-                    isLogged:true,
-                    id:user_data.id.value,
-                    name:{
-                        first:user_data.name.first,
-                        last:user_data.name.last
-                    },
-                    picture:{
-                        thumbnail:user_data.picture.thumbnail,
-                        medium:user_data.picture.medium,
-                        large:user_data.picture.large
-                    },
-                    
-                    email:user_data.email,
-                    token:'',
-                    tfa:false,
-                    friendListIds:[],
-                    banListIds:[],
-                    achivments:[],
-                    dmsIds:[],
-                    history:[],
-                    chatRoomsJoinedIds:[]
-                    
-                }
-                console.log(userInitialValue)
-                login(userInitialValue)
-            }
-            fetchUser()
-        }
-    })
+    const user = useUserStore();
+
+    useEffect(() => {user.auth.login();},[user.auth])   
     const path : string  = useCurrentPath()
     const obj = {x:"30",y:"20"}
     return (
     <>
-        <div data-theme="mytheme" className=' h-screen bg-slate-50 '> 
+        <div data-theme="mytheme" className=' h-screen  '> 
            
             <div className=' flex flex-row  w-screen h-[8vh]  bg-base-200'> 
                 <div className='flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full'>
