@@ -26,7 +26,7 @@ export const Layout : FC<PropsWithChildren> =  () : JSX.Element =>
 {
     const user = useUserStore();
 
-    useEffect(() => {user.auth.login();},[])   
+    useEffect(() => {user.auth.login();},[user.auth])   
     const path : string  = useCurrentPath()
     const obj = {x:"30",y:"20"}
     return (

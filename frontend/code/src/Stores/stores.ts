@@ -52,7 +52,7 @@ type Action = {
     // }
     // sendMessage : (id : State['dmsIds']) => void
     // updateHistory:  (history : State['history']) => void,
-    // roomRule : (chatromm : State['chatRoomsJoinedIds']) => void
+    // roomRole : (chatromm : State['chatRoomsJoinedIds']) => void
 }
 
 export const useUserStore = create<State & Action>((set) => ({

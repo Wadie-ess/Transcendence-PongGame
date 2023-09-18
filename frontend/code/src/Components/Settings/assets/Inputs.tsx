@@ -17,7 +17,7 @@ interface MyComponentProps {
 
 export const Inputs = (props:MyComponentProps) => {
     const user = useUserStore();
-    const { register, handleSubmit, reset , formState: { errors } } = useForm();
+    const { register, handleSubmit, reset } = useForm();
     const onSubmit = (data : any)=> {
         toast.promise(
                                     
