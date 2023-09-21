@@ -3,7 +3,6 @@ import { AuthDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { Tokens } from './types/auth.type';
 import { JwtUtils } from './utils/jwt_utils/jwt_utils';
-import { v4 as uuiv4 } from 'uuid';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -19,14 +18,13 @@ export class AuthService {
     const new_user = await this.usersService.createUser({
       email: dto.email,
       password: hash,
-      id: uuiv4(),
     });
 
     const tokens = await this.jwtUtils.generateTokens(
       new_user.intraUsername,
-      new_user.id,
+      new_user.userId,
     );
-    await this.jwtUtils.updateRefreshedHash(new_user.id, tokens.refresh_token);
+    await this.jwtUtils.updateRefreshedHash(new_user.userId, tokens.refresh_token);
 
     return tokens;
   }
@@ -43,9 +41,9 @@ export class AuthService {
     if (!is_match) throw new ForbiddenException('Invalid refresh token');
     const tokens = await this.jwtUtils.generateTokens(
       user.intraUsername,
-      user.id,
+      user.userId,
     );
-    await this.jwtUtils.updateRefreshedHash(user.id, tokens.refresh_token);
+    await this.jwtUtils.updateRefreshedHash(user.userId, tokens.refresh_token);
 
     return tokens;
   }

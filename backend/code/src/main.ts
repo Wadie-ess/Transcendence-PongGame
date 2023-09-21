@@ -19,7 +19,12 @@ async function bootstrap() {
     credentials: true,
   };
   app.enableCors(corsOptions);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   app.use(passport.initialize());
   app.use(cookieParser());
   await app.listen(3001);
