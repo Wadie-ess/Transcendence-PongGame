@@ -23,8 +23,19 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signup')
-  signUp(@Body() dto: AuthDto) {
-    return this.authService.signUp(dto);
+  async signUp(
+    @Res({ passthrough: true }) res: Response,
+    @Body() dto: AuthDto,
+  ) {
+    const tokens: Tokens = await this.authService.signUp(dto);
+    res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
+    res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
+  }
+  @Post('login')
+  async login(@Res({ passthrough: true }) res: Response, @Body() dto: AuthDto) {
+    const tokens: Tokens = await this.authService.login(dto);
+    res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
+    res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
   }
 
   @UseGuards(AtGuard)

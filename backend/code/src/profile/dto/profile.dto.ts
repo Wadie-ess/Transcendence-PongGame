@@ -4,13 +4,12 @@ type ProfileDtoProps = Partial<User> &
   Partial<{
     left_friends: Friend[];
     right_friends: Friend[];
-	roomMember: RoomMember[];
-	owned_rooms : Room[],
+    roomMember: RoomMember[];
+    owned_rooms: Room[];
   }>;
 
 export class ProfileDto {
   constructor(userData: ProfileDtoProps) {
-		console.log(userData)
     this.id = userData.userId;
     this.firstName = userData.firstName;
     this.lastName = userData.lastName;
@@ -27,5 +26,5 @@ export class ProfileDto {
   profileFinished: boolean;
   tfa: boolean;
   friends?: Friend[];
-	dmsIds: number[];
+  dmsIds: number[];
 }

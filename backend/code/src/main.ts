@@ -2,11 +2,12 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as passport from 'passport';
 import * as cookieParser from 'cookie-parser';
+import { PrismaClientExceptionFilter } from './exceptions/exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -27,6 +28,8 @@ async function bootstrap() {
   );
   app.use(passport.initialize());
   app.use(cookieParser());
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
   await app.listen(3001);
 }
 bootstrap();

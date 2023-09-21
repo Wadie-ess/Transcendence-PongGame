@@ -107,8 +107,9 @@ model RoomMember {
   is_mueted    Boolean   @default(false)
   mute_expires DateTime?
   user         User      @relation(fields: [userId], references: [userId])
-  room         Room      @relation(fields: [roomId], references: [id])
+  room         Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, roomId], name: "unique_user_room")
   @@map("room_members")
 }
 

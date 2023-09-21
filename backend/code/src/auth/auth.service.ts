@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { Tokens } from './types/auth.type';
@@ -24,7 +29,28 @@ export class AuthService {
       new_user.intraUsername,
       new_user.userId,
     );
-    await this.jwtUtils.updateRefreshedHash(new_user.userId, tokens.refresh_token);
+    await this.jwtUtils.updateRefreshedHash(
+      new_user.userId,
+      tokens.refresh_token,
+    );
+
+    return tokens;
+  }
+
+  async login(dto: AuthDto): Promise<Tokens> {
+    const user = await this.usersService.getUserByEmail(dto.email);
+
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    const is_match = await bcrypt.compare(dto.password, user.password);
+    if (!is_match)
+      throw new HttpException('Invalid password', HttpStatus.FORBIDDEN);
+
+    const tokens = await this.jwtUtils.generateTokens(
+      user.intraUsername,
+      user.userId,
+    );
+    await this.jwtUtils.updateRefreshedHash(user.userId, tokens.refresh_token);
 
     return tokens;
   }

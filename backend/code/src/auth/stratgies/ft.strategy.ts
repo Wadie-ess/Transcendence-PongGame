@@ -40,7 +40,7 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
     }
 
     const new_user = await this.usersService.createUser({
-      intraId: profile.userId,
+      intraId: profile.id,
       intraUsername: profile.username,
     });
 

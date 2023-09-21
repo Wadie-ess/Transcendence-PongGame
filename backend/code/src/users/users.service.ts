@@ -1,27 +1,16 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Prisma } from '@prisma/client';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async createUser(data: CreateUserDto) {
-    return await this.prisma.user
-      .create({
-        data,
-      })
-      .catch((err) => {
-        if (err instanceof Prisma.PrismaClientKnownRequestError) {
-          if (err.code === 'P2002') {
-            throw new ConflictException('User already exists');
-          }
-        }
-        throw err;
-      });
+    return await this.prisma.user.create({
+      data,
+    });
   }
 
   async getAllUsers() {
@@ -84,16 +73,7 @@ export class UsersService {
     return await this.prisma.user.update({
       where: { userId },
       data,
-    }).catch((err) => {
-		if ( err instanceof Prisma.PrismaClientKnownRequestError)
-		{
-			if ( err.code === 'P2025')
-			{
-				throw new UnauthorizedException('Invalid credentials');
-			}
-		}
-		throw new Error('Unknown error');
-	});
+    });
   }
 
   async deleteUser(userId: string) {
