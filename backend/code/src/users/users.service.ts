@@ -1,8 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Prisma } from '@prisma/client';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -27,9 +28,43 @@ export class UsersService {
     return await this.prisma.user.findMany();
   }
 
-  async getUserById(id: string) {
+  async getUserById(userId: string, includeFriends?: boolean) {
     return await this.prisma.user.findUnique({
-      where: { id },
+      where: { userId },
+      ...(includeFriends
+        ? {
+            include: {
+              left_friends: {
+                select: {
+                  accepted: true,
+                  fromId: true,
+                  toId: true,
+                  is_blocked: true,
+                  blocked_by_id: true,
+                },
+              },
+              right_friends: {
+                select: {
+                  accepted: true,
+                  fromId: true,
+                  toId: true,
+                  is_blocked: true,
+                  blocked_by_id: true,
+                },
+              },
+              owned_rooms: {
+                select: {
+                  id: true,
+                },
+              },
+              roomMember: {
+                select: {
+                  roomId: true,
+                },
+              },
+            },
+          }
+        : {}),
     });
   }
 
@@ -45,16 +80,25 @@ export class UsersService {
     });
   }
 
-  async updateUser(id: string, data: UpdateUserDto) {
+  async updateUser(userId: string, data: UpdateUserDto) {
     return await this.prisma.user.update({
-      where: { id },
+      where: { userId },
       data,
-    });
+    }).catch((err) => {
+		if ( err instanceof Prisma.PrismaClientKnownRequestError)
+		{
+			if ( err.code === 'P2025')
+			{
+				throw new UnauthorizedException('Invalid credentials');
+			}
+		}
+		throw new Error('Unknown error');
+	});
   }
 
-  async deleteUser(id: string) {
+  async deleteUser(userId: string) {
     return await this.prisma.user.delete({
-      where: { id },
+      where: { userId },
     });
   }
 

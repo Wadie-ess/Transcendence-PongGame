@@ -47,7 +47,6 @@ export class AuthController {
   }
 
   @Get('logout')
-  @HttpCode(HttpStatus.OK)
   @UseGuards(RtGuard)
   async logout(
     @GetCurrentUser('userId') userId: string,

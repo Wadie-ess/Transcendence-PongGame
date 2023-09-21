@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, Profile, VerifyCallback } from 'passport-42';
 import { JwtUtils } from '../utils/jwt_utils/jwt_utils';
-import { v4 as uuidv4 } from 'uuid';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -32,25 +31,24 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
     if (user) {
       const tokens = await this.jwtUtils.generateTokens(
         user.intraUsername,
-        user.id,
+        user.userId,
       );
-      await this.jwtUtils.updateRefreshedHash(user.id, tokens.refresh_token);
+      await this.jwtUtils.updateRefreshedHash(user.userId, tokens.refresh_token);
       res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
       res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
       return cb(null, profile);
     }
 
     const new_user = await this.usersService.createUser({
-      intraId: profile.id,
+      intraId: profile.userId,
       intraUsername: profile.username,
-      id: uuidv4(),
     });
 
     const tokens = await this.jwtUtils.generateTokens(
       new_user.intraUsername,
-      new_user.id,
+      new_user.userId,
     );
-    await this.jwtUtils.updateRefreshedHash(new_user.id, tokens.refresh_token);
+    await this.jwtUtils.updateRefreshedHash(new_user.userId, tokens.refresh_token);
     res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
     res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
     return cb(null, profile);
