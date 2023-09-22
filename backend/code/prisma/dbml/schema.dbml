@@ -1,0 +1,115 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table users {
+  userId String [pk]
+  updatedAt DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  email String [unique]
+  password String
+  refreshedHash String
+  intraId String [unique]
+  profileFinished Boolean [not null, default: false]
+  intraUsername String
+  firstName String
+  lastName String
+  tfaEnabled Boolean [not null, default: false]
+  left_friends friends [not null]
+  right_friends friends [not null]
+  matches matches [not null]
+  owned_rooms rooms [not null]
+  roomMember room_members [not null]
+}
+
+Table friends {
+  updatedAt DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  id String [pk]
+  fromId String [not null]
+  toId String [not null]
+  accepted Boolean [not null, default: false]
+  from users [not null]
+  to users [not null]
+  is_blocked Boolean [default: false]
+  blocked_by_id String
+
+  indexes {
+    (fromId, toId) [unique]
+  }
+}
+
+Table matches {
+  updatedAt DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  id Int [pk, increment]
+  participant1Id String [not null]
+  participant2Id String [not null]
+  winner_id String
+  score1 Int
+  score2 Int
+  gametype String
+  participant1 users [not null]
+}
+
+Table messages {
+  updatedAt DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  id String [pk]
+  authorId String [not null]
+  room rooms [not null]
+  roomId String [not null]
+  content String
+}
+
+Table rooms {
+  updatedAt DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  id String [pk]
+  name String
+  ownerId String [not null]
+  type RoomType [not null, default: 'public']
+  password String
+  owner users [not null]
+  members room_members [not null]
+  messages messages [not null]
+}
+
+Table room_members {
+  updatedAt DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  id String [pk]
+  userId String [not null]
+  roomId String [not null]
+  is_admin Boolean [not null, default: false]
+  is_banned Boolean [not null, default: false]
+  is_mueted Boolean [not null, default: false]
+  mute_expires DateTime
+  user users [not null]
+  room rooms [not null]
+
+  indexes {
+    (userId, roomId) [unique]
+  }
+}
+
+Enum RoomType {
+  public
+  private
+  protected
+  dm
+}
+
+Ref: friends.fromId > users.userId
+
+Ref: friends.toId > users.userId
+
+Ref: matches.participant1Id > users.userId
+
+Ref: messages.roomId > rooms.id
+
+Ref: rooms.ownerId > users.userId
+
+Ref: room_members.userId > users.userId
+
+Ref: room_members.roomId > rooms.id [delete: Cascade]

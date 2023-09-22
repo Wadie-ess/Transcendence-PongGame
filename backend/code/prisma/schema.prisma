@@ -5,6 +5,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -44,10 +49,11 @@ model Friend {
   accepted      Boolean  @default(false)
   from          User     @relation("from", fields: [fromId], references: [userId])
   to            User     @relation("to", fields: [toId], references: [userId])
-  is_blocked    Boolean?
-  blocked_by_id Int?
+  is_blocked    Boolean? @default(false)
+  blocked_by_id String?
 
   @@map("friends")
+  @@unique([fromId, toId], name: "unique_friend")
 }
 
 model Match {
@@ -109,8 +115,8 @@ model RoomMember {
   user         User      @relation(fields: [userId], references: [userId])
   room         Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, roomId], name: "unique_user_room")
   @@map("room_members")
+  @@unique([userId, roomId], name: "unique_user_room")
 }
 
 enum RoomType {
