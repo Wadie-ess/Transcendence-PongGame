@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
+import { throws } from 'assert';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -11,37 +12,42 @@ export class FriendsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async addFriend(userId: string, friendId: string) {
-    const friend_request = await this.prisma.friend.findUnique({
+    if (userId === friendId)
+      throw new HttpException(
+        'You cannot add yourself as a friend',
+        HttpStatus.FORBIDDEN,
+      );
+    const friendshipId = [userId, friendId].sort().join('-');
+    return this.prisma.friend.upsert({
       where: {
-        unique_friend: {
-          fromId: userId,
-          toId: friendId,
-        },
+        id: friendshipId,
       },
-    });
-
-    if (friend_request) {
-      throw new ConflictException('Friend request already sent');
-    }
-    return await this.prisma.friend.create({
-      data: {
+      create: {
+        id: friendshipId,
         from: {
-          connect: { userId },
+          connect: {
+            userId,
+          },
         },
         to: {
           connect: { userId: friendId },
         },
       },
+      update: {},
     });
   }
 
   async acceptFriend(userId: string, friendId: string) {
+    if (userId === friendId)
+      throw new HttpException(
+        'You cannot accept yourself as a friend',
+        HttpStatus.FORBIDDEN,
+      );
+    const friendshipId = [userId, friendId].sort().join('-');
+
     const friend_request = await this.prisma.friend.findUnique({
       where: {
-        unique_friend: {
-          fromId: friendId,
-          toId: userId,
-        },
+        id: friendshipId,
       },
     });
 
@@ -52,16 +58,16 @@ export class FriendsService {
       );
     }
 
-    if (friend_request.accepted) {
-      throw new ConflictException('Friend request already accepted');
+    if (friend_request.toId !== userId) {
+      throw new HttpException(
+        "You can't accept a friend request that isn't yours",
+        HttpStatus.FORBIDDEN,
+      );
     }
 
-    return await this.prisma.friend.update({
+    return this.prisma.friend.update({
       where: {
-        unique_friend: {
-          fromId: friendId,
-          toId: userId,
-        },
+        id: friendshipId,
       },
       data: {
         accepted: true,
@@ -69,40 +75,77 @@ export class FriendsService {
     });
   }
 
-  async blockFriend(userId: string, friendId: string) {
-    const friend_request = await this.prisma.friend.findUnique({
+  async rejectFriend(userId: string, friendId: string) {
+    if (userId === friendId)
+      throw new HttpException(
+        'You cannot reject yourself as a friend',
+        HttpStatus.FORBIDDEN,
+      );
+    const friendshipId = [userId, friendId].sort().join('-');
+
+    return this.prisma.friend.delete({
       where: {
-        unique_friend: {
-          fromId: friendId,
-          toId: userId,
-        },
+        id: friendshipId,
       },
     });
+ }
 
-    if (!friend_request) {
+  async blockFriend(userId: string, friendId: string) {
+    if (userId === friendId)
       throw new HttpException(
-        "Friend request doesn't exist",
-        HttpStatus.NOT_FOUND,
+        'You cannot block yourself',
+        HttpStatus.FORBIDDEN,
+      );
+    const friendshipId = [userId, friendId].sort().join('-');
+    await this.prisma.friend.deleteMany({
+      where: {
+        id: friendshipId,
+      },
+    });
+    await this.prisma.blockedUsers.upsert({
+      where: {
+        id: friendshipId,
+      },
+      create: {
+        id: friendshipId,
+        Blcoked_by: {
+          connect: {
+            userId,
+          },
+        },
+        Blocked: { connect: { userId: friendId } },
+      },
+      update: {},
+    });
+    return { message: 'User blocked' };
+  }
+
+  async unblockFriend(userId: string, friendId: string) {
+    const friendshipId = [userId, friendId].sort().join('-');
+    const blocked = await this.prisma.blockedUsers.findUnique({
+      where: {
+        id: friendshipId,
+      },
+    });
+    if (!blocked) {
+      throw new HttpException(
+        'You cannot unblock a user that is not blocked',
+        HttpStatus.FORBIDDEN,
       );
     }
 
-    if (friend_request.is_blocked && friend_request.blocked_by_id === userId) {
-      throw new ConflictException('Friend already blocked');
+    if (userId !== blocked.blocked_by_id) {
+      throw new HttpException(
+        'You cannot unblock a user that is not blocked by you',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
-    return await this.prisma.friend.update({
+    await this.prisma.blockedUsers.deleteMany({
       where: {
-        unique_friend: {
-          fromId: friendId,
-          toId: userId,
-        },
-      },
-      data: {
-        is_blocked: true,
-        blocked_by_id: userId,
+        id: friendshipId,
       },
     });
+    return { message: 'User unblocked' };
   }
-
-	async unblockFriend(
 }

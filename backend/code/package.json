@@ -1,8 +1,8 @@
 {
   "name": "hands_ondirt",
   "volta": {
-    "node": "18.17.1",
-    "npm": "10.0.0"
+    "node": "18.18.0",
+    "npm": "10.1.0"
   },
   "version": "0.0.1",
   "description": "",

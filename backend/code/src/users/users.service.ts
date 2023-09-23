@@ -28,8 +28,6 @@ export class UsersService {
                   accepted: true,
                   fromId: true,
                   toId: true,
-                  is_blocked: true,
-                  blocked_by_id: true,
                 },
               },
               right_friends: {
@@ -37,8 +35,6 @@ export class UsersService {
                   accepted: true,
                   fromId: true,
                   toId: true,
-                  is_blocked: true,
-                  blocked_by_id: true,
                 },
               },
               owned_rooms: {

@@ -14,7 +14,7 @@ export class FriendsController {
     @Body() addFriendDto: AddFriendDto,
     @GetCurrentUser('userId') userId: string,
   ) {
-    return await this.friendsService.addFriend(userId, addFriendDto.friendId);
+    return this.friendsService.addFriend(userId, addFriendDto.friendId);
   }
 
   @Post('accept')
@@ -23,10 +23,7 @@ export class FriendsController {
     @Body() addFriendDto: AddFriendDto,
     @GetCurrentUser('userId') userId: string,
   ) {
-    return await this.friendsService.acceptFriend(
-      userId,
-      addFriendDto.friendId,
-    );
+    return this.friendsService.acceptFriend(userId, addFriendDto.friendId);
   }
 
   @Post('block')
@@ -35,7 +32,7 @@ export class FriendsController {
     @Body() addFriendDto: AddFriendDto,
     @GetCurrentUser('userId') userId: string,
   ) {
-    return await this.friendsService.blockFriend(userId, addFriendDto.friendId);
+    return this.friendsService.blockFriend(userId, addFriendDto.friendId);
   }
 
   @Post('unblock')
@@ -44,9 +41,16 @@ export class FriendsController {
     @Body() addFriendDto: AddFriendDto,
     @GetCurrentUser('userId') userId: string,
   ) {
-    return await this.friendsService.unblockFriend(
-      userId,
-      addFriendDto.friendId,
-    );
+    return this.friendsService.unblockFriend(userId, addFriendDto.friendId);
   }
+
+  @Post(["reject", "unfriend"])
+  @UseGuards(AtGuard)
+  async rejectFriend(
+    @Body() addFriendDto: AddFriendDto,
+    @GetCurrentUser('userId') userId: string,
+  ) {
+    return this.friendsService.rejectFriend(userId, addFriendDto.friendId);
+  }
+
 }

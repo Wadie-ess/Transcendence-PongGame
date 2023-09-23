@@ -5,7 +5,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 generator dbml {
   provider = "prisma-dbml-generator"
 }
@@ -29,12 +28,14 @@ model User {
   intraUsername String?
   firstName     String?
   lastName      String?
-  tfaEnabled    Boolean      @default(false)
-  left_friends  Friend[]     @relation("from")
-  right_friends Friend[]     @relation("to")
-  matches       Match[]      @relation("participant1")
-  owned_rooms   Room[]       @relation("owner")
+  tfaEnabled    Boolean        @default(false)
+  left_friends  Friend[]       @relation("from")
+  right_friends Friend[]       @relation("to")
+  matches       Match[]        @relation("participant1")
+  owned_rooms   Room[]         @relation("owner")
   roomMember    RoomMember[]
+  blocked_by    BlockedUsers[] @relation("blocked_by")
+  blocked       BlockedUsers[] @relation("blocked")
 
   @@map("users")
 }
@@ -43,17 +44,28 @@ model Friend {
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 
-  id            String   @id @default(cuid())
-  fromId        String
-  toId          String
-  accepted      Boolean  @default(false)
-  from          User     @relation("from", fields: [fromId], references: [userId])
-  to            User     @relation("to", fields: [toId], references: [userId])
-  is_blocked    Boolean? @default(false)
-  blocked_by_id String?
+  id       String  @id
+  fromId   String
+  toId     String
+  accepted Boolean @default(false)
+  from     User    @relation("from", fields: [fromId], references: [userId])
+  to       User    @relation("to", fields: [toId], references: [userId])
 
-  @@map("friends")
   @@unique([fromId, toId], name: "unique_friend")
+  @@map("friends")
+}
+
+model BlockedUsers {
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  id            String @id
+  Blcoked_by    User   @relation("blocked_by", fields: [blocked_by_id], references: [userId])
+  blocked_by_id String @unique
+  Blocked       User   @relation("blocked", fields: [blocked_id], references: [userId])
+  blocked_id    String @unique
+
+  @@map("blocked_friends")
 }
 
 model Match {
@@ -115,8 +127,8 @@ model RoomMember {
   user         User      @relation(fields: [userId], references: [userId])
   room         Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
-  @@map("room_members")
   @@unique([userId, roomId], name: "unique_user_room")
+  @@map("room_members")
 }
 
 enum RoomType {

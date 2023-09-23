@@ -20,6 +20,8 @@ Table users {
   matches matches [not null]
   owned_rooms rooms [not null]
   roomMember room_members [not null]
+  blocked_by blocked_friends [not null]
+  blocked blocked_friends [not null]
 }
 
 Table friends {
@@ -31,12 +33,20 @@ Table friends {
   accepted Boolean [not null, default: false]
   from users [not null]
   to users [not null]
-  is_blocked Boolean [default: false]
-  blocked_by_id String
 
   indexes {
     (fromId, toId) [unique]
   }
+}
+
+Table blocked_friends {
+  updatedAt DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  id String [pk]
+  Blcoked_by users [not null]
+  blocked_by_id String [unique, not null]
+  Blocked users [not null]
+  blocked_id String [unique, not null]
 }
 
 Table matches {
@@ -103,6 +113,10 @@ Enum RoomType {
 Ref: friends.fromId > users.userId
 
 Ref: friends.toId > users.userId
+
+Ref: blocked_friends.blocked_by_id > users.userId
+
+Ref: blocked_friends.blocked_id > users.userId
 
 Ref: matches.participant1Id > users.userId
 
