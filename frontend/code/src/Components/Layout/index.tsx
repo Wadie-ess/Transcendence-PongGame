@@ -14,7 +14,7 @@ import { matchRoutes, useLocation } from "react-router-dom"
 import { useUserStore } from '../../Stores/stores'
 import { useEffect } from 'react'
 
-const routes = [{ path: "Profile/:id" } , {path : "Settings"} , {path : "Home"}, {path:"Chat"} , {path:"Play"}, {path:"Pure"}]
+const routes = [{ path: "Profile/:id" } , {path : "Settings"} , {path : "Home"}, {path:"Chat"} , {path:"Play"}, {path:"Pure"}, {path:"Game"}]
 
 const useCurrentPath = () => {
     const location = useLocation()
@@ -74,7 +74,7 @@ export const Layout : FC<PropsWithChildren> =  () : JSX.Element =>
                         <Settings selected={path === "Settings" ? true : false}/>                    
                     </button>
                 </div>
-                <div className='sm:-ml-4 sm:w-[92vw] xl:w-[96vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-base-100 sm:rounded-tl-2xl  overflow-auto no-scrollbar'>
+                <div className='sm:-ml-4 sm:w-[92vw] xl:w-[96vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-accent sm:rounded-tl-2xl'>
                     <Outlet/>
                 </div>
             </div>
