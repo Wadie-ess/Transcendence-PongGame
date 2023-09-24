@@ -65,6 +65,13 @@ const router = createBrowserRouter([
           return { Component: UserToUserChat };
         },
       },
+      {
+        path: "Game",
+        lazy: async () => {
+          let { Game } = await import("../Components/Game")
+          return { Component: Game};
+        },
+      }
     ],
   },
   {
