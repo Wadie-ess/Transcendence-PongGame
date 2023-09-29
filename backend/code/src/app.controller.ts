@@ -1,9 +1,9 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { PrismaService } from './prisma/prisma.service';
 
 @Controller()
 export class AppController {
-	constructor (private readonly prisma: PrismaService){}
+  constructor(private readonly prisma: PrismaService) {}
   @Get('/login')
   logIn() {
     // send the login page
@@ -22,10 +22,10 @@ export class AppController {
 `;
   }
 
- //  @Post('test')
- //  test() {
-	// this.prisma.friend.upsert({})
-	// }
+  //  @Post('test')
+  //  test() {
+  // this.prisma.friend.upsert({})
+  // }
 
   @Get()
   // @UseGuards(AuthenticatedGuard)

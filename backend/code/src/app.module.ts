@@ -9,7 +9,14 @@ import { RoomsModule } from './rooms/rooms.module';
 import { FriendsModule } from './friends/friends.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, ProfileModule, RoomsModule, FriendsModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    ProfileModule,
+    RoomsModule,
+    FriendsModule,
+  ],
   controllers: [AppController],
   providers: [PrismaService],
 })

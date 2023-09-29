@@ -33,7 +33,10 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
         user.intraUsername,
         user.userId,
       );
-      await this.jwtUtils.updateRefreshedHash(user.userId, tokens.refresh_token);
+      await this.jwtUtils.updateRefreshedHash(
+        user.userId,
+        tokens.refresh_token,
+      );
       res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
       res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
       return cb(null, profile);
@@ -48,7 +51,10 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
       new_user.intraUsername,
       new_user.userId,
     );
-    await this.jwtUtils.updateRefreshedHash(new_user.userId, tokens.refresh_token);
+    await this.jwtUtils.updateRefreshedHash(
+      new_user.userId,
+      tokens.refresh_token,
+    );
     res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
     res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
     return cb(null, profile);

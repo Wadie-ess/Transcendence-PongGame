@@ -1,10 +1,4 @@
-import {
-  ConflictException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
-import { throws } from 'assert';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -88,7 +82,7 @@ export class FriendsService {
         id: friendshipId,
       },
     });
- }
+  }
 
   async blockFriend(userId: string, friendId: string) {
     if (userId === friendId)
@@ -147,5 +141,101 @@ export class FriendsService {
       },
     });
     return { message: 'User unblocked' };
+  }
+
+  async getFriendsList(userId: string) {
+    const friends = await this.prisma.friend.findMany({
+      where: {
+        OR: [
+          {
+            fromId: userId,
+            accepted: true,
+          },
+          {
+            toId: userId,
+            accepted: true,
+          },
+        ],
+      },
+      select: {
+        from: {
+          select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        to: {
+          select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+    return friends.map((friend) => {
+      if (friend.from.userId === userId) {
+        return friend.to;
+      } else {
+        return friend.from;
+      }
+    });
+  }
+
+  async getFriendsRequests(userId: string) {
+    const friends = await this.prisma.friend.findMany({
+      where: {
+        toId: userId,
+        accepted: false,
+      },
+      select: {
+        from: {
+          select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+    return friends.map((friend) => friend.from);
+  }
+
+  async getBlockList(userId: string) {
+    const blocked = await this.prisma.blockedUsers.findMany({
+      where: {
+        blocked_by_id: userId,
+      },
+      select: {
+        Blocked: {
+          select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+    return blocked.map((friend) => friend.Blocked);
+  }
+
+  async getPendingRequests(userId: string) {
+    const friends = await this.prisma.friend.findMany({
+      where: {
+        fromId: userId,
+        accepted: false,
+      },
+      select: {
+        to: {
+          select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+    return friends.map((friend) => friend.to);
   }
 }

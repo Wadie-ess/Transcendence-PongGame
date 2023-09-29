@@ -14,11 +14,9 @@ export class ProfileService {
 
   async updateProfile(
     userId: string,
-    update_data: UpdateProfileDto
+    update_data: UpdateProfileDto,
   ): Promise<ProfileDto> {
     const user = await this.usersService.updateUser(userId, update_data);
     return new ProfileDto(user);
   }
 }
-
-

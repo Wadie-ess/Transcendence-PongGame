@@ -15,12 +15,6 @@ export class ProfileController {
     return await this.profileService.getProfile(userId);
   }
 
-  @Get(':id')
-  @UseGuards(AtGuard)
-  getUserById(@Param('id') Id: string) {
-    return this.profileService.getProfile(Id);
-  }
-
   @Post('me')
   @UseGuards(AtGuard)
   updateMe(
@@ -28,5 +22,11 @@ export class ProfileController {
     @Body() update_data: UpdateProfileDto,
   ) {
     return this.profileService.updateProfile(userId, update_data);
+  }
+
+  @Get(':id')
+  @UseGuards(AtGuard)
+  getUserById(@Param('id') Id: string) {
+    return this.profileService.getProfile(Id);
   }
 }

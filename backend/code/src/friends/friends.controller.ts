@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { FriendsService } from './friends.service';
 import { AtGuard } from 'src/auth/guards/at.guard';
 import { AddFriendDto } from './dto/add-friend.dto';
@@ -44,7 +44,7 @@ export class FriendsController {
     return this.friendsService.unblockFriend(userId, addFriendDto.friendId);
   }
 
-  @Post(["reject", "unfriend"])
+  @Post(['reject', 'unfriend'])
   @UseGuards(AtGuard)
   async rejectFriend(
     @Body() addFriendDto: AddFriendDto,
@@ -53,4 +53,27 @@ export class FriendsController {
     return this.friendsService.rejectFriend(userId, addFriendDto.friendId);
   }
 
+  @Get('list')
+  @UseGuards(AtGuard)
+  async getFriendsList(@GetCurrentUser('userId') userId: string) {
+    return this.friendsService.getFriendsList(userId);
+  }
+
+  @Get('requests')
+  @UseGuards(AtGuard)
+  async getFriendsRequests(@GetCurrentUser('userId') userId: string) {
+    return this.friendsService.getFriendsRequests(userId);
+  }
+
+  @Get('blocklist')
+  @UseGuards(AtGuard)
+  async getBlockList(@GetCurrentUser('userId') userId: string) {
+    return this.friendsService.getBlockList(userId);
+  }
+
+  @Get('pending')
+  @UseGuards(AtGuard)
+  async getFriendsPending(@GetCurrentUser('userId') userId: string) {
+    return this.friendsService.getPendingRequests(userId);
+  }
 }
