@@ -1,27 +1,21 @@
 import {
-  yas,
-  // UserImage,
-  // yas1,
-  // yas2,
-  // yas3,
-  // yas4,
-  // SearchIcon,
-  // EditIcon,
-  // GroupChat,
   More,
   Send,
   Close,
   Bio,
+  NullImage,
 } from "./Components/tools/Assets";
 import { useState } from "react";
 import {
   CurrentUserMessage,
   ChatPlaceHolder,
-  UserMessage,
   OnlineNowUsers,
 } from "./Components/MessageHelpers";
-import { myConversationProps } from "./Components/MessageHelpers";
-import { MessageDummy } from "./Components/tools/Assets";
+import { ChatPaceHolderProps } from "./Components/MessageHelpers";
+import users from "./Components/tools/Assets";
+import React, { useEffect, useRef } from "react";
+import { useBearStore } from "./Controllers/ChatState";
+
 
 interface ConversationProps {
   onRemoveUserPreview: () => void;
@@ -59,28 +53,33 @@ export const Chat = () => {
 export const UserPreviewCard: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
+  const [MyUsers] = useState(users);
+
+  const SelectedChat = useBearStore((state) => state.selectedChatID);
+
+  const currentUser = MyUsers.find((user) => user.id === SelectedChat);
   return (
     <div className="flex flex-col p-4 ">
       <div className="flex flex-row justify-between ">
         <p className="text-white font-poppins font-light text-base">
-          Yassin's Info
+          {currentUser?.name}'s Info
         </p>
         <button onClick={onRemoveUserPreview}>
           <img alt="" src={Close} />
         </button>
       </div>
       <div className="flex flex-row justify-center p-4">
-        <img className="w-36 rounded-full " alt="" src={yas} />
+        <img className="w-36 rounded-full " alt="" src={currentUser?.image} />
       </div>
       <div className="flex flex-row justify-center p-1 text-white font-poppins text-26 font-medium">
-        <p>Yassine Alaoui</p>
+        <p>{currentUser?.name}</p>
       </div>
       <div className="flex flex-row justify-center p-1 text-gray-400 font-poppins font-medium text-base">
         <p>Friend</p>
       </div>
       <div className="flex flex-row  text-gray-400 font-poppins font-medium text-base ">
         <img alt="" src={Bio} />
-        <p className="pl-2">Yassin's Bio</p>
+        <p className="pl-2">{currentUser?.name}'s Bio</p>
       </div>
       <div className=" bg-[#1A1C26]">
         <p className="text-white  p-1 pt-2 font-poppins font-normal whitespace-normal overflow-auto break-words">
@@ -94,16 +93,25 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
 export const ConversationHeader: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
+  const [MyUsers] = useState(users);
+
+  const SelectedChat = useBearStore((state) => state.selectedChatID);
+
+  const currentUser = MyUsers.find((user) => user.id === SelectedChat);
   return (
     <>
       <div className="flex flex-row justify-between bg-[#1A1C26] p-3 border-b-2  border-black  ">
         <div className="flex flex-row ">
           <div className="pr-1">
-            <img className="w-12 rounded-full " alt="" src={yas} />
+            <img
+              className="w-12 rounded-full "
+              alt=""
+              src={currentUser?.image}
+            />
           </div>
           <div className="flex flex-col pl-2 ">
             <p className="text-white font-poppins text-base font-medium leading-normal">
-              {" Yassine Alaoui"}
+              {currentUser?.name}
             </p>
             <p className="text-green-500 font-poppins text-sm font-medium leading-normal">
               Online
@@ -125,7 +133,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               <span className="hover:bg-[#7940CF]">Block</span>
             </li>
             <li>
-              <span className="hover:bg-[#7940CF]">Unfriend</span>
+              <span className="hover:bg-[#7940CF]">invite for a Pong Game</span>
             </li>
             <li>
               <span
@@ -142,66 +150,122 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
   );
 };
 
-export const MessageTextInput = () => {
-  return (
-    <div className="">
-      <div className="flex flex-row  m-5 justify-evenly ">
-        <div className="flex flex-row w-full justify-center ">
-          <input
-            type="text"
-            placeholder="Type Message"
-            className="input w-full shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 font-poppins text-base font-normal leading-normal "
-          />
+export const Conversation: React.FC<ConversationProps> = ({
+  onRemoveUserPreview,
+}) => {
+  const messageContainerRef = useRef<HTMLDivElement>(null);
 
-          <button className="btn  ml-4 btn-square  bg-[#8C67F6] hover:bg-green-600">
-            <img src={Send} alt="" />
-          </button>
+  const currentChatMessages = useBearStore((state) => state.currentMessages);
+  const pushMessage = useBearStore((state) => state.addNewMessage);
+  const [inputValue, setInputValue] = useState("");
+
+  // Function to handle input changes
+  const handleInputChange = (e: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
+    setInputValue(e.target.value); // Update the input value in state
+  };
+
+  // Use the useEffect hook to scroll to the end when the component mounts
+  useEffect(() => {
+    scrollToBottom();
+  }, [currentChatMessages]);
+
+  const scrollToBottom = () => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop =
+        messageContainerRef.current.scrollHeight;
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-[99%] ">
+      <ConversationHeader onRemoveUserPreview={onRemoveUserPreview} />
+      <div
+        className="flex-grow overflow-y-auto no-scrollbar"
+        ref={messageContainerRef}
+      >
+        {(currentChatMessages?.length as number) > 0 ? (
+          currentChatMessages?.map((message) => (
+            <CurrentUserMessage
+              message={message.message}
+              time={message.time}
+              senderId={message.senderId}
+              isRead={message.isRead}
+            />
+          ))
+        ) : (
+          <>
+            <div className="null image flex flex-col justify-center items-center h-full">
+              <img alt="null" className="w-[20%] bottom-2" src={NullImage}></img>
+              <p className="text-gray-500 font-montserrat text-18 font-semibold leading-28">
+                No Messages for now, be The Firs !
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className=" bottom-2   ">
+        <div className="">
+          <div className="flex flex-row  m-5 justify-evenly ">
+            <div className="flex flex-row w-full justify-center ">
+              <input
+                value={inputValue}
+                onChange={handleInputChange}
+                type="text"
+                placeholder="Type Message"
+                className="input w-full shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 font-poppins text-base font-normal leading-normal "
+              />
+
+              <button
+                onClick={() => {
+                  setInputValue("");
+
+                  if (inputValue.length > 0) {
+                    pushMessage({
+                      senderId: 2,
+                      message: inputValue,
+                      isRead: false,
+                      time: "10",
+                    });
+                  }
+                }}
+                className="btn  ml-4 btn-square  bg-[#8C67F6] hover:bg-green-600"
+              >
+                <img src={Send} alt="" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export const Conversation: React.FC<ConversationProps> = ({
-  onRemoveUserPreview,
-}) => {
-  const [Messages] = useState(MessageDummy);
-  return (
-    <div className="flex flex-col h-[99%] ">
-      <ConversationHeader onRemoveUserPreview={onRemoveUserPreview} />
-      <div className="flex-grow overflow-y-auto no-scrollbar">
-        {Messages.map((message) =>
-          message.isMe ? <CurrentUserMessage /> : <UserMessage />
-        )}
-      </div>
-
-      <div className=" bottom-2   ">
-        {" "}
-        <MessageTextInput />
-      </div>
-    </div>
-  );
-};
-
-// to make it dynamic list later !
 export const RecentConversations = () => {
-  const [Conversation] = useState(MessageDummy);
+  const [MyUsers] = useState(users);
 
   return (
     <div className="h-full flex flex-col">
+      {/* <p>{SelectedChat}</p> */}
       <OnlineNowUsers />
       <div className="flex-grow overflow-y-auto no-scrollbar">
-        {Conversation.map((message) => (
-          <ChatPlaceHolder
-            key={message.userImage}
-            username={message.username}
-            message={message.message}
-            time={message.time}
-            isMe={message.isMe}
-            isRead={message.isRead}
-            userImage={message.userImage}
-          />
-        ))}
+        {MyUsers.filter((friend) => friend.messages.length > 0).map(
+          // to change 0 to the last message here 
+          (friend) => (
+            <ChatPlaceHolder
+              key={friend.id}
+              id={friend.id}
+              username={friend.name}
+              message={friend.messages[0].message}
+              time={friend.messages[0].time}
+              isMe={true}
+              isRead={true}
+              userImage={friend.image}
+            />
+          )
+        )}
       </div>
     </div>
   );
@@ -209,19 +273,15 @@ export const RecentConversations = () => {
 
 // to refactor it and make it a dynamic list of 5
 
-
 export const SelectedUserTile = ({
   username,
   userImage,
-}: myConversationProps) => {
+}: ChatPaceHolderProps) => {
   return (
     <>
       <div className="overflow-x-auto">
         <table className="table">
-          {/* head */}
-
           <tbody>
-            {/* row 1 */}
             <tr>
               <th>
                 <label>
