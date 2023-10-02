@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { ProfileModule } from './profile/profile.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { FriendsModule } from './friends/friends.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { FriendsModule } from './friends/friends.module';
     ProfileModule,
     RoomsModule,
     FriendsModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

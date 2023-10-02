@@ -26,7 +26,7 @@ export class AuthService {
     });
 
     const tokens = await this.jwtUtils.generateTokens(
-      new_user.intraUsername,
+      new_user.email,
       new_user.userId,
     );
     await this.jwtUtils.updateRefreshedHash(
@@ -46,10 +46,7 @@ export class AuthService {
     if (!is_match)
       throw new HttpException('Invalid password', HttpStatus.FORBIDDEN);
 
-    const tokens = await this.jwtUtils.generateTokens(
-      user.intraUsername,
-      user.userId,
-    );
+    const tokens = await this.jwtUtils.generateTokens(user.email, user.userId);
     await this.jwtUtils.updateRefreshedHash(user.userId, tokens.refresh_token);
 
     return tokens;
@@ -65,10 +62,7 @@ export class AuthService {
 
     const is_match = await bcrypt.compare(refresh_token, user.refreshedHash);
     if (!is_match) throw new ForbiddenException('Invalid refresh token');
-    const tokens = await this.jwtUtils.generateTokens(
-      user.intraUsername,
-      user.userId,
-    );
+    const tokens = await this.jwtUtils.generateTokens(user.email, user.userId);
     await this.jwtUtils.updateRefreshedHash(user.userId, tokens.refresh_token);
 
     return tokens;

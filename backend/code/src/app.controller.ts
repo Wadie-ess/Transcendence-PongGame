@@ -1,9 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
-import { PrismaService } from './prisma/prisma.service';
+import { ApiExcludeController } from '@nestjs/swagger';
 
+@ApiExcludeController(true)
 @Controller()
 export class AppController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor() {}
   @Get('/login')
   logIn() {
     // send the login page

@@ -11,9 +11,11 @@ Table users {
   refreshedHash String
   intraId String [unique]
   profileFinished Boolean [not null, default: false]
-  intraUsername String
+  Username String
   firstName String
   lastName String
+  discreption String [not null, default: '']
+  avatar String
   tfaEnabled Boolean [not null, default: false]
   left_friends friends [not null]
   right_friends friends [not null]

@@ -30,7 +30,7 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
     const user = await this.usersService.getUserByIntraId(profile.id);
     if (user) {
       const tokens = await this.jwtUtils.generateTokens(
-        user.intraUsername,
+        user.email,
         user.userId,
       );
       await this.jwtUtils.updateRefreshedHash(
@@ -41,14 +41,15 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
       res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
       return cb(null, profile);
     }
-
     const new_user = await this.usersService.createUser({
-      intraId: profile.userId,
-      intraUsername: profile.username,
+      intraId: profile.id,
+      email: profile._json.email,
+      firstName: profile.name.givenName,
+      lastName: profile.name.familyName,
     });
 
     const tokens = await this.jwtUtils.generateTokens(
-      new_user.intraUsername,
+      new_user.email,
       new_user.userId,
     );
     await this.jwtUtils.updateRefreshedHash(

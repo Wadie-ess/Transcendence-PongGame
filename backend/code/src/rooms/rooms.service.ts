@@ -51,7 +51,7 @@ export class RoomsService {
         throw new UnauthorizedException('wrong password');
       }
     }
-    return await this.prisma.roomMember.create({
+    await this.prisma.roomMember.create({
       data: {
         user: {
           connect: { userId: userId },
@@ -61,6 +61,8 @@ export class RoomsService {
         },
       },
     });
+
+    return { message: 'joined room successfully' };
   }
 
   async leaveRoom(memberData: LeaveRoomDto, userId: string) {
@@ -83,7 +85,8 @@ export class RoomsService {
     if (room.ownerId !== userId) {
       throw new UnauthorizedException('you are not the owner of this room');
     }
-    return await this.prisma.room.delete({ where: { id: roomData.roomId } });
+    await this.prisma.room.delete({ where: { id: roomData.roomId } });
+    return { message: 'deleted room successfully' };
   }
 
   async updateRoom(roomData: UpdateRoomDto, userId: string) {

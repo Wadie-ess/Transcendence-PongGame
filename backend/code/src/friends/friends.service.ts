@@ -1,9 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class FriendsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly usersService: UsersService,
+  ) {}
 
   async addFriend(userId: string, friendId: string) {
     if (userId === friendId)
@@ -116,11 +120,7 @@ export class FriendsService {
 
   async unblockFriend(userId: string, friendId: string) {
     const friendshipId = [userId, friendId].sort().join('-');
-    const blocked = await this.prisma.blockedUsers.findUnique({
-      where: {
-        id: friendshipId,
-      },
-    });
+    const blocked = await this.usersService.getBlockbyId(friendshipId);
     if (!blocked) {
       throw new HttpException(
         'You cannot unblock a user that is not blocked',

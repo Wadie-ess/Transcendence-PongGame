@@ -81,4 +81,12 @@ export class UsersService {
   async deleteAllUsers() {
     return await this.prisma.user.deleteMany();
   }
+
+  async getBlockbyId(blockId: string) {
+    return await this.prisma.blockedUsers.findUnique({
+      where: {
+        id: blockId,
+      },
+    });
+  }
 }

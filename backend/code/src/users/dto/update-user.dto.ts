@@ -50,4 +50,8 @@ export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
   tfaEnabled?: boolean;
+
+  avatar?: string;
+
+  discreption?: string;
 }

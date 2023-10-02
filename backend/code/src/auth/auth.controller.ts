@@ -11,13 +11,14 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
-import { AtGuard } from './guards/at.guard';
 import { FtOauthGuard } from './guards/ft.guard';
 import { GetCurrentUser } from './decorator/get_current_user.decorator';
 import { Tokens } from './types';
 import { Response } from 'express';
 import { RtGuard } from './guards/rt.guard';
+import { ApiCookieAuth, ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -32,16 +33,11 @@ export class AuthController {
     res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
   }
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   async login(@Res({ passthrough: true }) res: Response, @Body() dto: AuthDto) {
     const tokens: Tokens = await this.authService.login(dto);
     res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
     res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
-  }
-
-  @UseGuards(AtGuard)
-  @Get('test')
-  getTest() {
-    return 'hello world';
   }
 
   @Get('login/42')
@@ -50,6 +46,7 @@ export class AuthController {
     return;
   }
 
+  @ApiExcludeEndpoint()
   @Get('login/42/return')
   @UseGuards(FtOauthGuard)
   @Redirect('/')
@@ -58,6 +55,7 @@ export class AuthController {
   }
 
   @Get('logout')
+  @ApiCookieAuth('X-Refresh-Token')
   @UseGuards(RtGuard)
   async logout(
     @GetCurrentUser('userId') userId: string,
@@ -70,6 +68,7 @@ export class AuthController {
   }
 
   @Get('refresh')
+  @ApiCookieAuth('X-Refresh-Token')
   @HttpCode(HttpStatus.OK)
   @UseGuards(RtGuard)
   async refresh(

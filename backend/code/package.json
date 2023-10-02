@@ -30,10 +30,12 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^10.0.1",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/swagger": "^7.1.12",
     "@prisma/client": "^5.2.0",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "cloudinary": "^1.41.0",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.3.1",
     "express-session": "^1.17.3",
@@ -42,7 +44,8 @@
     "passport-jwt": "^4.0.1",
     "prisma": "^5.2.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "unique-username-generator": "^1.2.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
@@ -52,6 +55,7 @@
     "@types/cookie-parser": "^1.4.4",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
+    "@types/multer": "^1.4.8",
     "@types/node": "^20.3.1",
     "@types/passport-jwt": "^3.0.9",
     "@types/supertest": "^2.0.12",

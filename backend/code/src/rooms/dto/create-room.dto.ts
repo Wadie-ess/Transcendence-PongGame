@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { RoomType } from '@prisma/client';
 import {
   IsEnum,
@@ -8,15 +9,18 @@ import {
 } from 'class-validator';
 
 export class CreateRoomDto {
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   name: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @IsEnum(RoomType)
   type: RoomType;
 
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   @IsNotEmpty()

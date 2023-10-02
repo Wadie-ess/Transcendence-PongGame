@@ -8,6 +8,7 @@ import { ValidationPipe } from '@nestjs/common';
 import * as passport from 'passport';
 import * as cookieParser from 'cookie-parser';
 import { PrismaClientExceptionFilter } from './exceptions/exceptions.filter';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,6 +31,19 @@ async function bootstrap() {
   app.use(cookieParser());
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
+
+  const options = new DocumentBuilder()
+    .setTitle('Transcendence Api')
+    .setDescription('The Transcendence API description')
+    .setVersion('1.0')
+    .addTag('Auth')
+    .addTag('friends')
+    .addTag('profile')
+    .addTag('rooms')
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api', app, document);
+
   await app.listen(3001);
 }
 bootstrap();

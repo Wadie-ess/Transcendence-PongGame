@@ -25,9 +25,11 @@ model User {
   intraId         String? @unique
   profileFinished Boolean @default(false)
 
-  intraUsername String?
+  Username String?
   firstName     String?
   lastName      String?
+  discreption   String @default("")
+  avatar        String?
   tfaEnabled    Boolean        @default(false)
   left_friends  Friend[]       @relation("from")
   right_friends Friend[]       @relation("to")
