@@ -1,7 +1,6 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Prisma } from '@prisma/client';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
@@ -9,27 +8,48 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async createUser(data: CreateUserDto) {
-    return await this.prisma.user
-      .create({
-        data,
-      })
-      .catch((err) => {
-        if (err instanceof Prisma.PrismaClientKnownRequestError) {
-          if (err.code === 'P2002') {
-            throw new ConflictException('User already exists');
-          }
-        }
-        throw err;
-      });
+    return await this.prisma.user.create({
+      data,
+    });
   }
 
   async getAllUsers() {
     return await this.prisma.user.findMany();
   }
 
-  async getUserById(id: string) {
+  async getUserById(userId: string, includeFriends?: boolean) {
     return await this.prisma.user.findUnique({
-      where: { id },
+      where: { userId },
+      ...(includeFriends
+        ? {
+            include: {
+              left_friends: {
+                select: {
+                  accepted: true,
+                  fromId: true,
+                  toId: true,
+                },
+              },
+              right_friends: {
+                select: {
+                  accepted: true,
+                  fromId: true,
+                  toId: true,
+                },
+              },
+              owned_rooms: {
+                select: {
+                  id: true,
+                },
+              },
+              roomMember: {
+                select: {
+                  roomId: true,
+                },
+              },
+            },
+          }
+        : {}),
     });
   }
 
@@ -45,20 +65,28 @@ export class UsersService {
     });
   }
 
-  async updateUser(id: string, data: UpdateUserDto) {
+  async updateUser(userId: string, data: UpdateUserDto) {
     return await this.prisma.user.update({
-      where: { id },
+      where: { userId },
       data,
     });
   }
 
-  async deleteUser(id: string) {
+  async deleteUser(userId: string) {
     return await this.prisma.user.delete({
-      where: { id },
+      where: { userId },
     });
   }
 
   async deleteAllUsers() {
     return await this.prisma.user.deleteMany();
+  }
+
+  async getBlockbyId(blockId: string) {
+    return await this.prisma.blockedUsers.findUnique({
+      where: {
+        id: blockId,
+      },
+    });
   }
 }
