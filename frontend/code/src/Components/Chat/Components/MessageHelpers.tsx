@@ -9,8 +9,10 @@ import users, {
   GroupChat,
   check,
   Message,
+  RoomsIcon,
+  ChatIcon,
 } from "../Components/tools/Assets";
-import { useBearStore } from "../Controllers/ChatState";
+import { ChatType, useBearStore } from "../Controllers/ChatState";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -76,11 +78,16 @@ export const ChatPlaceHolder = ({
   id,
 }: ChatPaceHolderProps) => {
   const selectNewChat = useBearStore((state) => state.selectNewChatID);
+  const selectedChatID = useBearStore((state) => state.selectedChatID);
 
   return (
     <div
       onClick={() => selectNewChat(id)}
-      className="message-container flex   pt-5 pl-5 pb-5 pr-2 hover:bg-[#272932]  bg-[#1A1C26] "
+      className={`message-container flex   pt-5 pl-5 pb-5 pr-2  hover:bg-[#272932]   ${
+        selectedChatID === id ? "bg-[#272932]" : "bg-[#1A1C26]"
+      }
+        
+          `}
     >
       <div className="user-image flex-shrink-0 mr-2">
         <img
@@ -122,6 +129,9 @@ export const OnlineNowUsers = () => {
 
   const [selectedOption, setSelectedOption] = useState("Public"); // Initialize with a default value
 
+  const selectedChatType = useBearStore((state) => state.selectedChatType);
+  const changeChatType = useBearStore((state) => state.changeChatType);
+
   const handleOptionChange = (e: any) => {
     setSelectedOption(e.target.value);
   };
@@ -141,7 +151,7 @@ export const OnlineNowUsers = () => {
                 <div className="flex flex-col">
                   <div className="flex flex-row justify-center">
                     <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
-                      Create Chat Group
+                      Create Chat Room
                     </p>
                   </div>
                   <div className="flex flex-row p-3">
@@ -224,7 +234,8 @@ export const OnlineNowUsers = () => {
                   <div className="modal-action">
                     {
                       // eslint-disable-next-line
-                    }<a href="#" className="btn hover:bg-purple-500">
+                    }
+                    <a href="#" className="btn hover:bg-purple-500">
                       {"Done "}
                     </a>
                   </div>
@@ -233,11 +244,35 @@ export const OnlineNowUsers = () => {
             </div>
           </div>
         </div>
+        <div className="Message-Type-Buttons flex flex-row pt-2 pb-2 justify-between ">
+          <button
+            onClick={() => changeChatType(ChatType.Chat)}
+            className={`${
+              selectedChatType === ChatType.Chat ? "bg-[#272932]" : ""
+            } flex-1 p-2 rounded hover:bg-[#272932] `}
+          >
+            <div className=" flex flex-row justify-center ">
+              <p className="text-gray-300 font-poppins text-base font-medium leading-normal pr-3 ">
+                Chat
+              </p>
+              <img src={ChatIcon}></img>
+            </div>
+          </button>
+          <button onClick={() => changeChatType(ChatType.Room)} className={`${
+              selectedChatType === ChatType.Room ? "bg-[#272932]" : ""
+            } flex-1 p-2 rounded hover:bg-[#272932] `}>
+            <div className="flex flex-row justify-center">
+              <p className="text-gray-300 font-poppins text-base font-medium leading-normal pr-3">
+                Rooms
+              </p>
+              <img src={RoomsIcon}></img>
+            </div>
+          </button>
+        </div>
         <div className="message-row flex flex-row pt-2 justify-between">
           <p className="text-gray-400 font-poppins text-xs font-medium leading-normal ">
             Online Now
           </p>
-          
         </div>
         <div className="users-images flex flex-row justify-between pt-3 ">
           <div className="relative inline-block">

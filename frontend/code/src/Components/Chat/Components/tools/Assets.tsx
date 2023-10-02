@@ -15,92 +15,12 @@ import check from "../../assets/check_icon.svg";
 import group from "../../assets/groupChat.png";
 import GroupChat from "../../assets/CreateGroupChat.svg"
 import NullImage from "../../assets/null_asset.svg"
+import ChatIcon from "../../assets/Chat.svg"
+import RoomsIcon from "../../assets/group_share.svg"
+
 import { ChatPaceHolderProps } from "../MessageHelpers";
 
-export const MessageDummy: ChatPaceHolderProps[] = [
-  {
-    userImage: yas,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-  {
-    userImage: UserImage,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: false,
-    isMe: false,
-    id : 0,
-  },
-  {
-    userImage: group,
-    username: "derb lihoud",
-    message: "yassin : hhh",
-    time: "9:00",
-    isRead: true,
-    isMe: true,
 
-id : 0,  },
-  {
-    userImage: yas2,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-
-  {
-    userImage: yas3,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-  {
-    userImage: yas4,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-  {
-    userImage: yas5,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-  {
-    userImage: UserImage,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-  {
-    userImage: yas1,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-];
 
 export {
   UserImage,
@@ -119,6 +39,8 @@ export {
   check,
   GroupChat,
   NullImage,
+  RoomsIcon,
+  ChatIcon,
 };
 
 
