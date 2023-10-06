@@ -16,7 +16,7 @@ export const Home : FC = () : JSX.Element =>{
                         <div className='absolute xl:text-4xl md:text-3xl sm:text-2xl   flex top-[15%] right-2/6 text-neutral font-lexend font-extrabold'>READY TO PLAY A GAME? </div>
                    
                 </div>
-                <div className='flex justify-center relative items-start pt-6 h-3/6 w-[90vw] sm:h-3/4 sm:w-[85vw]'>
+                <div className='flex justify-center relative items-start pt-6 h-auto w-[90vw] sm:w-[85vw]  overflow-scroll no-scrollbar'>
                     <LeaderBoard/>
 
                 </div>

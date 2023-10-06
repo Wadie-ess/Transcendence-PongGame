@@ -88,7 +88,7 @@ export const Profile = () =>{
                     </div>
                 </div>
             </div>
-            <div className="relative flex w-[85vw] justify-center h-auto">
+            <div className="relative flex w-[85vw] justify-center h-auto  overflow-scroll no-scrollbar">
                 <History props={params.id}/>
             </div>
         </div>
