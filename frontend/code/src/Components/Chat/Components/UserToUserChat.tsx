@@ -1,67 +1,13 @@
 import { useState } from "react";
-import { Conversation, UserPreviewCard } from "..";
-
-
-
-
-
-
-
-
-
-
-
-
-
-// type State = {
-//   firstName: string
-//   lastName: string
-// }
-
-// type Action = {
-//   updateFirstName: (firstName: State['firstName']) => void
-//   updateLastName: (lastName: State['lastName']) => void
-// }
-
-// Create your store, which includes both state and (optionally) actions
-// const usePersonStore = create<State & Action>((set) => ({
-//   firstName: '',
-//   lastName: '',
-//   updateFirstName: (firstName) => set(() => ({ firstName: firstName })),
-//   updateLastName: (lastName) => set(() => ({ lastName: lastName })),
-// }))
-
-// // In consuming app
-// function App() {
-//   // "select" the needed state and actions, in this case, the firstName value
-//   // and the action updateFirstName
-//   const firstName = usePersonStore((state) => state.firstName)
-//   const updateFirstName = usePersonStore((state) => state.updateFirstName)
-
-//   return (
-//     <main>
-//       <label>
-//         First name
-//         <input
-//           // Update the "firstName" state
-//           onChange={(e) => updateFirstName(e.currentTarget.value)}
-//           value={firstName}
-//         />
-//       </label>
-
-//       <p>
-//         Hello, <strong>{firstName}!</strong>
-//       </p>
-//     </main>
-//   )
-// }
-
+import { UserPreviewCard } from "..";
+import { Conversation } from "./Conversation";
 
 export const UserToUserChat = () => {
   const [showUserPreview, setShowUserPreview] = useState(true);
 
-  const handleRemoveUserPreview = () => {
+   const handleRemoveUserPreview = () => {
     setShowUserPreview(!showUserPreview);
+  
   };
   return (
     <>
@@ -70,7 +16,7 @@ export const UserToUserChat = () => {
           className={` ${
             showUserPreview ? "w-8/12" : "w-full"
           } overflow-hidden bg-gray-900`}
-        > 
+        >
           <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
         </div>
         <div className={` ${showUserPreview ? "w-4/12" : ""}  bg-[#1A1C26]`}>
@@ -82,3 +28,171 @@ export const UserToUserChat = () => {
     </>
   );
 };
+
+
+<div className="overflow-x-auto relative">
+<table className="table ">
+  <tbody>
+    <tr>
+      <td>
+        <div className="flex flex-row justify-between ">
+          <div className="flex flex-row items-center space-x-3">
+            <div className="avatar">
+              <div className="mask mask-squircle w-12 h-12">
+                <img
+                  // src={user.image}
+                  alt="Avatar Tailwind CSS Component"
+                />
+              </div>
+            </div>
+            {/* <div className="font-bold">{user.name}</div> */}
+          </div>
+          <div className="dropdown ">
+            <label tabIndex={0} className="">
+              <summary className="list-none p-3 cursor-pointer ">
+                {/* <img src={More} alt="More" /> */}
+              </summary>
+            </label>
+            <ul
+              tabIndex={0}
+              className="p-2 shadow menu dropdown-content z-[0] bg-base-100 rounded-box w-52   right-full absolute  "
+            >
+              <li>
+                <span className="hover:bg-[#7940CF]">
+                  Block
+                </span>
+              </li>
+              <li>
+                <span className="hover:bg-[#7940CF]">
+                  invite for a Pong Game
+                </span>
+              </li>
+              <li>
+                <span
+                  // onClick={onRemoveUserPreview}
+                  className="hover:bg-[#7940CF]"
+                >
+                  Show User Info
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+// <div className="max-h-[300px]  no-scrollbar overflow-visible ">
+// {currentRoomUsers.map((user) => (
+//   <div className="flex flex-row justify-between bg-[#1A1C26] p-3   border-gray-600  ">
+//     <div className="flex flex-row items-center space-x-3">
+//       <div className="pr-1">
+//         <img
+//           className="w-12 rounded-full "
+//           alt=""
+//           src={user.image}
+//         />
+//       </div>
+
+//       <p className="text-white font-poppins text-base font-medium leading-normal">
+//         {user.name}
+//       </p>
+//     </div>
+
+//     <div className="dropdown">
+//       <label tabIndex={0} className="">
+//         <summary className="list-none p-3 cursor-pointer ">
+//           <img src={More} alt="More" />
+//         </summary>
+//       </label>
+//       <ul
+//         tabIndex={0}
+//         className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-40 absolute  right-full  "
+//       >
+//         <li>
+//           <span className="hover:bg-[#7940CF]">Block</span>
+//         </li>
+//         <li>
+//           <span className="hover:bg-[#7940CF]">
+//             invite for a Pong Game
+//           </span>
+//         </li>
+//         <li>
+//           <span
+//             // onClick={onRemoveUserPreview}
+//             className="hover:bg-[#7940CF]"
+//           >
+//             Show User Info
+//           </span>
+//         </li>
+//       </ul>
+//     </div>
+//   </div>
+// ))}
+// </div>
+
+
+
+
+
+{/* <div className="flex flex-row justify-between bg-[#1A1C26] p-3 border-b-2  border-black  ">
+        <div className="flex flex-row ">
+          <div className="pr-1">
+            <img
+              className="w-12 rounded-full "
+              alt=""
+              // src={user.image}
+            />
+          </div>
+        
+            <p className="text-white font-poppins text-base font-medium leading-normal">
+              {user.name}
+            </p>
+        
+        </div>
+     
+          <div className="dropdown">
+            <label tabIndex={0} className="">
+              <summary className="list-none p-3 cursor-pointer ">
+                <img src={More} alt="More" />
+              </summary>
+            </label>
+            <ul
+              tabIndex={0}
+              className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute  right-full  "
+            >
+              <li>
+                <span className="hover:bg-[#7940CF]">Block</span>
+              </li>
+              <li>
+                <span className="hover:bg-[#7940CF]">
+                  invite for a Pong Game
+                </span>
+              </li>
+              <li>
+                <span
+                  onClick={onRemoveUserPreview}
+                  className="hover:bg-[#7940CF]"
+                >
+                  Show User Info
+                </span>
+              </li>
+            </ul>
+          </div>
+      
+      </div> */}
+
