@@ -1,9 +1,13 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { Tokens } from './types/auth.type';
 import { JwtUtils } from './utils/jwt_utils/jwt_utils';
-import { v4 as uuiv4 } from 'uuid';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -19,14 +23,31 @@ export class AuthService {
     const new_user = await this.usersService.createUser({
       email: dto.email,
       password: hash,
-      id: uuiv4(),
     });
 
     const tokens = await this.jwtUtils.generateTokens(
-      new_user.intraUsername,
-      new_user.id,
+      new_user.email,
+      new_user.userId,
     );
-    await this.jwtUtils.updateRefreshedHash(new_user.id, tokens.refresh_token);
+    await this.jwtUtils.updateRefreshedHash(
+      new_user.userId,
+      tokens.refresh_token,
+    );
+
+    return tokens;
+  }
+
+  async login(dto: AuthDto): Promise<Tokens> {
+    const user = await this.usersService.getUserByEmail(dto.email);
+
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    const is_match = await bcrypt.compare(dto.password, user.password);
+    if (!is_match)
+      throw new HttpException('Invalid password', HttpStatus.FORBIDDEN);
+
+    const tokens = await this.jwtUtils.generateTokens(user.email, user.userId);
+    await this.jwtUtils.updateRefreshedHash(user.userId, tokens.refresh_token);
 
     return tokens;
   }
@@ -41,11 +62,8 @@ export class AuthService {
 
     const is_match = await bcrypt.compare(refresh_token, user.refreshedHash);
     if (!is_match) throw new ForbiddenException('Invalid refresh token');
-    const tokens = await this.jwtUtils.generateTokens(
-      user.intraUsername,
-      user.id,
-    );
-    await this.jwtUtils.updateRefreshedHash(user.id, tokens.refresh_token);
+    const tokens = await this.jwtUtils.generateTokens(user.email, user.userId);
+    await this.jwtUtils.updateRefreshedHash(user.userId, tokens.refresh_token);
 
     return tokens;
   }

@@ -6,10 +6,6 @@ import {
   IsString,
 } from 'class-validator';
 export class CreateUserDto {
-  @IsString()
-  @IsNotEmpty()
-  id: string;
-
   @IsOptional()
   @IsString()
   @IsNotEmpty()

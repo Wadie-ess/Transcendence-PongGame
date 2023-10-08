@@ -14,9 +14,10 @@ import Bio from "../../assets/bio_icon.svg";
 import check from "../../assets/check_icon.svg";
 import group from "../../assets/groupChat.png";
 import GroupChat from "../../assets/CreateGroupChat.svg"
-import { myConversationProps } from "../MessageHelpers";
+import NullImage from "../../assets/null_asset.svg"
+import { ChatPaceHolderProps } from "../MessageHelpers";
 
-export const MessageDummy: myConversationProps[] = [
+export const MessageDummy: ChatPaceHolderProps[] = [
   {
     userImage: yas,
     username: "a7a 1",
@@ -24,6 +25,7 @@ export const MessageDummy: myConversationProps[] = [
     time: "6:00",
     isRead: true,
     isMe: false,
+    id : 0,
   },
   {
     userImage: UserImage,
@@ -32,6 +34,7 @@ export const MessageDummy: myConversationProps[] = [
     time: "6:00",
     isRead: false,
     isMe: false,
+    id : 0,
   },
   {
     userImage: group,
@@ -40,7 +43,8 @@ export const MessageDummy: myConversationProps[] = [
     time: "9:00",
     isRead: true,
     isMe: true,
-  },
+
+id : 0,  },
   {
     userImage: yas2,
     username: "a7a 1",
@@ -48,6 +52,7 @@ export const MessageDummy: myConversationProps[] = [
     time: "6:00",
     isRead: true,
     isMe: false,
+    id : 0,
   },
 
   {
@@ -57,6 +62,7 @@ export const MessageDummy: myConversationProps[] = [
     time: "6:00",
     isRead: true,
     isMe: false,
+    id : 0,
   },
   {
     userImage: yas4,
@@ -65,6 +71,7 @@ export const MessageDummy: myConversationProps[] = [
     time: "6:00",
     isRead: true,
     isMe: false,
+    id : 0,
   },
   {
     userImage: yas5,
@@ -73,6 +80,7 @@ export const MessageDummy: myConversationProps[] = [
     time: "6:00",
     isRead: true,
     isMe: false,
+    id : 0,
   },
   {
     userImage: UserImage,
@@ -81,6 +89,7 @@ export const MessageDummy: myConversationProps[] = [
     time: "6:00",
     isRead: true,
     isMe: false,
+    id : 0,
   },
   {
     userImage: yas1,
@@ -89,6 +98,7 @@ export const MessageDummy: myConversationProps[] = [
     time: "6:00",
     isRead: true,
     isMe: false,
+    id : 0,
   },
 ];
 
@@ -107,5 +117,565 @@ export {
   Close,
   Bio,
   check,
-  GroupChat
+  GroupChat,
+  NullImage,
 };
+
+
+
+export interface Message {
+  senderId: number;
+  message: string;
+  time: string; // You can use a Date object or a string representation of the time
+  isRead: boolean;
+}
+
+export interface User {
+  id: number;
+  name: string;
+  image: string;
+  messages: Message[];
+}
+
+export const users: User[] = [
+  {
+    id: 1,
+    name: "User 1",
+    image: yas,
+    messages: [
+      {
+        senderId: 1,
+        message: "Hello!",
+        time: "00:00",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "05:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "Hello!",
+        time: "00:00",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "05:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "Hello!",
+        time: "00:00",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "05:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "Hello!",
+        time: "00:00",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "05:00",
+        isRead: true,
+      },
+      // Add more messages as needed
+    ],
+  },
+  {
+    id: 2,
+    name: "User 2",
+    image: yas2,
+    messages: [
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      // Add more messages as needed
+    ],
+  },
+  {
+    id: 3,
+    name: "User 3",
+    image: yas,
+    messages: [
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      // Add more messages as needed
+    ],
+  },
+  {
+    id: 4,
+    name: "User 4",
+    image: yas3,
+    messages: [
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      // Add more messages as needed
+    ],
+  },
+  {
+    id: 5,
+    name: "User 5",
+    image: yas4,
+    messages: [
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      // Add more messages as needed
+    ],
+  },
+  {
+    id: 6,
+    name: "User 6",
+    image: yas5,
+    messages: [
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      
+      // Add more messages as needed
+    ],
+  },
+  {
+    id: 7,
+    name: "User 7",
+    image: yas5,
+    messages: [
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      
+      // Add more messages as needed
+    ],
+  },
+  {
+    id: 8,
+    name: "User 8",
+    image: yas5,
+    messages: [
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      {
+        senderId: 2,
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+      
+      // Add more messages as needed
+    ],
+  },
+  // Add more users as needed
+];
+
+
+
+export default users;

@@ -1,84 +1,68 @@
 import { useState } from "react";
 import { SelectedUserTile } from "..";
-import {
+import users, {
   UserImage,
-  yas,
   yas1,
   yas2,
   yas3,
   yas4,
-  SearchIcon,
-  // EditIcon,
-  // More,
-  Send,
-  // Close,
-  // Bio,
   GroupChat,
   check,
-  MessageDummy,
+  Message,
 } from "../Components/tools/Assets";
+import { useBearStore } from "../Controllers/ChatState";
 
-export interface myConversationProps {
+export interface ChatPaceHolderProps {
   username: string;
   message: string;
   time: string;
   isMe: boolean;
   isRead: boolean;
   userImage: string;
+  id: number;
 }
 
-export const CurrentUserMessage = () => {
-  return (
+export const CurrentUserMessage = ({
+  message,
+  time,
+  // isRead,
+  senderId,
+}: Message) => {
+  const [MyUsers] = useState(users);
+
+  const SelectedChat = useBearStore((state) => state.selectedChatID);
+
+  const currentChatMessages = MyUsers.find((user) => user.id === SelectedChat);
+  return senderId === 2 ? (
     <div className="chat chat-end p-2 pl-5 ">
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
-          12:45 PM
+          {time} PM
         </time>
       </div>
       <div className=" max-w-max chat-bubble bg-purple-500 text-white whitespace-normal  break-words">
-        nn hh{" "}
+        {message}
       </div>
       <div className="chat-footer p-1 text-gray-400 font-poppins text-xs font-light leading-normal">
         Delivered
       </div>
     </div>
-  );
-};
-export const UserMessage = () => {
-  return (
-    <>
-      <div className="chat chat-start p-3 pr-5">
-        <div className="chat-image avatar">
-          <div className="w-10 rounded-full">
-            <img src={yas} alt="" />
-          </div>
-        </div>
-        <div className="chat-header p-1">
-          <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
-            12:45 PM
-          </time>
-        </div>
-
-        <div className="max-w-max chat-bubble whitespace-normal  break-words">
-          {"Salam "}
+  ) : (
+    <div className="chat chat-start p-3 pr-5">
+      <div className="chat-image avatar">
+        <div className="w-10 rounded-full">
+          <img src={currentChatMessages?.image} alt="" />
         </div>
       </div>
-    </>
-  );
-};
+      <div className="chat-header p-1">
+        <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
+          {time} PM
+        </time>
+      </div>
 
-export const MessageTextInput = () => {
-  return (
-    <div className="flex flex-row  m-5 justify-evenly">
-      <input
-        type="text"
-        placeholder="Type Message"
-        className="input w-full shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 font-poppins text-base font-normal leading-normal "
-      />
-
-      <button className="btn btn-square bg-[#8C67F6]">
-        <img src={Send} alt="" />
-      </button>
+      <div className="max-w-max chat-bubble whitespace-normal  break-words">
+        {message}
+      </div>
     </div>
   );
 };
@@ -89,9 +73,15 @@ export const ChatPlaceHolder = ({
   time,
   isRead,
   userImage,
-}: myConversationProps) => {
+  id,
+}: ChatPaceHolderProps) => {
+  const selectNewChat = useBearStore((state) => state.selectNewChatID);
+
   return (
-    <div className="message-container flex   pt-5 pl-5 pb-5 pr-2 hover:bg-[#272932]  bg-[#1A1C26] ">
+    <div
+      onClick={() => selectNewChat(id)}
+      className="message-container flex   pt-5 pl-5 pb-5 pr-2 hover:bg-[#272932]  bg-[#1A1C26] "
+    >
       <div className="user-image flex-shrink-0 mr-2">
         <img
           className="user-image h-10 w-10 rounded-full"
@@ -110,7 +100,7 @@ export const ChatPlaceHolder = ({
         </div>
         <div className=" flex flex-row justify-between">
           <p className="text-gray-400 font-poppins text-sm font-medium leading-normal ">
-            {message}
+            {message ?? "h"}
           </p>
           {isRead === false ? (
             <div className="messages-dot relative inline-flex">
@@ -128,7 +118,8 @@ export const ChatPlaceHolder = ({
 };
 
 export const OnlineNowUsers = () => {
-  const [Users] = useState(MessageDummy);
+  const [MyUsers] = useState(users);
+
   const [selectedOption, setSelectedOption] = useState("Public"); // Initialize with a default value
 
   const handleOptionChange = (e: any) => {
@@ -142,13 +133,9 @@ export const OnlineNowUsers = () => {
             Messages
           </p>
           <div className="icons-row flex flex-row  ">
-            <img className="mr-5" alt="" src={SearchIcon} />
-
             <a href="#my_modal_8" className="">
               <img className="" alt="" src={GroupChat} />
             </a>
-
-            {/* // here */}
             <div className="modal " id="my_modal_8">
               <div className="modal-box bg-[#1A1C26]  no-scrollbar ">
                 <div className="flex flex-col">
@@ -220,11 +207,12 @@ export const OnlineNowUsers = () => {
 
                   {/* Scrollable part */}
                   <div className="max-h-[300px] overflow-y-auto no-scrollbar">
-                    {Users.map((user) => (
+                    {MyUsers.map((user) => (
                       <SelectedUserTile
-                        key={user.username} // Make sure to add a unique key prop
-                        username={user.username}
-                        userImage={user.userImage}
+                        key={user.id}
+                        id={user.id} // Make sure to add a unique key prop
+                        username={user.name}
+                        userImage={user.image}
                         message={""}
                         time={""}
                         isMe={false}
@@ -234,9 +222,9 @@ export const OnlineNowUsers = () => {
                   </div>
 
                   <div className="modal-action">
-                  {
+                    {
                       // eslint-disable-next-line
-                    }<a href="#" className="btn hover:bg-purple-500"> 
+                    }<a href="#" className="btn hover:bg-purple-500">
                       {"Done "}
                     </a>
                   </div>
@@ -249,9 +237,7 @@ export const OnlineNowUsers = () => {
           <p className="text-gray-400 font-poppins text-xs font-medium leading-normal ">
             Online Now
           </p>
-          <p className="text-gray-400 font-poppins text-xs font-medium leading-normal ">
-            See All
-          </p>
+          
         </div>
         <div className="users-images flex flex-row justify-between pt-3 ">
           <div className="relative inline-block">

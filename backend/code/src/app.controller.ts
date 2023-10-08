@@ -1,7 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
 
+@ApiExcludeController(true)
 @Controller()
 export class AppController {
+  constructor() {}
   @Get('/login')
   logIn() {
     // send the login page
@@ -19,6 +22,11 @@ export class AppController {
 </html>
 `;
   }
+
+  //  @Post('test')
+  //  test() {
+  // this.prisma.friend.upsert({})
+  // }
 
   @Get()
   // @UseGuards(AuthenticatedGuard)

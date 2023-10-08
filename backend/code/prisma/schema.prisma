@@ -5,26 +5,137 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model user {
-	userId Int @id @default(autoincrement())
-	updatedAt DateTime @updatedAt
-	createdAt DateTime @default(now())
+model User {
+  userId    String   @id @default(cuid())
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 
-	id String @unique
-	email	String?  @unique
-	password String?
-	refreshedHash String?
-	intraId	String? @unique
-	profileFinished Boolean @default(false)
+  email           String? @unique
+  password        String?
+  refreshedHash   String?
+  intraId         String? @unique
+  profileFinished Boolean @default(false)
 
-	intraUsername String?
-	firstName String?
-	lastName String?
-	tfaEnabled Boolean @default(false)
-	@@map("users")
+  Username String?
+  firstName     String?
+  lastName      String?
+  discreption   String @default("")
+  avatar        String?
+  tfaEnabled    Boolean        @default(false)
+  left_friends  Friend[]       @relation("from")
+  right_friends Friend[]       @relation("to")
+  matches       Match[]        @relation("participant1")
+  owned_rooms   Room[]         @relation("owner")
+  roomMember    RoomMember[]
+  blocked_by    BlockedUsers[] @relation("blocked_by")
+  blocked       BlockedUsers[] @relation("blocked")
+
+  @@map("users")
+}
+
+model Friend {
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  id       String  @id
+  fromId   String
+  toId     String
+  accepted Boolean @default(false)
+  from     User    @relation("from", fields: [fromId], references: [userId])
+  to       User    @relation("to", fields: [toId], references: [userId])
+
+  @@unique([fromId, toId], name: "unique_friend")
+  @@map("friends")
+}
+
+model BlockedUsers {
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  id            String @id
+  Blcoked_by    User   @relation("blocked_by", fields: [blocked_by_id], references: [userId])
+  blocked_by_id String @unique
+  Blocked       User   @relation("blocked", fields: [blocked_id], references: [userId])
+  blocked_id    String @unique
+
+  @@map("blocked_friends")
+}
+
+model Match {
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  id             Int     @id @default(autoincrement())
+  participant1Id String
+  participant2Id String
+  winner_id      String?
+  score1         Int?
+  score2         Int?
+  gametype       String?
+  participant1   User    @relation("participant1", fields: [participant1Id], references: [userId])
+
+  @@map("matches")
+}
+
+model Message {
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  id       String  @id @default(cuid())
+  authorId String
+  room     Room    @relation(fields: [roomId], references: [id])
+  roomId   String
+  content  String?
+
+  @@map("messages")
+}
+
+model Room {
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  id       String       @id @default(cuid())
+  name     String?
+  ownerId  String
+  type     RoomType     @default(public)
+  password String?
+  owner    User         @relation("owner", fields: [ownerId], references: [userId])
+  members  RoomMember[]
+  messages Message[]
+
+  @@map("rooms")
+}
+
+model RoomMember {
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  id           String    @id @default(cuid())
+  userId       String
+  roomId       String
+  is_admin     Boolean   @default(false)
+  is_banned    Boolean   @default(false)
+  is_mueted    Boolean   @default(false)
+  mute_expires DateTime?
+  user         User      @relation(fields: [userId], references: [userId])
+  room         Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roomId], name: "unique_user_room")
+  @@map("room_members")
+}
+
+enum RoomType {
+  public
+  private
+  protected
+  dm
 }
