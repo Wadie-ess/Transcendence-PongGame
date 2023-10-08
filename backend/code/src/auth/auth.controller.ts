@@ -49,7 +49,7 @@ export class AuthController {
   @ApiExcludeEndpoint()
   @Get('login/42/return')
   @UseGuards(FtOauthGuard)
-  @Redirect('/')
+  @Redirect(process.env.FRONT_URL+"/Home")
   login42Return() {
     return;
   }
@@ -57,6 +57,7 @@ export class AuthController {
   @Get('logout')
   @ApiCookieAuth('X-Refresh-Token')
   @UseGuards(RtGuard)
+  @Redirect(process.env.FRONT_URL)
   async logout(
     @GetCurrentUser('userId') userId: string,
     @Res({ passthrough: true }) res: Response,
