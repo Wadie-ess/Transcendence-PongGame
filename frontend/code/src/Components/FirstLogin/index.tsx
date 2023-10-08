@@ -1,5 +1,5 @@
 
-export const Lobby =  () =>
+export const FirstLogin =  () =>
 {
     return (
         <div  className="flex h-screen bg-base-100">

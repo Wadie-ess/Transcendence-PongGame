@@ -20,9 +20,12 @@ export const Login =  () =>
                     <div className=" flex flex-col justify-center">
                         <img  src={pingpong}  alt="Logo" />
                     </div>
-                    <Link to="home">
-                        <Button/>
-                    </Link>
+                    {
+                        process.env.REACT_APP_AUTH_PATH && 
+                        <Link to={process.env.REACT_APP_AUTH_PATH.toString()}>
+                            <Button/>
+                        </Link>
+                    }
                 </div>
             </div>
            

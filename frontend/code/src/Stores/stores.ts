@@ -1,4 +1,6 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
+
 export type State = {
     isLogged: boolean,
     id:string,
@@ -55,7 +57,7 @@ type Action = {
     // roomRole : (chatromm : State['chatRoomsJoinedIds']) => void
 }
 
-export const useUserStore = create<State & Action>((set) => ({
+export const useUserStore = create<State & Action >()(persist((set) => ({
     isLogged:false,
     id:'',
     bio:'',
@@ -131,7 +133,20 @@ export const useUserStore = create<State & Action>((set) => ({
                 
             }
             set({...userInitialValue})
+           
         },
-        logout : () => set({},true),
+        logout : () =>  {
+            set({},true);
+        // try {
+        //     // Attempt to clear localStorage
+        //     localStorage.removeItem("userStore");
+        //   } catch (error) {
+        //     console.error("Error clearing localStorage:", error);
+        //   }
+        },
     },
+}),
+{
+        name: 'userStore', 
+        storage: createJSONStorage(() => localStorage),
 }));

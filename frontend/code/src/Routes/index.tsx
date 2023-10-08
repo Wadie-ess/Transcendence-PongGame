@@ -38,10 +38,10 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: "Lobby",
+        path: "FirstLogin",
         lazy: async () => {
-          let { Lobby } = await import("../Components/Lobby");
-          return { Component: Lobby };
+          let { FirstLogin } = await import("../Components/FirstLogin");
+          return { Component: FirstLogin };
         },
       },
       {
