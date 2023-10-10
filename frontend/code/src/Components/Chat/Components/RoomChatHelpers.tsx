@@ -11,21 +11,25 @@ import users, {
 } from "./tools/Assets";
 import { ConversationProps, SelectedUserTile } from "..";
 import { ConversationHeader, CurrentUserMessage } from "./Conversation";
+import { Message } from "../../Layout/Assets/Message";
 
 interface DialogAlertConfirmationProps {
   onYesClick: () => void;
+}
+interface NullComponentProps {
+  message: string;
 }
 
 export const RoomChatPlaceHolder = () => {
   const [ChatRooms] = useState(chatRooms);
   const selectNewChat = useChatStore((state) => state.selectNewChatID);
-  return (
+  return ChatRooms.length > 0 ? (
     <div>
       {ChatRooms.map((room) => (
         <div
           key={room.id}
           onClick={() => selectNewChat(room.id)}
-          className="message-container flex   pt-5 pl-5 pb-5 pr-2 bg-[#1A1C26]  hover:bg-[#272932] "
+          className="message-container flex   pt-5 pl-5 pb-5 pr-2 bg-[#1A1C26] items-center  hover:bg-[#272932] "
         >
           <div className="user-image flex-shrink-0 mr-2">
             <img
@@ -37,31 +41,33 @@ export const RoomChatPlaceHolder = () => {
           <div className="message-colum align-middle flex flex-col flex-grow">
             <div className="message-row flex flex-row justify-between">
               <div className="flex flex-col">
-                <p className="text-white font-poppins text-base font-normal leading-normal ">
+                <p className="text-white font-poppins text-sm md:text-base font-normal leading-normal   ">
                   {room.name}
                 </p>
                 <p className="text-gray-400 font-poppins text-sm font-light leading-normal"></p>
               </div>
-              <p className="text-gray-400 font-poppins text-sm font-light leading-normal ">
+              <p className="text-gray-400 font-poppins text-sm font-light leading-normal hidden md:block ">
                 {room.usersId.length} Members
               </p>
             </div>
             <div className=" flex flex-row justify-between pt-1">
-              <p className="text-gray-400 font-poppins text-sm font-medium leading-normal  max-w-[200px] truncate ">
+              <p className="text-gray-400 font-poppins text-sm font-medium leading-normal max-w-[80px] md:max-w-[180px]  truncate hidden md:block ">
                 {room.messages[room.messages.length - 1].message}
               </p>
               {room.messages[room.messages.length - 1].isRead === false ? (
-                <div className="messages-dot relative inline-flex pt-1">
+                <div className="messages-dot relative inline-flex pt-1 hidden md:block ">
                   <div className="w-3 h-3 bg-red-500 rounded-full text-white flex items-baseline justify-self-end"></div>
                 </div>
               ) : (
-                <img src={check}></img>
+                <img className="hidden md:block" src={check}></img>
               )}
             </div>
           </div>
         </div>
       ))}
     </div>
+  ) : (
+    <NullPlaceHolder message="No Rooms Created Yet, Create The First " />
   );
 };
 
@@ -393,5 +399,16 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         </div>
       )}
     </>
+  );
+};
+
+export const NullPlaceHolder: React.FC<NullComponentProps> = ({ message }) => {
+  return (
+    <div className="null image flex flex-col justify-center items-center h-full">
+      <img alt="null" className="w-[35%] bottom-2" src={NullImage}></img>
+      <p className="text-gray-500 font-montserrat text-18 font-semibold leading-28">
+        {message}
+      </p>
+    </div>
   );
 };

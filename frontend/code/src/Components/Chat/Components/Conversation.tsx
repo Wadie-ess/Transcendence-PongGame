@@ -22,8 +22,10 @@ import { group } from "console";
 import {
   ConfirmationModal,
   DialogAlertConfirmation,
+  NullPlaceHolder,
   RoomSettingsModal,
 } from "./RoomChatHelpers";
+import { KeyboardEvent } from "react";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -180,7 +182,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                   invite for a Pong Game
                 </span>
               </li>
-              <li>
+              <li className="hidden md:block">
                 <span
                   onClick={onRemoveUserPreview}
                   className="hover:bg-[#7940CF]"
@@ -216,7 +218,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                 <></>
               )}
 
-              <li>
+              <li className="hidden md:block">
                 <span
                   onClick={onRemoveUserPreview}
                   className="hover:bg-[#7940CF]"
@@ -278,7 +280,23 @@ export const Conversation: React.FC<ConversationProps> = ({
     }
   };
 
-  return (
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key == "Enter") {
+      // validation check
+      if (inputValue.length > 0) {
+        pushMessage({
+          senderId: 2,
+          message: inputValue,
+          isRead: false,
+          time: "10",
+        });
+        setInputValue("");
+      }
+    }
+    // do stuff
+  };
+
+  return (selectedMessages?.length as number) > 0 ? (
     <div className="flex flex-col h-[99%] ">
       <ConversationHeader onRemoveUserPreview={onRemoveUserPreview} />
       <div
@@ -295,18 +313,7 @@ export const Conversation: React.FC<ConversationProps> = ({
             />
           ))
         ) : (
-          <>
-            <div className="null image flex flex-col justify-center items-center h-full">
-              <img
-                alt="null"
-                className="w-[20%] bottom-2"
-                src={NullImage}
-              ></img>
-              <p className="text-gray-500 font-montserrat text-18 font-semibold leading-28">
-                No Messages for now, be The Firs !
-              </p>
-            </div>
-          </>
+          <NullPlaceHolder message="No Messages Yet!, be The First" />
         )}
       </div>
 
@@ -316,10 +323,11 @@ export const Conversation: React.FC<ConversationProps> = ({
             <div className="flex flex-row w-full justify-center ">
               <input
                 value={inputValue}
+                onKeyDown={handleKeyPress}
                 onChange={handleInputChange}
                 type="text"
-                placeholder="Type Message"
-                className="input w-full shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 font-poppins text-base font-normal leading-normal "
+                placeholder="Type Message "
+                className="input w-full shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 placeholder:text-xs md:placeholder:text-base font-poppins text-base font-normal leading-normal "
               />
 
               <button
@@ -344,5 +352,7 @@ export const Conversation: React.FC<ConversationProps> = ({
         </div>
       </div>
     </div>
+  ) : (
+    <NullPlaceHolder message="No Conversation Yet!, Be The First " />
   );
 };

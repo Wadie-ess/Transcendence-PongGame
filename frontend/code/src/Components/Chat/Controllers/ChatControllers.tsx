@@ -20,7 +20,9 @@ export interface ChatState {
 export const useChatStore = create<ChatState>()((set) => ({
   selectedChatID: 1,
   selectedChatType: ChatType.Chat,
-
+  // //
+  // currentMessages: [] as Message[],
+  // currentRoomMessages: [] as Message[],
   currentMessages: users.find((user) => user.id === 1)?.messages as Message[],
   currentRoomMessages: chatRooms.find((room) => room.id === 1)
     ?.messages as Message[],

@@ -22,7 +22,7 @@ export interface ConversationProps {
 }
 
 export const Chat = () => {
-  const [showUserPreview, setShowUserPreview] = useState(true);
+  const [showUserPreview, setShowUserPreview] = useState(false);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
 
   const handleRemoveUserPreview = () => {
@@ -30,8 +30,12 @@ export const Chat = () => {
   };
   return (
     <>
-      <div className="flex h-full divide-black divide-x-4">
-        <div className={` ${showUserPreview ? "w-4/12" : "w-4/12"}`}>
+      <div className="flex h-full divide-black divide-x-4 bg-[#1A1C26]">
+        <div
+          className={` ${
+            showUserPreview === true ? "w-5/12 " : "w-5/12 md:w-4/12"
+          }`}
+        >
           {<RecentConversations />}
         </div>
         <div
@@ -65,7 +69,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
     currentRoom?.usersId.includes(user.id)
   );
   return (
-    <div className="flex flex-col p-4 ">
+    <div className="flex flex-col p-4   ">
       <div className="flex flex-row justify-between ">
         {selectedChatType === ChatType.Chat ? (
           <p className="text-white font-poppins font-light text-base">
