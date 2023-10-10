@@ -19,7 +19,11 @@ import users, {
 } from "./tools/Assets";
 import { ChatType, useChatStore } from "../Controllers/ChatControllers";
 import { group } from "console";
-import { RoomSettingsModal } from "./RoomChatHelpers";
+import {
+  ConfirmationModal,
+  DialogAlertConfirmation,
+  RoomSettingsModal,
+} from "./RoomChatHelpers";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -44,14 +48,28 @@ export const CurrentUserMessage = ({
 
   const currentChatMessages = MyUsers.find((user) => user.id === SelectedChat);
 
+  //   <div className="chat chat-end p-2 pl-5 ">
+  //   <div className="chat-header p-1">
+  //     <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
+  //       12:45 PM
+  //     </time>
+  //   </div>
+  //   <div className=" max-w-max chat-bubble bg-purple-500 text-white whitespace-normal  break-words">
+
+  //   </div>
+  //   <div className="chat-footer p-1 text-gray-400 font-poppins text-xs font-light leading-normal">
+  //     Delivered
+  //   </div>
+  // </div>
+
   return senderId === 2 ? (
     <div className="chat chat-end p-2 pl-5 ">
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
-          {time} PM
+          12:45 PM
         </time>
       </div>
-      <div className=" max-w-max chat-bubble bg-purple-500 text-white whitespace-normal  break-words">
+      <div className="max-w-max chat-bubble bg-purple-500 text-white whitespace-normal break-words w-[60%] inline-block">
         {message}
       </div>
       <div className="chat-footer p-1 text-gray-400 font-poppins text-xs font-light leading-normal">
@@ -78,7 +96,7 @@ export const CurrentUserMessage = ({
         </time>
       </div>
 
-      <div className="max-w-max chat-bubble whitespace-normal  break-words">
+      <div className="max-w-max chat-bubble whitespace-normal  break-words w-[60%] inline-block">
         {message}
       </div>
     </div>
@@ -96,6 +114,20 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
   const selectedChatType = useChatStore((state) => state.selectedChatType);
 
   const currentRoom = chatRooms.find((room) => room.id === SelectedChat);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Function to open the modal
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  // Function to handle the confirmation
+  const handleConfirmation = () => {
+    // Perform your action when the user confirms (e.g., delete item)
+    // For this example, we'll just close the modal
+    setIsModalOpen(false);
+  };
 
   return (
     <>
@@ -192,10 +224,18 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                   Show Room Info
                 </span>
               </li>
-              <li>
-                <span className="hover:bg-[#7940CF]">leave Room</span>
-              </li>
+              <div>
+                <li>
+                  <span onClick={openModal} className="hover:bg-[#7940CF]">
+                    leave The Room
+                  </span>
+                </li>
+              </div>
             </ul>
+            <ConfirmationModal
+              isOpen={isModalOpen}
+              onConfirm={handleConfirmation}
+            />
           </div>
         )}
       </div>

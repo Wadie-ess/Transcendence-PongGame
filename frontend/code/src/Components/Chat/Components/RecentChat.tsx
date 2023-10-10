@@ -15,6 +15,7 @@ import users, {
 import { SelectedUserTile } from "..";
 import {
   CreateNewRoomModal,
+  DialogAlertConfirmation,
   RoomChatPlaceHolder,
   RoomSettingsModal,
 } from "./RoomChatHelpers";
@@ -90,7 +91,7 @@ export const ChatPlaceHolder = ({
           </p>
         </div>
         <div className=" flex flex-row justify-between">
-          <p className="text-gray-400 font-poppins text-sm font-medium leading-normal ">
+          <p className="text-gray-400 font-poppins text-sm font-medium leading-normal max-w-[200px] truncate ">
             {message ?? "h"}
           </p>
           {isRead === false ? (

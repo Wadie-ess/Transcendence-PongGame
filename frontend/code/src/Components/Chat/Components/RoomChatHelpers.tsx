@@ -47,7 +47,7 @@ export const RoomChatPlaceHolder = () => {
               </p>
             </div>
             <div className=" flex flex-row justify-between pt-1">
-              <p className="text-gray-400 font-poppins text-sm font-medium leading-normal ">
+              <p className="text-gray-400 font-poppins text-sm font-medium leading-normal  max-w-[200px] truncate ">
                 {room.messages[room.messages.length - 1].message}
               </p>
               {room.messages[room.messages.length - 1].isRead === false ? (
@@ -330,8 +330,6 @@ export const RoomSettingsModal = () => {
 export const DialogAlertConfirmation: React.FC<
   DialogAlertConfirmationProps
 > = ({ onYesClick }) => {
-
-
   return (
     <div className="modal" id="my_modal_10">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar  ">
@@ -348,12 +346,52 @@ export const DialogAlertConfirmation: React.FC<
             <a href="#" className="btn hover:bg-purple-500">
               {"No "}
             </a>
-            <a href="#" onClick={onYesClick} className="btn hover:bg-purple-500">
+            <a
+              href="#"
+              onClick={onYesClick}
+              className="btn hover:bg-purple-500"
+            >
               {"Yes "}
             </a>
           </div>
         </div>
       </div>
     </div>
+  );
+};
+
+interface ConfirmationModalProps {
+  isOpen: boolean;
+  onConfirm: () => void;
+}
+
+export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
+  isOpen,
+  onConfirm,
+}) => {
+  const closeModal = () => {
+    // Close the modal by setting isOpen to false
+    onConfirm();
+  };
+
+  return (
+    <>
+      {isOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="modal-box bg-[#1A1C26] rounded-lg shadow-white  p-5 absolute">
+            <h3 className="text-lg font-semibold">Confirmation</h3>
+            <p>Are you sure you want to proceed?</p>
+            <div className="mt-4 flex justify-center">
+              <button className="btn mr-2" onClick={closeModal}>
+                No
+              </button>
+              <button className="btn btn-primary bg-white" onClick={closeModal}>
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
