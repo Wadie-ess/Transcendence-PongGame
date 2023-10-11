@@ -1,29 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { ConversationProps, SelectedUserTile } from "..";
+import { ConversationProps } from "..";
 import users, {
-  UserImage,
-  yas1,
-  yas2,
-  yas3,
-  yas4,
-  GroupChat,
-  check,
   Message,
-  RoomsIcon,
-  ChatIcon,
   groupIcon,
   chatRooms,
   More,
-  NullImage,
   Send,
 } from "./tools/Assets";
 import { ChatType, useChatStore } from "../Controllers/ChatControllers";
-import { group } from "console";
+
 import {
   ConfirmationModal,
-  DialogAlertConfirmation,
+
   NullPlaceHolder,
-  RoomSettingsModal,
+
 } from "./RoomChatHelpers";
 import { KeyboardEvent } from "react";
 
@@ -267,7 +257,7 @@ export const Conversation: React.FC<ConversationProps> = ({
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key == "Enter") {
+    if (e.key === "Enter") {
       // validation check
       if (inputValue.length > 0) {
         pushMessage({

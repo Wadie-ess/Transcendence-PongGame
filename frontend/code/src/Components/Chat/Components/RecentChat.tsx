@@ -5,17 +5,14 @@ import users, {
   ChatIcon,
   GroupChat,
   RoomsIcon,
-  UserImage,
+
   check,
-  yas1,
-  yas2,
-  yas3,
-  yas4,
+
 } from "./tools/Assets";
-import { SelectedUserTile } from "..";
+
 import {
   CreateNewRoomModal,
-  DialogAlertConfirmation,
+
   NullPlaceHolder,
   RoomChatPlaceHolder,
   RoomSettingsModal,
@@ -150,7 +147,7 @@ export const OnlineNowUsers = () => {
               <p className="text-gray-300 font-poppins text-base font-medium leading-normal pr-3 hidden md:block ">
                 Chat
               </p>
-              <img src={ChatIcon}></img>
+              <img alt="chat" src={ChatIcon}></img>
             </div>
           </button>
           <button
@@ -163,7 +160,7 @@ export const OnlineNowUsers = () => {
               <p className="text-gray-300 font-poppins text-base font-medium leading-normal pr-3 hidden md:block">
                 Rooms
               </p>
-              <img src={RoomsIcon}></img>
+              <img alt="chat" src={RoomsIcon}></img>
             </div>
           </button>
         </div>

@@ -1,21 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useChatStore } from "../Controllers/ChatControllers";
 import users, {
   GroupChat,
   More,
   NullImage,
-  Send,
   chatRooms,
   check,
   groupIcon,
 } from "./tools/Assets";
-import { ConversationProps, SelectedUserTile } from "..";
-import { ConversationHeader, CurrentUserMessage } from "./Conversation";
-import { Message } from "../../Layout/Assets/Message";
+import { SelectedUserTile } from "..";
 
-interface DialogAlertConfirmationProps {
-  onYesClick: () => void;
-}
+
 interface NullComponentProps {
   message: string;
 }
@@ -55,11 +50,11 @@ export const RoomChatPlaceHolder = () => {
                 {room.messages[room.messages.length - 1].message}
               </p>
               {room.messages[room.messages.length - 1].isRead === false ? (
-                <div className="messages-dot relative inline-flex pt-1 hidden md:block ">
+                <div className="messages-dot relative  pt-1 hidden  md:block ">
                   <div className="w-3 h-3 bg-red-500 rounded-full text-white flex items-baseline justify-self-end"></div>
                 </div>
               ) : (
-                <img className="hidden md:block" src={check}></img>
+                <img alt="check" className="hidden md:block" src={check}></img>
               )}
             </div>
           </div>
@@ -165,13 +160,11 @@ export const CreateNewRoomModal = () => {
           </div>
 
           <div className="modal-action ">
-            {
-              // eslint-disable-next-line
-            }
-            <a href="#" className="btn hover:bg-purple-500">
+          
+            <a href="#/" className="btn hover:bg-purple-500">
               {"Close "}
             </a>
-            <a href="#" className="btn hover:bg-purple-500">
+            <a href="#/" className="btn hover:bg-purple-500">
               {"Create "}
             </a>
           </div>
@@ -182,8 +175,6 @@ export const CreateNewRoomModal = () => {
 };
 
 export const RoomSettingsModal = () => {
-  const [MyUsers] = useState(users);
-
   const selectedChatID = useChatStore((state) => state.selectedChatID);
   const currentRoom = chatRooms.find((room) => room.id === selectedChatID);
   const currentRoomUsers = users.filter(
@@ -320,44 +311,11 @@ export const RoomSettingsModal = () => {
             {
               // eslint-disable-next-line
             }
-            <a href="#" className="btn hover:bg-purple-500">
+            <a href="#/" className="btn hover:bg-purple-500">
               {"Close "}
             </a>
-            <a href="#" className="btn hover:bg-purple-500">
+            <a href="#/" className="btn hover:bg-purple-500">
               {"Save "}
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export const DialogAlertConfirmation: React.FC<
-  DialogAlertConfirmationProps
-> = ({ onYesClick }) => {
-  return (
-    <div className="modal" id="my_modal_10">
-      <div className="modal-box bg-[#1A1C26]  no-scrollbar w-[85%] md:w-[50%]  ">
-        <div className="flex flex-col">
-          <div className="flex flex-row justify-center">
-            <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
-              Are You Sure
-            </p>
-          </div>
-          <div className="modal-action">
-            {
-              // eslint-disable-next-line
-            }
-            <a href="#" className="btn hover:bg-purple-500">
-              {"No "}
-            </a>
-            <a
-              href="#"
-              onClick={onYesClick}
-              className="btn hover:bg-purple-500"
-            >
-              {"Yes "}
             </a>
           </div>
         </div>

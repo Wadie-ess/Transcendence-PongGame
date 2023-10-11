@@ -1,21 +1,20 @@
 import {
-  More,
-  Send,
+
   Close,
   Bio,
-  NullImage,
+
   groupIcon,
   chatRooms,
   RoomsIcon,
 } from "./Components/tools/Assets";
 import { useState } from "react";
-import { Conversation, CurrentUserMessage } from "./Components/Conversation";
+import { Conversation} from "./Components/Conversation";
 import { ChatPaceHolderProps } from "./Components/Conversation";
 import users from "./Components/tools/Assets";
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { ChatType, useChatStore } from "./Controllers/ChatControllers";
-import { RoomChatPlaceHolder } from "./Components/RoomChatHelpers";
-import { ChatPlaceHolder, RecentConversations } from "./Components/RecentChat";
+
+import {RecentConversations } from "./Components/RecentChat";
 
 export interface ConversationProps {
   onRemoveUserPreview: () => void;
@@ -23,7 +22,7 @@ export interface ConversationProps {
 
 export const Chat = () => {
   const [showUserPreview, setShowUserPreview] = useState(false);
-  const selectedChatType = useChatStore((state) => state.selectedChatType);
+  
 
   const handleRemoveUserPreview = () => {
     setShowUserPreview(!showUserPreview);
