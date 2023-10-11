@@ -12,95 +12,11 @@ import Send from "../../assets/send_icon.svg";
 import Close from "../../assets/close_icon.svg";
 import Bio from "../../assets/bio_icon.svg";
 import check from "../../assets/check_icon.svg";
-import group from "../../assets/groupChat.png";
-import GroupChat from "../../assets/CreateGroupChat.svg"
-import NullImage from "../../assets/null_asset.svg"
-import { ChatPaceHolderProps } from "../MessageHelpers";
-
-export const MessageDummy: ChatPaceHolderProps[] = [
-  {
-    userImage: yas,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-  {
-    userImage: UserImage,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: false,
-    isMe: false,
-    id : 0,
-  },
-  {
-    userImage: group,
-    username: "derb lihoud",
-    message: "yassin : hhh",
-    time: "9:00",
-    isRead: true,
-    isMe: true,
-
-id : 0,  },
-  {
-    userImage: yas2,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-
-  {
-    userImage: yas3,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-  {
-    userImage: yas4,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-  {
-    userImage: yas5,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-  {
-    userImage: UserImage,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-  {
-    userImage: yas1,
-    username: "a7a 1",
-    message: "a7a test",
-    time: "6:00",
-    isRead: true,
-    isMe: false,
-    id : 0,
-  },
-];
+import groupIcon from "../../assets/groupChat.svg";
+import GroupChat from "../../assets/CreateGroupChat.svg";
+import NullImage from "../../assets/null_asset.svg";
+import ChatIcon from "../../assets/Chat.svg";
+import RoomsIcon from "../../assets/group_share.svg";
 
 export {
   UserImage,
@@ -119,15 +35,25 @@ export {
   check,
   GroupChat,
   NullImage,
+  RoomsIcon,
+  ChatIcon,
+  groupIcon,
 };
-
-
 
 export interface Message {
   senderId: number;
   message: string;
-  time: string; // You can use a Date object or a string representation of the time
+  time: string;
   isRead: boolean;
+}
+
+export interface ChatRoom {
+  id: number;
+  name: string;
+  messages: Message[];
+  usersId: number[];
+  isOwner: boolean;
+  isAdmin: boolean;
 }
 
 export interface User {
@@ -136,6 +62,256 @@ export interface User {
   image: string;
   messages: Message[];
 }
+
+// chat rooms dummy data
+export const chatRooms: ChatRoom[] = [
+  {
+    id: 1,
+    name: "Room 1",
+    messages: [
+      {
+        senderId: 5,
+        message: "Hello, everyone!",
+        time: "10:00 AM",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 7,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 3,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      // Add more messages for Room 1 here
+    ],
+    usersId: [1, 2, 3, 4, 5, 6, 7],
+    isOwner: true,
+    isAdmin: true,
+  },
+  {
+    id: 2,
+    name: "Room 2",
+    messages: [
+      {
+        senderId: 2,
+        message: "Hey, Room 2!",
+        time: "11:00 AM",
+        isRead: true,
+      },
+      {
+        senderId: 1,
+        message: "Hello from Room 1!",
+        time: "11:05 AM",
+        isRead: false,
+      },
+      // Add more messages for Room 2 here
+    ],
+    usersId: [1, 2, 3,  7], // User IDs participating in the chat room
+    isOwner: false,
+    isAdmin: false,
+  },
+  {
+    id: 3,
+    name: "Room 3",
+    messages: [
+      {
+        senderId: 5,
+        message: "Hello, everyone!",
+        time: "10:00 AM",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 7,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 3,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      // Add more messages for Room 1 here
+    ],
+    usersId: [1, 2], // User IDs participating in the chat room
+    isOwner: true,
+    isAdmin: true,
+  },
+  {
+    id: 4,
+    name: "Room 4",
+    messages: [
+      {
+        senderId: 5,
+        message: "Hello, everyone!",
+        time: "10:00 AM",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 7,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 3,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      // Add more messages for Room 1 here
+    ],
+    usersId: [1, 2], // User IDs participating in the chat room
+    isOwner: true,
+    isAdmin: true,
+  },
+  {
+    id: 5,
+    name: "Room 5",
+    messages: [
+      {
+        senderId: 5,
+        message: "Hello, everyone!",
+        time: "10:00 AM",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 7,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 3,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      // Add more messages for Room 1 here
+    ],
+    usersId: [1, 2], // User IDs participating in the chat room
+    isOwner: true,
+    isAdmin: true,
+  },
+  {
+    id: 6,
+    name: "Room 6",
+    messages: [
+      {
+        senderId: 5,
+        message: "Hello, everyone!",
+        time: "10:00 AM",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 7,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 3,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      // Add more messages for Room 1 here
+    ],
+    usersId: [1, 2], // User IDs participating in the chat room
+    isOwner: true,
+    isAdmin: true,
+  },
+  {
+    id: 7,
+    name: "Room 7",
+    messages: [
+      {
+        senderId: 5,
+        message: "Hello, everyone!",
+        time: "10:00 AM",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 7,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 3,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      // Add more messages for Room 1 here
+    ],
+    usersId: [1, 2], // User IDs participating in the chat room
+    isOwner: true,
+    isAdmin: true,
+  },
+  // Add more chat rooms here
+];
+
+// joined chatRooms dummy data
+export const chatRoomsJoinedIds = [
+  {
+    id: 1,
+    isAdmin: true,
+    isOwner: true,
+  },
+  {
+    id: 2,
+    isAdmin: false,
+    isOwner: false,
+  },
+  {
+    id: 3,
+    isAdmin: false,
+    isOwner: true,
+  },
+];
 
 export const users: User[] = [
   {
@@ -531,7 +707,7 @@ export const users: User[] = [
         time: "15:00",
         isRead: false,
       },
-      
+
       // Add more messages as needed
     ],
   },
@@ -600,7 +776,7 @@ export const users: User[] = [
         time: "15:00",
         isRead: false,
       },
-      
+
       // Add more messages as needed
     ],
   },
@@ -669,13 +845,11 @@ export const users: User[] = [
         time: "15:00",
         isRead: false,
       },
-      
+
       // Add more messages as needed
     ],
   },
   // Add more users as needed
 ];
-
-
 
 export default users;
