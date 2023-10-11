@@ -80,7 +80,7 @@ export const CreateNewRoomModal = () => {
   };
   return (
     <div className="modal " id="my_modal_8">
-      <div className="modal-box bg-[#1A1C26]  no-scrollbar ">
+      <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
             <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
@@ -164,7 +164,7 @@ export const CreateNewRoomModal = () => {
             ))}
           </div>
 
-          <div className="modal-action">
+          <div className="modal-action ">
             {
               // eslint-disable-next-line
             }
@@ -196,7 +196,7 @@ export const RoomSettingsModal = () => {
   };
   return (
     <div className="modal " id="my_modal_9">
-      <div className="modal-box bg-[#1A1C26]  no-scrollbar  ">
+      <div className="modal-box bg-[#1A1C26]  no-scrollbar w-[90%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
             <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
@@ -338,7 +338,7 @@ export const DialogAlertConfirmation: React.FC<
 > = ({ onYesClick }) => {
   return (
     <div className="modal" id="my_modal_10">
-      <div className="modal-box bg-[#1A1C26]  no-scrollbar  ">
+      <div className="modal-box bg-[#1A1C26]  no-scrollbar w-[85%] md:w-[50%]  ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
             <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">

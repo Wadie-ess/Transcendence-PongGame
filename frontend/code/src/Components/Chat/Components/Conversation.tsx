@@ -50,20 +50,6 @@ export const CurrentUserMessage = ({
 
   const currentChatMessages = MyUsers.find((user) => user.id === SelectedChat);
 
-  //   <div className="chat chat-end p-2 pl-5 ">
-  //   <div className="chat-header p-1">
-  //     <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
-  //       12:45 PM
-  //     </time>
-  //   </div>
-  //   <div className=" max-w-max chat-bubble bg-purple-500 text-white whitespace-normal  break-words">
-
-  //   </div>
-  //   <div className="chat-footer p-1 text-gray-400 font-poppins text-xs font-light leading-normal">
-  //     Delivered
-  //   </div>
-  // </div>
-
   return senderId === 2 ? (
     <div className="chat chat-end p-2 pl-5 ">
       <div className="chat-header p-1">
@@ -71,7 +57,7 @@ export const CurrentUserMessage = ({
           12:45 PM
         </time>
       </div>
-      <div className="max-w-max chat-bubble bg-purple-500 text-white whitespace-normal break-words w-[60%] inline-block">
+      <div className="max-w-max chat-bubble bg-purple-500 text-white whitespace-normal break-words text-sm md:text-base w-[60%] inline-block  ">
         {message}
       </div>
       <div className="chat-footer p-1 text-gray-400 font-poppins text-xs font-light leading-normal">
@@ -98,7 +84,7 @@ export const CurrentUserMessage = ({
         </time>
       </div>
 
-      <div className="max-w-max chat-bubble whitespace-normal  break-words w-[60%] inline-block">
+      <div className="max-w-max chat-bubble whitespace-normal text-sm md:text-base   break-words w-[60%] inline-block">
         {message}
       </div>
     </div>

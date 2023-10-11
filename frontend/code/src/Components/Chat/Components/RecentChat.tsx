@@ -117,6 +117,9 @@ export const ChatPlaceHolder = ({
 export const OnlineNowUsers = () => {
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const changeChatType = useChatStore((state) => state.changeChatType);
+  const [Users] = useState(users);
+  // take the first five users from the array
+  const onlineUsers = Users.slice(0, 5);
 
   return (
     <>
@@ -164,52 +167,23 @@ export const OnlineNowUsers = () => {
             </div>
           </button>
         </div>
-        <div className="message-row flex flex-row pt-2 justify-between">
-          <p className="text-gray-400 font-poppins text-xs font-medium leading-normal ">
-            Online Now
-          </p>
-        </div>
-        <div className="users-images flex flex-row justify-between pt-3 pb-3  ">
-          <div className="relative inline-block">
-            <img
-              className="user-image h-10 w-10 rounded-full"
-              src={UserImage}
-              alt={`second's Profile`}
-            />
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+        <div className="hidden md:block">
+          <div className="message-row flex flex-row pt-2 justify-between">
+            <p className="text-gray-400 font-poppins text-xs font-medium leading-normal ">
+              Online Now
+            </p>
           </div>
-
-          <div className="relative inline-block">
-            <img
-              className="user-image h-10 w-10 rounded-full"
-              src={yas1}
-              alt={`second's Profile`}
-            />
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-          </div>
-          <div className="relative inline-block">
-            <img
-              className="user-image h-10 w-10 rounded-full"
-              src={yas2}
-              alt={`second's Profile`}
-            />
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-          </div>
-          <div className="relative inline-block">
-            <img
-              className="user-image h-10 w-10 rounded-full"
-              src={yas3}
-              alt={`second's Profile`}
-            />
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-          </div>
-          <div className="relative inline-block">
-            <img
-              className="user-image h-10 w-10 rounded-full"
-              src={yas4}
-              alt={`second's Profile`}
-            />
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+          <div className="users-images flex flex-row justify-between pt-3 pb-3  ">
+            {onlineUsers.map((user) => (
+              <div className="relative inline-block">
+                <img
+                  className="user-image h-10 w-10 rounded-full"
+                  src={user.image}
+                  alt={`second's Profile`}
+                />
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
