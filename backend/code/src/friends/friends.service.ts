@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
+import { FriendResponseDto } from './dto/frined-response.dto';
 
 @Injectable()
 export class FriendsService {
@@ -16,7 +17,7 @@ export class FriendsService {
         HttpStatus.FORBIDDEN,
       );
     const friendshipId = [userId, friendId].sort().join('-');
-    return this.prisma.friend.upsert({
+    const frinedship = await this.prisma.friend.upsert({
       where: {
         id: friendshipId,
       },
@@ -33,6 +34,7 @@ export class FriendsService {
       },
       update: {},
     });
+    return new FriendResponseDto(frinedship);
   }
 
   async acceptFriend(userId: string, friendId: string) {
@@ -63,7 +65,7 @@ export class FriendsService {
       );
     }
 
-    return this.prisma.friend.update({
+    const friendship = await this.prisma.friend.update({
       where: {
         id: friendshipId,
       },
@@ -71,6 +73,7 @@ export class FriendsService {
         accepted: true,
       },
     });
+    return new FriendResponseDto(friendship);
   }
 
   async rejectFriend(userId: string, friendId: string) {
@@ -81,11 +84,12 @@ export class FriendsService {
       );
     const friendshipId = [userId, friendId].sort().join('-');
 
-    return this.prisma.friend.delete({
+    await this.prisma.friend.delete({
       where: {
         id: friendshipId,
       },
     });
+    return { message: 'done' };
   }
 
   async blockFriend(userId: string, friendId: string) {
@@ -143,8 +147,10 @@ export class FriendsService {
     return { message: 'User unblocked' };
   }
 
-  async getFriendsList(userId: string) {
+  async getFriendsList(userId: string, offset: number, limit: number) {
     const friends = await this.prisma.friend.findMany({
+      skip: offset,
+      take: limit,
       where: {
         OR: [
           {
@@ -183,8 +189,10 @@ export class FriendsService {
     });
   }
 
-  async getFriendsRequests(userId: string) {
+  async getFriendsRequests(userId: string, offset: number, limit: number) {
     const friends = await this.prisma.friend.findMany({
+      skip: offset,
+      take: limit,
       where: {
         toId: userId,
         accepted: false,
@@ -202,8 +210,10 @@ export class FriendsService {
     return friends.map((friend) => friend.from);
   }
 
-  async getBlockList(userId: string) {
+  async getBlockList(userId: string, offset: number, limit: number) {
     const blocked = await this.prisma.blockedUsers.findMany({
+      skip: offset,
+      take: limit,
       where: {
         blocked_by_id: userId,
       },
@@ -220,8 +230,10 @@ export class FriendsService {
     return blocked.map((friend) => friend.Blocked);
   }
 
-  async getPendingRequests(userId: string) {
+  async getPendingRequests(userId: string, offset: number, limit: number) {
     const friends = await this.prisma.friend.findMany({
+      skip: offset,
+      take: limit,
       where: {
         fromId: userId,
         accepted: false,

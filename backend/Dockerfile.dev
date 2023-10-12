@@ -8,4 +8,4 @@ RUN npm install
 
 COPY ./code . 
 
-CMD ["sh", "-c","npx prisma db push &&  npx prisma studio & npm run start:dev"]
+CMD ["sh", "-c","npx prisma studio & npm run start:dev"]

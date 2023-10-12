@@ -6,9 +6,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { FtStrategy } from './stratgies/ft.strategy';
 import { JwtUtilsModule } from './utils/jwt_utils/jwt_utils.module';
 import { UsersService } from 'src/users/users.service';
+import { JwtConsts } from './constants/constants';
 
 @Module({
-  imports: [JwtModule.register({}), JwtModule, JwtUtilsModule],
+  imports: [
+    JwtModule.register({ secret: JwtConsts.at_secret }),
+    JwtUtilsModule,
+  ],
   providers: [AuthService, AtStrategy, RtStrategy, FtStrategy, UsersService],
   controllers: [AuthController],
 })

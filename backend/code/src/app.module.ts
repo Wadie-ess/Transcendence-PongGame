@@ -8,6 +8,9 @@ import { ProfileModule } from './profile/profile.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { FriendsModule } from './friends/friends.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { MessagesModule } from './messages/messages.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { Gateways } from './gateways/gateways.gateway';
 
 @Module({
   imports: [
@@ -18,8 +21,10 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     RoomsModule,
     FriendsModule,
     CloudinaryModule,
+    MessagesModule,
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [PrismaService],
+  providers: [PrismaService, Gateways],
 })
 export class AppModule {}
