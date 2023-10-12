@@ -160,7 +160,6 @@ export const CreateNewRoomModal = () => {
           </div>
 
           <div className="modal-action ">
-          
             <a href="#/" className="btn hover:bg-purple-500">
               {"Close "}
             </a>
@@ -287,9 +286,14 @@ export const RoomSettingsModal = () => {
                     <li>
                       <span className="hover:bg-[#7940CF]">Ban</span>
                     </li>
-                    <li>
-                      <span className="hover:bg-[#7940CF]">Mute</span>
-                    </li>
+                    <div>
+                      <li>
+                        <a href="#my_modal_10">
+                          <span className="hover:bg-[#7940CF]">Mute</span>
+                        </a>
+                        <div className="modal " id="my_modal_10"></div>
+                      </li>
+                    </div>
                     <li>
                       <span
                         // onClick={onRemoveUserPreview}
