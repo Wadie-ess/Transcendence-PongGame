@@ -66,6 +66,11 @@ export class RoomsService {
   }
 
   async leaveRoom(memberData: LeaveRoomDto, userId: string) {
+    const { ownerId } = await this.prisma.room.findUnique({
+      where: { id: memberData.roomId },
+      select: { ownerId: true },
+    });
+    if (ownerId === userId) throw new UnauthorizedException('You are the owner of this room');
     return await this.prisma.roomMember.delete({
       where: {
         unique_user_room: {
