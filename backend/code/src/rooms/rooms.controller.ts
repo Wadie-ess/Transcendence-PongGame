@@ -15,6 +15,7 @@ import { LeaveRoomDto } from './dto/leave-room.dto';
 import { DeleteRoomDto } from './dto/delete-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { ChangeOwnerDto } from './dto/change-owner.dto';
+import { SetAdminDto } from './dto/set-admin.dto';
 import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('rooms')
@@ -79,5 +80,14 @@ export class RoomsController {
     @GetCurrentUser('userId') userId: string,
     ){
     return await this.roomsService.changeOwner(roomdata, userId);
+  }
+  @Post('setAdmin')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AtGuard)
+  async setAdmin(
+    @Body() roomdata: SetAdminDto,
+    @GetCurrentUser('userId') userId: string,
+    ){
+    return await this.roomsService.setAdmin(roomdata, userId);
   }
 }
