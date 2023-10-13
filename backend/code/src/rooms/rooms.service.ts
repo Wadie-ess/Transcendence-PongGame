@@ -134,14 +134,16 @@ export class RoomsService {
       where: { unique_user_room: { userId: userId, roomId: roomData.roomId } },
       select: { id: true },
     });
-    if (room.ownerId !== userId) throw new UnauthorizedException('You are not the owner of this room');
-    if (!member) throw new UnauthorizedException('new owner is not a member of this room');
+    if (room.ownerId !== userId)
+      throw new UnauthorizedException('You are not the owner of this room');
+    if (!member)
+      throw new UnauthorizedException('new owner is not a member of this room');
     await this.prisma.room.update({
       where: { id: roomData.roomId },
-      data: { owner: { connect: { userId: roomData.NewOwnerId } } }
+      data: { owner: { connect: { userId: roomData.NewOwnerId } } },
     });
     return { message: 'roomOwner changed successfully' };
-  } 
+  }
   async setAdmin(roomData: SetAdminDto, userId: string) {
     const room = await this.prisma.room.findUnique({
       where: { id: roomData.roomId },
@@ -149,14 +151,24 @@ export class RoomsService {
     });
     const user = await this.prisma.roomMember.findUnique({
       where: { unique_user_room: { userId: userId, roomId: roomData.roomId } },
-      select : { is_admin: true },
+      select: { is_admin: true },
     });
-    if (room.ownerId !== userId) throw new UnauthorizedException('You are not the owner of this room');
-    if (!user) throw new UnauthorizedException('new admin is not a member of this room');
-    if (user.is_admin || room.ownerId === roomData.newAdmin) throw new UnauthorizedException('new admin is already an admin of this room');
-     return await this.prisma.roomMember.update({
-      where: { unique_user_room: { userId: roomData.newAdmin, roomId: roomData.roomId } },
-      data: { is_admin: true }
+    if (room.ownerId !== userId)
+      throw new UnauthorizedException('You are not the owner of this room');
+    if (!user)
+      throw new UnauthorizedException('new admin is not a member of this room');
+    if (user.is_admin || room.ownerId === roomData.newAdmin)
+      throw new UnauthorizedException(
+        'new admin is already an admin of this room',
+      );
+    return await this.prisma.roomMember.update({
+      where: {
+        unique_user_room: {
+          userId: roomData.newAdmin,
+          roomId: roomData.roomId,
+        },
+      },
+      data: { is_admin: true },
     });
   }
 }

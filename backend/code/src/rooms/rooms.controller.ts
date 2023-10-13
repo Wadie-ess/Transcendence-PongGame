@@ -78,7 +78,7 @@ export class RoomsController {
   async changeOwner(
     @Body() roomdata: ChangeOwnerDto,
     @GetCurrentUser('userId') userId: string,
-    ){
+  ) {
     return await this.roomsService.changeOwner(roomdata, userId);
   }
   @Post('setAdmin')
@@ -87,7 +87,7 @@ export class RoomsController {
   async setAdmin(
     @Body() roomdata: SetAdminDto,
     @GetCurrentUser('userId') userId: string,
-    ){
+  ) {
     return await this.roomsService.setAdmin(roomdata, userId);
   }
 }
