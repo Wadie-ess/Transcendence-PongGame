@@ -131,11 +131,11 @@ export class RoomsService {
     });
     if (ownerId !== userId)
       throw new UnauthorizedException('You are not the owner of this room');
-    const updateRoomOwner = await this.prisma.room.update({
+    await this.prisma.room.update({
       where: { id: roomData.roomId },
       data: { owner: { connect: { userId: roomData.NewOwnerId } } }
     });
-    return { message: 'change roomOwner successfully' };
+    return { message: 'roomOwner changed successfully' };
   } 
 
 }
