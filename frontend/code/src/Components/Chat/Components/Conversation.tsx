@@ -9,12 +9,7 @@ import users, {
 } from "./tools/Assets";
 import { ChatType, useChatStore } from "../Controllers/ChatControllers";
 
-import {
-  ConfirmationModal,
-
-  NullPlaceHolder,
-
-} from "./RoomChatHelpers";
+import { ConfirmationModal, NullPlaceHolder } from "./RoomChatHelpers";
 import { KeyboardEvent } from "react";
 
 export interface ChatPaceHolderProps {
@@ -181,12 +176,17 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
             >
               {/* check if current user is admin or owner to show the settings toast */}
               {currentRoom?.isAdmin || currentRoom?.isOwner ? (
-                <div className="icons-row flex flex-row  ">
+                <div className="icons-row flex flex-col  ">
                   <a href="#my_modal_9" className="">
                     <li>
                       <span className="hover:bg-[#7940CF]">
                         Edit Room Settings
                       </span>
+                    </li>
+                  </a>
+                  <a href="#my_modal_6" className="">
+                    <li>
+                      <span className="hover:bg-[#7940CF]">Add Users</span>
                     </li>
                   </a>
                 </div>
@@ -202,13 +202,17 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                   Show Room Info
                 </span>
               </li>
-              <div>
-                <li>
-                  <span onClick={openModal} className="hover:bg-[#7940CF]">
-                    leave The Room
-                  </span>
-                </li>
-              </div>
+              {currentRoom?.isOwner === false ? (
+                <div>
+                  <li>
+                    <span onClick={openModal} className="hover:bg-[#7940CF]">
+                      leave The Room
+                    </span>
+                  </li>
+                </div>
+              ) : (
+                <></>
+              )}
             </ul>
             <ConfirmationModal
               isOpen={isModalOpen}
@@ -272,7 +276,7 @@ export const Conversation: React.FC<ConversationProps> = ({
     // do stuff
   };
 
-  return (selectedMessages?.length as number) > 0 ? (
+  return (
     <div className="flex flex-col h-[99%] ">
       <ConversationHeader onRemoveUserPreview={onRemoveUserPreview} />
       <div
@@ -328,7 +332,5 @@ export const Conversation: React.FC<ConversationProps> = ({
         </div>
       </div>
     </div>
-  ) : (
-    <NullPlaceHolder message="No Conversation Yet!, Be The First " />
   );
 };

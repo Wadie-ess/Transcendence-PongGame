@@ -1,22 +1,22 @@
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { useChatStore } from "../Controllers/ChatControllers";
 import users, {
   GroupChat,
   More,
   NullImage,
+  RoomType,
   chatRooms,
   check,
   groupIcon,
 } from "./tools/Assets";
 import { SelectedUserTile } from "..";
 
-
 interface NullComponentProps {
   message: string;
 }
 
 export const RoomChatPlaceHolder = () => {
-  const [ChatRooms] = useState(chatRooms);
+  const ChatRooms = useChatStore((state) => state.recentRooms);
   const selectNewChat = useChatStore((state) => state.selectNewChatID);
   return ChatRooms.length > 0 ? (
     <div>
@@ -37,19 +37,19 @@ export const RoomChatPlaceHolder = () => {
             <div className="message-row flex flex-row justify-between">
               <div className="flex flex-col">
                 <p className="text-white font-poppins text-sm md:text-base font-normal leading-normal   ">
-                  {room.name}
+                  {room?.name}
                 </p>
                 <p className="text-gray-400 font-poppins text-sm font-light leading-normal"></p>
               </div>
               <p className="text-gray-400 font-poppins text-sm font-light leading-normal hidden md:block ">
-                {room.usersId.length} Members
+                {room?.usersId.length} Members
               </p>
             </div>
             <div className=" flex flex-row justify-between pt-1">
               <p className="text-gray-400 font-poppins text-sm font-medium leading-normal max-w-[80px] md:max-w-[180px]  truncate hidden md:block ">
-                {room.messages[room.messages.length - 1].message}
+                {room.messages[room.messages?.length - 1]?.message}
               </p>
-              {room.messages[room.messages.length - 1].isRead === false ? (
+              {room.messages[room.messages?.length - 1]?.isRead === false ? (
                 <div className="messages-dot relative  pt-1 hidden  md:block ">
                   <div className="w-3 h-3 bg-red-500 rounded-full text-white flex items-baseline justify-self-end"></div>
                 </div>
@@ -67,7 +67,17 @@ export const RoomChatPlaceHolder = () => {
 };
 
 export const CreateNewRoomModal = () => {
+  const [RoomName, setName] = useState("");
+
+  const handleChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
+    setName(event.target.value);
+
+    console.log("value is:", event.target.value);
+  };
   const [MyUsers] = useState(users);
+  const createNewRoom = useChatStore((state) => state.createNewRoom);
 
   const [selectedOption, setSelectedOption] = useState("Public"); // Initialize with a default value
   const handleOptionChange = (e: any) => {
@@ -86,6 +96,8 @@ export const CreateNewRoomModal = () => {
             <div className="flex flex-row w-full justify-center pt-2">
               <img className="mr-2" alt="" src={GroupChat} />
               <input
+                value={RoomName}
+                onChange={handleChange}
                 type="text"
                 placeholder="Set The Room Name"
                 className="input w-full shadow-xl max-w-lg bg-[#272932] placeholder:text-gray-400 font-poppins text-base font-normal leading-normal"
@@ -129,7 +141,6 @@ export const CreateNewRoomModal = () => {
             </label>
           </div>
 
-          {/* Conditionally render the text input */}
           {selectedOption === "Protected" && (
             <div className="flex flex-row p-3">
               <div className="flex flex-row w-full justify-center pt-2">
@@ -141,7 +152,38 @@ export const CreateNewRoomModal = () => {
               </div>
             </div>
           )}
-          <p className="p-2">Select To Add Friends</p>
+          {/*  */}
+
+          <div className="modal-action ">
+            <a href="#/" className="btn hover:bg-purple-500">
+              {"Close "}
+            </a>
+            <a
+              href="#/"
+              onClick={() => createNewRoom(RoomName, RoomType.Private, "")}
+              className="btn hover:bg-purple-500"
+            >
+              {"Create "}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const AddUsersModal = () => {
+  const [MyUsers] = useState(users);
+
+  return (
+    <div className="modal " id="my_modal_6">
+      <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
+        <div className="flex flex-col">
+          <div className="flex flex-row justify-center">
+            <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
+              Select To Add Users
+            </p>
+          </div>
 
           {/* Scrollable part */}
           <div className="max-h-[300px] overflow-y-auto no-scrollbar">
@@ -164,7 +206,7 @@ export const CreateNewRoomModal = () => {
               {"Close "}
             </a>
             <a href="#/" className="btn hover:bg-purple-500">
-              {"Create "}
+              {"Done "}
             </a>
           </div>
         </div>
@@ -286,14 +328,15 @@ export const RoomSettingsModal = () => {
                     <li>
                       <span className="hover:bg-[#7940CF]">Ban</span>
                     </li>
-                    <div>
-                      <li>
-                        <a href="#my_modal_10">
-                          <span className="hover:bg-[#7940CF]">Mute</span>
-                        </a>
-                        <div className="modal " id="my_modal_10"></div>
-                      </li>
-                    </div>
+                    <li>
+                      <span
+                        // onClick={onRemoveUserPreview}
+                        className="hover:bg-[#7940CF]"
+                      >
+                        mute
+                      </span>
+                    </li>
+
                     <li>
                       <span
                         // onClick={onRemoveUserPreview}
