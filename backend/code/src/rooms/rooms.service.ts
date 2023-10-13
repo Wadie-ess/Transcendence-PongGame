@@ -9,6 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { LeaveRoomDto } from './dto/leave-room.dto';
 import { DeleteRoomDto } from './dto/delete-room.dto';
+import { ChangeOwnerDto } from './dto/change-owner.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateRoomDto } from './dto/update-room.dto';
 
@@ -123,4 +124,18 @@ export class RoomsService {
       data: roomData,
     });
   }
+  async changeOwner(roomData: ChangeOwnerDto, userId: string) {
+    const { ownerId } = await this.prisma.room.findUnique({
+      where: { id: roomData.roomId },
+      select: { ownerId: true },
+    });
+    if (ownerId !== userId)
+      throw new UnauthorizedException('You are not the owner of this room');
+    const updateRoomOwner = await this.prisma.room.update({
+      where: { id: roomData.roomId },
+      data: { owner: { connect: { userId: roomData.NewOwnerId } } }
+    });
+    return { message: 'change roomOwner successfully' };
+  } 
+
 }
