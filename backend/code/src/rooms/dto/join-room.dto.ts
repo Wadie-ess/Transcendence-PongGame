@@ -7,7 +7,7 @@ export class JoinRoomDto {
   @IsNotEmpty()
   roomId: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   @IsNotEmpty()

@@ -39,6 +39,7 @@ services :
     ports:
       - 5555:5555
       - 3001:3001
+      - 3004:3004
 volumes: 
   database:
 networks:

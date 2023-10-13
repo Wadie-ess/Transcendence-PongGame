@@ -22,6 +22,7 @@ import {
   ApiCookieAuth,
   ApiExcludeEndpoint,
   ApiOkResponse,
+  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -50,6 +51,13 @@ export class ProfileController {
   }
 
   @Get(':id')
+  @ApiOkResponse({ type: ProfileDto })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    description: 'User id',
+    example: '60f1a7b0e1b3c2a4e8b4a1a0',
+  })
   @UseGuards(AtGuard)
   getUserById(
     @Param('id') Id: string,

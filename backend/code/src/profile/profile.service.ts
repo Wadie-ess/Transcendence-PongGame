@@ -24,7 +24,6 @@ export class ProfileService {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    console.log(user);
     return new ProfileDto(user);
   }
 
@@ -62,7 +61,6 @@ export class ProfileService {
     });
 
     const result = await promise;
-    console.log(result);
     await this.usersService.updateUser(userId, {
       avatar: `v${result.version}/${result.public_id}.${result.format}`,
     });
