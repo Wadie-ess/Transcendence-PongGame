@@ -37,7 +37,7 @@ export const Table = (props:any) =>
       fetchdata().catch(console.error)  
     },[param])
     return (
-          <div className=" no-scrollbar w-full ">
+          <div className=" w-full overflow-auto no-scrollbar">
             <table className="table w-full ">
             
               <tbody className='flex flex-col justify-start items-center gap-y-2 md:gap-y-4'>

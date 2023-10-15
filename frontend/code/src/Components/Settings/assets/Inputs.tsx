@@ -5,23 +5,44 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useUserStore } from '../../../Stores/stores'
 import toast from 'react-hot-toast';
-
+import { api } from '../../../Api/base';
 interface MyComponentProps {
     name: string;
     data:string;
+    payload: string;
   }
-  const getdata :any = async(data : any) => {
-    const res:any = await fetch("http://localhost:3000")
-    return res
-}
+  const ERROR_MESSAGES = ["Field is required" , "Require min length of " , "Passed max length of"]
 
+  const getdata :any = async(data : any , payload : any) => {
+   try {
+    const key = payload; // Replace with your actual payload key
+    const value = data[payload]; // Replace with your actual payload value
+    
+    const ndata = {
+      [key]: value,
+    };
+    
+       await api.post("/profile/me",{...ndata})
+    
+   } catch (error) {
+    console.log(error)
+   }
+  }
 export const Inputs = (props:MyComponentProps) => {
+    var payload = props.payload
     const user = useUserStore();
-    const { register, handleSubmit, reset } = useForm();
-    const onSubmit = (data : any)=> {
+    const { register, handleSubmit, reset, formState: {errors} } = useForm();
+    const handleError = (errors : any) => {
+        if (errors[`${props.payload}`]?.type === "required")  toast.error(`${props.name} ${ERROR_MESSAGES[0]} `); 
+        if (errors[`${props.payload}`]?.type === "minLength") toast.error(`${props.name} ${ERROR_MESSAGES[1]} 4`);
+        if (errors[`${props.payload}`]?.type === "maxLength")toast.error(`${props.name} ${ERROR_MESSAGES[2]} 50 `);
+    
+    }
+    const onSubmit = (data : any ) => {
+       console.log(data)
         toast.promise(
                                     
-            getdata(data),
+            getdata(data, payload),
              {
                
                loading: 'Saving...',
@@ -31,23 +52,24 @@ export const Inputs = (props:MyComponentProps) => {
              },
             {className:"font-poppins font-bold relative top-[6vh] bg-base-100 text-white"}
            )
-        console.log(data)
+        console.log(errors)
         switch (props.name)
         {
-            case "First name" : user.updateFirstName(data["First name"]);
+            case "First name" : user.updateFirstName(data[`${props.payload}`]);
                 break;
-            case "Last name" : user.updateLastName(data["Last name"]);
+            case "Last name" : user.updateLastName(data[`${props.payload}`]);
                 break;
-            case "Email" : user.updateEmail(data["Email"]);
+            case "Email" : user.updateEmail(data[`${props.payload}`]);
                 break;
-            case "Phone" : user.updatePhone(data["Phone"]);
+            case "Phone" : user.updatePhone(data[`${props.payload}`]);
                 break;
-            case "Bio" : user.updateBio(data["Bio"]);
+            case "Bio" : user.updateBio(data[`${props.payload}`]);
                 break;
         }
         
         console.log(`user from state after = ${user.name.first}`)
     };
+   
     const [input, setInput] = useState(false)
     const [springs ,api] = useSpring(() => ({
         from: { x: '0%' , opacity:100},
@@ -84,7 +106,8 @@ export const Inputs = (props:MyComponentProps) => {
         <div className="flex items-center h-16">
         <form className='gap-y-2  p-2 flex justify-center items-center'>
                 <div className="flex  gap-x-2">
-                    <input type="text" className={`h-12 w-full rounded-3xl text-center`} defaultValue={props.data} placeholder={props.name} {...register(`${props.name}`, {required: true, maxLength: 40 , minLength:4 , disabled:!input ? true:false})} />  
+                    <input type="text" className={`h-12 w-full rounded-3xl text-center`} defaultValue={props.data} placeholder={props.payload} {...register(`${props.payload}`, {required: true, maxLength: 50 , minLength:4 , disabled:!input ? true:false})} />  
+                   
                 </div>
             {!input  && <animated.div 
             style={{
@@ -104,7 +127,7 @@ export const Inputs = (props:MyComponentProps) => {
                     >
                     <div className="flex gap-1 items-center">
                    
-                        <BsFillCheckCircleFill onClick={handleSubmit(onSubmit)}   className='fill-green-400 hover:fill-green-700 hover:cursor-pointer h-8 w-8 sm:w-10 sm:h-10' />
+                        <BsFillCheckCircleFill onClick={handleSubmit(onSubmit,handleError)}   className='fill-green-400 hover:fill-green-700 hover:cursor-pointer h-8 w-8 sm:w-10 sm:h-10' />
                         <BsFillXCircleFill  onClick={handleCancle} className='fill-red-600 hover:fill-red-700 hover:cursor-pointer h-8 w-8 sm:w-10 sm:h-10'  />
                     </div>
 
