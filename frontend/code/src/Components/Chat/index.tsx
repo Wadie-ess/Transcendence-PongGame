@@ -13,7 +13,7 @@ import React from "react";
 import { ChatType, useChatStore } from "./Controllers/ChatControllers";
 
 import { RecentConversations } from "./Components/RecentChat";
-import { MantineProvider, createTheme } from "@mantine/core";
+
 
 export interface ConversationProps {
   onRemoveUserPreview: () => void;
@@ -26,7 +26,7 @@ export const Chat = () => {
     setShowUserPreview(!showUserPreview);
   };
   return (
-    <MantineProvider>
+
       <>
         <div className="flex h-full divide-black divide-x-4 bg-[#1A1C26]">
           <div
@@ -50,7 +50,6 @@ export const Chat = () => {
           </div>
         </div>
       </>
-    </MantineProvider>
   );
 };
 

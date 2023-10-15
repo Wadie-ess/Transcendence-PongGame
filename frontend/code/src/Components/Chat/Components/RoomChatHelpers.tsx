@@ -1,5 +1,5 @@
 import { SetStateAction, useState } from "react";
-import { ChatType, useChatStore } from "../Controllers/ChatControllers";
+import {  useChatStore } from "../Controllers/ChatControllers";
 import users, {
   GroupChat,
   Lock,
@@ -12,7 +12,7 @@ import users, {
   groupIcon,
 } from "./tools/Assets";
 import { SelectedUserTile } from "..";
-import { findRenderedComponentWithType } from "react-dom/test-utils";
+
 
 interface NullComponentProps {
   message: string;
@@ -83,7 +83,6 @@ export const CreateNewRoomModal = () => {
   }) => {
     setName(event.target.value);
   };
-  const [MyUsers] = useState(users);
   const createNewRoom = useChatStore((state) => state.createNewRoom);
 
   const [selectedOption, setSelectedOption] = useState(RoomType.Public); // Initialize with a default value
@@ -244,9 +243,7 @@ export const RoomSettingsModal = () => {
   );
 
   const [selectedOption, setSelectedOption] = useState(currentRoom?.type); // Initialize with a default value
-  const handleOptionChange = (e: any) => {
-    setSelectedOption(e.target.value);
-  };
+  
 
   const resetModalState = () => {
     setSelectedOption(RoomType.Public);
@@ -442,12 +439,12 @@ export const ExploreRoomsModal = () => {
                 }}
               >
                 <div className="flex flex-row  justify-between items-center">
-                  <a>
-                    <img className="w-[100%]" alt="" src={groupIcon} />
+                  <a href="/#">
+                    <img   className="w-[100%]" alt="" src={groupIcon} />
                   </a>
                   <p>{room.name}</p>
 
-                  <a>
+                  <a href="/#">
                     <img
                       className=""
                       alt=""
