@@ -45,6 +45,7 @@ export class RoomsService {
         room: {
           connect: { id: room.id },
         },
+        is_admin: true,
       },
     });
   }
@@ -142,7 +143,12 @@ export class RoomsService {
       select: { ownerId: true },
     });
     const member = await this.prisma.roomMember.findUnique({
-      where: { unique_user_room: { userId: roomData.NewOwnerId, roomId: roomData.roomId } },
+      where: {
+        unique_user_room: {
+          userId: roomData.NewOwnerId,
+          roomId: roomData.roomId,
+        },
+      },
       select: { id: true },
     });
     if (room.ownerId !== userId)
@@ -153,6 +159,10 @@ export class RoomsService {
       where: { id: roomData.roomId },
       data: { owner: { connect: { userId: roomData.NewOwnerId } } },
     });
+    await this.prisma.roomMember.update({
+      where: { id: roomData.NewOwnerId },
+      data: { is_admin: true },
+    });
     return { message: 'roomOwner changed successfully' };
   }
   async setAdmin(roomData: SetAdminDto, userId: string) {
@@ -161,9 +171,15 @@ export class RoomsService {
       select: { ownerId: true },
     });
     const user = await this.prisma.roomMember.findUnique({
-      where: { unique_user_room: { userId: roomData.newAdmin, roomId: roomData.roomId } },
+      where: {
+        unique_user_room: {
+          userId: roomData.newAdmin,
+          roomId: roomData.roomId,
+        },
+      },
       select: { is_admin: true },
     });
+    if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
     if (room.ownerId !== userId)
       throw new UnauthorizedException('You are not the owner of this room');
     if (!user)
@@ -192,12 +208,24 @@ export class RoomsService {
       select: { is_admin: true },
     });
     const member = await this.prisma.roomMember.findUnique({
-      where: { unique_user_room: { userId: roomData.memberId, roomId: roomData.roomId } },
+      where: {
+        unique_user_room: {
+          userId: roomData.memberId,
+          roomId: roomData.roomId,
+        },
+      },
     });
+    if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
+    if (!member)
+      throw new HttpException('member not found', HttpStatus.NOT_FOUND);
     if (room.ownerId !== userId || !user.is_admin)
-      throw new UnauthorizedException('You are not owner or admin of this room');
+      throw new UnauthorizedException(
+        'You are not owner or admin of this room',
+      );
     if (member.userId === room.ownerId)
-      throw new UnauthorizedException('You can not kick the owner of this room');
+      throw new UnauthorizedException(
+        'You can not kick the owner of this room',
+      );
     if (member.userId === userId)
       throw new UnauthorizedException('You can not kick yourself');
     return await this.prisma.roomMember.delete({
@@ -207,6 +235,6 @@ export class RoomsService {
           roomId: roomData.roomId,
         },
       },
-     });
+    });
   }
 }
