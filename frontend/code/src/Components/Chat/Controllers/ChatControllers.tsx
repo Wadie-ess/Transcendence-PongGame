@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import users, { Message, chatRooms } from "../Components/tools/Assets";
+import users, {
+  ChatRoom,
+  Message,
+  RoomType,
+  chatRooms,
+} from "../Components/tools/Assets";
 
 export enum ChatType {
   Chat,
@@ -11,7 +16,10 @@ export interface ChatState {
   selectedChatID: number;
   currentMessages: Message[];
   currentRoomMessages: Message[];
+
+  recentRooms: ChatRoom[];
   selectNewChatID: (id: number) => void;
+  createNewRoom: (name: string, roomType: RoomType, password : string) => void;
   addNewMessage: (message: Message) => void;
   changeChatType: (type: ChatType) => void;
 }
@@ -19,11 +27,26 @@ export interface ChatState {
 export const useChatStore = create<ChatState>()((set) => ({
   selectedChatID: 1,
   selectedChatType: ChatType.Chat,
-
+  recentRooms : chatRooms,
   currentMessages: users.find((user) => user.id === 1)?.messages as Message[],
   currentRoomMessages: chatRooms.find((room) => room.id === 1)
     ?.messages as Message[],
 
+  createNewRoom: (name: string, roomType: RoomType, password: string ) =>
+    set((state) => {
+      const newRoom = {
+        id: chatRooms.length+1,
+        name: name,
+        type: roomType,
+        messages: [],
+        usersId: [] as number[],
+        isOwner: false,
+        isAdmin: false,
+      };
+      chatRooms.push(newRoom);
+     state.recentRooms = [...chatRooms ]
+      return { ...state };
+    }),
   changeChatType: (type: ChatType) =>
     set((state) => {
       state.selectedChatType = type;

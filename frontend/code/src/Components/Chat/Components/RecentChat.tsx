@@ -3,20 +3,22 @@ import { ChatType, useChatStore } from "../Controllers/ChatControllers";
 import { ChatPaceHolderProps } from "./Conversation";
 import users, {
   ChatIcon,
+  Explore,
   GroupChat,
   RoomsIcon,
-
   check,
-
 } from "./tools/Assets";
 
 import {
+  AddUsersModal,
   CreateNewRoomModal,
-
+  ExploreRoomsModal,
   NullPlaceHolder,
   RoomChatPlaceHolder,
   RoomSettingsModal,
 } from "./RoomChatHelpers";
+
+
 
 export const RecentConversations = () => {
   const [MyUsers] = useState(users);
@@ -112,6 +114,7 @@ export const ChatPlaceHolder = ({
 };
 
 export const OnlineNowUsers = () => {
+
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const changeChatType = useChatStore((state) => state.changeChatType);
   const [Users] = useState(users);
@@ -125,13 +128,17 @@ export const OnlineNowUsers = () => {
           <p className="text-purple-500 font-poppins text-sm md:text-lg font-medium leading-normal ">
             Messages
           </p>
-          <div className="icons-row flex flex-row items-center ">
+          <div className="icons-row flex flex-row items-center  ">
+            <a href="#my_modal_5" className="pr-3">
+              <img className="w-[100%]" alt="" src={Explore} />
+            </a>
             <a href="#my_modal_8" className="">
               <img className="w-[80%]" alt="" src={GroupChat} />
             </a>
             <div>
+              <ExploreRoomsModal/>
               <RoomSettingsModal />
-
+              <AddUsersModal />
               <CreateNewRoomModal />
             </div>
           </div>

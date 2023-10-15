@@ -1,20 +1,19 @@
 import {
-
   Close,
   Bio,
-
   groupIcon,
   chatRooms,
   RoomsIcon,
 } from "./Components/tools/Assets";
 import { useState } from "react";
-import { Conversation} from "./Components/Conversation";
+import { Conversation } from "./Components/Conversation";
 import { ChatPaceHolderProps } from "./Components/Conversation";
 import users from "./Components/tools/Assets";
 import React from "react";
 import { ChatType, useChatStore } from "./Controllers/ChatControllers";
 
-import {RecentConversations } from "./Components/RecentChat";
+import { RecentConversations } from "./Components/RecentChat";
+
 
 export interface ConversationProps {
   onRemoveUserPreview: () => void;
@@ -22,35 +21,35 @@ export interface ConversationProps {
 
 export const Chat = () => {
   const [showUserPreview, setShowUserPreview] = useState(false);
-  
 
   const handleRemoveUserPreview = () => {
     setShowUserPreview(!showUserPreview);
   };
   return (
-    <>
-      <div className="flex h-full divide-black divide-x-4 bg-[#1A1C26]">
-        <div
-          className={` ${
-            showUserPreview === true ? "w-5/12 " : "w-5/12 md:w-4/12"
-          }`}
-        >
-          {<RecentConversations />}
+
+      <>
+        <div className="flex h-full divide-black divide-x-4 bg-[#1A1C26]">
+          <div
+            className={` ${
+              showUserPreview === true ? "w-5/12 " : "w-5/12 md:w-4/12"
+            }`}
+          >
+            {<RecentConversations />}
+          </div>
+          <div
+            className={` ${
+              showUserPreview ? "w-6/12" : "w-8/12"
+            } overflow-hidden bg-gray-900`}
+          >
+            <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
+          </div>
+          <div className={` ${showUserPreview ? "w-3/12" : ""}  bg-[#1A1C26]`}>
+            {showUserPreview && (
+              <UserPreviewCard onRemoveUserPreview={handleRemoveUserPreview} />
+            )}
+          </div>
         </div>
-        <div
-          className={` ${
-            showUserPreview ? "w-6/12" : "w-8/12"
-          } overflow-hidden bg-gray-900`}
-        >
-          <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
-        </div>
-        <div className={` ${showUserPreview ? "w-3/12" : ""}  bg-[#1A1C26]`}>
-          {showUserPreview && (
-            <UserPreviewCard onRemoveUserPreview={handleRemoveUserPreview} />
-          )}
-        </div>
-      </div>
-    </>
+      </>
   );
 };
 

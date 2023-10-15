@@ -17,6 +17,15 @@ import GroupChat from "../../assets/CreateGroupChat.svg";
 import NullImage from "../../assets/null_asset.svg";
 import ChatIcon from "../../assets/Chat.svg";
 import RoomsIcon from "../../assets/group_share.svg";
+import Explore from "../../assets/explore.svg";
+import Lock from "../../assets/lockIcon.svg";
+import Unlock from "../../assets/UnlockIcon.svg";
+
+export enum RoomType {
+  Private,
+  Public,
+  Protected,
+}
 
 export {
   UserImage,
@@ -38,6 +47,9 @@ export {
   RoomsIcon,
   ChatIcon,
   groupIcon,
+  Explore,
+  Lock,
+  Unlock,
 };
 
 export interface Message {
@@ -54,6 +66,7 @@ export interface ChatRoom {
   usersId: number[];
   isOwner: boolean;
   isAdmin: boolean;
+  type: RoomType;
 }
 
 export interface User {
@@ -66,7 +79,7 @@ export interface User {
 // chat rooms dummy data
 export const chatRooms: ChatRoom[] = [
   {
-    id: 1,
+    id: 7,
     name: "Room 1",
     messages: [
       {
@@ -95,34 +108,48 @@ export const chatRooms: ChatRoom[] = [
       },
       // Add more messages for Room 1 here
     ],
-    usersId: [1, 2, 3, 4, 5, 6, 7],
+    usersId: [1, 2], // User IDs participating in the chat room
     isOwner: true,
     isAdmin: true,
+    type: RoomType.Public,
   },
   {
-    id: 2,
+    id: 8,
     name: "Room 2",
     messages: [
       {
-        senderId: 2,
-        message: "Hey, Room 2!",
-        time: "11:00 AM",
+        senderId: 5,
+        message: "Hello, everyone!",
+        time: "10:00 AM",
         isRead: true,
       },
       {
-        senderId: 1,
-        message: "Hello from Room 1!",
-        time: "11:05 AM",
-        isRead: false,
+        senderId: 2,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
       },
-      // Add more messages for Room 2 here
+      {
+        senderId: 7,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 3,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      // Add more messages for Room 1 here
     ],
-    usersId: [1, 2, 3,  7], // User IDs participating in the chat room
-    isOwner: false,
-    isAdmin: false,
+    usersId: [1, 2], // User IDs participating in the chat room
+    isOwner: true,
+    isAdmin: true,
+    type: RoomType.Public,
   },
   {
-    id: 3,
+    id: 9,
     name: "Room 3",
     messages: [
       {
@@ -154,9 +181,11 @@ export const chatRooms: ChatRoom[] = [
     usersId: [1, 2], // User IDs participating in the chat room
     isOwner: true,
     isAdmin: true,
+    type: RoomType.Protected,
   },
+
   {
-    id: 4,
+    id: 10,
     name: "Room 4",
     messages: [
       {
@@ -188,129 +217,9 @@ export const chatRooms: ChatRoom[] = [
     usersId: [1, 2], // User IDs participating in the chat room
     isOwner: true,
     isAdmin: true,
-  },
-  {
-    id: 5,
-    name: "Room 5",
-    messages: [
-      {
-        senderId: 5,
-        message: "Hello, everyone!",
-        time: "10:00 AM",
-        isRead: true,
-      },
-      {
-        senderId: 2,
-        message: "Hi there!",
-        time: "10:05 AM",
-        isRead: true,
-      },
-      {
-        senderId: 7,
-        message: "Hi there!",
-        time: "10:05 AM",
-        isRead: true,
-      },
-      {
-        senderId: 3,
-        message: "Hi there!",
-        time: "10:05 AM",
-        isRead: true,
-      },
-      // Add more messages for Room 1 here
-    ],
-    usersId: [1, 2], // User IDs participating in the chat room
-    isOwner: true,
-    isAdmin: true,
-  },
-  {
-    id: 6,
-    name: "Room 6",
-    messages: [
-      {
-        senderId: 5,
-        message: "Hello, everyone!",
-        time: "10:00 AM",
-        isRead: true,
-      },
-      {
-        senderId: 2,
-        message: "Hi there!",
-        time: "10:05 AM",
-        isRead: true,
-      },
-      {
-        senderId: 7,
-        message: "Hi there!",
-        time: "10:05 AM",
-        isRead: true,
-      },
-      {
-        senderId: 3,
-        message: "Hi there!",
-        time: "10:05 AM",
-        isRead: true,
-      },
-      // Add more messages for Room 1 here
-    ],
-    usersId: [1, 2], // User IDs participating in the chat room
-    isOwner: true,
-    isAdmin: true,
-  },
-  {
-    id: 7,
-    name: "Room 7",
-    messages: [
-      {
-        senderId: 5,
-        message: "Hello, everyone!",
-        time: "10:00 AM",
-        isRead: true,
-      },
-      {
-        senderId: 2,
-        message: "Hi there!",
-        time: "10:05 AM",
-        isRead: true,
-      },
-      {
-        senderId: 7,
-        message: "Hi there!",
-        time: "10:05 AM",
-        isRead: true,
-      },
-      {
-        senderId: 3,
-        message: "Hi there!",
-        time: "10:05 AM",
-        isRead: true,
-      },
-      // Add more messages for Room 1 here
-    ],
-    usersId: [1, 2], // User IDs participating in the chat room
-    isOwner: true,
-    isAdmin: true,
+    type: RoomType.Protected,
   },
   // Add more chat rooms here
-];
-
-// joined chatRooms dummy data
-export const chatRoomsJoinedIds = [
-  {
-    id: 1,
-    isAdmin: true,
-    isOwner: true,
-  },
-  {
-    id: 2,
-    isAdmin: false,
-    isOwner: false,
-  },
-  {
-    id: 3,
-    isAdmin: false,
-    isOwner: true,
-  },
 ];
 
 export const users: User[] = [
