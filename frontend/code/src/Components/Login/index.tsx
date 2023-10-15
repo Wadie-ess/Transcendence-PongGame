@@ -22,7 +22,7 @@ export const Login =  () =>
                     </div>
                     {
                         process.env.REACT_APP_AUTH_PATH && 
-                        <Link to={process.env.REACT_APP_AUTH_PATH.toString()}>
+                        <Link to={process.env.REACT_APP_AUTH_PATH}>
                             <Button/>
                         </Link>
                     }

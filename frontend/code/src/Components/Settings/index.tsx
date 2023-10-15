@@ -17,6 +17,7 @@ export const Setting = () => {
   const user = useUserStore();
   const [myuser, setMyuser] = useState(user);
   const data_names = ["First name", "Last name", "Email", "Phone", "Bio"];
+  const payload_objects = ["firstName","lastName","email","phone","discreption"]
   const data_content = [
     user.name.first,
     user.name.last,
@@ -92,7 +93,7 @@ export const Setting = () => {
               <div className="overflow-scroll no-scrollbar h-full gap-4 p-6 flex-wrap shrink grid md:grid-cols-2  grid-cols-1 justify-between w-full">
                 {data_names.map((x, index) => {
                   return (
-                    <Inputs key={index} name={x} data={data_content[index]} />
+                    <Inputs key={index} name={x} data={data_content[index]} payload={payload_objects[index]} />
                   );
                 })}
                 <div className="flex flex-col gap-y-4">

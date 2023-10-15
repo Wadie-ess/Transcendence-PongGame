@@ -49,7 +49,7 @@ export class AuthController {
   @ApiExcludeEndpoint()
   @Get('login/42/return')
   @UseGuards(FtOauthGuard)
-  @Redirect(process.env.FRONT_URL+"/Home")
+  @Redirect(process.env.FRONT_URL + '/Home')
   login42Return() {
     return;
   }

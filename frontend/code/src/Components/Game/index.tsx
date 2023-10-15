@@ -58,7 +58,7 @@ export const Game = () => {
         if(gameState.p1Score === 0 && gameState.p2Score === 0) {
           gameState.setBall({x:0.5 * gameState.width,y:0.5 * gameState.height,speed:0,cx:gameState.height /100,cy:gameState.height /100})
         }
-    },[])
+    },)
 
     useEffect(() => {
         const divh = document.getElementById('Game')?.offsetHeight
@@ -97,21 +97,21 @@ export const Game = () => {
             newball.y += newball.cy;
             gameState.setBall(newball)
               // clearInterval(oldinter)
-          },150);
+          },20);
           return () => clearInterval(oldinter)
       }
-    },[gameState.width , gameState.height])
+    },[gameState.width , gameState.height , first , gameState])
     console.log(gameState.lPaddle)
     return ( 
     <div className="flex flex-col gap-10 justify-start md:justify-center md:items-center items-center pt-12 md:pt-0  h-full w-full" >
         <div className="flex items-center justify-center gap-x10 w-full xl:pt-4">
             <div className="flex items-center justify-center w-1/4 gap-6">
-                <img className="rounded-full w-auto h-auto max-w-[10vw] md:max-w-[20vw]" src={user.picture.medium} />
+                <img alt="" className="rounded-full w-auto h-auto max-w-[10vw] md:max-w-[20vw]" src={user.picture.medium} />
                 <span className="font-lexend font-extrabold text-[4vw] xl:text-[2vw] text-current">1</span>
             </div>
             <div className="flex items-center justify-center w-1/4 gap-6">
                 <span className="font-lexend font-extrabold text-[4vw] xl:text-[2vw] text-current">5</span>
-                <img className="rounded-full w-auto h-auto max-w-[10vw] md:max-w-[20vw]" src={user.picture.medium} />
+                <img alt="" className="rounded-full w-auto h-auto max-w-[10vw] md:max-w-[20vw]" src={user.picture.medium} />
             </div>
         </div>
         <div className="flex items-center justify-center min-h-16 max-h-[80%] max-w-[90%] min-w-16 w-[95%] rounded-xl aspect-video border-primary border-4" id="Game">

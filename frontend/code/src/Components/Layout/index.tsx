@@ -8,12 +8,12 @@ import { Message } from './Assets/Message'
 import { Profile } from './Assets/Profile'
 import { Settings } from './Assets/Settings'
 import { Out } from './Assets/Out'
-import { FC,PropsWithChildren } from 'react'
+import { FC,PropsWithChildren, useLayoutEffect } from 'react'
 import { Outlet ,} from 'react-router'
 import { matchRoutes, useLocation } from "react-router-dom"
 import { useUserStore } from '../../Stores/stores'
-import { useEffect } from 'react'
-
+import { useNavigate } from 'react-router-dom'
+import { api } from '../../Api/base'
 const routes = [{ path: "Profile/:id" } , {path : "Settings"} , {path : "Home"}, {path:"Chat"} , {path:"Play"}, {path:"Pure"}, {path:"Game"}]
 
 const useCurrentPath = () => {
@@ -25,12 +25,34 @@ const useCurrentPath = () => {
 export const Layout : FC<PropsWithChildren> =  () : JSX.Element =>
 {
     const user = useUserStore();
-
-    useEffect(() => {if (user.isLogged === false)user.auth.login()},[])   
+    const navigate = useNavigate();
+    useLayoutEffect(() => {
+        const log = async() => {
+            try{
+                await user.login()
+            }
+            catch(e)
+            {
+                try
+                {
+                    await api.get("/auth/refresh")
+                    await user.login()
+                }catch(e)
+                {
+                    navigate("/")
+                    user.logout()
+                }
+                
+            }
+            
+        }
+        log()
+    })
     const path : string  = useCurrentPath()
     const obj = {x:"30",y:"20"}
     return (
     <>
+        {user.isLogged && 
         <div data-theme="mytheme" className=' h-screen  '> 
            
             <div className=' flex flex-row  w-screen h-[8vh]  bg-base-200'> 
@@ -79,6 +101,7 @@ export const Layout : FC<PropsWithChildren> =  () : JSX.Element =>
                 </div>
             </div>
         </div>
+    }
     </>
     )
 }

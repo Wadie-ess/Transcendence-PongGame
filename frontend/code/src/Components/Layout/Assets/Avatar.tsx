@@ -13,7 +13,7 @@ export const Avatar = (props:any) =>{
             <Link to={"Profile/me"}><li className="hover:bg-primary hover:rounded-xl transform duration-500"><div>Profile</div></li></Link>
             {
                 process.env.REACT_APP_LOGOUT &&
-                <Link onClick={() => user.auth.logout()} to={process.env.REACT_APP_LOGOUT}> <li className="hover:bg-primary hover:rounded-xl transform duration-500"><div>Logout</div></li></Link>
+                <Link onClick={() => user.logout()} to={process.env.REACT_APP_LOGOUT}> <li className="hover:bg-primary hover:rounded-xl transform duration-500"><div>Logout</div></li></Link>
             }
         </ul>
         </div>
