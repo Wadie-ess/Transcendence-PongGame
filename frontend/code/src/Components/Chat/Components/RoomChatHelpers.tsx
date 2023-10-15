@@ -1,15 +1,18 @@
 import { SetStateAction, useState } from "react";
-import { useChatStore } from "../Controllers/ChatControllers";
+import { ChatType, useChatStore } from "../Controllers/ChatControllers";
 import users, {
   GroupChat,
+  Lock,
   More,
   NullImage,
   RoomType,
+  Unlock,
   chatRooms,
   check,
   groupIcon,
 } from "./tools/Assets";
 import { SelectedUserTile } from "..";
+import { findRenderedComponentWithType } from "react-dom/test-utils";
 
 interface NullComponentProps {
   message: string;
@@ -68,20 +71,27 @@ export const RoomChatPlaceHolder = () => {
 
 export const CreateNewRoomModal = () => {
   const [RoomName, setName] = useState("");
+  const [RoomPassword, setPassword] = useState("");
 
+  const handlePasswordChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
+    setPassword(event.target.value);
+  };
   const handleChange = (event: {
     target: { value: SetStateAction<string> };
   }) => {
     setName(event.target.value);
-
-    console.log("value is:", event.target.value);
   };
   const [MyUsers] = useState(users);
   const createNewRoom = useChatStore((state) => state.createNewRoom);
 
-  const [selectedOption, setSelectedOption] = useState("Public"); // Initialize with a default value
-  const handleOptionChange = (e: any) => {
-    setSelectedOption(e.target.value);
+  const [selectedOption, setSelectedOption] = useState(RoomType.Public); // Initialize with a default value
+
+  const resetModalState = () => {
+    setPassword("");
+    setName("");
+    setSelectedOption(RoomType.Public);
   };
   return (
     <div className="modal " id="my_modal_8">
@@ -113,8 +123,8 @@ export const CreateNewRoomModal = () => {
                 name="radio-10"
                 value="Public"
                 className="radio checked:bg-purple-500"
-                checked={selectedOption === "Public"}
-                onChange={handleOptionChange}
+                checked={selectedOption === RoomType.Public}
+                onChange={() => setSelectedOption(RoomType.Public)}
               />
             </label>
             <label className="label cursor-pointer">
@@ -124,8 +134,8 @@ export const CreateNewRoomModal = () => {
                 name="radio-10"
                 value="Private"
                 className="radio checked:bg-red-500"
-                checked={selectedOption === "Private"}
-                onChange={handleOptionChange}
+                checked={selectedOption === RoomType.Private}
+                onChange={() => setSelectedOption(RoomType.Private)}
               />
             </label>
             <label className="label cursor-pointer">
@@ -135,17 +145,19 @@ export const CreateNewRoomModal = () => {
                 name="radio-10"
                 value="Protected"
                 className="radio checked:bg-orange-500"
-                checked={selectedOption === "Protected"}
-                onChange={handleOptionChange}
+                checked={selectedOption === RoomType.Protected}
+                onChange={() => setSelectedOption(RoomType.Protected)}
               />
             </label>
           </div>
 
-          {selectedOption === "Protected" && (
+          {selectedOption === RoomType.Protected && (
             <div className="flex flex-row p-3">
               <div className="flex flex-row w-full justify-center pt-2">
                 <p>Group Password</p>
                 <input
+                  value={RoomPassword}
+                  onChange={handlePasswordChange}
                   type="Password"
                   className="input w-full shadow-xl max-w-lg bg-[#272932] placeholder:text-gray-400 font-poppins text-base font-normal leading-normal"
                 />
@@ -155,12 +167,21 @@ export const CreateNewRoomModal = () => {
           {/*  */}
 
           <div className="modal-action ">
-            <a href="#/" className="btn hover:bg-purple-500">
+            <a
+              href="#/"
+              onClick={resetModalState}
+              className="btn hover:bg-purple-500"
+            >
               {"Close "}
             </a>
             <a
               href="#/"
-              onClick={() => createNewRoom(RoomName, RoomType.Private, "")}
+              onClick={() => {
+                if (RoomName !== "" && RoomName.length > 3) {
+                  createNewRoom(RoomName, selectedOption, RoomPassword);
+                  resetModalState();
+                }
+              }}
               className="btn hover:bg-purple-500"
             >
               {"Create "}
@@ -222,9 +243,13 @@ export const RoomSettingsModal = () => {
     (user) => currentRoom?.usersId.includes(user.id) as boolean
   );
 
-  const [selectedOption, setSelectedOption] = useState("Public"); // Initialize with a default value
+  const [selectedOption, setSelectedOption] = useState(currentRoom?.type); // Initialize with a default value
   const handleOptionChange = (e: any) => {
     setSelectedOption(e.target.value);
+  };
+
+  const resetModalState = () => {
+    setSelectedOption(RoomType.Public);
   };
   return (
     <div className="modal " id="my_modal_9">
@@ -255,8 +280,8 @@ export const RoomSettingsModal = () => {
                 name="radio-20"
                 value="Public"
                 className="radio checked:bg-purple-500"
-                checked={selectedOption === "Public"}
-                onChange={handleOptionChange}
+                checked={selectedOption === RoomType.Public}
+                onChange={() => setSelectedOption(RoomType.Public)}
               />
             </label>
             <label className="label cursor-pointer">
@@ -266,8 +291,8 @@ export const RoomSettingsModal = () => {
                 name="radio-20"
                 value="Private"
                 className="radio checked:bg-red-500"
-                checked={selectedOption === "Private"}
-                onChange={handleOptionChange}
+                checked={selectedOption === RoomType.Private}
+                onChange={() => setSelectedOption(RoomType.Private)}
               />
             </label>
             <label className="label cursor-pointer">
@@ -277,14 +302,14 @@ export const RoomSettingsModal = () => {
                 name="radio-20"
                 value="Protected"
                 className="radio checked:bg-orange-500"
-                checked={selectedOption === "Protected"}
-                onChange={handleOptionChange}
+                checked={selectedOption === RoomType.Protected}
+                onChange={() => setSelectedOption(RoomType.Protected)}
               />
             </label>
           </div>
 
           {/* Conditionally render the text input */}
-          {selectedOption === "Protected" && (
+          {selectedOption === RoomType.Protected && (
             <div className="flex flex-row p-3">
               <div className="flex flex-row w-full justify-center pt-2">
                 <p>Group Password</p>
@@ -358,13 +383,114 @@ export const RoomSettingsModal = () => {
             {
               // eslint-disable-next-line
             }
-            <a href="#/" className="btn hover:bg-purple-500">
+            <a
+              href="#/"
+              onClick={resetModalState}
+              className="btn hover:bg-purple-500"
+            >
               {"Close "}
             </a>
-            <a href="#/" className="btn hover:bg-purple-500">
+            <a
+              href="#/"
+              onClick={() => {
+                resetModalState();
+              }}
+              className="btn hover:bg-purple-500"
+            >
               {"Save "}
             </a>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const ExploreRoomsModal = () => {
+  const [ChatRooms] = useState(chatRooms);
+  const [selectedOption, setSelectedOption] = useState(RoomType.Public);
+  const [SelectedRoomID, setSelectedRoomID] = useState(0); // Initialize with a default value
+
+  const resetModalState = () => {
+    setSelectedOption(RoomType.Public);
+    setSelectedRoomID(0);
+  };
+
+  return (
+    <div className="modal " id="my_modal_5">
+      <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
+        <div className="flex flex-col">
+          <div className="flex flex-row justify-center">
+            <p className="text-purple-500 font-poppins text-lg font-medium leading-normal m-2">
+              Explore and Join Rooms
+            </p>
+          </div>
+
+          {/* Scrollable part */}
+          <div className="max-h-[320px] overflow-y-auto no-scrollbar">
+            {ChatRooms.map((room) => (
+              <div
+                className={
+                  "flex flex-col  bg-[#272932] p-4 rounded-md m-2   " +
+                  (SelectedRoomID === room.id
+                    ? "border-2 border-purple-500"
+                    : "")
+                }
+                onClick={() => {
+                  setSelectedOption(room.type);
+                  setSelectedRoomID(room.id);
+                }}
+              >
+                <div className="flex flex-row  justify-between items-center">
+                  <a>
+                    <img className="w-[100%]" alt="" src={groupIcon} />
+                  </a>
+                  <p>{room.name}</p>
+
+                  <a>
+                    <img
+                      className=""
+                      alt=""
+                      src={room.type === RoomType.Protected ? Lock : Unlock}
+                    />
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {selectedOption === RoomType.Protected && (
+          <div className="flex flex-row p-3">
+            <div className="flex flex-row w-full justify-center pt-2">
+              <p>Room Password</p>
+              <input
+                type="Password"
+                className="input w-full shadow-xl max-w-lg bg-[#272932] placeholder:text-gray-400 font-poppins text-base font-normal leading-normal"
+              />
+            </div>
+          </div>
+        )}
+        <div className="modal-action">
+          {
+            // eslint-disable-next-line
+          }
+
+          <a
+            href="#/"
+            onClick={resetModalState}
+            className="btn hover:bg-purple-500"
+          >
+            {"Close "}
+          </a>
+          <a
+            href="#/"
+            onClick={() => {
+              resetModalState();
+            }}
+            className="btn hover:bg-purple-500"
+          >
+            {"Join"}
+          </a>
         </div>
       </div>
     </div>

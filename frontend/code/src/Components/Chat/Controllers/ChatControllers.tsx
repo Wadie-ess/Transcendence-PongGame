@@ -35,7 +35,7 @@ export const useChatStore = create<ChatState>()((set) => ({
   createNewRoom: (name: string, roomType: RoomType, password: string ) =>
     set((state) => {
       const newRoom = {
-        id: users.length + 2,
+        id: chatRooms.length+1,
         name: name,
         type: roomType,
         messages: [],

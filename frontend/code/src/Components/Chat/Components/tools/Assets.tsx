@@ -17,16 +17,15 @@ import GroupChat from "../../assets/CreateGroupChat.svg";
 import NullImage from "../../assets/null_asset.svg";
 import ChatIcon from "../../assets/Chat.svg";
 import RoomsIcon from "../../assets/group_share.svg";
-
-
+import Explore from "../../assets/explore.svg";
+import Lock from "../../assets/lockIcon.svg";
+import Unlock from "../../assets/UnlockIcon.svg";
 
 export enum RoomType {
   Private,
   Public,
   Protected,
 }
-
-
 
 export {
   UserImage,
@@ -48,6 +47,9 @@ export {
   RoomsIcon,
   ChatIcon,
   groupIcon,
+  Explore,
+  Lock,
+  Unlock,
 };
 
 export interface Message {
@@ -78,7 +80,7 @@ export interface User {
 export const chatRooms: ChatRoom[] = [
   {
     id: 7,
-    name: "Room 7",
+    name: "Room 1",
     messages: [
       {
         senderId: 5,
@@ -111,9 +113,114 @@ export const chatRooms: ChatRoom[] = [
     isAdmin: true,
     type: RoomType.Public,
   },
+  {
+    id: 8,
+    name: "Room 2",
+    messages: [
+      {
+        senderId: 5,
+        message: "Hello, everyone!",
+        time: "10:00 AM",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 7,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 3,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      // Add more messages for Room 1 here
+    ],
+    usersId: [1, 2], // User IDs participating in the chat room
+    isOwner: true,
+    isAdmin: true,
+    type: RoomType.Public,
+  },
+  {
+    id: 9,
+    name: "Room 3",
+    messages: [
+      {
+        senderId: 5,
+        message: "Hello, everyone!",
+        time: "10:00 AM",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 7,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 3,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      // Add more messages for Room 1 here
+    ],
+    usersId: [1, 2], // User IDs participating in the chat room
+    isOwner: true,
+    isAdmin: true,
+    type: RoomType.Protected,
+  },
+
+  {
+    id: 10,
+    name: "Room 4",
+    messages: [
+      {
+        senderId: 5,
+        message: "Hello, everyone!",
+        time: "10:00 AM",
+        isRead: true,
+      },
+      {
+        senderId: 2,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 7,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      {
+        senderId: 3,
+        message: "Hi there!",
+        time: "10:05 AM",
+        isRead: true,
+      },
+      // Add more messages for Room 1 here
+    ],
+    usersId: [1, 2], // User IDs participating in the chat room
+    isOwner: true,
+    isAdmin: true,
+    type: RoomType.Protected,
+  },
   // Add more chat rooms here
 ];
-
 
 export const users: User[] = [
   {
