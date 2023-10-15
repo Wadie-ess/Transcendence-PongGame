@@ -12,6 +12,7 @@ import { DeleteRoomDto } from './dto/delete-room.dto';
 import { ChangeOwnerDto } from './dto/change-owner.dto';
 import { SetAdminDto } from './dto/set-admin.dto';
 import { KickMemberDto } from './dto/kick-member.dto';
+import { MuteMemberDto } from './dto/mute-member.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateRoomDto } from './dto/update-room.dto';
 
@@ -235,6 +236,47 @@ export class RoomsService {
           roomId: roomData.roomId,
         },
       },
+    });
+  }
+  async muteMember(roomData: MuteMemberDto, userId: string) {
+    // check if user is admin or owner
+    // check if member is in room
+    // check if member is not admin or owner
+    // check if member is not muted
+    const room = await this.prisma.room.findUnique({
+      where: { id: roomData.roomId },
+      select: { ownerId: true },
+    });
+    const user = await this.prisma.roomMember.findUnique({
+      where: { unique_user_room: { userId: userId, roomId: roomData.roomId } },
+      select: { is_admin: true },
+    });
+    const member = await this.prisma.roomMember.findUnique({
+      where: {
+        unique_user_room: {
+          userId: roomData.memberId,
+          roomId: roomData.roomId,
+        },
+      },
+    });
+    if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
+    if (!member)
+      throw new HttpException('member not found', HttpStatus.NOT_FOUND);
+    if (!user.is_admin)
+      throw new UnauthorizedException('You are not admin of this room');
+    if (member.is_mueted)
+      throw new UnauthorizedException('member is already muted');
+    if (member.userId === userId)
+      throw new UnauthorizedException('You can not mute yourself');
+    const afterFiveMin = new Date(Date.now() + 5 * 60 * 1000);
+    await this.prisma.roomMember.update({
+      where: {
+        unique_user_room: {
+          userId: roomData.memberId,
+          roomId: roomData.roomId,
+        },
+      },
+      data: { is_mueted: true, mute_expires: afterFiveMin },
     });
   }
 }

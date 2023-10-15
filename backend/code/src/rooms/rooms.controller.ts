@@ -17,6 +17,7 @@ import { UpdateRoomDto } from './dto/update-room.dto';
 import { ChangeOwnerDto } from './dto/change-owner.dto';
 import { SetAdminDto } from './dto/set-admin.dto';
 import { KickMemberDto } from './dto/kick-member.dto';
+import { MuteMemberDto } from './dto/mute-member.dto';
 import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('rooms')
@@ -99,5 +100,14 @@ export class RoomsController {
     @GetCurrentUser('userId') userId: string,
   ) {
     return await this.roomsService.kickMember(memberdata, userId);
+  }
+  @Post('mute')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AtGuard)
+  async muteMember(
+    @Body() memberdata: MuteMemberDto,
+    @GetCurrentUser('userId') userId: string,
+  ) {
+    return await this.roomsService.muteMember(memberdata, userId);
   }
 }
