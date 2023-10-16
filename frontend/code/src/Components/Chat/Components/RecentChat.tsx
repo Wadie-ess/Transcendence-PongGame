@@ -17,6 +17,7 @@ import {
   RoomChatPlaceHolder,
   RoomSettingsModal,
 } from "./RoomChatHelpers";
+import { useUserStore } from "../../../Stores/stores";
 
 
 
@@ -115,6 +116,7 @@ export const ChatPlaceHolder = ({
 
 export const OnlineNowUsers = () => {
 
+  const userStore = useUserStore((state) => state);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const changeChatType = useChatStore((state) => state.changeChatType);
   const [Users] = useState(users);
