@@ -3,6 +3,8 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Get,
+  Query,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +20,7 @@ import { ChangeOwnerDto } from './dto/change-owner.dto';
 import { SetAdminDto } from './dto/set-admin.dto';
 import { KickMemberDto } from './dto/kick-member.dto';
 import { MuteMemberDto } from './dto/mute-member.dto';
+import { RoomSearchDto } from './dto/room-search.dto';
 import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoomDataDto } from './dto/room-data.dto';
 
@@ -129,5 +132,12 @@ export class RoomsController {
     @GetCurrentUser('userId') userId: string,
   ) {
     return await this.roomsService.muteMember(memberdata, userId);
+  }
+
+  @Get('search')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AtGuard)
+  async getRooms(@Query() query: RoomSearchDto) {
+    return await this.roomsService.getRooms(query);
   }
 }
