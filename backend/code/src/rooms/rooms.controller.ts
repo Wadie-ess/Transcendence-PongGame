@@ -17,9 +17,6 @@ import { LeaveRoomDto } from './dto/leave-room.dto';
 import { DeleteRoomDto } from './dto/delete-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { ChangeOwnerDto } from './dto/change-owner.dto';
-import { SetAdminDto } from './dto/set-admin.dto';
-import { KickMemberDto } from './dto/kick-member.dto';
-import { MuteMemberDto } from './dto/mute-member.dto';
 import { RoomSearchDto } from './dto/room-search.dto';
 import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoomDataDto } from './dto/room-data.dto';
@@ -108,7 +105,7 @@ export class RoomsController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
   async setAdmin(
-    @Body() roomdata: SetAdminDto,
+    @Body() roomdata: ChangeOwnerDto,
     @GetCurrentUser('userId') userId: string,
   ) {
     return await this.roomsService.setAdmin(roomdata, userId);
@@ -118,7 +115,7 @@ export class RoomsController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
   async kickMember(
-    @Body() memberdata: KickMemberDto,
+    @Body() memberdata: ChangeOwnerDto,
     @GetCurrentUser('userId') userId: string,
   ) {
     return await this.roomsService.kickMember(memberdata, userId);
@@ -128,7 +125,7 @@ export class RoomsController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
   async muteMember(
-    @Body() memberdata: MuteMemberDto,
+    @Body() memberdata: ChangeOwnerDto,
     @GetCurrentUser('userId') userId: string,
   ) {
     return await this.roomsService.muteMember(memberdata, userId);
@@ -140,4 +137,14 @@ export class RoomsController {
   async getRooms(@Query() query: RoomSearchDto) {
     return await this.roomsService.getRooms(query);
   }
+
+  // @Get('members')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(AtGuard)
+  // async getRoomMembers(
+  //   @Query() query: RoomSearchDto,
+  //   @GetCurrentUser('userId') userId: string
+  // ){
+  //     return await this.roomsService.getRoomMembers(query, userId);
+  // }
 }

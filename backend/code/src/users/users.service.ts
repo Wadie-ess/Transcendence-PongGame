@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { NAME } from '../profile/dto/profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -87,6 +88,53 @@ export class UsersService {
       where: {
         id: blockId,
       },
+    });
+  }
+
+  async getUsers(name: string) {
+    const users = await this.prisma.user.findMany({
+      where: {
+        OR: [
+          {
+            firstName: {
+              contains: name,
+              mode: 'insensitive',
+            },
+          },
+          {
+            lastName: {
+              contains: name,
+              mode: 'insensitive',
+            },
+          },
+        ],
+        NOT: {
+          blocked_by: {
+            some: {
+              Blcoked_by: {
+                OR: [
+                  {
+                    firstName: {
+                      contains: name,
+                      mode: 'insensitive',
+                    },
+                  },
+                  {
+                    lastName: {
+                      contains: name,
+                      mode: 'insensitive',
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+    return users.map((user) => {
+      const name: NAME = { first: user.firstName, last: user.lastName };
+      return { name: name, id: user.userId, avatar: user.avatar };
     });
   }
 }
