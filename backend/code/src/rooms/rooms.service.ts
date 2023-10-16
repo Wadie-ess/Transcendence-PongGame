@@ -13,6 +13,7 @@ import { ChangeOwnerDto } from './dto/change-owner.dto';
 import { SetAdminDto } from './dto/set-admin.dto';
 import { KickMemberDto } from './dto/kick-member.dto';
 import { MuteMemberDto } from './dto/mute-member.dto';
+import { RoomSearchDto } from './dto/room-search.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomDataDto } from './dto/room-data.dto';
@@ -290,6 +291,23 @@ export class RoomsService {
         },
       },
       data: { is_mueted: true, mute_expires: afterFiveMin },
+    });
+  }
+
+  async getRooms(query: RoomSearchDto) {
+    const rooms = await this.prisma.room.findMany({
+      where: {
+        name: {
+          contains: query.q,
+          mode: 'insensitive',
+        },
+        type: {
+          not: 'private',
+        },
+      },
+    });
+    return rooms.map((room) => {
+      return { id: room.id, name: room.name, type: room.type };
     });
   }
 }
