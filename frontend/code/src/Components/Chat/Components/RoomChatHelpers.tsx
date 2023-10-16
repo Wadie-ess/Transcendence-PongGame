@@ -66,7 +66,12 @@ export const RoomChatPlaceHolder = () => {
       ))}
     </div>
   ) : (
-    <NullPlaceHolder message="No Rooms Created Yet, Create The First " />
+    <div className="p-3 items-center">
+      <NullPlaceHolder
+        message="No Rooms Created Yet
+      , Create The First "
+      />
+    </div>
   );
 };
 
@@ -183,13 +188,15 @@ export const CreateNewRoomModal = () => {
                   const response = await createNewRoomCall(
                     RoomName,
                     RoomType[selectedOption],
-                    selectedOption === RoomType.protected ? RoomPassword : undefined
+                    selectedOption === RoomType.protected
+                      ? RoomPassword
+                      : undefined
                   ).then((res) => {
-                    if (res != 200 && res != 201) {
+                    if (res?.status != 200 && res?.status != 201) {
                       // show dialog or toast for something wen wrong
                       resetModalState();
                     } else {
-                      createNewRoom(RoomName, selectedOption, RoomPassword);
+                      createNewRoom(RoomName, selectedOption, res.data.id);
                       resetModalState();
                     }
                   });
@@ -419,11 +426,11 @@ export const RoomSettingsModal = () => {
 export const ExploreRoomsModal = () => {
   const [ChatRooms] = useState(chatRooms);
   const [selectedOption, setSelectedOption] = useState(RoomType.public);
-  const [SelectedRoomID, setSelectedRoomID] = useState(0); // Initialize with a default value
+  const [SelectedRoomID, setSelectedRoomID] = useState("0"); // Initialize with a default value
 
   const resetModalState = () => {
     setSelectedOption(RoomType.public);
-    setSelectedRoomID(0);
+    setSelectedRoomID("0");
   };
 
   return (
@@ -547,7 +554,7 @@ export const NullPlaceHolder: React.FC<NullComponentProps> = ({ message }) => {
   return (
     <div className="null image flex flex-col justify-center items-center h-full">
       <img alt="null" className="w-[35%] bottom-2" src={NullImage}></img>
-      <p className="text-gray-500 font-montserrat text-18 font-semibold leading-28">
+      <p className="text-gray-500 font-montserrat text-18 font-semibold leading-28 p-3">
         {message}
       </p>
     </div>

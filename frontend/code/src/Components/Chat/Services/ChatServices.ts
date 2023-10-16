@@ -14,11 +14,8 @@ export const createNewRoomCall = async (
       });
       console.log(response.data);
       console.log(response.status);
-      return response.status;
+      return response;
     } catch (e) {
       console.log(e);
     }
   };
-
-
-  

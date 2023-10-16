@@ -19,7 +19,7 @@ export interface ChatPaceHolderProps {
   isMe: boolean;
   isRead: boolean;
   userImage: string;
-  id: number;
+  id: string;
 }
 
 export const CurrentUserMessage = ({
@@ -35,7 +35,7 @@ export const CurrentUserMessage = ({
 
   const currentChatMessages = MyUsers.find((user) => user.id === SelectedChat);
 
-  return senderId === 2 ? (
+  return senderId === "2" ? (
     <div className="chat chat-end p-2 pl-5 ">
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
@@ -265,7 +265,7 @@ export const Conversation: React.FC<ConversationProps> = ({
       // validation check
       if (inputValue.length > 0) {
         pushMessage({
-          senderId: 2,
+          senderId: "2",
           message: inputValue,
           isRead: false,
           time: "10",
@@ -316,7 +316,7 @@ export const Conversation: React.FC<ConversationProps> = ({
 
                   if (inputValue.length > 0) {
                     pushMessage({
-                      senderId: 2,
+                      senderId: "2000",
                       message: inputValue,
                       isRead: false,
                       time: "10",
