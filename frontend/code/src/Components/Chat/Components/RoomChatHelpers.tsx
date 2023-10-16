@@ -71,11 +71,8 @@ export const RoomChatPlaceHolder = () => {
 };
 
 export const CreateNewRoomModal = () => {
-  
-  
-
   const [RoomName, setName] = useState("");
-  const [RoomPassword, setPassword] = useState("");
+  const [RoomPassword, setPassword] = useState(" ");
 
   const handlePasswordChange = (event: {
     target: { value: SetStateAction<string> };
@@ -186,10 +183,10 @@ export const CreateNewRoomModal = () => {
                   const response = await createNewRoomCall(
                     RoomName,
                     RoomType[selectedOption],
-                    RoomPassword
+                    selectedOption === RoomType.protected ? RoomPassword : undefined
                   ).then((res) => {
                     if (res != 200 && res != 201) {
-                      // show dialog or toast
+                      // show dialog or toast for something wen wrong
                       resetModalState();
                     } else {
                       createNewRoom(RoomName, selectedOption, RoomPassword);

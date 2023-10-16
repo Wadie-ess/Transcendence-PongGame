@@ -3,9 +3,10 @@ import { api } from "../../../Api/base";
 export const createNewRoomCall = async (
     name: string,
     type: string,
-    password: string
+    password?: string
   ) => {
     try {
+    
       const response = await api.post("/rooms/create", {
         name: name,
         type: type,
@@ -18,3 +19,6 @@ export const createNewRoomCall = async (
       console.log(e);
     }
   };
+
+
+  
