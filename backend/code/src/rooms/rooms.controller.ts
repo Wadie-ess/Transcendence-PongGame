@@ -17,7 +17,9 @@ import { UpdateRoomDto } from './dto/update-room.dto';
 import { ChangeOwnerDto } from './dto/change-owner.dto';
 import { SetAdminDto } from './dto/set-admin.dto';
 import { KickMemberDto } from './dto/kick-member.dto';
-import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { MuteMemberDto } from './dto/mute-member.dto';
+import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RoomDataDto } from './dto/room-data.dto';
 
 @ApiTags('rooms')
 @ApiCookieAuth('X-Access-Token')
@@ -25,6 +27,7 @@ import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
+  @ApiResponse({ type: RoomDataDto })
   @Post('create')
   @UseGuards(AtGuard)
   async createRoom(
@@ -44,6 +47,10 @@ export class RoomsController {
     return await this.roomsService.joinRoom(memberdata, userId);
   }
 
+  @ApiResponse({
+    status: HttpStatus.OK,
+    schema: { default: { message: 'left room successfully' } },
+  })
   @Post('leave')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
@@ -54,6 +61,12 @@ export class RoomsController {
     return await this.roomsService.leaveRoom(memberdata, userId);
   }
 
+  @ApiResponse({
+    status: HttpStatus.OK,
+    schema: {
+      default: { message: 'deleted room successfully' },
+    },
+  })
   @Post('delete')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
@@ -64,6 +77,10 @@ export class RoomsController {
     return await this.roomsService.deleteRoom(roomdata, userId);
   }
 
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: RoomDataDto,
+  })
   @Post('update')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
@@ -73,6 +90,7 @@ export class RoomsController {
   ) {
     return await this.roomsService.updateRoom(roomdata, userId);
   }
+
   @Post('changeOwner')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
@@ -82,6 +100,7 @@ export class RoomsController {
   ) {
     return await this.roomsService.changeOwner(roomdata, userId);
   }
+
   @Post('setAdmin')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
@@ -91,6 +110,7 @@ export class RoomsController {
   ) {
     return await this.roomsService.setAdmin(roomdata, userId);
   }
+
   @Post('kick')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
@@ -99,5 +119,15 @@ export class RoomsController {
     @GetCurrentUser('userId') userId: string,
   ) {
     return await this.roomsService.kickMember(memberdata, userId);
+  }
+
+  @Post('mute')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AtGuard)
+  async muteMember(
+    @Body() memberdata: MuteMemberDto,
+    @GetCurrentUser('userId') userId: string,
+  ) {
+    return await this.roomsService.muteMember(memberdata, userId);
   }
 }
