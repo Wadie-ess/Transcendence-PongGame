@@ -95,6 +95,7 @@ Table room_members {
   roomId String [not null]
   is_admin Boolean [not null, default: false]
   is_banned Boolean [not null, default: false]
+  bannedAt DateTime
   is_mueted Boolean [not null, default: false]
   mute_expires DateTime
   user users [not null]
