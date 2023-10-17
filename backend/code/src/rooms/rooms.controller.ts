@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Get,
   Query,
+  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { LeaveRoomDto } from './dto/leave-room.dto';
 import { DeleteRoomDto } from './dto/delete-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { ChangeOwnerDto } from './dto/change-owner.dto';
+import { QueryOffsetDto } from '../friends/dto/query-ofsset-dto';
 import { RoomSearchDto } from './dto/room-search.dto';
 import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoomDataDto } from './dto/room-data.dto';
@@ -138,13 +140,19 @@ export class RoomsController {
     return await this.roomsService.getRooms(query);
   }
 
-  // @Get('members')
-  // @HttpCode(HttpStatus.OK)
-  // @UseGuards(AtGuard)
-  // async getRoomMembers(
-  //   @Query() query: RoomSearchDto,
-  //   @GetCurrentUser('userId') userId: string
-  // ){
-  //     return await this.roomsService.getRoomMembers(query, userId);
-  // }
+  @Get(':id/members')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AtGuard)
+  async getRoomMembers(
+    @Param('id') roomId: string,
+    @GetCurrentUser('userId') userId: string,
+    @Query() { offset, limit }: QueryOffsetDto,
+  ) {
+    return await this.roomsService.getRoomMembers(
+      roomId,
+      userId,
+      offset,
+      limit,
+    );
+  }
 }

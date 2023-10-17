@@ -93,6 +93,7 @@ export class UsersService {
 
   async getUsers(name: string) {
     const users = await this.prisma.user.findMany({
+      take: 5,
       where: {
         OR: [
           {

@@ -306,4 +306,36 @@ export class RoomsService {
       return { id: room.id, name: room.name, type: room.type };
     });
   }
+
+  async getRoomMembers(
+    roomId: string,
+    userId: string,
+    offset: number,
+    limit: number,
+  ) {
+    const user = await this.prisma.roomMember.findUnique({
+      where: { unique_user_room: { userId: userId, roomId: roomId } },
+    });
+
+    if (!user)
+      throw new UnauthorizedException('You are not a member of this room');
+
+    return await this.prisma.roomMember.findMany({
+      skip: offset,
+      take: limit,
+      where: {
+        roomId: roomId,
+        is_banned: false,
+      },
+      select: {
+        user: {
+          select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+  }
 }
