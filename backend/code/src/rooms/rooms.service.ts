@@ -232,9 +232,9 @@ export class RoomsService {
     if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
     if (!member)
       throw new HttpException('member not found', HttpStatus.NOT_FOUND);
-    if (room.ownerId !== userId || !user.is_admin)
+    if (!user.is_admin || user.is_banned) 
       throw new UnauthorizedException(
-        'You are not owner or admin of this room',
+        'You are not admin of this room',
       );
     if (member.userId === room.ownerId)
       throw new UnauthorizedException(
@@ -272,7 +272,7 @@ export class RoomsService {
     if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
     if (!member)
       throw new HttpException('member not found', HttpStatus.NOT_FOUND);
-    if (!user.is_admin)
+    if (!user.is_admin || user.is_banned)
       throw new UnauthorizedException('You are not admin of this room');
     if (member.is_mueted)
       throw new UnauthorizedException('member is already muted');
@@ -335,6 +335,36 @@ export class RoomsService {
             lastName: true,
           },
         },
+      },
+    });
+  }
+
+  async banMember(memberData: ChangeOwnerDto, userId: string) {
+    const user = await this.prisma.roomMember.findUnique({
+      where: {
+        unique_user_room: { userId: userId, roomId: memberData.roomId },
+      },
+    });
+    const { ownerId } = await this.prisma.room.findUnique({
+      where: { id: memberData.roomId },
+    });
+
+    if (!user || !user.is_admin || user.is_banned)
+      throw new UnauthorizedException('You are not the admin of this Room');
+    if (userId == memberData.memberId)
+      throw new UnauthorizedException('You cannot ban yourself');
+    if (ownerId == memberData.memberId)
+      throw new UnauthorizedException('You cannot ban the Owner of thi Room');
+    return await this.prisma.roomMember.update({
+      where: {
+        unique_user_room: {
+          userId: memberData.memberId,
+          roomId: memberData.roomId,
+        },
+      },
+      data: {
+        is_banned: true,
+        bannedAt: new Date(Date.now()),
       },
     });
   }
