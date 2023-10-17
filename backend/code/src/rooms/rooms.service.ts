@@ -219,7 +219,6 @@ export class RoomsService {
     });
     const user = await this.prisma.roomMember.findUnique({
       where: { unique_user_room: { userId: userId, roomId: roomData.roomId } },
-      select: { is_admin: true },
     });
     const member = await this.prisma.roomMember.findUnique({
       where: {
@@ -232,10 +231,8 @@ export class RoomsService {
     if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
     if (!member)
       throw new HttpException('member not found', HttpStatus.NOT_FOUND);
-    if (!user.is_admin || user.is_banned) 
-      throw new UnauthorizedException(
-        'You are not admin of this room',
-      );
+    if (!user.is_admin || user.is_banned)
+      throw new UnauthorizedException('You are not admin of this room');
     if (member.userId === room.ownerId)
       throw new UnauthorizedException(
         'You can not kick the owner of this room',
@@ -259,7 +256,6 @@ export class RoomsService {
     });
     const user = await this.prisma.roomMember.findUnique({
       where: { unique_user_room: { userId: userId, roomId: roomData.roomId } },
-      select: { is_admin: true },
     });
     const member = await this.prisma.roomMember.findUnique({
       where: {
