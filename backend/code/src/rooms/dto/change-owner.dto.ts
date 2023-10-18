@@ -9,5 +9,5 @@ export class ChangeOwnerDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  NewOwnerId: string;
+  memberId: string;
 }

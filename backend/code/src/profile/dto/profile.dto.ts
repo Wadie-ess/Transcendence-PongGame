@@ -26,7 +26,7 @@ type ProfileDtoProps = Partial<User> &
     tfa:boolean,
 */
 
-type NAME = {
+export type NAME = {
   first: string;
   last: string;
 };
