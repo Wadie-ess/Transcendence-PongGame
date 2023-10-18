@@ -165,4 +165,14 @@ export class RoomsController {
   ) {
     return await this.roomsService.banMember(memberData, userId);
   }
+
+  @Post('add')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AtGuard)
+  async addMember(
+    @Body() memberData: ChangeOwnerDto,
+    @GetCurrentUser('userId') userId: string,
+  ) {
+    return await this.roomsService.addMember(memberData, userId);
+  }
 }

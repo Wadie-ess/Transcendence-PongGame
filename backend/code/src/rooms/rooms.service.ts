@@ -364,4 +364,36 @@ export class RoomsService {
       },
     });
   }
+
+  async addMember(memberData: ChangeOwnerDto, userId: string) {
+    const user = await this.prisma.roomMember.findUnique({
+      where: {
+        unique_user_room: { userId: userId, roomId: memberData.roomId },
+      },
+    });
+
+    const member = await this.prisma.roomMember.findUnique({
+      where: {
+        unique_user_room: {
+          userId: memberData.memberId,
+          roomId: memberData.roomId,
+        },
+      },
+    });
+
+    if (!user || !user.is_admin || user.is_banned)
+      throw new UnauthorizedException('You are not the admin of this Room');
+    if (member) throw new UnauthorizedException('User already Exist');
+    await this.prisma.roomMember.create({
+      data: {
+        user: {
+          connect: { userId: memberData.memberId },
+        },
+        room: {
+          connect: { id: memberData.roomId },
+        },
+      },
+    });
+    return { message: 'User added successfully' };
+  }
 }
