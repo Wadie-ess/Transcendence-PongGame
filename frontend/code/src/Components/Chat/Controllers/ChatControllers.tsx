@@ -16,9 +16,12 @@ export interface ChatState {
   selectedChatID: string;
   currentMessages: Message[];
   currentRoomMessages: Message[];
+  isLoading: boolean;
 
   recentRooms: ChatRoom[];
+  setIsLoading: (isLoading: boolean) => void;
   selectNewChatID: (id: string) => void;
+  editRoom: (name: string, roomType: RoomType, id: string) => void;
   createNewRoom: (name: string, roomType: RoomType, id: string) => void;
   addNewMessage: (message: Message) => void;
   changeChatType: (type: ChatType) => void;
@@ -28,11 +31,29 @@ export const useChatStore = create<ChatState>()((set) => ({
   selectedChatID: "1",
   selectedChatType: ChatType.Chat,
   recentRooms: chatRooms,
-  // to fix this 
+  isLoading: false,
+  // to fix this
   currentMessages: users.find((user) => user.id === "1")?.messages as Message[],
   currentRoomMessages: chatRooms.find((room) => room.id === "1")
     ?.messages as Message[],
 
+  setIsLoading: (isLoading: boolean) =>
+    set((state) => {
+      state.isLoading = isLoading;
+      return { ...state };
+    }),
+
+  editRoom: (name: string, roomType: RoomType, id: string) =>
+    set((state) => {
+      const room = chatRooms.find((room) => room.id === id);
+      if (room) {
+        room.name = name;
+        room.type = roomType;
+      }
+      state.selectedChatID = id;
+      state.recentRooms = [...chatRooms];
+      return { ...state };
+    }),
   createNewRoom: (name: string, roomType: RoomType, id: string) =>
     set((state) => {
       const newRoom = {
@@ -41,10 +62,11 @@ export const useChatStore = create<ChatState>()((set) => ({
         type: roomType,
         messages: [],
         usersId: [] as string[],
-        isOwner: false,
-        isAdmin: false,
+        isOwner: true,
+        isAdmin: true,
       };
-    
+      state.selectedChatID = id;
+
       chatRooms.push(newRoom);
       state.recentRooms = [...chatRooms];
       return { ...state };

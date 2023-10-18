@@ -1,4 +1,4 @@
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { useChatStore } from "../Controllers/ChatControllers";
 import users, {
   GroupChat,
@@ -13,7 +13,9 @@ import users, {
 } from "./tools/Assets";
 import { SelectedUserTile } from "..";
 import { api } from "../../../Api/base";
-import { createNewRoomCall } from "../Services/ChatServices";
+import { createNewRoomCall, updateRoomCall } from "../Services/ChatServices";
+import toast from "react-hot-toast";
+import { Logo } from "../../Layout/Assets/Logo";
 
 interface NullComponentProps {
   message: string;
@@ -93,6 +95,8 @@ export const CreateNewRoomModal = () => {
   const createNewRoom = useChatStore((state) => state.createNewRoom);
 
   const [selectedOption, setSelectedOption] = useState(RoomType.public); // Initialize with a default value
+
+  const setIsLoading = useChatStore((state) => state.setIsLoading);
 
   const resetModalState = () => {
     setPassword("");
@@ -185,6 +189,7 @@ export const CreateNewRoomModal = () => {
               onClick={async () => {
                 console.log(RoomType[selectedOption]);
                 if (RoomName !== "" && RoomName.length > 3) {
+                  setIsLoading(true);
                   const response = await createNewRoomCall(
                     RoomName,
                     RoomType[selectedOption],
@@ -193,13 +198,17 @@ export const CreateNewRoomModal = () => {
                       : undefined
                   ).then((res) => {
                     if (res?.status != 200 && res?.status != 201) {
-                      // show dialog or toast for something wen wrong
+                      toast.error("something went wrong, try again");
                       resetModalState();
                     } else {
                       createNewRoom(RoomName, selectedOption, res.data.id);
                       resetModalState();
                     }
+                    setIsLoading(false);
                   });
+                } else {
+                  toast.error("Room name must be at least 4 characters");
+                  resetModalState();
                 }
               }}
               className="btn hover:bg-purple-500"
@@ -257,31 +266,55 @@ export const AddUsersModal = () => {
 };
 
 export const RoomSettingsModal = () => {
+  const editRoom = useChatStore((state) => state.editRoom);
   const selectedChatID = useChatStore((state) => state.selectedChatID);
   const currentRoom = chatRooms.find((room) => room.id === selectedChatID);
   const currentRoomUsers = users.filter(
     (user) => currentRoom?.usersId.includes(user.id) as boolean
   );
 
-  const [selectedOption, setSelectedOption] = useState(currentRoom?.type); // Initialize with a default value
+  const setIsLoading = useChatStore((state) => state.setIsLoading);
+
+  const [RoomName, setName] = useState("");
+  const [RoomPassword, setPassword] = useState("");
+
+  const handlePasswordChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
+    setPassword(event.target.value);
+  };
+  const handleChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
+    setName(event.target.value);
+  };
+  const [selectedOption, setSelectedOption] = useState(RoomType.public);
+
+  useEffect(() => {
+    setSelectedOption(currentRoom?.type as RoomType);
+    setName(currentRoom?.name as string);
+  }, [currentRoom?.type, currentRoom?.name]);
 
   const resetModalState = () => {
-    setSelectedOption(RoomType.public);
+    setSelectedOption(currentRoom?.type as RoomType);
+    setName(currentRoom?.name as string);
   };
+
   return (
     <div className="modal " id="my_modal_9">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar w-[90%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
             <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
-              {currentRoom?.name}'s Settings
+              {RoomName}'s Settings
             </p>
           </div>
           <div className="flex flex-row p-3">
             <div className="flex flex-row w-full justify-center pt-2">
               <img className="mr-2" alt="" src={GroupChat} />
               <input
-                value={currentRoom?.name}
+                value={RoomName}
+                onChange={handleChange}
                 type="text"
                 placeholder="Set The Room Name"
                 className="input w-full shadow-xl max-w-lg bg-[#272932] placeholder:text-gray-400 font-poppins text-base font-normal leading-normal"
@@ -331,6 +364,8 @@ export const RoomSettingsModal = () => {
               <div className="flex flex-row w-full justify-center pt-2">
                 <p>Group Password</p>
                 <input
+                  value={RoomPassword}
+                  onChange={handlePasswordChange}
                   type="Password"
                   className="input w-full shadow-xl max-w-lg bg-[#272932] placeholder:text-gray-400 font-poppins text-base font-normal leading-normal"
                 />
@@ -409,8 +444,28 @@ export const RoomSettingsModal = () => {
             </a>
             <a
               href="#/"
-              onClick={() => {
-                resetModalState();
+              onClick={async () => {
+                console.log(RoomType[selectedOption]);
+                if (RoomName !== "" && RoomName.length > 3) {
+                  setIsLoading(true);
+                  const response = await updateRoomCall(
+                    RoomName,
+                    RoomType[selectedOption],
+                    currentRoom?.id!
+                  ).then((res) => {
+                    if (res?.status != 200 && res?.status != 201) {
+                      toast.error("something went wrong, try again");
+                      resetModalState();
+                    } else {
+                      editRoom(RoomName, selectedOption, currentRoom?.id!);
+                      resetModalState();
+                    }
+                    setIsLoading(false);
+                  });
+                } else {
+                  toast.error("Room name must be at least 4 characters");
+                  resetModalState();
+                }
               }}
               className="btn hover:bg-purple-500"
             >
@@ -558,5 +613,26 @@ export const NullPlaceHolder: React.FC<NullComponentProps> = ({ message }) => {
         {message}
       </p>
     </div>
+  );
+};
+
+export const ShowLogoModal = () => {
+  const isLoading = useChatStore((state) => state.isLoading);
+  return isLoading === true ? (
+    <div
+      className={`fixed inset-0 flex items-center justify-center z-50 bg-[rgba(0,0,0,0.7)]  `}
+    >
+      <div className="modal-box bg-[#2d2f3b] rounded-lg shadow-white  p-5 border-2 border-purple-500 text-center">
+        <div>
+          <div className="pl-48 p-4">
+            <Logo x={""} y={""} />
+          </div>
+
+          <p>Loading...</p>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <></>
   );
 };

@@ -20,6 +20,7 @@ import RoomsIcon from "../../assets/group_share.svg";
 import Explore from "../../assets/explore.svg";
 import Lock from "../../assets/lockIcon.svg";
 import Unlock from "../../assets/UnlockIcon.svg";
+// import myLogo from "../../../Layout/Assets/Logo.tsx";
 
 export enum RoomType {
   private,
@@ -50,6 +51,7 @@ export {
   Explore,
   Lock,
   Unlock,
+  // myLogo,
 };
 
 export interface Message {

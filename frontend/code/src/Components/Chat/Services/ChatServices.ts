@@ -19,3 +19,26 @@ export const createNewRoomCall = async (
       console.log(e);
     }
   };
+
+
+  export const updateRoomCall = async (
+    name: string,
+    type: string,
+    roomId: string,
+
+  ) => {
+    try {
+    
+      const response = await api.post("/rooms/update", {
+        name: name,
+        type: type,
+        roomId : roomId
+      });
+      console.log(response.data);
+      console.log(response.status);
+      return response;
+    } catch (e) {
+      console.log(e);
+    }
+
+   };

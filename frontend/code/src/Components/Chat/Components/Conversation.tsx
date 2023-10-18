@@ -286,6 +286,8 @@ export const Conversation: React.FC<ConversationProps> = ({
         {(selectedMessages?.length as number) > 0 ? (
           selectedMessages?.map((message) => (
             <CurrentUserMessage
+            // to set a unique key
+            // key={message.senderId}
               message={message.message}
               time={message.time}
               senderId={message.senderId}
