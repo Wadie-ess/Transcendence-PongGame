@@ -16,9 +16,8 @@ import {
   NullPlaceHolder,
   RoomChatPlaceHolder,
   RoomSettingsModal,
+  ShowLogoModal,
 } from "./RoomChatHelpers";
-
-
 
 export const RecentConversations = () => {
   const [MyUsers] = useState(users);
@@ -114,7 +113,6 @@ export const ChatPlaceHolder = ({
 };
 
 export const OnlineNowUsers = () => {
-
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const changeChatType = useChatStore((state) => state.changeChatType);
   const [Users] = useState(users);
@@ -129,17 +127,19 @@ export const OnlineNowUsers = () => {
             Messages
           </p>
           <div className="icons-row flex flex-row items-center  ">
-            <a href="#my_modal_5" className="pr-3">
-              <img className="w-[100%]" alt="" src={Explore} />
-            </a>
-            <a href="#my_modal_8" className="">
+            <a href="#my_modal_8" className="pr-2">
               <img className="w-[80%]" alt="" src={GroupChat} />
             </a>
+            <a href="#my_modal_5" className="">
+              <img className="w-[100%]" alt="" src={Explore} />
+            </a>
             <div>
-              <ExploreRoomsModal/>
+              <ExploreRoomsModal />
               <RoomSettingsModal />
               <AddUsersModal />
               <CreateNewRoomModal />
+              <ShowLogoModal/>
+           
             </div>
           </div>
         </div>
@@ -179,7 +179,7 @@ export const OnlineNowUsers = () => {
           </div>
           <div className="users-images flex flex-row justify-between pt-3 pb-3  ">
             {onlineUsers.map((user) => (
-              <div className="relative inline-block">
+              <div key={user.id} className="relative inline-block">
                 <img
                   className="user-image h-10 w-10 rounded-full"
                   src={user.image}

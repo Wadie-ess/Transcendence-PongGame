@@ -13,7 +13,7 @@ import React from "react";
 import { ChatType, useChatStore } from "./Controllers/ChatControllers";
 
 import { RecentConversations } from "./Components/RecentChat";
-
+import { NullPlaceHolder } from "./Components/RoomChatHelpers";
 
 export interface ConversationProps {
   onRemoveUserPreview: () => void;
@@ -21,35 +21,40 @@ export interface ConversationProps {
 
 export const Chat = () => {
   const [showUserPreview, setShowUserPreview] = useState(false);
+  const selectedChatType = useChatStore((state) => state.selectedChatType);
 
+  const chatRooms = useChatStore((state) => state.recentRooms);
   const handleRemoveUserPreview = () => {
     setShowUserPreview(!showUserPreview);
   };
   return (
-
-      <>
-        <div className="flex h-full divide-black divide-x-4 bg-[#1A1C26]">
-          <div
-            className={` ${
-              showUserPreview === true ? "w-5/12 " : "w-5/12 md:w-4/12"
-            }`}
-          >
-            {<RecentConversations />}
-          </div>
-          <div
-            className={` ${
-              showUserPreview ? "w-6/12" : "w-8/12"
-            } overflow-hidden bg-gray-900`}
-          >
-            <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
-          </div>
-          <div className={` ${showUserPreview ? "w-3/12" : ""}  bg-[#1A1C26]`}>
-            {showUserPreview && (
-              <UserPreviewCard onRemoveUserPreview={handleRemoveUserPreview} />
-            )}
-          </div>
+    <>
+      <div className="flex h-full divide-black divide-x-4 bg-[#1A1C26]">
+        <div
+          className={` ${
+            showUserPreview === true ? "w-5/12 " : "w-5/12 md:w-4/12"
+          }`}
+        >
+          {<RecentConversations />}
         </div>
-      </>
+        <div
+          className={` ${
+            showUserPreview ? "w-6/12" : "w-8/12"
+          } overflow-hidden bg-gray-900`}
+        >
+          {chatRooms.length < 1 && selectedChatType === ChatType.Room ? (
+            <NullPlaceHolder message="" />
+          ) : (
+            <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
+          )}
+        </div>
+        <div className={` ${showUserPreview ? "w-3/12" : ""}  bg-[#1A1C26]`}>
+          {showUserPreview && (
+            <UserPreviewCard onRemoveUserPreview={handleRemoveUserPreview} />
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 
