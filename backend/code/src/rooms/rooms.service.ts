@@ -396,4 +396,26 @@ export class RoomsService {
     });
     return { message: 'User added successfully' };
   }
+
+  async listRooms(
+    userId: string,
+    offset: number,
+    limit: number,
+    joined: boolean,
+  ) {
+    const rooms = await this.prisma.room.findMany({
+      skip: offset,
+      take: limit,
+      where: {
+        ...(joined && { members: { some: { userId: userId } } }),
+        ...(!joined && { OR: [{ type: 'public' }, { type: 'protected' }] }),
+      },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+      },
+    });
+    return rooms;
+  }
 }
