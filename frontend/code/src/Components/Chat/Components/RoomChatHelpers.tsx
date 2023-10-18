@@ -12,7 +12,7 @@ import users, {
   groupIcon,
 } from "./tools/Assets";
 import { SelectedUserTile } from "..";
-import { api } from "../../../Api/base";
+
 import { createNewRoomCall, updateRoomCall } from "../Services/ChatServices";
 import toast from "react-hot-toast";
 import { Logo } from "../../Layout/Assets/Logo";
@@ -190,14 +190,14 @@ export const CreateNewRoomModal = () => {
                 console.log(RoomType[selectedOption]);
                 if (RoomName !== "" && RoomName.length > 3) {
                   setIsLoading(true);
-                  const response = await createNewRoomCall(
+                  await createNewRoomCall(
                     RoomName,
                     RoomType[selectedOption],
                     selectedOption === RoomType.protected
                       ? RoomPassword
                       : undefined
                   ).then((res) => {
-                    if (res?.status != 200 && res?.status != 201) {
+                    if (res?.status !== 200 && res?.status !== 201) {
                       toast.error("something went wrong, try again");
                       resetModalState();
                     } else {
@@ -448,12 +448,12 @@ export const RoomSettingsModal = () => {
                 console.log(RoomType[selectedOption]);
                 if (RoomName !== "" && RoomName.length > 3) {
                   setIsLoading(true);
-                  const response = await updateRoomCall(
+                   await updateRoomCall(
                     RoomName,
                     RoomType[selectedOption],
                     currentRoom?.id!
                   ).then((res) => {
-                    if (res?.status != 200 && res?.status != 201) {
+                    if (res?.status !== 200 && res?.status !== 201) {
                       toast.error("something went wrong, try again");
                       resetModalState();
                     } else {
