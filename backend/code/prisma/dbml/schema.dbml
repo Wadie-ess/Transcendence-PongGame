@@ -106,6 +106,15 @@ Table room_members {
   }
 }
 
+Table notifications {
+  createdAt DateTime [default: `now()`, not null]
+  id String [pk]
+  recipientId String [not null]
+  content String [not null]
+  is_read Boolean [not null, default: false]
+  readAt DateTime
+}
+
 Enum RoomType {
   public
   private
