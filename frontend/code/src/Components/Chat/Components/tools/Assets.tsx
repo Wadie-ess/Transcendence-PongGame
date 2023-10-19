@@ -20,8 +20,7 @@ import RoomsIcon from "../../assets/group_share.svg";
 import Explore from "../../assets/explore.svg";
 import Lock from "../../assets/lockIcon.svg";
 import Unlock from "../../assets/UnlockIcon.svg";
-// import myLogo from "../../../Layout/Assets/Logo.tsx";
-
+import ChatGif from "../../assets/chatGif.gif"
 export enum RoomType {
   private,
   public,
@@ -51,7 +50,7 @@ export {
   Explore,
   Lock,
   Unlock,
-  // myLogo,
+  ChatGif
 };
 
 export interface Message {
@@ -115,42 +114,6 @@ export const chatRooms: ChatRoom[] = [
   //   isAdmin: true,
   //   type: RoomType.public,
   // },
-  // {
-  //   id: "8",
-  //   name: "Room 2",
-  //   messages: [
-  //     {
-  //       senderId: "1",
-  //       message: "Hello, everyone!",
-  //       time: "10:00 AM",
-  //       isRead: true,
-  //     },
-  //     {
-  //       senderId: "2",
-  //       message: "Hi there!",
-  //       time: "10:05 AM",
-  //       isRead: true,
-  //     },
-  //     {
-  //       senderId: "3",
-  //       message: "Hi there!",
-  //       time: "10:05 AM",
-  //       isRead: true,
-  //     },
-  //     {
-  //       senderId: "3",
-  //       message: "Hi there!",
-  //       time: "10:05 AM",
-  //       isRead: true,
-  //     },
-  //     // Add more messages for Room 1 here
-  //   ],
-  //   usersId: ["1", "2"], // User IDs participating in the chat room
-  //   isOwner: true,
-  //   isAdmin: true,
-  //   type: RoomType.public,
-  // },
-  
   // Add more chat rooms here
 ];
 
@@ -172,42 +135,7 @@ export const users: User[] = [
         time: "05:00",
         isRead: true,
       },
-      {
-        senderId: "1",
-        message: "Hello!",
-        time: "00:00",
-        isRead: true,
-      },
-      {
-        senderId: "2",
-        message: "Hi there!",
-        time: "05:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "Hello!",
-        time: "00:00",
-        isRead: true,
-      },
-      {
-        senderId: "2",
-        message: "Hi there!",
-        time: "05:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "Hello!",
-        time: "00:00",
-        isRead: true,
-      },
-      {
-        senderId: "2",
-        message: "Hi there!",
-        time: "05:00",
-        isRead: true,
-      },
+
       // Add more messages as needed
     ],
   },
@@ -240,42 +168,7 @@ export const users: User[] = [
         time: "15:00",
         isRead: false,
       },
-      {
-        senderId: "2",
-        message: "Hey!",
-        time: "10:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "How are you?",
-        time: "15:00",
-        isRead: false,
-      },
-      {
-        senderId: "2",
-        message: "Hey!",
-        time: "10:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "How are you?",
-        time: "15:00",
-        isRead: false,
-      },
-      {
-        senderId: "2",
-        message: "Hey!",
-        time: "10:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "How are you?",
-        time: "15:00",
-        isRead: false,
-      },
+
       // Add more messages as needed
     ],
   },
@@ -308,6 +201,15 @@ export const users: User[] = [
         time: "15:00",
         isRead: false,
       },
+
+      // Add more messages as needed
+    ],
+  },
+  {
+    id: "8",
+    name: "User 4",
+    image: yas,
+    messages: [
       {
         senderId: "2",
         message: "Hey!",
@@ -332,6 +234,15 @@ export const users: User[] = [
         time: "15:00",
         isRead: false,
       },
+
+      // Add more messages as needed
+    ],
+  },
+  {
+    id: "9",
+    name: "User 5",
+    image: yas,
+    messages: [
       {
         senderId: "2",
         message: "Hey!",
@@ -344,6 +255,19 @@ export const users: User[] = [
         time: "15:00",
         isRead: false,
       },
+      {
+        senderId: "2",
+        message: "Hey!",
+        time: "10:00",
+        isRead: true,
+      },
+      {
+        senderId: "1",
+        message: "How are you?",
+        time: "15:00",
+        isRead: false,
+      },
+
       // Add more messages as needed
     ],
   },

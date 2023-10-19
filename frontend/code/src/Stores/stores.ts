@@ -130,7 +130,7 @@ export const useUserStore = create<State & Action>()(
           history: [],
           chatRoomsJoinedIds: [],
         };
-        console.log(userInitialValue)
+        // console.log(userInitialValue)
         set({ ...userInitialValue });
         return res.status
       },

@@ -1,6 +1,8 @@
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useLayoutEffect, useState } from "react";
 import { useChatStore } from "../Controllers/ChatControllers";
 import users, {
+  ChatGif,
+  ChatRoom,
   GroupChat,
   Lock,
   More,
@@ -13,9 +15,14 @@ import users, {
 } from "./tools/Assets";
 import { SelectedUserTile } from "..";
 
-import { createNewRoomCall, updateRoomCall } from "../Services/ChatServices";
+import {
+  createNewRoomCall,
+  fetchRoomsCall,
+  updateRoomCall,
+} from "../Services/ChatServices";
 import toast from "react-hot-toast";
 import { Logo } from "../../Layout/Assets/Logo";
+import { useModalStore } from "../Controllers/ModalControllers";
 
 interface NullComponentProps {
   message: string;
@@ -79,7 +86,7 @@ export const RoomChatPlaceHolder = () => {
 
 export const CreateNewRoomModal = () => {
   const [RoomName, setName] = useState("");
-  const [RoomPassword, setPassword] = useState(" ");
+  const [RoomPassword, setPassword] = useState("");
 
   const handlePasswordChange = (event: {
     target: { value: SetStateAction<string> };
@@ -448,7 +455,7 @@ export const RoomSettingsModal = () => {
                 console.log(RoomType[selectedOption]);
                 if (RoomName !== "" && RoomName.length > 3) {
                   setIsLoading(true);
-                   await updateRoomCall(
+                  await updateRoomCall(
                     RoomName,
                     RoomType[selectedOption],
                     currentRoom?.id!
@@ -479,14 +486,38 @@ export const RoomSettingsModal = () => {
 };
 
 export const ExploreRoomsModal = () => {
-  const [ChatRooms] = useState(chatRooms);
+  const modalState = useModalStore((state) => state);
+  const [ChatRooms, SetChatRooms] = useState(chatRooms);
   const [selectedOption, setSelectedOption] = useState(RoomType.public);
-  const [SelectedRoomID, setSelectedRoomID] = useState("0"); // Initialize with a default value
+  const [SelectedRoomID, setSelectedRoomID] = useState("0");
 
   const resetModalState = () => {
     setSelectedOption(RoomType.public);
     setSelectedRoomID("0");
   };
+
+  useEffect(() => {
+    fetchRoomsCall(0, 5, false).then((res) => {
+      if (res?.status !== 200 && res?.status !== 201) {
+        toast.error("something went wrong, try again");
+        resetModalState();
+      } else {
+        const rooms: ChatRoom[] = [];
+        res.data.forEach((room: { id: string; name: string; type: string }) => {
+          rooms.push({
+            id: room.id,
+            name: room.name,
+            type: RoomType[room.type as keyof typeof RoomType],
+            messages: [],
+            usersId: [],
+            isOwner: true,
+            isAdmin: true,
+          });
+        });
+        SetChatRooms(rooms);
+      }
+    });
+  }, [modalState]);
 
   return (
     <div className="modal " id="my_modal_5">
@@ -500,35 +531,42 @@ export const ExploreRoomsModal = () => {
 
           {/* Scrollable part */}
           <div className="max-h-[320px] overflow-y-auto no-scrollbar">
-            {ChatRooms.map((room) => (
-              <div
-                className={
-                  "flex flex-col  bg-[#272932] p-4 rounded-md m-2   " +
-                  (SelectedRoomID === room.id
-                    ? "border-2 border-purple-500"
-                    : "")
-                }
-                onClick={() => {
-                  setSelectedOption(room.type);
-                  setSelectedRoomID(room.id);
-                }}
-              >
-                <div className="flex flex-row  justify-between items-center">
-                  <a href="/#">
-                    <img className="w-[100%]" alt="" src={groupIcon} />
-                  </a>
-                  <p>{room.name}</p>
+            {ChatRooms.length > 0 ? (
+              <>
+                {ChatRooms.map((room) => (
+                  <div
+                    key={room.id}
+                    className={
+                      "flex flex-col  bg-[#272932] p-4 rounded-md m-2   " +
+                      (SelectedRoomID === room.id
+                        ? "border-2 border-purple-500"
+                        : "")
+                    }
+                    onClick={() => {
+                      setSelectedOption(room.type);
+                      setSelectedRoomID(room.id);
+                    }}
+                  >
+                    <div className="flex flex-row  justify-between items-center">
+                      <a href="/#">
+                        <img className="w-[100%]" alt="" src={groupIcon} />
+                      </a>
+                      <p>{room.name}</p>
 
-                  <a href="/#">
-                    <img
-                      className=""
-                      alt=""
-                      src={room.type === RoomType.protected ? Lock : Unlock}
-                    />
-                  </a>
-                </div>
-              </div>
-            ))}
+                      <a href="/#">
+                        <img
+                          className=""
+                          alt=""
+                          src={room.type === RoomType.protected ? Lock : Unlock}
+                        />
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <NullPlaceHolder message="No Rooms Yet!, Create the First" />
+            )}
           </div>
         </div>
         {selectedOption === RoomType.protected && (
@@ -556,8 +594,24 @@ export const ExploreRoomsModal = () => {
           </a>
           <a
             href="#/"
-            onClick={() => {
-              resetModalState();
+            onClick={async () => {
+              // await fetchRoomsCall(0, 5, false).then((res) => {
+              //   if (res?.status !== 200 && res?.status !== 201) {
+              //     toast.error("something went wrong, try again");
+              //     resetModalState();
+              //   } else {
+              //     res.data.forEach(
+              //       (room: { id: string; name: string; type: string }) => {
+              //         chatState.createNewRoom(
+              //           room.name,
+              //           RoomType["public"],
+              //           room.id
+              //         );
+              //       }
+              //     );
+              //     resetModalState();
+              //   }
+              // });
             }}
             className="btn hover:bg-purple-500"
           >
@@ -609,6 +663,21 @@ export const NullPlaceHolder: React.FC<NullComponentProps> = ({ message }) => {
   return (
     <div className="null image flex flex-col justify-center items-center h-full">
       <img alt="null" className="w-[35%] bottom-2" src={NullImage}></img>
+      <p className="text-gray-500 font-montserrat text-18 font-semibold leading-28 p-3">
+        {message}
+      </p>
+    </div>
+  );
+};
+
+export const ChatPlaceHolder: React.FC<NullComponentProps> = ({ message }) => {
+  return (
+    <div className="null image flex flex-col justify-center items-center h-full">
+      <img
+        alt="null"
+        className="w-[35%] bottom-2 opacity-50 max-w-xs"
+        src={ChatGif}
+      ></img>
       <p className="text-gray-500 font-montserrat text-18 font-semibold leading-28 p-3">
         {message}
       </p>

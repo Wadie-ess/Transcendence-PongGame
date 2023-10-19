@@ -42,3 +42,28 @@ export const createNewRoomCall = async (
     }
 
    };
+
+
+   export  const fetchRoomsCall  = async (
+    offset: number,
+    limit : number,
+    joined : boolean,
+
+   ) => {
+
+    try {
+      const response = await api.get(`/rooms`,
+      { params: { offset: offset, limit : limit, joined : joined  } });
+      console.log(response.data);
+      console.log(response.status);
+      return response;
+    } catch (e) {
+      console.log(e);
+    }
+
+
+    
+
+
+
+   }

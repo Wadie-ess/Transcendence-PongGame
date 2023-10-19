@@ -18,6 +18,7 @@ import {
   RoomSettingsModal,
   ShowLogoModal,
 } from "./RoomChatHelpers";
+import { useModalStore } from "../Controllers/ModalControllers";
 
 export const RecentConversations = () => {
   const [MyUsers] = useState(users);
@@ -118,6 +119,7 @@ export const OnlineNowUsers = () => {
   const [Users] = useState(users);
   // take the first five users from the array
   const onlineUsers = Users.slice(0, 5);
+  const setModalState = useModalStore((state) => state.setShowExploreModal);
 
   return (
     <>
@@ -131,15 +133,19 @@ export const OnlineNowUsers = () => {
               <img className="w-[80%]" alt="" src={GroupChat} />
             </a>
             <a href="#my_modal_5" className="">
-              <img className="w-[100%]" alt="" src={Explore} />
+              <img
+                className="w-[100%]"
+                alt=""
+                onClick={() => setModalState(true)}
+                src={Explore}
+              />
             </a>
             <div>
               <ExploreRoomsModal />
               <RoomSettingsModal />
               <AddUsersModal />
               <CreateNewRoomModal />
-              <ShowLogoModal/>
-           
+              <ShowLogoModal />
             </div>
           </div>
         </div>
