@@ -37,7 +37,7 @@ export const RoomChatPlaceHolder = () => {
     const fetch = async () => {
       setIsLoading(true);
       // to make it dynamic later
-      await fetchRoomsCall(0, 5, false).then((res) => {
+      await fetchRoomsCall(0, 5, true).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
           toast.error("something went wrong, try again");
         } else {
@@ -138,7 +138,7 @@ export const CreateNewRoomModal = () => {
 
   const createNewRoom = useChatStore((state) => state.createNewRoom);
 
-  const [selectedOption, setSelectedOption] = useState(RoomType.public); // Initialize with a default value
+  const [selectedOption, setSelectedOption] = useState(RoomType.public);
 
   const setIsLoading = useChatStore((state) => state.setIsLoading);
 
@@ -537,7 +537,6 @@ export const ExploreRoomsModal = () => {
   useEffect(() => {
     const fetch = async () => {
       setIsLoading(true);
-      // to make it dynamic later
       await fetchRoomsCall(0, 30, false).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
           toast.error("something went wrong, try again");
@@ -645,7 +644,7 @@ export const ExploreRoomsModal = () => {
           >
             {"Close "}
           </a>
-          {ChatRooms.length > 0 && (
+          {ChatRooms.length > 0 && SelectedRoomID !== "0" && (
             <a
               href="#/"
               onClick={async () => {
