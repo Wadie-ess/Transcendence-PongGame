@@ -15,10 +15,6 @@ export class MessagesService {
       throw new HttpException('Message is too long', HttpStatus.BAD_REQUEST);
     }
 
-    //TODO: check user is not banned
-    // check user is in channel
-    // check user is not muted
-    //FIXME: owner room memebr
     const roomMember = await this.prisma.roomMember.findFirst({
       where: {
         userId,
@@ -29,6 +25,13 @@ export class MessagesService {
     if (!roomMember) {
       throw new HttpException(
         'User is not in channel',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    if (roomMember.is_banned) {
+      throw new HttpException(
+        'you are banned from this channel',
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -59,5 +62,42 @@ export class MessagesService {
     const responseMessage: MessageFormatDto = new MessageFormatDto(messageData);
     this.eventEmitter.emit('sendMessages', responseMessage);
     return responseMessage;
+  }
+
+  async getMessages(
+    userId: string,
+    channelId: string,
+    offset: number,
+    limit: number,
+  ) {
+    const roomMember = await this.prisma.roomMember.findFirst({
+      where: {
+        userId,
+        roomId: channelId,
+      },
+    });
+
+    if (!roomMember) {
+      throw new HttpException(
+        'User is not in channel',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    //TESTING: for later testing
+    const messages = await this.prisma.message.findMany({
+      where: {
+        roomId: channelId,
+        ...(roomMember.is_banned && {
+          createdAt: { lte: roomMember.bannedAt },
+        }),
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    return messages.map((message) => new MessageFormatDto(message));
   }
 }

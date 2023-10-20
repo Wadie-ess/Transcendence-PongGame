@@ -1,12 +1,13 @@
 import {
   OnGatewayConnection,
+  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MessageFormatDto } from 'src/messages/dto/message-format.dto';
 import {} from '@nestjs/platform-socket.io';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from 'src/prisma/prisma.service';
 @WebSocketGateway(3004, {
   cors: {
@@ -15,7 +16,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
   transports: ['websocket'],
 })
 export class Gateways implements OnGatewayConnection {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
   handleConnection(client: Socket) {
     const userId = client.data.user.sub;
     const rooms = this.prisma.roomMember.findMany({
