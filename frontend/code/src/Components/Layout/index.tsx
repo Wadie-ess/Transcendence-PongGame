@@ -48,7 +48,9 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
       }
     };
     log();
-  },);
+    
+      // eslint-disable-next-line
+  }, []);
   const path: string = useCurrentPath();
   const obj = { x: "30", y: "20" };
   return (

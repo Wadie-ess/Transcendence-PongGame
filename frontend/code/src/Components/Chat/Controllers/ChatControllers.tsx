@@ -19,6 +19,7 @@ export interface ChatState {
   isLoading: boolean;
 
   recentRooms: ChatRoom[];
+  fillRecentRooms: (rooms: ChatRoom[]) => void;
   setIsLoading: (isLoading: boolean) => void;
   selectNewChatID: (id: string) => void;
   editRoom: (name: string, roomType: RoomType, id: string) => void;
@@ -40,6 +41,13 @@ export const useChatStore = create<ChatState>()((set) => ({
   setIsLoading: (isLoading: boolean) =>
     set((state) => {
       state.isLoading = isLoading;
+      return { ...state };
+    }),
+  fillRecentRooms: (rooms: ChatRoom[]) =>
+    set((state) => {
+      chatRooms.length = 0;
+      chatRooms.push(...rooms);
+      state.recentRooms = [...chatRooms];
       return { ...state };
     }),
 

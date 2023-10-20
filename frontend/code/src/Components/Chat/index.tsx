@@ -13,7 +13,7 @@ import React from "react";
 import { ChatType, useChatStore } from "./Controllers/ChatControllers";
 
 import { RecentConversations } from "./Components/RecentChat";
-import { NullPlaceHolder } from "./Components/RoomChatHelpers";
+import {  NullPlaceHolder } from "./Components/RoomChatHelpers";
 
 export interface ConversationProps {
   onRemoveUserPreview: () => void;

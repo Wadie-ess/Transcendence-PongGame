@@ -9,7 +9,10 @@ import users, {
 } from "./tools/Assets";
 import { ChatType, useChatStore } from "../Controllers/ChatControllers";
 
-import { ConfirmationModal, NullPlaceHolder } from "./RoomChatHelpers";
+import {
+  ChatPlaceHolder,
+  ConfirmationModal,
+} from "./RoomChatHelpers";
 import { KeyboardEvent } from "react";
 
 export interface ChatPaceHolderProps {
@@ -286,8 +289,8 @@ export const Conversation: React.FC<ConversationProps> = ({
         {(selectedMessages?.length as number) > 0 ? (
           selectedMessages?.map((message) => (
             <CurrentUserMessage
-            // to set a unique key
-            // key={message.senderId}
+              // to set a unique key
+              // key={message.senderId}
               message={message.message}
               time={message.time}
               senderId={message.senderId}
@@ -295,7 +298,7 @@ export const Conversation: React.FC<ConversationProps> = ({
             />
           ))
         ) : (
-          <NullPlaceHolder message="No Messages Yet!, be The First" />
+          <ChatPlaceHolder message="No Messages Yet!, Send The First" />
         )}
       </div>
 
