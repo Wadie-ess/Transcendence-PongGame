@@ -12,7 +12,6 @@ import { ChatType, useChatStore } from "../Controllers/ChatControllers";
 import {
   ChatPlaceHolder,
   ConfirmationModal,
-  NullPlaceHolder,
 } from "./RoomChatHelpers";
 import { KeyboardEvent } from "react";
 
