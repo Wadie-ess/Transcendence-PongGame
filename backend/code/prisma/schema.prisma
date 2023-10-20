@@ -136,6 +136,23 @@ model RoomMember {
   @@map("room_members")
 }
 
+model Notification {
+  createdAt   DateTime  @default(now())
+
+  id           String    @id @default(cuid())
+  recipientId String
+  content     NotifType
+  is_read     Boolean @default(false)
+  readAt      DateTime?
+
+  @@map("notifications")
+  @@unique([createdAt])
+}
+
+enum NotifType {
+  addFriend
+}
+
 enum RoomType {
   public
   private
