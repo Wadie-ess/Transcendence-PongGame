@@ -252,8 +252,23 @@ export class RoomsService {
   async muteMember(roomData: ChangeOwnerDto, userId: string) {
     const room = await this.prisma.room.findUnique({
       where: { id: roomData.roomId },
-      select: { ownerId: true },
+      select: {
+        ownerId: true,
+        members: {
+          where: {
+            OR: [
+              {
+                userId: roomData.memberId,
+              },
+              {
+                userId: userId,
+              },
+            ],
+          },
+        },
+      },
     });
+    //NOTE: check members content
     const user = await this.prisma.roomMember.findUnique({
       where: { unique_user_room: { userId: userId, roomId: roomData.roomId } },
     });
