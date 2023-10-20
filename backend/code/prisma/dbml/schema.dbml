@@ -107,12 +107,16 @@ Table room_members {
 }
 
 Table notifications {
-  createdAt DateTime [default: `now()`, not null]
+  createdAt DateTime [default: `now()`, unique, not null]
   id String [pk]
   recipientId String [not null]
-  content String [not null]
+  content NotifType [not null]
   is_read Boolean [not null, default: false]
   readAt DateTime
+}
+
+Enum NotifType {
+  addFriend
 }
 
 Enum RoomType {

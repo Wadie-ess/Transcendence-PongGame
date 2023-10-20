@@ -139,13 +139,18 @@ model RoomMember {
 model Notification {
   createdAt   DateTime  @default(now())
 
-  id          String    @id
+  id           String    @id @default(cuid())
   recipientId String
-  content     String
+  content     NotifType
   is_read     Boolean @default(false)
   readAt      DateTime?
 
   @@map("notifications")
+  @@unique([createdAt])
+}
+
+enum NotifType {
+  addFriend
 }
 
 enum RoomType {
