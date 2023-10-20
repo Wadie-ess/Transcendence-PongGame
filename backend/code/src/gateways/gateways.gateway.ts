@@ -36,6 +36,7 @@ export class Gateways implements OnGatewayConnection {
         client.join(`Romm:${room.room.id}`);
       });
     });
+    client.join(`notif:${userId}`);
   }
 
   @WebSocketServer() private server: Server;
@@ -44,5 +45,10 @@ export class Gateways implements OnGatewayConnection {
   sendMessage(message: MessageFormatDto) {
     const chanellname: string = `Romm:${message.roomId}`;
     this.server.to(chanellname).emit('message', message);
+  }
+  @OnEvent('addFriendNotif')
+  sendFriendReq(notif: any) {
+    const channellname: string = `notif:${notif.recipientId}`;
+    this.server.to(channellname).emit('message', notif);
   }
 }

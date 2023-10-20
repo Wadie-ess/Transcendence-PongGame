@@ -2,12 +2,14 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
 import { FriendResponseDto } from './dto/frined-response.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class FriendsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
+    private evenEmitter: EventEmitter2,
   ) {}
 
   async addFriend(userId: string, friendId: string) {
@@ -34,6 +36,13 @@ export class FriendsService {
       },
       update: {},
     });
+    const notifData = await this.prisma.notification.create({
+      data: {
+        recipientId: friendId,
+        content: 'addFriend',
+      },
+    });
+    this.evenEmitter.emit('addFriendNotif', notifData);
     return new FriendResponseDto(frinedship);
   }
 
