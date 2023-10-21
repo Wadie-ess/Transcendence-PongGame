@@ -5,6 +5,7 @@ import {
   chatRooms,
   RoomsIcon,
   RoomMember,
+  yas,
 } from "./Components/tools/Assets";
 import { useEffect, useState } from "react";
 import { Conversation } from "./Components/Conversation";
@@ -77,7 +78,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await getRoomMembersCall(currentRoom?.id as string, 0, 100).then(
+        await getRoomMembersCall(currentRoom?.id as string, 0, 10).then(
           (res) => {
             if (res?.status === 200 || res?.status === 201) {
               const extractedData = res.data.map(
@@ -95,7 +96,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
     };
 
     fetchData();
-      // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [selectedChatType]);
   return (
     <div className="flex flex-col p-4   ">
@@ -163,9 +164,10 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
                       <td>
                         <div className="flex items-center space-x-3">
                           <div className="avatar">
-                            <div className="mask mask-squircle w-11 h-11">
+                            <div className="mask mask-squircle w-11 h-11 ">
                               <img
-                                // src={user.image}
+                              // to change later 
+                                src={yas}
                                 alt="Avatar Tailwind CSS Component"
                               />
                             </div>

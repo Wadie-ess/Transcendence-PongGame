@@ -64,6 +64,7 @@ export interface RoomMember {
   userId : string;
   firstName : string;
   lastName : string;
+  avatar : string;
 }
 
 export interface ChatRoom {
