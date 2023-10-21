@@ -44,7 +44,7 @@ export type State = {
 
 type Action = {
  
-    login: () => Promise<number>;
+    login: () => Promise<boolean>;
     logout: () => void;
   
   toggleTfa: (tfa: State["tfa"]) => void;
@@ -53,7 +53,6 @@ type Action = {
   updateEmail: (email: State["email"]) => void;
   updatePhone: (phone: State["phone"]) => void;
   updateBio: (bio: State["bio"]) => void;
-
 };
 
 
@@ -105,12 +104,13 @@ export const useUserStore = create<State & Action>()(
     
       login: async () => {
         const res = await api.get("/profile/me");
-        const user_data = res.data;
-        
+        var user_data = res.data;
+        // user_data.picture= null
         const userInitialValue :State= {
           isLogged: true,
           id: user_data.id,
           bio: "Default bio",
+
           phone: user_data.cell,
           name: {
             first: user_data.name.first,
@@ -134,7 +134,7 @@ export const useUserStore = create<State & Action>()(
         };
         // console.log(userInitialValue)
         set({ ...userInitialValue });
-        return res.status
+        return userInitialValue.isLogged
       },
       logout: () => {
         set({},true);

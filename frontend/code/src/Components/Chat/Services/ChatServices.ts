@@ -1,4 +1,4 @@
-import { api } from "../../../Api/base";
+import api  from "../../../Api/base";
 
 export const createNewRoomCall = async (
     name: string,

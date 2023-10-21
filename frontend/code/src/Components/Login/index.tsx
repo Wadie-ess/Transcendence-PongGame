@@ -1,6 +1,9 @@
 import {  Link } from "react-router-dom";
 import pingpong from '../images/pingpong.svg'
 import {Button} from './Assets/Button'
+import { useUserStore } from "../../Stores/stores";
+import { useNavigate } from "react-router-dom";
+import { useLayoutEffect } from "react";
 // import { PageLoading } from '../Loading';
 // const FallBackLoading = () => {
 //   return (
@@ -11,7 +14,21 @@ import {Button} from './Assets/Button'
 // }
 export const Login =  () =>
 {
-   
+    const userStore = useUserStore();
+    const navigate = useNavigate();
+    useLayoutEffect(() => {
+        const check = async() => {
+        try {
+            const loggedin = await userStore.login();
+            if (loggedin)
+                navigate("/home")
+        } catch (error) {
+            
+        }
+    }
+    check()
+    // eslint-disable-next-line
+    },[])
     return (
         <>
             <div className={`overflow-hidden  flex flex-col items-center justify-center h-screen bg-login bg-luxury bg-no-repeat bg-cover bg-center`}>
