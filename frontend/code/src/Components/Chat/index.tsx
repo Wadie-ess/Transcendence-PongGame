@@ -66,6 +66,7 @@ export const Chat = () => {
 export const UserPreviewCard: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [currentUsers, setUsers] = useState<RoomMember[]>([]);
   const [MyUsers] = useState(users);
 
@@ -78,12 +79,14 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         await getRoomMembersCall(currentRoom?.id as string, 0, 10).then(
           (res) => {
             if (res?.status === 200 || res?.status === 201) {
               const extractedData = res.data.map(
                 (item: { user: RoomMember }) => item.user
               );
+              setIsLoading(false);
               setUsers(extractedData);
             } else {
               toast.error("Error getting room members");
@@ -155,35 +158,45 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
           <div className="max-h-[280px] overflow-y-auto no-scrollbar">
-            {currentUsers.map((user) => (
-              <div key={user.userId} className="overflow-x-auto">
-                <table className="table">
-                  <tbody>
-                    <tr>
-                      <th></th>
-                      <td>
-                        <div className="flex items-center space-x-3">
-                          <div className="avatar">
-                            <div className="mask mask-squircle w-11 h-11 ">
-                              <img
-                              // to change later 
-                                src={yas}
-                                alt="Avatar Tailwind CSS Component"
-                              />
+            {isLoading === false ? (
+              <>
+                {currentUsers.map((user) => (
+                  <div key={user.userId} className="overflow-x-auto">
+                    <table className="table">
+                      <tbody>
+                        <tr>
+                          <th></th>
+                          <td>
+                            <div className="flex items-center space-x-3">
+                              <div className="avatar">
+                                <div className="mask mask-squircle w-11 h-11 ">
+                                  <img
+                                    // to change later
+                                    src={yas}
+                                    alt="Avatar Tailwind CSS Component"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-gray-400 font-poppins font-medium text-base">
+                                  {user.firstName}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-400 font-poppins font-medium text-base">
-                              {user.firstName}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            ))}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <>
+                <div className="text-center p-2">
+                  <span className="loading loading-spinner loading-lg"></span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

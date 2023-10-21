@@ -242,7 +242,7 @@ export const CreateNewRoomModal = () => {
                       : undefined
                   ).then((res) => {
                     if (res?.status !== 200 && res?.status !== 201) {
-                      toast.error("something went wrong, try again");
+                      // toast.error("something went wrong, try again");
                       resetModalState();
                     } else {
                       createNewRoom(RoomName, selectedOption, res.data.id);
@@ -340,6 +340,7 @@ export const RoomSettingsModal = () => {
   }, [currentRoom?.type, currentRoom?.name]);
 
   const resetModalState = () => {
+    setPassword("");
     setSelectedOption(currentRoom?.type as RoomType);
     setName(currentRoom?.name as string);
   };
@@ -406,7 +407,7 @@ export const RoomSettingsModal = () => {
           {selectedOption === RoomType.protected && (
             <div className="flex flex-row p-3">
               <div className="flex flex-row w-full justify-center pt-2">
-                <p>Group Password</p>
+                <p> new Password</p>
                 <input
                   value={RoomPassword}
                   onChange={handlePasswordChange}
@@ -495,10 +496,12 @@ export const RoomSettingsModal = () => {
                   await updateRoomCall(
                     RoomName,
                     RoomType[selectedOption],
-                    currentRoom?.id!
+                    currentRoom?.id!,
+                    selectedOption === RoomType.protected
+                      ? RoomPassword
+                      : undefined
                   ).then((res) => {
                     if (res?.status !== 200 && res?.status !== 201) {
-                      toast.error("something went wrong, try again");
                       resetModalState();
                     } else {
                       editRoom(RoomName, selectedOption, currentRoom?.id!);
