@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useUserStore } from '../../../Stores/stores'
 import toast from 'react-hot-toast';
-import { api } from '../../../Api/base';
+import api from '../../../Api/base';
 interface MyComponentProps {
     name: string;
     data:string;
@@ -13,8 +13,8 @@ interface MyComponentProps {
   }
   const ERROR_MESSAGES = ["Field is required" , "Require min length of " , "Passed max length of"]
 
-  const getdata :any = async(data : any , payload : any) => {
-   try {
+  const postData :any = async(data : any , payload : any) : Promise<string> =>  {
+   
     const key = payload; // Replace with your actual payload key
     const value = data[payload]; // Replace with your actual payload value
     
@@ -22,15 +22,15 @@ interface MyComponentProps {
       [key]: value,
     };
     
-       await api.post("/profile/me",{...ndata})
-    
-   } catch (error) {
-    console.log(error)
-   }
+       const res = await api.post("/profile/me",{...ndata})
+       console.log(res.data)
+     return res.data.message
+ 
   }
 export const Inputs = (props:MyComponentProps) => {
     var payload = props.payload
     const user = useUserStore();
+    //eslint-disable-next-line
     const { register, handleSubmit, reset, formState: {errors} } = useForm();
     const handleError = (errors : any) => {
         if (errors[`${props.payload}`]?.type === "required")  toast.error(`${props.name} ${ERROR_MESSAGES[0]} `); 
@@ -39,20 +39,18 @@ export const Inputs = (props:MyComponentProps) => {
     
     }
     const onSubmit = (data : any ) => {
-       console.log(data)
         toast.promise(
                                     
-            getdata(data, payload),
+            postData(data, payload),
              {
                
                loading: 'Saving...',
                success: <b>{props.name} saved</b>,
-               error: <b>could not save</b>,
+               error: <b>could not save {this}</b>,
                
              },
             {className:"font-poppins font-bold relative top-[6vh] bg-base-100 text-white"}
            )
-        console.log(errors)
         switch (props.name)
         {
             case "First name" : user.updateFirstName(data[`${props.payload}`]);
@@ -67,7 +65,6 @@ export const Inputs = (props:MyComponentProps) => {
                 break;
         }
         
-        console.log(`user from state after = ${user.name.first}`)
     };
    
     const [input, setInput] = useState(false)
