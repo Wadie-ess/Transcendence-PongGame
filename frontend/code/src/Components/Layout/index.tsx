@@ -13,9 +13,16 @@ import { Outlet ,} from 'react-router'
 import { matchRoutes, useLocation } from "react-router-dom"
 import { useUserStore } from '../../Stores/stores'
 import { useNavigate } from 'react-router-dom'
-import { api } from '../../Api/base'
-const routes = [{ path: "Profile/:id" } , {path : "Settings"} , {path : "Home"}, {path:"Chat"} , {path:"Play"}, {path:"Pure"}, {path:"Game"}]
+import api from '../../Api/base'
+// import { FirstLogin } from '../FirstLogin'
 
+const routes = [{ path: "Profile/:id" } , {path : "Settings"} , {path : "Home"}, {path:"Chat"} , {path:"Play"}, {path:"Pure"}, {path:"Game"}]
+const HideBg = () => {
+    return (
+        <div className='absolute h-screen bg-black opacity-20 blur-xl z-[1999]'>
+        </div>
+    )
+}
 const useCurrentPath = () => {
     const location = useLocation()
     const  [{route}] :any = matchRoutes(routes, location)
@@ -26,6 +33,7 @@ export const Layout : FC<PropsWithChildren> =  () : JSX.Element =>
 {
     const user = useUserStore();
     const navigate = useNavigate();
+    
     useLayoutEffect(() => {
         const log = async() => {
             try{
@@ -47,13 +55,18 @@ export const Layout : FC<PropsWithChildren> =  () : JSX.Element =>
             
         }
         log()
-    })
+        //eslint-disable-next-line
+    },[])
     const path : string  = useCurrentPath()
     const obj = {x:"30",y:"20"}
     return (
     <>
-        {user.isLogged && 
-        <div data-theme="mytheme" className=' h-screen  '> 
+        {/* {
+            !user.profileComplet && <FirstLogin/>
+        }  */}
+        {user.isLogged && !user.profileComplet && <HideBg/>}
+        {user.isLogged   && 
+        <div data-theme="mytheme" className={`h-screen ${!user.profileComplet ? "":""}`}> 
            
             <div className=' flex flex-row  w-screen h-[8vh]  bg-base-200'> 
                 <div className='flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full'>

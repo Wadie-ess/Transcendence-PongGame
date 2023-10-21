@@ -3,14 +3,14 @@ import { Edit } from "./assets/Edit";
 import Newbie from "../Badges/Newbie.svg";
 import Master from "../Badges/Master.svg";
 import Ultimate from "../Badges/Ultimate.svg";
-import { api as axsios } from "../../Api/base";
+import  api  from "../../Api/base";
 import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
 import { Inputs } from "./assets/Inputs";
 import { useUserStore } from "../../Stores/stores";
 export const Setting = () => {
   const getdata: any = async () => {
-    const data: any = await axsios.get("/test");
+    const data: any = await api.get("/test");
     return data;
   };
 

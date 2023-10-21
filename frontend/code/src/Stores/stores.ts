@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { api } from "../Api/base";
+import  api  from "../Api/base";
 export type State = {
   isLogged: boolean;
   id: string;
@@ -21,6 +21,7 @@ export type State = {
   banListIds: string[];
   achivments: number[];
   dmsIds: string[];
+  profileComplet:boolean;
   history:
     | [
         {
@@ -79,6 +80,7 @@ export const useUserStore = create<State & Action>()(
     dmsIds: [],
     history: [],
     chatRoomsJoinedIds: [],
+    profileComplet:false,
     toggleTfa: (tfa) => set(() => ({ tfa: !tfa })),
     updateFirstName: (firstName) =>
       set((state) => ({
@@ -103,7 +105,6 @@ export const useUserStore = create<State & Action>()(
     
       login: async () => {
         const res = await api.get("/profile/me");
-        res.data.picture = null;
         const user_data = res.data;
         
         const userInitialValue :State= {
@@ -129,6 +130,7 @@ export const useUserStore = create<State & Action>()(
           dmsIds: [],
           history: [],
           chatRoomsJoinedIds: [],
+          profileComplet:user_data.profileFinished,
         };
         console.log(userInitialValue)
         set({ ...userInitialValue });
