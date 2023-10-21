@@ -3,20 +3,22 @@ import { ChatType, useChatStore } from "../Controllers/ChatControllers";
 import { ChatPaceHolderProps } from "./Conversation";
 import users, {
   ChatIcon,
+  Explore,
   GroupChat,
   RoomsIcon,
-
   check,
-
 } from "./tools/Assets";
 
 import {
+  AddUsersModal,
   CreateNewRoomModal,
-
+  ExploreRoomsModal,
   NullPlaceHolder,
   RoomChatPlaceHolder,
   RoomSettingsModal,
+  ShowLogoModal,
 } from "./RoomChatHelpers";
+import { useModalStore } from "../Controllers/ModalControllers";
 
 export const RecentConversations = () => {
   const [MyUsers] = useState(users);
@@ -117,6 +119,7 @@ export const OnlineNowUsers = () => {
   const [Users] = useState(users);
   // take the first five users from the array
   const onlineUsers = Users.slice(0, 5);
+  const setModalState = useModalStore((state) => state.setShowExploreModal);
 
   return (
     <>
@@ -125,14 +128,24 @@ export const OnlineNowUsers = () => {
           <p className="text-purple-500 font-poppins text-sm md:text-lg font-medium leading-normal ">
             Messages
           </p>
-          <div className="icons-row flex flex-row items-center ">
-            <a href="#my_modal_8" className="">
+          <div className="icons-row flex flex-row items-center  ">
+            <a href="#my_modal_8" className="pr-2">
               <img className="w-[80%]" alt="" src={GroupChat} />
             </a>
+            <a href="#my_modal_5" className="">
+              <img
+                className="w-[100%]"
+                alt=""
+                onClick={() => setModalState(true)}
+                src={Explore}
+              />
+            </a>
             <div>
+              <ExploreRoomsModal />
               <RoomSettingsModal />
-
+              <AddUsersModal />
               <CreateNewRoomModal />
+              <ShowLogoModal />
             </div>
           </div>
         </div>
@@ -172,7 +185,7 @@ export const OnlineNowUsers = () => {
           </div>
           <div className="users-images flex flex-row justify-between pt-3 pb-3  ">
             {onlineUsers.map((user) => (
-              <div className="relative inline-block">
+              <div key={user.id} className="relative inline-block">
                 <img
                   className="user-image h-10 w-10 rounded-full"
                   src={user.image}

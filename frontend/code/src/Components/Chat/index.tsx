@@ -1,20 +1,19 @@
 import {
-
   Close,
   Bio,
-
   groupIcon,
   chatRooms,
   RoomsIcon,
 } from "./Components/tools/Assets";
 import { useState } from "react";
-import { Conversation} from "./Components/Conversation";
+import { Conversation } from "./Components/Conversation";
 import { ChatPaceHolderProps } from "./Components/Conversation";
 import users from "./Components/tools/Assets";
 import React from "react";
 import { ChatType, useChatStore } from "./Controllers/ChatControllers";
 
-import {RecentConversations } from "./Components/RecentChat";
+import { RecentConversations } from "./Components/RecentChat";
+import {  NullPlaceHolder } from "./Components/RoomChatHelpers";
 
 export interface ConversationProps {
   onRemoveUserPreview: () => void;
@@ -22,8 +21,9 @@ export interface ConversationProps {
 
 export const Chat = () => {
   const [showUserPreview, setShowUserPreview] = useState(false);
-  
+  const selectedChatType = useChatStore((state) => state.selectedChatType);
 
+  const chatRooms = useChatStore((state) => state.recentRooms);
   const handleRemoveUserPreview = () => {
     setShowUserPreview(!showUserPreview);
   };
@@ -42,7 +42,11 @@ export const Chat = () => {
             showUserPreview ? "w-6/12" : "w-8/12"
           } overflow-hidden bg-gray-900`}
         >
-          <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
+          {chatRooms.length < 1 && selectedChatType === ChatType.Room ? (
+            <NullPlaceHolder message="" />
+          ) : (
+            <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
+          )}
         </div>
         <div className={` ${showUserPreview ? "w-3/12" : ""}  bg-[#1A1C26]`}>
           {showUserPreview && (

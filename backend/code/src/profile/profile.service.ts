@@ -31,7 +31,22 @@ export class ProfileService {
     userId: string,
     update_data: UpdateProfileDto,
   ): Promise<ProfileDto> {
-    const user = await this.usersService.updateUser(userId, update_data);
+    let finishProfile = false;
+    if ('finishProfile' in update_data) {
+      finishProfile = update_data.finishProfile;
+      delete update_data.finishProfile;
+    }
+    let user = await this.usersService.updateUser(userId, update_data);
+    if (finishProfile) {
+      if (user.firstName === null || user.lastName === null)
+        throw new HttpException(
+          'First name and last name are required',
+          HttpStatus.BAD_REQUEST,
+        );
+      user = await this.usersService.updateUser(userId, {
+        profileFinished: true,
+      });
+    }
     return new ProfileDto(user);
   }
 

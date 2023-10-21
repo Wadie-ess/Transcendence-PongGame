@@ -8,6 +8,15 @@ module.exports = {
   ],
   theme: {
     extend: {
+      animation: {
+        border: 'background ease infinite',
+      },
+      keyframes: {
+        background: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+      },
       screens: {
         '3xl': '1700px',
       },

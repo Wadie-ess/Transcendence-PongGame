@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import users, { Message, chatRooms } from "../Components/tools/Assets";
+import users, {
+  ChatRoom,
+  Message,
+  RoomType,
+  chatRooms,
+} from "../Components/tools/Assets";
 
 export enum ChatType {
   Chat,
@@ -8,22 +13,72 @@ export enum ChatType {
 
 export interface ChatState {
   selectedChatType: ChatType;
-  selectedChatID: number;
+  selectedChatID: string;
   currentMessages: Message[];
   currentRoomMessages: Message[];
-  selectNewChatID: (id: number) => void;
+  isLoading: boolean;
+
+  recentRooms: ChatRoom[];
+  fillRecentRooms: (rooms: ChatRoom[]) => void;
+  setIsLoading: (isLoading: boolean) => void;
+  selectNewChatID: (id: string) => void;
+  editRoom: (name: string, roomType: RoomType, id: string) => void;
+  createNewRoom: (name: string, roomType: RoomType, id: string) => void;
   addNewMessage: (message: Message) => void;
   changeChatType: (type: ChatType) => void;
 }
 
 export const useChatStore = create<ChatState>()((set) => ({
-  selectedChatID: 1,
+  selectedChatID: "1",
   selectedChatType: ChatType.Chat,
-
-  currentMessages: users.find((user) => user.id === 1)?.messages as Message[],
-  currentRoomMessages: chatRooms.find((room) => room.id === 1)
+  recentRooms: chatRooms,
+  isLoading: false,
+  // to fix this
+  currentMessages: users.find((user) => user.id === "1")?.messages as Message[],
+  currentRoomMessages: chatRooms.find((room) => room.id === "1")
     ?.messages as Message[],
 
+  setIsLoading: (isLoading: boolean) =>
+    set((state) => {
+      state.isLoading = isLoading;
+      return { ...state };
+    }),
+  fillRecentRooms: (rooms: ChatRoom[]) =>
+    set((state) => {
+      chatRooms.length = 0;
+      chatRooms.push(...rooms);
+      state.recentRooms = [...chatRooms];
+      return { ...state };
+    }),
+
+  editRoom: (name: string, roomType: RoomType, id: string) =>
+    set((state) => {
+      const room = chatRooms.find((room) => room.id === id);
+      if (room) {
+        room.name = name;
+        room.type = roomType;
+      }
+      state.selectedChatID = id;
+      state.recentRooms = [...chatRooms];
+      return { ...state };
+    }),
+  createNewRoom: (name: string, roomType: RoomType, id: string) =>
+    set((state) => {
+      const newRoom = {
+        id: id,
+        name: name,
+        type: roomType,
+        messages: [],
+        usersId: [] as string[],
+        isOwner: true,
+        isAdmin: true,
+      };
+      state.selectedChatID = id;
+
+      chatRooms.push(newRoom);
+      state.recentRooms = [...chatRooms];
+      return { ...state };
+    }),
   changeChatType: (type: ChatType) =>
     set((state) => {
       state.selectedChatType = type;
@@ -48,7 +103,7 @@ export const useChatStore = create<ChatState>()((set) => ({
       }
       return { ...state };
     }),
-  selectNewChatID: (id: number) =>
+  selectNewChatID: (id: string) =>
     set((state) => {
       if (state.selectedChatType === ChatType.Room) {
         state.currentRoomMessages = chatRooms.find((room) => room.id === id)

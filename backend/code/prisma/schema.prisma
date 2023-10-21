@@ -126,6 +126,7 @@ model RoomMember {
   roomId       String
   is_admin     Boolean   @default(false)
   is_banned    Boolean   @default(false)
+  bannedAt     DateTime?
   is_mueted    Boolean   @default(false)
   mute_expires DateTime?
   user         User      @relation(fields: [userId], references: [userId])
@@ -133,6 +134,23 @@ model RoomMember {
 
   @@unique([userId, roomId], name: "unique_user_room")
   @@map("room_members")
+}
+
+model Notification {
+  createdAt   DateTime  @default(now())
+
+  id           String    @id @default(cuid())
+  recipientId String
+  content     NotifType
+  is_read     Boolean @default(false)
+  readAt      DateTime?
+
+  @@map("notifications")
+  @@unique([createdAt])
+}
+
+enum NotifType {
+  addFriend
 }
 
 enum RoomType {

@@ -10,10 +10,8 @@ import users, {
 import { ChatType, useChatStore } from "../Controllers/ChatControllers";
 
 import {
+  ChatPlaceHolder,
   ConfirmationModal,
-
-  NullPlaceHolder,
-
 } from "./RoomChatHelpers";
 import { KeyboardEvent } from "react";
 
@@ -24,7 +22,7 @@ export interface ChatPaceHolderProps {
   isMe: boolean;
   isRead: boolean;
   userImage: string;
-  id: number;
+  id: string;
 }
 
 export const CurrentUserMessage = ({
@@ -40,7 +38,7 @@ export const CurrentUserMessage = ({
 
   const currentChatMessages = MyUsers.find((user) => user.id === SelectedChat);
 
-  return senderId === 2 ? (
+  return senderId === "2" ? (
     <div className="chat chat-end p-2 pl-5 ">
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
@@ -181,12 +179,17 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
             >
               {/* check if current user is admin or owner to show the settings toast */}
               {currentRoom?.isAdmin || currentRoom?.isOwner ? (
-                <div className="icons-row flex flex-row  ">
+                <div className="icons-row flex flex-col  ">
                   <a href="#my_modal_9" className="">
                     <li>
                       <span className="hover:bg-[#7940CF]">
                         Edit Room Settings
                       </span>
+                    </li>
+                  </a>
+                  <a href="#my_modal_6" className="">
+                    <li>
+                      <span className="hover:bg-[#7940CF]">Add Users</span>
                     </li>
                   </a>
                 </div>
@@ -202,13 +205,17 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                   Show Room Info
                 </span>
               </li>
-              <div>
-                <li>
-                  <span onClick={openModal} className="hover:bg-[#7940CF]">
-                    leave The Room
-                  </span>
-                </li>
-              </div>
+              {currentRoom?.isOwner === false ? (
+                <div>
+                  <li>
+                    <span onClick={openModal} className="hover:bg-[#7940CF]">
+                      leave The Room
+                    </span>
+                  </li>
+                </div>
+              ) : (
+                <></>
+              )}
             </ul>
             <ConfirmationModal
               isOpen={isModalOpen}
@@ -261,7 +268,7 @@ export const Conversation: React.FC<ConversationProps> = ({
       // validation check
       if (inputValue.length > 0) {
         pushMessage({
-          senderId: 2,
+          senderId: "2",
           message: inputValue,
           isRead: false,
           time: "10",
@@ -272,7 +279,7 @@ export const Conversation: React.FC<ConversationProps> = ({
     // do stuff
   };
 
-  return (selectedMessages?.length as number) > 0 ? (
+  return (
     <div className="flex flex-col h-[99%] ">
       <ConversationHeader onRemoveUserPreview={onRemoveUserPreview} />
       <div
@@ -282,6 +289,8 @@ export const Conversation: React.FC<ConversationProps> = ({
         {(selectedMessages?.length as number) > 0 ? (
           selectedMessages?.map((message) => (
             <CurrentUserMessage
+              // to set a unique key
+              // key={message.senderId}
               message={message.message}
               time={message.time}
               senderId={message.senderId}
@@ -289,7 +298,7 @@ export const Conversation: React.FC<ConversationProps> = ({
             />
           ))
         ) : (
-          <NullPlaceHolder message="No Messages Yet!, be The First" />
+          <ChatPlaceHolder message="No Messages Yet!, Send The First" />
         )}
       </div>
 
@@ -312,7 +321,7 @@ export const Conversation: React.FC<ConversationProps> = ({
 
                   if (inputValue.length > 0) {
                     pushMessage({
-                      senderId: 2,
+                      senderId: "2000",
                       message: inputValue,
                       isRead: false,
                       time: "10",
@@ -328,7 +337,5 @@ export const Conversation: React.FC<ConversationProps> = ({
         </div>
       </div>
     </div>
-  ) : (
-    <NullPlaceHolder message="No Conversation Yet!, Be The First " />
   );
 };

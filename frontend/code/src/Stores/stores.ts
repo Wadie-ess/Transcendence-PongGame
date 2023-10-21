@@ -132,7 +132,7 @@ export const useUserStore = create<State & Action>()(
           chatRoomsJoinedIds: [],
           profileComplet:user_data.profileFinished,
         };
-        console.log(userInitialValue)
+        // console.log(userInitialValue)
         set({ ...userInitialValue });
         return res.status
       },
