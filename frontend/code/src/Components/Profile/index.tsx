@@ -5,7 +5,7 @@ import { Message } from './assets/MessageB'
 import { History } from './History'
 import Hero from './assets/Hero.gif'
 import { useState , useEffect } from 'react'
-import {  Link, useParams } from 'react-router-dom'
+import {  Link, useNavigate, useParams } from 'react-router-dom'
 import { Load } from '../Loading/'
 import  Newbie  from '../Badges/Newbie.svg'
 import  Master  from '../Badges/Master.svg'
@@ -13,30 +13,38 @@ import  Ultimate  from '../Badges/Ultimate.svg'
 import { Edit } from './assets/Edit'
 import { useUserStore } from '../../Stores/stores'
 import dots from './assets/svg/threedots.svg'
+import api from '../../Api/base'
+// import  toast from 'react-hot-toast'
 export const Profile = () =>{
     const user = useUserStore();
-    const params = useParams()
+    const params = useParams();
+    const navigate = useNavigate();
     console.log(`params : ${params.id} type ${typeof(params.id)}`)
     const [users, setUsers] = useState<null | any>(undefined);
  
         useEffect(() => {
             const fetchUser = async() => {
-                const response = await fetch(`https://randomuser.me/api?seed=${params.id}`)
-                const data = await response.json();
-                const collecteduser = data.results[0]
-                setUsers(collecteduser)
+                try {
+                    const res = await api.get(`profile/${params.id}`)
+                    setUsers(res.data)
+                    
+                } catch (error) {
+                    navigate("/NotFound")
+                }
             }
-            if (params.id !== "me")
+            if (params.id !== user.id || params.id !== "me")
                 fetchUser();
             else
                 setUsers(user)
+        //eslint-disable-next-line
         },[params, user])
-        console.log(users)
-    
-
+        // console.log(users)
+    // const handleSendReq = async() => {
+    //     toast.promise(api.post("friend/add",{friendId:users.id}),{loading:`Sending friend request`,success:`request sent to ${users.name.first}`,error:"could not send friend request"})
+    // }
     return (
         <>
-        <div className=" flex flex-col items-center h-full min-h-screen bg-accent">
+        <div className=" flex flex-col items-center h-full bg-accent">
             <div className='relative pt-12 h-auto max-h-[30vh] min-h-[16vh] md:min-h-[28vh] xl:min-h-[33vh] w-[85vw]'>
                
                 <div className='relative h-full w-full md:px-32 bg-[#2b3bfb] rounded-t-3xl'><img className='flex-1  w-full h-auto object-scale-down md:object-top object-bottom rounded-t-3xl' src={Hero} alt="bg hero"></img>
@@ -58,9 +66,9 @@ export const Profile = () =>{
                             users?.name?.first ? <h6 className='sm:pt-12 pt-6 font-poppins font-bold text-xl'>{users?.name?.first} {users.name.last} </h6>: <Load/>
                     }                <div className="flex justify-center items-center gap-x-2">
                     <File/>
-                    <span className='text-sm pt-4 font-mono '>{user.bio}</span>
+                    <span className='text-sm pt-4 font-mono '>{users?.bio}</span>
                 </div>
-                <div className="  w-full h-full flex flex-col  sm:flex-row sm:flex-wrap  sm:justify-between  gap-x-4">
+                <div className="  w-full h-full flex flex-col  sm:flex-row sm:flex-wrap  sm:justify-between  gap-x-4  md:-mt-12">
                     <div className="flex flex-col gap-y-0 items-center h-full sm:flex-row sm:gap-x-4 justify-center sm:justify-start sm:items-end pb-4 sm:w-[25vw]">
                         {
                             params.id !== "me" ?
@@ -72,7 +80,7 @@ export const Profile = () =>{
                             )
                         }
                     </div>
-                    <div className="flex h-full w-full flex-row gap-x-4 justify-center sm:justify-start items-center  sm:w-auto sm:pr-4 sm:pt-0 pt-4 ">
+                    <div className="flex h-full w-full flex-row gap-x-4 justify-center sm:justify-start items-center  sm:w-auto sm:pr-4 sm:pt-0 pt-4">
                         <img className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] `} src={Newbie} alt="newbie badge" />
                         <img className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] opacity-30`} src={Master} alt="Master badge" />
                         <img className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] `} src={Ultimate} alt="Ultimate badge" />

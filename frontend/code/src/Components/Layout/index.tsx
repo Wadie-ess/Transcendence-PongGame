@@ -13,7 +13,6 @@ import { Outlet } from "react-router";
 import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
-import api from "../../Api/base";
 import { FirstLogin } from "../FirstLogin";
 
 const routes = [
@@ -39,16 +38,13 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   useLayoutEffect(() => {
     const log = async () => {
       try {
-        await user.login();
-      } catch (e) {
-        try {
-          await api.get("/auth/refresh");
-          await user.login();
-        } catch (e) {
+        await user.login();  
+      }
+      catch(e){
           navigate("/");
           user.logout();
-        }
       }
+        
     };
     log();
     //eslint-disable-next-line
@@ -71,7 +67,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
             <div className="flex items-center  justify-end pr-6 gap-6 h-full w-full">
               <Search />
               <Alert />
-              <Avatar picture={`${user.picture.medium}`} />
+              <Avatar picture={`${user?.picture?.medium}`} />
             </div>
           </div>
           <div className="flex">

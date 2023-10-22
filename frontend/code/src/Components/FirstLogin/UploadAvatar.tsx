@@ -1,10 +1,9 @@
 import { useForm, SubmitHandler } from "react-hook-form"
-import { useRef, useState } from 'react'
-import { Avatar } from "../Settings/assets/Avatar"
-import { Edit } from "../Settings/assets/Edit"
 import { useUserStore } from "../../Stores/stores"
 import api from '../../Api/base'
 import { toast } from "react-hot-toast"
+import { useNavigate } from "react-router-dom"
+import { UploadLogic } from './UploadLogic'
 type Inputs = {
   Avatar: string;
   firstName : string ;
@@ -13,62 +12,47 @@ type Inputs = {
   email : string;
 }
 const ERROR_MESSAGES = ["Field is required" , "Require min length of " , "Passed max length of"]
-
+const payload_objects = ["firstName","lastName","email","phone","discreption"]
+const data_names = ["First name", "Last name", "Email", "Phone", "Bio"];
 export const UploadAvatar = () => {
   const userStore = useUserStore();
-  const [preview , setPreview] = useState<any>(null)
-  const inputRef = useRef<any>();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit
     } = useForm<Inputs>()
   const onSubmit: SubmitHandler<any> = async(data) => {
-    try {
-      await api.post("/profile/avatar", preview ,{headers:{"Content-Type":"multipart/form-data"}});
-    } catch (error) {
-     
-    }
-    try{
-      await api.post("/profile/me",{...data ,finishProfile: true });
-      userStore.login();
-    }
-    catch(e :any){
-        toast.error(e.response.data.message)
-    }
+        try{
+
+          toast.promise(api.post("/profile/me",{...data ,finishProfile: true }) , {loading:"Saving user information",success:"Saved successfully",error:"Error on Saving Data"})
+          userStore.login();
+          navigate("/Home")
+        }catch(e)
+        {}
   }
   const handleError = (errors : any) => {
-    console.log(errors)
-    if (errors[``]?.type === "required")  toast.error(`s ${ERROR_MESSAGES[0]} `); 
-    if (errors[``]?.type === "minLength") toast.error(`s ${ERROR_MESSAGES[1]} 4`);
-    if (errors[``]?.type === "maxLength")toast.error(`s ${ERROR_MESSAGES[2]} 50 `);
+    //eslint-disable-next-line
+    payload_objects.map((item:any, index : number) =>{ 
+    if (errors[`${item}`]?.type === "required")  toast.error(`${data_names[index]} ${ERROR_MESSAGES[0]} `); 
+    if (errors[`${item}`]?.type === "minLength") toast.error(`${data_names[index]} ${ERROR_MESSAGES[1]} 4`);
+    if (errors[`${item}`]?.type === "maxLength")toast.error(`${data_names[index]} ${ERROR_MESSAGES[2]} 50 `);
+    })
 
 }
-  const handleUploadedFile = (event:any) => {
 
-    const formData = new FormData();
-    formData.append("image", event.target.files[0]);
-    setPreview(formData);
-  };
-  const handleClick = () => {
-    inputRef?.current?.click();
-
-  }
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-w-[50vw] gap-8 justify-center items-center">
-        <div className="relative  pt-6 ">
-            <Avatar picture={userStore.picture.medium} />
-              <div className="absolute bottom-0 right-0" onClick={handleClick}>
-                <Edit />
-            </div>
-        </div>
-        <input type="file" className="hidden" id="picture" {...register("Avatar")} onChange={(e) => {handleUploadedFile(e)}} ref={inputRef}  />
-        <input type="text" placeholder="First Name " {...register("firstName",{required: true, maxLength: 50 , minLength:4}) }   className="input input-bordered input-secondary w-full max-w-xs" />
-        <input type="text" placeholder="Last Name " {...register("lastName",{required: true, maxLength: 50 , minLength:4})} className="input input-bordered input-secondary w-full max-w-xs" />
-        <input type="text" placeholder="Bio" {...register("discreption",{required: true, maxLength: 50 , minLength:4})} className="input input-bordered input-secondary w-full max-w-xs" />
-        <input type="text" placeholder="Email " {...register("email")} className="input input-bordered input-secondary w-full max-w-xs" />
+      <form onSubmit={handleSubmit(onSubmit,handleError)} className="flex flex-col max-w-[50vw] gap-8 justify-center items-center">
+        <UploadLogic/>
+        <input type="text" placeholder="First Name " {...register("firstName",{required: true, maxLength: 50 , minLength:4}) } defaultValue={userStore.name.first}  className="input input-bordered input-primary w-full max-w-xs" />
+        <input type="text" placeholder="Last Name " {...register("lastName",{required: true, maxLength: 50 , minLength:4})} defaultValue={userStore.name.last}  className="input input-bordered input-primary w-full max-w-xs" />
+        <input type="text" placeholder="Bio" {...register("discreption",{required: true, maxLength: 50 , minLength:4})} defaultValue={userStore.bio}  className="input input-bordered input-primary w-full max-w-xs" />
+        <input type="text" placeholder="Email " {...register("email",{required:true,   pattern: {
+            value: /\S+@\S+\.\S+/,
+            message: "Entered value does not match email format",
+          }})} defaultValue={userStore.email}  className="input input-bordered input-primary w-full max-w-xs" />
 
-        <input className="bg-primary h-12 w-80 rounded-md" type="submit" value="Save" />
+        <input className="bg-primary h-12 w-80 rounded-md hover:bg-secondary hover:cursor-pointer  transition-colors text-white" type="submit" value="Save" />
       </form>
     </>
   )

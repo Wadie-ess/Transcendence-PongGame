@@ -31,7 +31,7 @@ export type NAME = {
   last: string;
 };
 
-type PICTURE = {
+export type PICTURE = {
   thumbnail: string;
   medium: string;
   large: string;

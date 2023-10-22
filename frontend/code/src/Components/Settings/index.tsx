@@ -1,5 +1,4 @@
-import { Avatar } from "./assets/Avatar";
-import { Edit } from "./assets/Edit";
+
 import Newbie from "../Badges/Newbie.svg";
 import Master from "../Badges/Master.svg";
 import Ultimate from "../Badges/Ultimate.svg";
@@ -8,6 +7,7 @@ import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
 import { Inputs } from "./assets/Inputs";
 import { useUserStore } from "../../Stores/stores";
+import { UploadLogic } from "../FirstLogin/UploadLogic";
 export const Setting = () => {
   const getdata: any = async () => {
     const data: any = await api.get("/test");
@@ -42,10 +42,7 @@ export const Setting = () => {
             <div className="flex flex-col sm:flex-row  items-center gap-4 sm:justify-between justify-center overflow-scroll no-scrollbar  w-[90%]  max-h-[30vh] h-[20vh]  bg-base-100 border-solid border-gray-400 border-2  rounded-3xl">
               <div className="flex justify-between items-center  gap-x-10 px-2 sm:px-0">
                 <div className="relative sm:pl-10 pt-6 sm:pt-0">
-                  <Avatar picture={myuser.picture.medium} />
-                  <div className="absolute bottom-0 right-0">
-                    <Edit />
-                  </div>
+                  <UploadLogic/>
                 </div>
                 <div className="flex flex-col items-stretch justify-evenly gap-y-4">
                   <div className="text-neutral break-words break-all font-poppins font-medium text-sm sm:text-xl">

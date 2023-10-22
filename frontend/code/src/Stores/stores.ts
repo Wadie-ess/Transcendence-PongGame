@@ -53,6 +53,7 @@ type Action = {
   updateEmail: (email: State["email"]) => void;
   updatePhone: (phone: State["phone"]) => void;
   updateBio: (bio: State["bio"]) => void;
+  setAvatar : (picture : State['picture']) =>void;
 };
 
 
@@ -101,15 +102,18 @@ export const useUserStore = create<State & Action>()(
       })),
     updatePhone: (phone: State["phone"]) => set(() => ({ phone: phone })),
     updateBio: (bio: State["bio"]) => set(() => ({ bio: bio })),
-    
+    setAvatar : (picture : State['picture']) => set(() => ({picture:picture})),
       login: async () => {
         const res = await api.get("/profile/me");
         var user_data = res.data;
         // user_data.picture= null
+        const check = user_data.picture.large.split`/`
+        if (check[check.length - 1] === "null")
+          user_data.picture = null;
         const userInitialValue :State= {
           isLogged: true,
           id: user_data.id,
-          bio: "Default bio",
+          bio: user_data?.bio ?? "default bio",
 
           phone: user_data.cell,
           name: {
