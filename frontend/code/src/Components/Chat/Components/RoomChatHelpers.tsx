@@ -576,6 +576,7 @@ export const ExploreRoomsModal = () => {
     };
 
     fetch();
+  // eslint-disable-next-line
   }, [modalState]);
 
   return (
