@@ -3,12 +3,14 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, Profile, VerifyCallback } from 'passport-42';
 import { JwtUtils } from '../utils/jwt_utils/jwt_utils';
 import { UsersService } from 'src/users/users.service';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class FtStrategy extends PassportStrategy(Strategy, '42') {
   constructor(
     private jwtUtils: JwtUtils,
     private usersService: UsersService,
+    private cloudinaryService: CloudinaryService,
   ) {
     super({
       clientID: process.env.FT_CLIENT_ID,
@@ -46,16 +48,29 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
       email: profile._json.email,
       firstName: profile.name.givenName,
       lastName: profile.name.familyName,
+      Username: profile.username,
+    });
+
+    const avatarturl = `https://ui-avatars.com/api/?name=${new_user.firstName}-${new_user.lastName}&background=7940CF&color=fff`;
+    const result = await this.cloudinaryService.upload(
+      new_user.userId,
+      avatarturl,
+    );
+
+    await this.usersService.updateUser(new_user.userId, {
+      avatar: `v${result.version}/${result.public_id}.${result.format}`,
     });
 
     const tokens = await this.jwtUtils.generateTokens(
       new_user.email,
       new_user.userId,
     );
+
     await this.jwtUtils.updateRefreshedHash(
       new_user.userId,
       tokens.refresh_token,
     );
+
     res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
     res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
     return cb(null, profile);
