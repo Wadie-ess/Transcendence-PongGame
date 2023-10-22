@@ -28,6 +28,27 @@ export class RoomsService {
     } else if (roomData.type == 'protected' && roomData.password) {
       roomData.password = await bcrypt.hash(roomData.password, 10);
     }
+    if (roomData.type === 'dm' && !('secondMember' in roomData)) {
+      throw new HttpException('something went wrong', HttpStatus.BAD_REQUEST);
+    }
+
+    const secondMember: string | undefined = roomData.secondMember;
+    delete roomData.secondMember;
+
+    if (roomData.type === 'dm') {
+      const friendshipId = [roomOwnerId, secondMember].sort().join('-');
+      const blocked = await this.prisma.blockedUsers.findUnique({
+        where: {
+          id: friendshipId,
+        },
+      });
+      if (blocked) {
+        throw new HttpException(
+          'an error occured while creating the dm room',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+    }
 
     const room = await this.prisma.room.create({
       data: {
@@ -37,6 +58,7 @@ export class RoomsService {
         },
       },
     });
+
     await this.prisma.roomMember.create({
       data: {
         user: {
@@ -48,6 +70,21 @@ export class RoomsService {
         is_admin: true,
       },
     });
+
+    if (roomData.type === 'dm') {
+      await this.prisma.roomMember.create({
+        data: {
+          user: {
+            connect: { userId: secondMember },
+          },
+          room: {
+            connect: { id: room.id },
+          },
+          is_admin: true,
+        },
+      });
+    }
+
     return new RoomDataDto(room);
   }
 
@@ -116,24 +153,36 @@ export class RoomsService {
     delete roomData.roomId;
     const room = await this.prisma.room.findUnique({
       where: { id: roomId },
-      select: { ownerId: true },
+      select: { ownerId: true, type: true },
     });
+
+    if (room.type == 'dm')
+      throw new HttpException(
+        'dm room can not be updated',
+        HttpStatus.BAD_REQUEST,
+      );
+
     if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
+
     if (room.ownerId !== userId) {
       throw new UnauthorizedException('you are not the owner of this room');
     }
+
     if (roomData.type == 'protected' && !roomData.password) {
       throw new HttpException(
         'missing password for protected room',
         HttpStatus.BAD_REQUEST,
       );
     }
+
     if (roomData.type == 'protected' && roomData.password) {
       roomData.password = await bcrypt.hash(roomData.password, 10);
     }
+
     if (roomData.type == 'public' || roomData.type == 'private') {
       roomData.password = null;
     }
+
     const room_updated = await this.prisma.room.update({
       where: { id: roomId },
       data: roomData,
@@ -430,8 +479,26 @@ export class RoomsService {
         id: true,
         name: true,
         type: true,
+        ownerId: true,
+        members: {
+          where: {
+            userId: userId,
+          },
+          select: {
+            is_admin: true,
+          },
+        },
       },
     });
-    return rooms;
+    return rooms.map((room) => {
+      const is_owner = room.ownerId === userId;
+      return {
+        id: room.id,
+        name: room.name,
+        type: room.type,
+        is_admin: room.members[0].is_admin,
+        is_owner,
+      };
+    });
   }
 }

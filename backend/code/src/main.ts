@@ -41,9 +41,10 @@ async function bootstrap() {
     .setDescription('The Transcendence API description')
     .setVersion('1.0')
     .addTag('Auth')
-    .addTag('friends')
     .addTag('profile')
+    .addTag('friends')
     .addTag('rooms')
+    .addTag('Messages')
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);

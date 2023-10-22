@@ -107,18 +107,48 @@ export class FriendsService {
         'You cannot block yourself',
         HttpStatus.FORBIDDEN,
       );
+
+    const commonRoom = await this.prisma.room.findFirst({
+      where: {
+        AND: [
+          {
+            type: 'dm',
+          },
+          {
+            members: {
+              some: {
+                userId: userId,
+              },
+            },
+          },
+          {
+            members: {
+              some: {
+                userId: friendId,
+              },
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+      },
+    });
+
     const friendshipId = [userId, friendId].sort().join('-');
     await this.prisma.friend.deleteMany({
       where: {
         id: friendshipId,
       },
     });
+
     await this.prisma.blockedUsers.upsert({
       where: {
         id: friendshipId,
       },
       create: {
         id: friendshipId,
+        ...(commonRoom && { dmRoomId: commonRoom.id }),
         Blcoked_by: {
           connect: {
             userId,

@@ -25,7 +25,7 @@ model User {
   intraId         String? @unique
   profileFinished Boolean @default(false)
 
-  Username String?
+  Username String? @unique
   firstName     String?
   lastName      String?
   discreption   String @default("")
@@ -66,6 +66,7 @@ model BlockedUsers {
   blocked_by_id String @unique
   Blocked       User   @relation("blocked", fields: [blocked_id], references: [userId])
   blocked_id    String @unique
+  dmRoomId		String?
 
   @@map("blocked_friends")
 }
@@ -92,7 +93,7 @@ model Message {
 
   id       String  @id @default(cuid())
   authorId String
-  room     Room    @relation(fields: [roomId], references: [id])
+  room     Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
   roomId   String
   content  String?
 
