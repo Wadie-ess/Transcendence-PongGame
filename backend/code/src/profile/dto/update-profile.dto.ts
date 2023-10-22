@@ -48,4 +48,10 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsBoolean()
   finishProfile: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  Username: string;
 }

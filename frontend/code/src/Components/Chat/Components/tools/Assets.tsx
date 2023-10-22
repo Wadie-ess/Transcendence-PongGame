@@ -60,6 +60,13 @@ export interface Message {
   isRead: boolean;
 }
 
+export interface RoomMember {
+  userId : string;
+  firstName : string;
+  lastName : string;
+  avatar : string;
+}
+
 export interface ChatRoom {
   id: string;
   name: string;
@@ -70,10 +77,14 @@ export interface ChatRoom {
   type: RoomType;
 }
 
+
 export interface User {
+  firstName? : string;
+  lastName? : string
   id: string;
   name: string;
   image: string;
+  imageLInk?: string;
   messages: Message[];
 }
 

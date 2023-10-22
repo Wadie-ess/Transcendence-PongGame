@@ -25,6 +25,7 @@ const routes = [
   { path: "Game" },
 ];
 
+
 const useCurrentPath = () => {
   const location = useLocation();
   const [{ route }]: any = matchRoutes(routes, location);
@@ -45,6 +46,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
           user.logout();
       }
         
+
     };
     log();
     //eslint-disable-next-line
@@ -59,6 +61,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
         <div
           data-theme="mytheme"
           className={`h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
+
         >
           <div className=" flex flex-row  w-screen h-[8vh]  bg-base-200">
             <div className="flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full">

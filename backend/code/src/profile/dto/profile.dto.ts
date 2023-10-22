@@ -8,23 +8,6 @@ type ProfileDtoProps = Partial<User> &
     roomMember: RoomMember[];
     owned_rooms: Room[];
   }>;
-/*
-    isLogged: boolean,
-    id:string,
-    bio:string,
-    phone:string,
-    name:{
-        first:string,
-        last:string
-    },
-    picture:{
-        thumbnail:string,
-        medium:string,
-        large:string
-    },
-    email:string,
-    tfa:boolean,
-*/
 
 export type NAME = {
   first: string;
@@ -54,6 +37,7 @@ export class ProfileDto {
       medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${userData.avatar}`,
       large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${userData.avatar}`,
     };
+    this.username = userData.Username;
   }
 
   @ApiProperty({ example: 'cln8xxhut0000stofeef' })
@@ -81,4 +65,7 @@ export class ProfileDto {
   picture: PICTURE;
   @ApiProperty({ example: 'example@mail.com' })
   email: string;
+
+  @ApiProperty({ example: 'dexter' })
+  username: string;
 }

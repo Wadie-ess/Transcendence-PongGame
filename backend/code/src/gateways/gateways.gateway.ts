@@ -1,12 +1,13 @@
 import {
   OnGatewayConnection,
+  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MessageFormatDto } from 'src/messages/dto/message-format.dto';
 import {} from '@nestjs/platform-socket.io';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from 'src/prisma/prisma.service';
 @WebSocketGateway(3004, {
   cors: {
@@ -15,7 +16,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
   transports: ['websocket'],
 })
 export class Gateways implements OnGatewayConnection {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
   handleConnection(client: Socket) {
     const userId = client.data.user.sub;
     const rooms = this.prisma.roomMember.findMany({
@@ -46,9 +50,29 @@ export class Gateways implements OnGatewayConnection {
     const chanellname: string = `Romm:${message.roomId}`;
     this.server.to(chanellname).emit('message', message);
   }
+
   @OnEvent('addFriendNotif')
   sendFriendReq(notif: any) {
     const channellname: string = `notif:${notif.recipientId}`;
     this.server.to(channellname).emit('message', notif);
+  }
+
+  @SubscribeMessage('startGame')
+  handleGameStartEvent(client: any) {
+    this.eventEmitter.emit('game.start', client);
+  }
+
+  @SubscribeMessage('movePaddle')
+  handleMovePaddleEvent(client: any, data: any) {
+    this.server.to(data.channel).emit('movePaddle', data);
+  }
+
+  @OnEvent('game.launched')
+  handleGameLaunchedEvent(clients: any) {
+    const game_channel = `Game:${clients[0].id}:${clients[1].id}`;
+    clients.forEach((client: any) => {
+      client.join(game_channel);
+    });
+    this.server.to(game_channel).emit('game.launched', game_channel);
   }
 }
