@@ -393,6 +393,7 @@ export class RoomsService {
             userId: true,
             firstName: true,
             lastName: true,
+            avatar: true,
           },
         },
       },
