@@ -4,8 +4,10 @@ import {
   groupIcon,
   chatRooms,
   RoomsIcon,
+  RoomMember,
+  yas,
 } from "./Components/tools/Assets";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Conversation } from "./Components/Conversation";
 import { ChatPaceHolderProps } from "./Components/Conversation";
 import users from "./Components/tools/Assets";
@@ -13,7 +15,10 @@ import React from "react";
 import { ChatType, useChatStore } from "./Controllers/ChatControllers";
 
 import { RecentConversations } from "./Components/RecentChat";
-import {  NullPlaceHolder } from "./Components/RoomChatHelpers";
+import { NullPlaceHolder } from "./Components/RoomChatHelpers";
+import { getRoomMembersCall } from "./Services/ChatServices";
+
+import toast from "react-hot-toast";
 
 export interface ConversationProps {
   onRemoveUserPreview: () => void;
@@ -61,6 +66,8 @@ export const Chat = () => {
 export const UserPreviewCard: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentUsers, setUsers] = useState<RoomMember[]>([]);
   const [MyUsers] = useState(users);
 
   const SelectedChat = useChatStore((state) => state.selectedChatID);
@@ -68,9 +75,32 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
   const currentUser = MyUsers.find((user) => user.id === SelectedChat);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const currentRoom = chatRooms.find((room) => room.id === SelectedChat);
-  const currentRoomUsers = MyUsers.filter((user) =>
-    currentRoom?.usersId.includes(user.id)
-  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        await getRoomMembersCall(currentRoom?.id as string, 0, 10).then(
+          (res) => {
+            if (res?.status === 200 || res?.status === 201) {
+              const extractedData = res.data.map(
+                (item: { user: RoomMember }) => item.user
+              );
+              setIsLoading(false);
+              setUsers(extractedData);
+            } else {
+              toast.error("Error getting room members");
+            }
+          }
+        );
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
+
+    fetchData();
+    // eslint-disable-next-line
+  }, [SelectedChat]);
   return (
     <div className="flex flex-col p-4   ">
       <div className="flex flex-row justify-between ">
@@ -128,34 +158,45 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
           <div className="max-h-[280px] overflow-y-auto no-scrollbar">
-            {currentRoomUsers.map((user) => (
-              <div className="overflow-x-auto">
-                <table className="table">
-                  <tbody>
-                    <tr>
-                      <th></th>
-                      <td>
-                        <div className="flex items-center space-x-3">
-                          <div className="avatar">
-                            <div className="mask mask-squircle w-11 h-11">
-                              <img
-                                src={user.image}
-                                alt="Avatar Tailwind CSS Component"
-                              />
+            {isLoading === false ? (
+              <>
+                {currentUsers.map((user) => (
+                  <div key={user.userId} className="overflow-x-auto">
+                    <table className="table">
+                      <tbody>
+                        <tr>
+                          <th></th>
+                          <td>
+                            <div className="flex items-center space-x-3">
+                              <div className="avatar">
+                                <div className="mask mask-squircle w-11 h-11 ">
+                                  <img
+                                    // to change later
+                                    src={yas}
+                                    alt="Avatar Tailwind CSS Component"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-gray-400 font-poppins font-medium text-base">
+                                  {user.firstName}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-400 font-poppins font-medium text-base">
-                              {user.name}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            ))}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <>
+                <div className="text-center p-2">
+                  <span className="loading loading-spinner loading-lg"></span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
