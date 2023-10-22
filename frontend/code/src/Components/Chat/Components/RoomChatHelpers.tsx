@@ -547,11 +547,11 @@ export const ExploreRoomsModal = () => {
           toast.error("something went wrong, try again");
           resetModalState();
         } else {
-          console.log("my recent");
-          console.log(recentRooms);
+          // console.log("my recent");
+          // console.log(recentRooms);
           const rooms: ChatRoom[] = [];
           res.data.forEach(
-            (room: { id: string; name: string; type: string }) => {
+            (room: { id: string; is_admin : boolean, is_owner : boolean, name: string; type: string,  }) => {
               if (
                 recentRooms.recentRooms.find(
                   (recentRoom) => recentRoom.id === room.id
@@ -563,8 +563,8 @@ export const ExploreRoomsModal = () => {
                   type: RoomType[room.type as keyof typeof RoomType],
                   messages: [],
                   usersId: [],
-                  isOwner: true,
-                  isAdmin: true,
+                  isOwner: room.is_owner,
+                  isAdmin: room.is_admin,
                 });
               }
             }

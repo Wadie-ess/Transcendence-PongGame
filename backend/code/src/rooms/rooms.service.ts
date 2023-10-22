@@ -480,16 +480,18 @@ export class RoomsService {
         name: true,
         type: true,
         ownerId: true,
-        members: {
+        ...(joined && {members: {
           where: {
             userId: userId,
           },
           select: {
             is_admin: true,
           },
-        },
+        }})
       },
     });
+    if (!joined)
+     return rooms;
     return rooms.map((room) => {
       const is_owner = room.ownerId === userId;
       return {
