@@ -90,3 +90,24 @@ export const createNewRoomCall = async (
     }
 
    }
+
+
+   export const joinRoomCall  = async (
+    roomId : string,
+    password? : string,
+
+   ) => {
+    try {
+    
+      const response = await api.post("/rooms/join", {
+        roomId : roomId,
+        password : password,
+      });
+      console.log("join room")
+      console.log(response.status);
+      console.log(response.data);
+      return response;
+    } catch (e : any)  {
+      console.log(e.response.data.message);
+    }
+   }

@@ -100,7 +100,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
 
     fetchData();
     // eslint-disable-next-line
-  }, [selectedChatType]);
+  }, [SelectedChat]);
   return (
     <div className="flex flex-col p-4   ">
       <div className="flex flex-row justify-between ">

@@ -18,6 +18,7 @@ import { SelectedUserTile } from "..";
 import {
   createNewRoomCall,
   fetchRoomsCall,
+  joinRoomCall,
   updateRoomCall,
 } from "../Services/ChatServices";
 import toast from "react-hot-toast";
@@ -37,7 +38,7 @@ export const RoomChatPlaceHolder = () => {
     const fetch = async () => {
       setIsLoading(true);
       // to make it dynamic later
-      await fetchRoomsCall(0, 5, true).then((res) => {
+      await fetchRoomsCall(0, 100, true).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
           toast.error("something went wrong, try again");
         } else {
@@ -63,7 +64,7 @@ export const RoomChatPlaceHolder = () => {
 
     fetch();
     // eslint-disable-next-line
-  }, []);
+  }, [ChatRoomsState.selectedChatID]);
 
   return ChatRoomsState.recentRooms.length > 0 ? (
     <div>
@@ -115,7 +116,7 @@ export const RoomChatPlaceHolder = () => {
       {isLoading === true ? (
         <span className="loading loading-spinner loading-lg"></span>
       ) : (
-        <NullPlaceHolder message="You have No Rooms Yet!" />
+        <NullPlaceHolder message="You have No Rooms Yet!, Create One" />
       )}
     </div>
   );
@@ -530,6 +531,7 @@ export const ExploreRoomsModal = () => {
   const [selectedOption, setSelectedOption] = useState(RoomType.public);
   const [SelectedRoomID, setSelectedRoomID] = useState("0");
   const [isLoading, setIsLoading] = useState(false);
+  const recentRooms = useChatStore((state) => state);
 
   const modalState = useModalStore((state) => state);
   const resetModalState = () => {
@@ -545,18 +547,26 @@ export const ExploreRoomsModal = () => {
           toast.error("something went wrong, try again");
           resetModalState();
         } else {
+          console.log("my recent");
+          console.log(recentRooms);
           const rooms: ChatRoom[] = [];
           res.data.forEach(
             (room: { id: string; name: string; type: string }) => {
-              rooms.push({
-                id: room.id,
-                name: room.name,
-                type: RoomType[room.type as keyof typeof RoomType],
-                messages: [],
-                usersId: [],
-                isOwner: true,
-                isAdmin: true,
-              });
+              if (
+                recentRooms.recentRooms.find(
+                  (recentRoom) => recentRoom.id === room.id
+                ) === undefined
+              ) {
+                rooms.push({
+                  id: room.id,
+                  name: room.name,
+                  type: RoomType[room.type as keyof typeof RoomType],
+                  messages: [],
+                  usersId: [],
+                  isOwner: true,
+                  isAdmin: true,
+                });
+              }
             }
           );
           setIsLoading(false);
@@ -619,7 +629,7 @@ export const ExploreRoomsModal = () => {
                   ))}
                 </>
               ) : (
-                <NullPlaceHolder message="No Rooms Yet!, Create the First" />
+                <NullPlaceHolder message="No Rooms For You Yet!" />
               )}
             </div>
           )}
@@ -651,23 +661,16 @@ export const ExploreRoomsModal = () => {
             <a
               href="#/"
               onClick={async () => {
-                // await fetchRoomsCall(0, 5, false).then((res) => {
-                //   if (res?.status !== 200 && res?.status !== 201) {
-                //     toast.error("something went wrong, try again");
-                //     resetModalState();
-                //   } else {
-                //     res.data.forEach(
-                //       (room: { id: string; name: string; type: string }) => {
-                //         chatState.createNewRoom(
-                //           room.name,
-                //           RoomType["public"],
-                //           room.id
-                //         );
-                //       }
-                //     );
-                //     resetModalState();
-                //   }
-                // });
+                await joinRoomCall(SelectedRoomID, undefined).then((res) => {
+                  if (res?.status !== 200 && res?.status !== 201) {
+                    // toast.error("something went wrong, try again");
+
+                    resetModalState();
+                  } else {
+                    recentRooms.selectNewChatID(SelectedRoomID);
+                    resetModalState();
+                  }
+                });
               }}
               className="btn hover:bg-purple-500"
             >
