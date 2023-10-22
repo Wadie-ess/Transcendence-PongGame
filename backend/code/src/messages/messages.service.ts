@@ -15,12 +15,35 @@ export class MessagesService {
       throw new HttpException('Message is too long', HttpStatus.BAD_REQUEST);
     }
 
-    const roomMember = await this.prisma.roomMember.findFirst({
-      where: {
-        userId,
-        roomId: channelId,
+    const room = await this.prisma.room.findUnique({
+      where: { id: channelId },
+      select: {
+        ownerId: true,
+        type: true,
+        members: {
+          where: {
+            userId: userId,
+          },
+        },
       },
     });
+
+    if (room.type === 'dm') {
+      const blocked = await this.prisma.blockedUsers.findFirst({
+        where: {
+          dmRoomId: channelId,
+        },
+      });
+      if (blocked) {
+        throw new HttpException(
+          'You are blocked from this dm',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+    }
+
+    const roomMember = room.members[0];
+    console.log(roomMember);
 
     if (!roomMember) {
       throw new HttpException(

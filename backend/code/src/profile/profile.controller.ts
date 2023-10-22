@@ -36,6 +36,7 @@ export class ProfileController {
   @ApiOkResponse({ type: ProfileDto })
   @UseGuards(AtGuard)
   async getMe(@GetCurrentUser('userId') userId: string): Promise<ProfileDto> {
+    console.log(userId);
     return await this.profileService.getProfile(userId);
   }
 
