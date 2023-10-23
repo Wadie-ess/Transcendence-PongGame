@@ -1,4 +1,4 @@
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useLayoutEffect, useState } from "react";
 import { useChatStore } from "../Controllers/ChatControllers";
 import users, {
   ChatGif,
@@ -7,6 +7,7 @@ import users, {
   Lock,
   More,
   NullImage,
+  RoomMember,
   RoomType,
   Unlock,
   chatRooms,
@@ -18,12 +19,14 @@ import { SelectedUserTile } from "..";
 import {
   createNewRoomCall,
   fetchRoomsCall,
+  getRoomMembersCall,
   joinRoomCall,
   updateRoomCall,
 } from "../Services/ChatServices";
 import toast from "react-hot-toast";
 import { Logo } from "../../Layout/Assets/Logo";
 import { useModalStore } from "../Controllers/ModalControllers";
+import { useUserStore } from "../../../Stores/stores";
 
 interface NullComponentProps {
   message: string;
@@ -44,15 +47,21 @@ export const RoomChatPlaceHolder = () => {
         } else {
           const rooms: ChatRoom[] = [];
           res.data.forEach(
-            (room: { id: string; name: string; type: string }) => {
+            (room: {
+              id: string;
+              is_admin: boolean;
+              is_owner: boolean;
+              name: string;
+              type: string;
+            }) => {
               rooms.push({
                 id: room.id,
                 name: room.name,
                 type: RoomType[room.type as keyof typeof RoomType],
                 messages: [],
                 usersId: [],
-                isOwner: true,
-                isAdmin: true,
+                isOwner: room.is_owner,
+                isAdmin: room.is_admin,
               });
             }
           );
@@ -232,8 +241,21 @@ export const CreateNewRoomModal = () => {
             <a
               href="#/"
               onClick={async () => {
-                console.log(RoomType[selectedOption]);
-                if (RoomName !== "" && RoomName.length > 3) {
+                // console.log(RoomType[selectedOption]);
+                if (
+                  RoomName !== "" &&
+                  RoomName.length > 3 &&
+                  RoomName.length < 20
+                ) {
+                  if (
+                    RoomPassword.length < 8 &&
+                    selectedOption === RoomType.protected
+                  ) {
+                    console.log(selectedOption);
+                    toast.error("password must be at least 8 characters");
+                    resetModalState();
+                    return;
+                  }
                   setIsLoading(true);
                   await createNewRoomCall(
                     RoomName,
@@ -252,7 +274,9 @@ export const CreateNewRoomModal = () => {
                     setIsLoading(false);
                   });
                 } else {
-                  toast.error("Room name must be at least 4 characters");
+                  toast.error(
+                    "Room name must be at least 4 characters and less than 20 "
+                  );
                   resetModalState();
                 }
               }}
@@ -311,6 +335,8 @@ export const AddUsersModal = () => {
 };
 
 export const RoomSettingsModal = () => {
+  const [currentUsers, setUsers] = useState<RoomMember[]>([]);
+  const currentUser = useUserStore((state) => state);
   const editRoom = useChatStore((state) => state.editRoom);
   const selectedChatID = useChatStore((state) => state.selectedChatID);
   const currentRoom = chatRooms.find((room) => room.id === selectedChatID);
@@ -319,7 +345,7 @@ export const RoomSettingsModal = () => {
   );
 
   const setIsLoading = useChatStore((state) => state.setIsLoading);
-
+  const [skipCount, setSkipCount] = useState(true);
   const [RoomName, setName] = useState("");
   const [RoomPassword, setPassword] = useState("");
 
@@ -338,7 +364,27 @@ export const RoomSettingsModal = () => {
   useEffect(() => {
     setSelectedOption(currentRoom?.type as RoomType);
     setName(currentRoom?.name as string);
-  }, [currentRoom?.type, currentRoom?.name]);
+    if (skipCount) setSkipCount(false);
+    if (!skipCount) {
+      const fetchData = async () => {
+        try {
+          await getRoomMembersCall(currentRoom?.id as string, 0, 10).then(
+            (res) => {
+              if (res?.status === 200 || res?.status === 201) {
+                const extractedData = res.data;
+                setUsers(extractedData);
+              } else {
+              }
+            }
+          );
+        } catch (error) {
+          console.error("Error fetching data: ", error);
+        }
+      };
+
+      fetchData();
+    }
+  }, [selectedChatID]);
 
   const resetModalState = () => {
     setPassword("");
@@ -421,60 +467,62 @@ export const RoomSettingsModal = () => {
           <p className="p-2">Room Members</p>
 
           {/* Scrollable part */}
-          <div className="max-h-[300px] overflow-y-auto no-scrollbar">
-            {currentRoomUsers.map((user) => (
-              <div className="flex flex-row justify-between bg-[#1A1C26] p-3   border-gray-600  ">
-                <div className="flex flex-row items-center space-x-3">
-                  <div className="pr-1">
-                    <img
-                      className="w-12 rounded-full "
-                      alt=""
-                      src={user.image}
-                    />
+          <div className="max-h-[300px] overflow-y-auto no-scrollbar justify-center">
+            {currentUsers
+              .filter((user) => user.id !== currentUser.id)
+              .map((user) => (
+                <div className="flex flex-row justify-between  bg-[#1A1C26] p-3 border-gray-600  ">
+                  <div className="flex flex-row items-center space-x-3">
+                    <div className="pr-1">
+                      <img
+                        className="w-12 rounded-full "
+                        alt=""
+                        src={user.avatar.medium}
+                      />
+                    </div>
+
+                    <p className="text-white font-poppins text-base font-medium leading-normal">
+                      {user.name.first ?? "user"}
+                    </p>
                   </div>
 
-                  <p className="text-white font-poppins text-base font-medium leading-normal">
-                    {user.name}
-                  </p>
-                </div>
+                  <div className="dropdown ">
+                    <label tabIndex={0} className="">
+                      <summary className="list-none p-3 cursor-pointer ">
+                        <img src={More} alt="More" />
+                      </summary>
+                    </label>
+                    <ul
+                      tabIndex={0}
+                      className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-40 absolute  right-full  "
+                    >
+                      <li>
+                        <span className="hover:bg-[#7940CF]">Ban</span>
+                      </li>
+                      <li>
+                        <span
+                          // onClick={onRemoveUserPreview}
+                          className="hover:bg-[#7940CF]"
+                        >
+                          mute
+                        </span>
+                      </li>
 
-                <div className="dropdown ">
-                  <label tabIndex={0} className="">
-                    <summary className="list-none p-3 cursor-pointer ">
-                      <img src={More} alt="More" />
-                    </summary>
-                  </label>
-                  <ul
-                    tabIndex={0}
-                    className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-40 absolute  right-full  "
-                  >
-                    <li>
-                      <span className="hover:bg-[#7940CF]">Ban</span>
-                    </li>
-                    <li>
-                      <span
-                        // onClick={onRemoveUserPreview}
-                        className="hover:bg-[#7940CF]"
-                      >
-                        mute
-                      </span>
-                    </li>
-
-                    <li>
-                      <span
-                        // onClick={onRemoveUserPreview}
-                        className="hover:bg-[#7940CF]"
-                      >
-                        kick
-                      </span>
-                    </li>
-                    <li>
-                      <span className="hover:bg-[#7940CF]">Set as admin</span>
-                    </li>
-                  </ul>
+                      <li>
+                        <span
+                          // onClick={onRemoveUserPreview}
+                          className="hover:bg-[#7940CF]"
+                        >
+                          kick
+                        </span>
+                      </li>
+                      <li>
+                        <span className="hover:bg-[#7940CF]">Set as admin</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
 
           <div className="modal-action">
@@ -505,6 +553,7 @@ export const RoomSettingsModal = () => {
                     if (res?.status !== 200 && res?.status !== 201) {
                       resetModalState();
                     } else {
+                      toast.success("Room Updated Successfully");
                       editRoom(RoomName, selectedOption, currentRoom?.id!);
                       resetModalState();
                     }
@@ -527,6 +576,7 @@ export const RoomSettingsModal = () => {
 };
 
 export const ExploreRoomsModal = () => {
+  const [RoomPassword, setPassword] = useState("");
   const [ChatRooms, SetChatRooms] = useState(chatRooms);
   const [selectedOption, setSelectedOption] = useState(RoomType.public);
   const [SelectedRoomID, setSelectedRoomID] = useState("0");
@@ -535,6 +585,7 @@ export const ExploreRoomsModal = () => {
 
   const modalState = useModalStore((state) => state);
   const resetModalState = () => {
+    setPassword("");
     setSelectedOption(RoomType.public);
     setSelectedRoomID("0");
   };
@@ -547,11 +598,15 @@ export const ExploreRoomsModal = () => {
           toast.error("something went wrong, try again");
           resetModalState();
         } else {
-          // console.log("my recent");
-          // console.log(recentRooms);
           const rooms: ChatRoom[] = [];
           res.data.forEach(
-            (room: { id: string; is_admin : boolean, is_owner : boolean, name: string; type: string,  }) => {
+            (room: {
+              id: string;
+              is_admin: boolean;
+              is_owner: boolean;
+              name: string;
+              type: string;
+            }) => {
               if (
                 recentRooms.recentRooms.find(
                   (recentRoom) => recentRoom.id === room.id
@@ -576,7 +631,7 @@ export const ExploreRoomsModal = () => {
     };
 
     fetch();
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [modalState]);
 
   return (
@@ -640,6 +695,8 @@ export const ExploreRoomsModal = () => {
             <div className="flex flex-row w-full justify-center pt-2">
               <p>Room Password</p>
               <input
+                value={RoomPassword}
+                onChange={(event) => setPassword(event.target.value)}
                 type="Password"
                 className="input w-full shadow-xl max-w-lg bg-[#272932] placeholder:text-gray-400 font-poppins text-base font-normal leading-normal"
               />
@@ -647,10 +704,6 @@ export const ExploreRoomsModal = () => {
           </div>
         )}
         <div className="modal-action">
-          {
-            // eslint-disable-next-line
-          }
-
           <a
             href="#/"
             onClick={resetModalState}
@@ -662,12 +715,19 @@ export const ExploreRoomsModal = () => {
             <a
               href="#/"
               onClick={async () => {
-                await joinRoomCall(SelectedRoomID, undefined).then((res) => {
-                  if (res?.status !== 200 && res?.status !== 201) {
-                    // toast.error("something went wrong, try again");
+                recentRooms.setIsLoading(true);
 
+                await joinRoomCall(
+                  SelectedRoomID,
+                  selectedOption === RoomType.protected
+                    ? RoomPassword
+                    : undefined
+                ).then((res) => {
+                  recentRooms.setIsLoading(false);
+                  if (res?.status !== 200 && res?.status !== 201) {
                     resetModalState();
                   } else {
+                    toast.success("Room Joined Successfully");
                     recentRooms.selectNewChatID(SelectedRoomID);
                     resetModalState();
                   }

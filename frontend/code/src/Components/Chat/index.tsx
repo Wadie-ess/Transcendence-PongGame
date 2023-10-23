@@ -83,9 +83,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
         await getRoomMembersCall(currentRoom?.id as string, 0, 10).then(
           (res) => {
             if (res?.status === 200 || res?.status === 201) {
-              const extractedData = res.data.map(
-                (item: { user: RoomMember }) => item.user
-              );
+              const extractedData = res.data;
               setIsLoading(false);
               setUsers(extractedData);
             } else {
@@ -157,36 +155,32 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
             {}
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
-          <div className="max-h-[280px] overflow-y-auto no-scrollbar">
+          <div className="max-h-[280px] overflow-y-auto no-scrollbar ">
             {isLoading === false ? (
               <>
                 {currentUsers.map((user) => (
-                  <div key={user.userId} className="overflow-x-auto">
-                    <table className="table">
-                      <tbody>
-                        <tr>
-                          <th></th>
-                          <td>
-                            <div className="flex items-center space-x-3">
-                              <div className="avatar">
-                                <div className="mask mask-squircle w-11 h-11 ">
-                                  <img
-                                    // to change later
-                                    src={yas}
-                                    alt="Avatar Tailwind CSS Component"
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-gray-400 font-poppins font-medium text-base">
-                                  {user.firstName}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  <div key={user.id} className="felx flex-row p-5">
+                    <div className="flex items-center justify-start space-x-2">
+                      {" "}
+                      {/* Center horizontally */}
+                      <div className="avatar">
+                        <div className="mask mask-squircle w-11 h-11">
+                          <img
+                            src={
+                              user.avatar.medium ??
+                              "https:brighterwriting.com/wp-content/uploads/icon-user-default.png"
+                            }
+                            alt="Avatar Tailwind CSS Component"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400 font-poppins font-medium text-base max-w-[80px] md:max-w-[180px]  truncate">
+                          {/* "kkdccd" */}
+                          {user.name?.first ?? "user"}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </>
@@ -203,6 +197,37 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
     </div>
   );
 };
+
+// {/* <table className="table">
+// <tbody>
+//   <tr>
+//     <th></th>
+//     <td>
+//       <div className="flex items-center justify-start space-x-2">
+//         {" "}
+//         {/* Center horizontally */}
+//         <div className="avatar">
+//           <div className="mask mask-squircle w-11 h-11">
+//             <img
+//               src={
+//                 user.avatar.medium ??
+//                 "https://brighterwriting.com/wp-content/uploads/icon-user-default.png"
+//               }
+//               alt="Avatar Tailwind CSS Component"
+//             />
+//           </div>
+//         </div>
+//         <div>
+//           <div className="text-gray-400 font-poppins font-medium text-base max-w-[80px] md:max-w-[50px]  truncate">
+//             {/* "kkdccd" */}
+//             {user.name?.first ?? "user"}
+//           </div>
+//         </div>
+//       </div>
+//     </td>
+//   </tr>
+// </tbody>
+// </table> */}
 
 export const SelectedUserTile = ({
   username,

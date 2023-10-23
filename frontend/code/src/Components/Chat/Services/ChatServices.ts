@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import api from "../../../Api/base";
 
 export const createNewRoomCall = async (
@@ -103,6 +104,31 @@ export const joinRoomCall = async (
     console.log(response.data);
     return response;
   } catch (e: any) {
+
     console.log(e.response.data.message);
+    toast.error(e.response.data.message);
   }
+}
+
+
+export const leaveRoomCall = async (
+  roomId: string,
+
+) => {
+  try {
+
+    const response = await api.post("/rooms/leave", {
+      roomId: roomId,
+
+    });
+    console.log("leave result :")
+    console.log(response.status);
+    console.log(response.data);
+    return response;
+  } catch (e: any) {
+
+    console.log(e.response.data.message);
+    toast.error(e.response.data.message);
+  }
+
 }

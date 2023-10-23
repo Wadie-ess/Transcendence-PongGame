@@ -9,11 +9,10 @@ import users, {
 } from "./tools/Assets";
 import { ChatType, useChatStore } from "../Controllers/ChatControllers";
 
-import {
-  ChatPlaceHolder,
-  ConfirmationModal,
-} from "./RoomChatHelpers";
+import { ChatPlaceHolder, ConfirmationModal } from "./RoomChatHelpers";
 import { KeyboardEvent } from "react";
+import { leaveRoomCall } from "../Services/ChatServices";
+import toast from "react-hot-toast";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -84,6 +83,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 }) => {
   const [MyUsers] = useState(users);
 
+  const ChatState = useChatStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
 
   const currentUser = MyUsers.find((user) => user.id === SelectedChat);
@@ -100,8 +100,6 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 
   // Function to handle the confirmation
   const handleConfirmation = () => {
-    // Perform your action when the user confirms (e.g., delete item)
-    // For this example, we'll just close the modal
     setIsModalOpen(false);
   };
 
@@ -124,6 +122,8 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
             <p className="text-white font-poppins text-base font-medium leading-normal">
               {selectedChatType === ChatType.Chat
                 ? currentUser?.name
+                : currentRoom?.isOwner
+                ? currentRoom.name + " ♚"
                 : currentRoom?.name}
             </p>
             {selectedChatType === ChatType.Chat ? (
@@ -178,7 +178,8 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute  right-full  "
             >
               {/* check if current user is admin or owner to show the settings toast */}
-              {currentRoom?.isAdmin || currentRoom?.isOwner ? (
+              {(currentRoom?.isAdmin === true ||
+                currentRoom?.isOwner === true) && (
                 <div className="icons-row flex flex-col  ">
                   <a href="#my_modal_9" className="">
                     <li>
@@ -193,8 +194,6 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                     </li>
                   </a>
                 </div>
-              ) : (
-                <></>
               )}
 
               <li className="hidden md:block">
@@ -205,16 +204,25 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                   Show Room Info
                 </span>
               </li>
-              {currentRoom?.isOwner === false ? (
+              {currentRoom?.isOwner === false && (
                 <div>
-                  <li>
-                    <span onClick={openModal} className="hover:bg-[#7940CF]">
-                      leave The Room
-                    </span>
+                  <li
+                    onClick={async () => {
+                      ChatState.setIsLoading(true);
+                      await leaveRoomCall(currentRoom?.id as string).then(
+                        (res) => {
+                          ChatState.setIsLoading(false);
+                          if (res?.status === 200 || res?.status === 201) {
+                            toast.success("Room Left Successfully");
+                            ChatState.selectNewChatID(chatRooms[0].id);
+                          }
+                        }
+                      );
+                    }}
+                  >
+                    <span className="hover:bg-[#7940CF]">leave The Room</span>
                   </li>
                 </div>
-              ) : (
-                <></>
               )}
             </ul>
             <ConfirmationModal
