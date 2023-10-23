@@ -13,14 +13,16 @@ export class ProfileService {
     userId: string,
     friendId?: null | string,
   ): Promise<ProfileDto> {
+    let id = userId;
     if (friendId && friendId !== userId) {
       const blockid = [userId, friendId].sort().join('-');
       const block = await this.usersService.getBlockbyId(blockid);
       if (block) {
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
+      id = friendId;
     }
-    const user = await this.usersService.getUserById(userId);
+    const user = await this.usersService.getUserById(id);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
