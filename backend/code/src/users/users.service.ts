@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { NAME } from '../profile/dto/profile.dto';
+import { NAME, PICTURE } from '../profile/dto/profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -135,7 +135,12 @@ export class UsersService {
     });
     return users.map((user) => {
       const name: NAME = { first: user.firstName, last: user.lastName };
-      return { name: name, id: user.userId, avatar: user.avatar };
+      const avatar: PICTURE = {
+        thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${user.avatar}`,
+        medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${user.avatar}`,
+        large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${user.avatar}`,
+      };
+      return { name , id: user.userId, avatar };
     });
   }
 }

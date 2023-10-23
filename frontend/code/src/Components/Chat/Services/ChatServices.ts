@@ -1,4 +1,5 @@
-import { api } from "../../../Api/base";
+import api  from "../../../Api/base";
+
 
 export const createNewRoomCall = async (
     name: string,
@@ -25,6 +26,7 @@ export const createNewRoomCall = async (
     name: string,
     type: string,
     roomId: string,
+    password? : string,
 
   ) => {
     try {
@@ -32,7 +34,8 @@ export const createNewRoomCall = async (
       const response = await api.post("/rooms/update", {
         name: name,
         type: type,
-        roomId : roomId
+        roomId : roomId, 
+        password : password,
       });
       console.log(response.data);
       console.log(response.status);
@@ -54,8 +57,9 @@ export const createNewRoomCall = async (
     try {
       const response = await api.get(`/rooms`,
       { params: { offset: offset, limit : limit, joined : joined  } });
-      console.log(response.data);
+      joined === true ?  console.log("resent :") : console.log("Public :");
       console.log(response.status);
+      console.log(response.data);
       return response;
     } catch (e) {
       console.log(e);
@@ -66,4 +70,45 @@ export const createNewRoomCall = async (
 
 
 
+   }
+
+
+
+   export const getRoomMembersCall = async (
+     id : string,
+     offset: number,
+     limit : number,
+   ) => {
+    try {
+      const response = await api.get(`/rooms/${id}/members`,
+      { params: {offset: offset, limit : limit  } });
+      console.log("room members :");
+      console.log(response.status);
+      console.log(response.data);
+      return response;
+    } catch (e) {
+      console.log(e);
+    }
+
+   }
+
+
+   export const joinRoomCall  = async (
+    roomId : string,
+    password? : string,
+
+   ) => {
+    try {
+    
+      const response = await api.post("/rooms/join", {
+        roomId : roomId,
+        password : password,
+      });
+      console.log("join room")
+      console.log(response.status);
+      console.log(response.data);
+      return response;
+    } catch (e : any)  {
+      console.log(e.response.data.message);
+    }
    }

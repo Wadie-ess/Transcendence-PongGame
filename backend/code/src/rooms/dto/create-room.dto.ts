@@ -26,4 +26,9 @@ export class CreateRoomDto {
   @IsNotEmpty()
   @Length(8, 32)
   password?: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsOptional()
+  secondMember: string;
 }

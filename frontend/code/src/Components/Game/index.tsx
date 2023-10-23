@@ -47,6 +47,7 @@ export const Game = () => {
       
       
     // },[gameState.height, gameState.width])
+    /* eslint-disable */
     useEffect(() => {
         window.addEventListener('resize', () => {
             const divh = document.getElementById('Game')?.offsetHeight
@@ -58,7 +59,8 @@ export const Game = () => {
         if(gameState.p1Score === 0 && gameState.p2Score === 0) {
           gameState.setBall({x:0.5 * gameState.width,y:0.5 * gameState.height,speed:0,cx:gameState.height /100,cy:gameState.height /100})
         }
-    },)
+        // disable
+    },[])
 
     useEffect(() => {
         const divh = document.getElementById('Game')?.offsetHeight
@@ -100,7 +102,7 @@ export const Game = () => {
           },20);
           return () => clearInterval(oldinter)
       }
-    },[gameState.width , gameState.height , first , gameState])
+    },[gameState.width , gameState.height])
     console.log(gameState.lPaddle)
     return ( 
     <div className="flex flex-col gap-10 justify-start md:justify-center md:items-center items-center pt-12 md:pt-0  h-full w-full" >

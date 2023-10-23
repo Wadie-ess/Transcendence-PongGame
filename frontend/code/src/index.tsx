@@ -13,8 +13,13 @@ root.render(
       position="top-right"
       reverseOrder={false}
       toastOptions={{
+        style:{
+          background:"#7247c8",
+          color:"white"
+
+        },
         className: "relative top-[6vh] bg-base-100 text-white",
-        duration: 5000
+        duration: 3000
       }}
     />
        <AllRouters/>

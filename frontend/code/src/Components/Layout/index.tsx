@@ -13,7 +13,8 @@ import { Outlet } from "react-router";
 import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
-import { api } from "../../Api/base";
+import { FirstLogin } from "../FirstLogin";
+
 const routes = [
   { path: "Profile/:id" },
   { path: "Settings" },
@@ -24,6 +25,7 @@ const routes = [
   { path: "Game" },
 ];
 
+
 const useCurrentPath = () => {
   const location = useLocation();
   const [{ route }]: any = matchRoutes(routes, location);
@@ -33,30 +35,34 @@ const useCurrentPath = () => {
 export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   const user = useUserStore();
   const navigate = useNavigate();
+
   useLayoutEffect(() => {
     const log = async () => {
       try {
-        await user.login();
-      } catch (e) {
-        try {
-          await api.get("/auth/refresh");
-          await user.login();
-        } catch (e) {
+        await user.login();  
+      }
+      catch(e){
           navigate("/");
           user.logout();
-        }
       }
+        
+
     };
     log();
-    
-      // eslint-disable-next-line
+    //eslint-disable-next-line
   }, []);
   const path: string = useCurrentPath();
   const obj = { x: "30", y: "20" };
   return (
     <>
-      {user.isLogged && (
-        <div data-theme="mytheme" className=" h-screen  ">
+      {user.profileComplet === false && user.isLogged ? (
+        <FirstLogin />
+      ) : (
+        <div
+          data-theme="mytheme"
+          className={`h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
+
+        >
           <div className=" flex flex-row  w-screen h-[8vh]  bg-base-200">
             <div className="flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full">
               <Logo {...obj} />
@@ -64,7 +70,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
             <div className="flex items-center  justify-end pr-6 gap-6 h-full w-full">
               <Search />
               <Alert />
-              <Avatar picture={`${user.picture.medium}`} />
+              <Avatar picture={`${user?.picture?.medium}`} />
             </div>
           </div>
           <div className="flex">
