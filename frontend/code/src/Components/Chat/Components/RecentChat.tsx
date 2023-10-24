@@ -9,12 +9,7 @@ import users, {
   check,
 } from "./tools/Assets";
 
-import {
-
-  NullPlaceHolder,
-  RoomChatPlaceHolder,
-
-} from "./RoomChatHelpers";
+import { NullPlaceHolder, RoomChatPlaceHolder } from "./RoomChatHelpers";
 import { useModalStore } from "../Controllers/ModalControllers";
 
 export const RecentConversations = () => {
@@ -69,7 +64,7 @@ export const ChatPlaceHolder = ({
   return (
     <div
       onClick={() => selectNewChat(id)}
-      className={`message-container flex   pt-5 pl-5 pb-5 pr-2  hover:bg-[#272932] items-center  ${
+      className={`message-container flex   px-4 py-5  hover:bg-[#272932] items-center  ${
         selectedChatID === id ? "bg-[#272932]" : "bg-[#1A1C26]"
       }
           
@@ -120,7 +115,7 @@ export const OnlineNowUsers = () => {
 
   return (
     <>
-      <div className="online-now-container    pt-5 pl-5 pb-2 pr-3 bg-[#1A1C26]">
+      <div className="online-now-container    p-5 bg-[#1A1C26]">
         <div className="messages-header flex flex-row justify-between pb-2">
           <p className="text-purple-500 font-poppins text-sm md:text-lg font-medium leading-normal ">
             Messages
@@ -137,7 +132,6 @@ export const OnlineNowUsers = () => {
                 src={Explore}
               />
             </a>
-         
           </div>
         </div>
         <div className="Message-Type-Buttons flex flex-row pt-2 pb-2 justify-between ">

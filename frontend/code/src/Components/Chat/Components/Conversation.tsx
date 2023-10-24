@@ -103,7 +103,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
     <>
       <div className="flex flex-row justify-between bg-[#1A1C26] p-3 border-b-2  border-black  ">
         <div className="flex flex-row ">
-          <div className="flex items-center justify-center h-full mr-4 md:hidden">
+          <div className="flex items-center justify-center h-full mr-4 lg:hidden">
             <button
               className="w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center hover:bg-slate-600"
               onClick={() => toggleChatRooms()}

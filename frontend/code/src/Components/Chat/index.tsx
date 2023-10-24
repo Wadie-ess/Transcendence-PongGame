@@ -5,7 +5,6 @@ import {
   chatRooms,
   RoomsIcon,
   RoomMember,
-
 } from "./Components/tools/Assets";
 import { useEffect, useState } from "react";
 import { Conversation } from "./Components/Conversation";
@@ -45,7 +44,7 @@ export const Chat = () => {
   };
   return (
     <>
-      <div className="flex h-full divide-black divide-x-4 bg-[#1A1C26] relative">
+      <div className="flex h-full bg-[#1A1C26] relative">
         <div>
           <ExploreRoomsModal />
           <RoomSettingsModal />
@@ -56,10 +55,10 @@ export const Chat = () => {
         <div
           className={classNames(
             showUserPreview === true
-              ? "w-4/12 max-w-lg " // md:w-[420px]
-              : "w-4/12  max-w-xl md:w-5/12  ",
-            "absolute md:relative h-full",
-            "z-20 transition-transform transform data-[mobile-show=true]:translate-x-0 data-[mobile-show=false]:-translate-x-[1000px] md:!transform-none md:!transition-none duration-300"
+              ? "w-4/5 lg:w-4/12 max-w-lg " // lg:w-[420px]
+              : "w-4/5 lg:w-4/12  max-w-lg  ",
+            "absolute lg:relative h-full min-w-[360px] lg:border-r-2 border-black",
+            "z-20 transition-transform transform data-[mobile-show=true]:translate-x-0 data-[mobile-show=false]:-translate-x-[1000px] lg:!transform-none lg:!transition-none duration-300"
           )}
           data-mobile-show={showChatRooms}
         >
@@ -67,7 +66,7 @@ export const Chat = () => {
         </div>
         {showChatRooms && (
           <div
-            className="z-10 absolute inset-0 md:hidden bg-black/40"
+            className="z-10 absolute inset-0 lg:hidden bg-black/40"
             onClick={() => toggleChatRooms()}
           />
         )}
@@ -85,8 +84,10 @@ export const Chat = () => {
         </div>
         <div
           className={` ${
-            showUserPreview ? "w-3/12" : "!hidden"
-          }  bg-[#1A1C26] hidden sm:block`}
+            showUserPreview
+              ? "w-full absolute inset-0 lg:w-3/12 lg:relative"
+              : "!hidden"
+          }  bg-[#1A1C26] lg:border-l-2 border-black`}
         >
           {showUserPreview && (
             <UserPreviewCard onRemoveUserPreview={handleRemoveUserPreview} />

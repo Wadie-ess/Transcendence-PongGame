@@ -14,6 +14,7 @@ import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
 import { FirstLogin } from "../FirstLogin";
+import { AxiosError, type AxiosResponse } from "axios";
 
 const routes = [
   { path: "Profile/:id" },
@@ -73,37 +74,37 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
               <Avatar picture={`${user?.picture?.medium}`} />
             </div>
           </div>
-          <div className="flex">
-            <div className="sm:flex flex-col hidden justify-around items-stretch h-[92vh] bg-base-200 overflow-auto md:pt-10  sm:w-[11vw]  md:w-[9vw] lg:w-[8vw] xl:w-[7vw] 2xl:w-[6vw] 3xl:w-[5vw]">
-              <div className="flex flex-col pl-[1.4vw] justify-evenly content-start gap-y-10 pb-44 ">
-                <Dash selected={path === "Home" ? true : false} />
-                <Game selected={path === "Play" ? true : false} />
-                <Message selected={path === "Chat" ? true : false} />
-                <Profile selected={path === "Profile/:id" ? true : false} />
-                <Settings selected={path === "Settings" ? true : false} />
+          <div className="flex bg-base-200">
+            <div className="sm:flex flex-col hidden justify-around items-stretch h-[92vh] bg-base-200 overflow-auto md:pt-10 w-20 min-w-[5rem] max-w-[5rem]">
+              <div className="flex flex-col justify-evenly content-start gap-y-10 pb-44">
+                <Dash selected={path === "Home"} className="mx-auto" />
+                <Game selected={path === "Play"} className="mx-auto" />
+                <Message selected={path === "Chat"} className="mx-auto" />
+                <Profile selected={path === "Profile/:id"} className="mx-auto" />
+                <Settings selected={path === "Settings"} />
               </div>
-              <div className="flex flex-col pl-[1vw] justify-start">
+              <div className="flex flex-col justify-start">
                 <Out />
               </div>
             </div>
             <div className=" h-[8vh] fixed bottom-0 sm:hidden btm-nav bg-base-200 flex justify-end z-50">
               <button className="">
-                <Dash selected={path === "Home" ? true : false} />
+                <Dash selected={path === "Home"} />
               </button>
               <button className="">
-                <Game selected={path === "Play" ? true : false} />
+                <Game selected={path === "Play"} />
               </button>
               <button className="">
-                <Message selected={path === "Chat" ? true : false} />
+                <Message selected={path === "Chat"} />
               </button>
               <button className="">
-                <Profile selected={path === "Profile/:id" ? true : false} />
+                <Profile selected={path === "Profile/:id"} />
               </button>
               <button className="">
-                <Settings selected={path === "Settings" ? true : false} />
+                <Settings selected={path === "Settings"} />
               </button>
             </div>
-            <div className="sm:-ml-4 sm:w-[92vw] xl:w-[96vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-accent sm:rounded-tl-2xl">
+            <div className="sm:w-[92vw] xl:w-[96vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh] bg-accent sm:rounded-tl-2xl overflow-hidden">
               <Outlet />
             </div>
           </div>
