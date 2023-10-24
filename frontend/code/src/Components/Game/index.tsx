@@ -1,10 +1,10 @@
 import { useEffect , useState} from "react"
-import { Rect, Stage , Layer , Circle, Line} from "react-konva"
+// import { Rect, Stage , Layer , Circle, Line} from "react-konva"
 import { BsFillArrowRightCircleFill, BsFillArrowLeftCircleFill} from "react-icons/bs";
 import { useUserStore } from "../../Stores/stores";
 import { useGameState } from "./States/GameState";
 
-const DURATION = 20;
+// const DURATION = 20;
 type  ball ={
   x:number,
   y:number,
@@ -12,41 +12,42 @@ type  ball ={
   cx:number,
   cy:number,
 };
-const throttle = (function() {
-  let timeout:any = undefined;
-  return function throttle(callback:any) {
-    if (timeout === undefined) {
-      callback();
-      timeout = setTimeout(() => {
-        timeout = undefined;
-      }, DURATION);
-    }
-  }
-})();
+// const throttle = (function() {
+//   let timeout:any = undefined;
+//   return function throttle(callback:any) {
+//     if (timeout === undefined) {
+//       callback();
+//       timeout = setTimeout(() => {
+//         timeout = undefined;
+//       }, DURATION);
+//     }
+//   }
+// })();
 
 
-function throttlify(callback : any) {
-  return function throttlified(event :any) {
-    throttle(() => {
-      callback(event);
-    });
-  }
-}
+// function throttlify(callback : any) {
+//   return function throttlified(event :any) {
+//     throttle(() => {
+//       callback(event);
+//     });
+//   }
+// }
 
 export const Game = () => {
     const gameState = useGameState();
     const user = useUserStore();    
     const [first , setFirest] = useState(false)
-    const handleMove = throttlify((e :any) => {
+    // const handleMove = throttlify((e :any) => {
 
-        const margin = (gameState.height / 6) / 2;
-        if (e.evt.layerY  <= (gameState.height - margin) &&  e.evt.layerY >= margin)
-        gameState.setLPaddle(e.evt.layerY - margin)
-    })
+    //     const margin = (gameState.height / 6) / 2;
+    //     if (e.evt.layerY  <= (gameState.height - margin) &&  e.evt.layerY >= margin)
+    //     gameState.setLPaddle(e.evt.layerY - margin)
+    // })
     // useEffect(() => {
       
       
     // },[gameState.height, gameState.width])
+    /* eslint-disable */
     useEffect(() => {
         window.addEventListener('resize', () => {
             const divh = document.getElementById('Game')?.offsetHeight
@@ -58,7 +59,8 @@ export const Game = () => {
         if(gameState.p1Score === 0 && gameState.p2Score === 0) {
           gameState.setBall({x:0.5 * gameState.width,y:0.5 * gameState.height,speed:0,cx:gameState.height /100,cy:gameState.height /100})
         }
-    },)
+        // disable
+    },[])
 
     useEffect(() => {
         const divh = document.getElementById('Game')?.offsetHeight
@@ -100,7 +102,7 @@ export const Game = () => {
           },20);
           return () => clearInterval(oldinter)
       }
-    },[gameState.width , gameState.height , first , gameState])
+    },[gameState.width , gameState.height])
     console.log(gameState.lPaddle)
     return ( 
     <div className="flex flex-col gap-10 justify-start md:justify-center md:items-center items-center pt-12 md:pt-0  h-full w-full" >
@@ -115,7 +117,7 @@ export const Game = () => {
             </div>
         </div>
         <div className="flex items-center justify-center min-h-16 max-h-[80%] max-w-[90%] min-w-16 w-[95%] rounded-xl aspect-video border-primary border-4" id="Game">
-            <Stage onMouseMove={handleMove}  width={gameState.width - 12} height={gameState.height - 12}  >
+            {/* <Stage onMouseMove={handleMove}  width={gameState.width - 12} height={gameState.height - 12}  >
                 <Layer >
                     <Rect height={gameState.height} width={gameState.width} fill="#151B26" x={0} y={0} />
                     <Line points={[0, gameState.height , 0 , 0]} dash={[gameState.height / 30 , 10]} strokeWidth={2} stroke={"white"} height={gameState.height} width={20} fill="white" x={gameState.width / 2} y={0}  />
@@ -124,7 +126,7 @@ export const Game = () => {
                     <Circle fill="white" height={gameState.width / 40} width={gameState.width / 40} x={gameState.ball.x} y={gameState.ball.y} />
                 </Layer>
 
-            </Stage>
+            </Stage> */}
             
         </div>
         {gameState.mobile && (

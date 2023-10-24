@@ -1,0 +1,27 @@
+name: Test build
+
+on:
+  push:
+    branches:
+      - DEV-*
+
+jobs:
+  Build_front:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3 
+
+      - name: run front end build
+        working-directory: ./frontend/code
+        run: npm ci && npm run build
+  Build_backend:
+      runs-on : ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-node@v3 
+        - name: run backend build 
+          working-directory: ./backend/code
+          run : |
+            npm ci && npm run build
+            npm run lint

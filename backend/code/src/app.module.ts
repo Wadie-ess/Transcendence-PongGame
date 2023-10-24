@@ -11,6 +11,8 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { MessagesModule } from './messages/messages.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { Gateways } from './gateways/gateways.gateway';
+import { GameModule } from './game/game.module';
+import { LeaderBoardModule } from './leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { Gateways } from './gateways/gateways.gateway';
     CloudinaryModule,
     MessagesModule,
     EventEmitterModule.forRoot(),
+    GameModule,
+    LeaderBoardModule,
   ],
   controllers: [AppController],
   providers: [PrismaService, Gateways],

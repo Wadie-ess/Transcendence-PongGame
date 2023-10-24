@@ -13,8 +13,11 @@ export class UpdateRoomDto extends PartialType(CreateRoomDto) {
   @IsOptional()
   type: RoomType;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   roomId: string;
+
+  @ApiProperty({ required: false })
+  password: string;
 }

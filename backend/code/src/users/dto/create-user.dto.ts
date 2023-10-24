@@ -50,4 +50,6 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   tfaEnabled?: boolean;
+
+  Username?: string;
 }

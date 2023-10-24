@@ -44,8 +44,8 @@ services :
       - backend
     ports:
       - 80:80
-      - 3001:3001
     init: true
+    restart: always
    
 volumes: 
   front:

@@ -16,8 +16,8 @@ async function bootstrap() {
   const corsOptions = {
     origin: [
       'http://localhost:3000',
-      'http://142.93.161.63/',
-      'http://164.92.243.105/',
+      'http://142.93.161.63',
+      'http://164.92.243.105',
     ],
     credentials: true,
   };
@@ -26,6 +26,7 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
   app.use(passport.initialize());
@@ -40,9 +41,10 @@ async function bootstrap() {
     .setDescription('The Transcendence API description')
     .setVersion('1.0')
     .addTag('Auth')
-    .addTag('friends')
     .addTag('profile')
+    .addTag('friends')
     .addTag('rooms')
+    .addTag('Messages')
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);

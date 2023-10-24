@@ -11,7 +11,7 @@ Table users {
   refreshedHash String
   intraId String [unique]
   profileFinished Boolean [not null, default: false]
-  Username String
+  Username String [unique]
   firstName String
   lastName String
   discreption String [not null, default: '']
@@ -49,6 +49,7 @@ Table blocked_friends {
   blocked_by_id String [unique, not null]
   Blocked users [not null]
   blocked_id String [unique, not null]
+  dmRoomId String
 }
 
 Table matches {
@@ -136,7 +137,7 @@ Ref: blocked_friends.blocked_id > users.userId
 
 Ref: matches.participant1Id > users.userId
 
-Ref: messages.roomId > rooms.id
+Ref: messages.roomId > rooms.id [delete: Cascade]
 
 Ref: rooms.ownerId > users.userId
 
