@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
   baseURL: `${process.env.REACT_APP_API_ENDPOINT}`,
@@ -6,32 +6,29 @@ const api = axios.create({
   withCredentials: true,
   headers: {
     "Cache-Control": "no-cache",
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 let refreshAttempted = false;
 
-const errorHandler = async (error:any) => {
-
+const errorHandler = async (error: any) => {
   if (error.response.status === 401) {
-    if (!refreshAttempted ) {
+    if (!refreshAttempted) {
       try {
         refreshAttempted = true;
         await api.get("auth/refresh");
         return api.request(error.config);
-      } catch (refreshError) {
-      }
+      } catch (refreshError) {}
     } else {
-      refreshAttempted = false
+      refreshAttempted = false;
     }
   }
-  
+
   return Promise.reject({ ...error });
 };
 
 api.interceptors.response.use(
-  
   (response) => response,
   (error) => errorHandler(error)
 );

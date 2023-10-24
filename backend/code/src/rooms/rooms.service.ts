@@ -14,6 +14,7 @@ import { RoomSearchDto } from './dto/room-search.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomDataDto } from './dto/room-data.dto';
+import { PICTURE } from 'src/profile/dto/profile.dto';
 
 @Injectable()
 export class RoomsService {
@@ -380,7 +381,7 @@ export class RoomsService {
     if (!user)
       throw new UnauthorizedException('You are not a member of this room');
 
-    return await this.prisma.roomMember.findMany({
+    const members = await this.prisma.roomMember.findMany({
       skip: offset,
       take: limit,
       where: {
@@ -397,6 +398,18 @@ export class RoomsService {
           },
         },
       },
+    });
+    return members.map((member) => {
+      const avatar: PICTURE = {
+        thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${member.user.avatar}`,
+        medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${member.user.avatar}`,
+        large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${member.user.avatar}`,
+      };
+      return {
+        id: member.user.userId,
+        name: { first: member.user.firstName, last: member.user.lastName },
+        avatar,
+      }
     });
   }
 
@@ -480,16 +493,18 @@ export class RoomsService {
         name: true,
         type: true,
         ownerId: true,
-        members: {
+        ...(joined && {members: {
           where: {
             userId: userId,
           },
           select: {
             is_admin: true,
           },
-        },
+        }})
       },
     });
+    if (!joined)
+     return rooms;
     return rooms.map((room) => {
       const is_owner = room.ownerId === userId;
       return {
