@@ -18,6 +18,8 @@ export interface ChatState {
   currentRoomMessages: Message[];
   isLoading: boolean;
 
+  showChatRooms: boolean;
+
   recentRooms: ChatRoom[];
   fillRecentRooms: (rooms: ChatRoom[]) => void;
   setIsLoading: (isLoading: boolean) => void;
@@ -26,6 +28,7 @@ export interface ChatState {
   createNewRoom: (name: string, roomType: RoomType, id: string) => void;
   addNewMessage: (message: Message) => void;
   changeChatType: (type: ChatType) => void;
+  toggleChatRooms: (value?: boolean) => void;
 }
 
 export const useChatStore = create<ChatState>()((set) => ({
@@ -33,6 +36,10 @@ export const useChatStore = create<ChatState>()((set) => ({
   selectedChatType: ChatType.Chat,
   recentRooms: chatRooms,
   isLoading: false,
+
+  // UI state
+  showChatRooms: false,
+
   // to fix this
   currentMessages: users.find((user) => user.id === "1")?.messages as Message[],
   currentRoomMessages: chatRooms.find((room) => room.id === "1")
@@ -117,4 +124,10 @@ export const useChatStore = create<ChatState>()((set) => ({
 
       return { ...state };
     }),
+
+  toggleChatRooms: (value?: boolean) =>
+    set((state) => ({
+      ...state,
+      showChatRooms: value === undefined ? !state.showChatRooms : value,
+    })),
 }));

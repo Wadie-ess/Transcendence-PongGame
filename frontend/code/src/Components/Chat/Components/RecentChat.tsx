@@ -27,7 +27,7 @@ export const RecentConversations = () => {
     <div className="h-full flex flex-col ">
       <OnlineNowUsers />
       {MyUsers.length > 0 ? (
-        <div className="flex-grow overflow-y-auto no-scrollbar">
+        <div className="flex-grow overflow-y-auto no-scrollbar bg-[#1A1C26]">
           {MyUsers.filter((friend) => friend.messages.length > 0).map(
             // to change 0 to the last message here
             (friend) => (

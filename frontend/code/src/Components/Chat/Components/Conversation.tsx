@@ -91,6 +91,8 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 
   const currentRoom = chatRooms.find((room) => room.id === SelectedChat);
 
+  const toggleChatRooms = useChatStore((state) => state.toggleChatRooms);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Function to open the modal
@@ -107,6 +109,14 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
     <>
       <div className="flex flex-row justify-between bg-[#1A1C26] p-3 border-b-2  border-black  ">
         <div className="flex flex-row ">
+          <div className="flex items-center justify-center h-full mr-4 md:hidden">
+            <button
+              className="w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center hover:bg-slate-600"
+              onClick={() => toggleChatRooms()}
+            >
+              =
+            </button>
+          </div>
           <div className="pr-1">
             <img
               className="w-12 rounded-full "

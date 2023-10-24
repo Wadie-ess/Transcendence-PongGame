@@ -76,7 +76,7 @@ export const RoomChatPlaceHolder = () => {
   }, [ChatRoomsState.selectedChatID]);
 
   return ChatRoomsState.recentRooms.length > 0 ? (
-    <div>
+    <div className="bg-[#1A1C26] h-full">
       {ChatRoomsState.recentRooms.map((room) => (
         <div
           key={room.id}
@@ -158,7 +158,7 @@ export const CreateNewRoomModal = () => {
     setSelectedOption(RoomType.public);
   };
   return (
-    <div className="modal " id="my_modal_8">
+    <div className="modal w-screen" id="my_modal_8">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
