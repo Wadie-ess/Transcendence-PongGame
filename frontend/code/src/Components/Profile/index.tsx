@@ -15,10 +15,12 @@ import { useUserStore } from '../../Stores/stores'
 import dots from './assets/svg/threedots.svg'
 import api from '../../Api/base'
 // import  toast from 'react-hot-toast'
+type FRIENDSHIP = 'none' | 'friend' | 'sent' | 'recive' | 'blocked' | undefined;
 export const Profile = () =>{
     const user = useUserStore();
     const params = useParams();
     const navigate = useNavigate();
+    const [status , setStatus] = useState<FRIENDSHIP>(undefined)
     console.log(`params : ${params.id} type ${typeof(params.id)}`)
     const [users, setUsers] = useState<null | any>(undefined);
  
@@ -27,6 +29,10 @@ export const Profile = () =>{
                 try {
                     const res = await api.get(`profile/${params.id}`)
                     setUsers(res.data)
+                    res?.data?.friendship?.accepted === undefined && setStatus('none');
+                    res?.data?.friendship?.accepted && setStatus('friend');
+                    !res?.data?.friendship?.accepted && res?.data?.friendship?.fromId === user.id && setStatus('sent')
+                    !res?.data?.friendship?.accepted && res?.data?.friendship?.fromId !== user.id && setStatus('recive')
                     
                 } catch (error) {
                     navigate("/NotFound")
@@ -71,8 +77,9 @@ export const Profile = () =>{
                 <div className="  w-full h-full flex flex-col  sm:flex-row sm:flex-wrap  sm:justify-between  gap-x-4  md:-mt-12">
                     <div className="flex flex-col gap-y-0 items-center h-full sm:flex-row sm:gap-x-4 justify-center sm:justify-start sm:items-end pb-4 sm:w-[25vw]">
                         {
-                            params.id !== "me" ?
+                            params.id !== "me" && params.id !== user.id ?
                             (<><Message/>
+                            
                             <Share/></>)
                             :
                             (
