@@ -132,3 +132,50 @@ export const leaveRoomCall = async (
   }
 
 }
+
+export const takeActionCall = async (
+  roomId: string,
+  memberId: string,
+  action: string,
+) => {
+  try {
+    const response = await api.post(`/rooms/${action}`, {
+      roomId: roomId,
+      memberId: memberId,
+
+    });
+    console.log(`${action} result :`)
+    console.log(response.status);
+    console.log(response.data);
+    return response;
+  } catch (e: any) {
+
+    console.log(e.response.data.message);
+    toast.error(e.response.data.message);
+  }
+
+}
+
+export const DeleteRoomCall = async (
+  roomId: string,
+
+) => {
+  try {
+
+    const response = await api.post("/rooms/delete", {
+      roomId: roomId,
+
+    });
+    console.log("delete result :")
+    console.log(response.status);
+    console.log(response.data);
+    return response;
+  } catch (e: any) {
+
+    console.log(e.response.data.message);
+    toast.error(e.response.data.message);
+  }
+
+}
+
+

@@ -1,4 +1,4 @@
-import { SetStateAction, useEffect, useLayoutEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { useChatStore } from "../Controllers/ChatControllers";
 import users, {
   ChatGif,
@@ -17,10 +17,12 @@ import users, {
 import { SelectedUserTile } from "..";
 
 import {
+  DeleteRoomCall,
   createNewRoomCall,
   fetchRoomsCall,
   getRoomMembersCall,
   joinRoomCall,
+  takeActionCall,
   updateRoomCall,
 } from "../Services/ChatServices";
 import toast from "react-hot-toast";
@@ -43,7 +45,7 @@ export const RoomChatPlaceHolder = () => {
       // to make it dynamic later
       await fetchRoomsCall(0, 100, true).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
-          toast.error("something went wrong, try again");
+          // toast.error("something went wrong, try again");
         } else {
           const rooms: ChatRoom[] = [];
           res.data.forEach(
@@ -158,7 +160,7 @@ export const CreateNewRoomModal = () => {
     setSelectedOption(RoomType.public);
   };
   return (
-    <div className="modal w-screen" id="my_modal_8">
+    <div className="modal w-screen " id="my_modal_8">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
@@ -265,7 +267,7 @@ export const CreateNewRoomModal = () => {
                       : undefined
                   ).then((res) => {
                     if (res?.status !== 200 && res?.status !== 201) {
-                      // toast.error("something went wrong, try again");
+                      toast.error("something went wrong, try again");
                       resetModalState();
                     } else {
                       createNewRoom(RoomName, selectedOption, res.data.id);
@@ -295,7 +297,7 @@ export const AddUsersModal = () => {
   const [MyUsers] = useState(users);
 
   return (
-    <div className="modal " id="my_modal_6">
+    <div className="modal w-screen " id="my_modal_6">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
@@ -339,10 +341,8 @@ export const RoomSettingsModal = () => {
   const currentUser = useUserStore((state) => state);
   const editRoom = useChatStore((state) => state.editRoom);
   const selectedChatID = useChatStore((state) => state.selectedChatID);
+  const deleteRoom = useChatStore((state) => state.deleteRoom);
   const currentRoom = chatRooms.find((room) => room.id === selectedChatID);
-  const currentRoomUsers = users.filter(
-    (user) => currentRoom?.usersId.includes(user.id) as boolean
-  );
 
   const setIsLoading = useChatStore((state) => state.setIsLoading);
   const [skipCount, setSkipCount] = useState(true);
@@ -368,7 +368,7 @@ export const RoomSettingsModal = () => {
     if (!skipCount) {
       const fetchData = async () => {
         try {
-          await getRoomMembersCall(currentRoom?.id as string, 0, 10).then(
+          await getRoomMembersCall(currentRoom?.id as string, 0, 30).then(
             (res) => {
               if (res?.status === 200 || res?.status === 201) {
                 const extractedData = res.data;
@@ -384,6 +384,7 @@ export const RoomSettingsModal = () => {
 
       fetchData();
     }
+    // eslint-disable-next-line
   }, [selectedChatID]);
 
   const resetModalState = () => {
@@ -393,7 +394,7 @@ export const RoomSettingsModal = () => {
   };
 
   return (
-    <div className="modal " id="my_modal_9">
+    <div className="modal w-screen " id="my_modal_9">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar w-[90%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
@@ -450,7 +451,6 @@ export const RoomSettingsModal = () => {
             </label>
           </div>
 
-          {/* Conditionally render the text input */}
           {selectedOption === RoomType.protected && (
             <div className="flex flex-row p-3">
               <div className="flex flex-row w-full justify-center pt-2">
@@ -467,11 +467,14 @@ export const RoomSettingsModal = () => {
           <p className="p-2">Room Members</p>
 
           {/* Scrollable part */}
-          <div className="max-h-[300px] overflow-y-auto no-scrollbar justify-center">
+          <div className="max-h-[300px] overflow no-scrollbar justify-center relative">
             {currentUsers
               .filter((user) => user.id !== currentUser.id)
               .map((user) => (
-                <div className="flex flex-row justify-between  bg-[#1A1C26] p-3 border-gray-600  ">
+                <div
+                  key={user.id}
+                  className="flex flex-row justify-between  bg-[#1A1C26] p-3 border-gray-600 relative"
+                >
                   <div className="flex flex-row items-center space-x-3">
                     <div className="pr-1">
                       <img
@@ -486,7 +489,7 @@ export const RoomSettingsModal = () => {
                     </p>
                   </div>
 
-                  <div className="dropdown ">
+                  <div className="dropdown relative  top-0  z-100">
                     <label tabIndex={0} className="">
                       <summary className="list-none p-3 cursor-pointer ">
                         <img src={More} alt="More" />
@@ -494,29 +497,69 @@ export const RoomSettingsModal = () => {
                     </label>
                     <ul
                       tabIndex={0}
-                      className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-40 absolute  right-full  "
+                      className="p-2 right-5 bottom-7 shadow menu dropdown-content bg-base-100 rounded-box w-40"
                     >
-                      <li>
+                      <li
+                        onClick={async () => {
+                          await takeActionCall(
+                            selectedChatID as string,
+                            user.id,
+                            "ban"
+                          ).then((res) => {
+                            if (res?.status === 200 || res?.status === 201) {
+                              toast.success("User baned Successfully");
+                            }
+                          });
+                        }}
+                      >
                         <span className="hover:bg-[#7940CF]">Ban</span>
                       </li>
-                      <li>
-                        <span
-                          // onClick={onRemoveUserPreview}
-                          className="hover:bg-[#7940CF]"
-                        >
-                          mute
-                        </span>
+                      <li
+                        onClick={async () => {
+                          await takeActionCall(
+                            selectedChatID as string,
+                            user.id,
+                            "mute"
+                          ).then((res) => {
+                            if (res?.status === 200 || res?.status === 201) {
+                              toast.success("User Muted Successfully");
+                            }
+                          });
+                        }}
+                      >
+                        <span className="hover:bg-[#7940CF]">mute</span>
                       </li>
 
-                      <li>
-                        <span
-                          // onClick={onRemoveUserPreview}
-                          className="hover:bg-[#7940CF]"
-                        >
-                          kick
-                        </span>
+                      <li
+                        onClick={async () => {
+                          await takeActionCall(
+                            selectedChatID as string,
+                            user.id,
+                            "kick"
+                          ).then((res) => {
+                            if (res?.status === 200 || res?.status === 201) {
+                              toast.success("User Kicked Successfully");
+                            }
+                          });
+                        }}
+                      >
+                        <span className="hover:bg-[#7940CF]">kick</span>
                       </li>
-                      <li>
+                      <li
+                        onClick={async () => {
+                          await takeActionCall(
+                            selectedChatID as string,
+                            user.id,
+                            "setAdmin"
+                          ).then((res) => {
+                            if (res?.status === 200 || res?.status === 201) {
+                              toast.success(
+                                "User have been set as Admin Successfully"
+                              );
+                            }
+                          });
+                        }}
+                      >
                         <span className="hover:bg-[#7940CF]">Set as admin</span>
                       </li>
                     </ul>
@@ -524,50 +567,71 @@ export const RoomSettingsModal = () => {
                 </div>
               ))}
           </div>
-
-          <div className="modal-action">
-            {
-              // eslint-disable-next-line
-            }
-            <a
-              href="#/"
-              onClick={resetModalState}
-              className="btn hover:bg-purple-500"
-            >
-              {"Close "}
-            </a>
-            <a
-              href="#/"
-              onClick={async () => {
-                console.log(RoomType[selectedOption]);
-                if (RoomName !== "" && RoomName.length > 3) {
-                  setIsLoading(true);
-                  await updateRoomCall(
-                    RoomName,
-                    RoomType[selectedOption],
-                    currentRoom?.id!,
-                    selectedOption === RoomType.protected
-                      ? RoomPassword
-                      : undefined
-                  ).then((res) => {
-                    if (res?.status !== 200 && res?.status !== 201) {
-                      resetModalState();
-                    } else {
-                      toast.success("Room Updated Successfully");
-                      editRoom(RoomName, selectedOption, currentRoom?.id!);
-                      resetModalState();
-                    }
-                    setIsLoading(false);
-                  });
-                } else {
-                  toast.error("Room name must be at least 4 characters");
-                  resetModalState();
-                }
-              }}
-              className="btn hover:bg-purple-500"
-            >
-              {"Save "}
-            </a>
+          <div className="flex fex row justify-between items-baseline">
+            <div className="">
+              {currentRoom?.isOwner && (
+                <a
+                  href="#/"
+                  onClick={async () => {
+                    setIsLoading(true);
+                    await DeleteRoomCall(selectedChatID as string).then(
+                      (res) => {
+                        setIsLoading(false);
+                        if (res?.status === 200 || res?.status === 201) {
+                          deleteRoom(selectedChatID as string);
+                          toast.success("Room Deleted Successfully");
+                          resetModalState();
+                        }
+                      }
+                    );
+                  }}
+                  className="btn hover:bg-red-500  "
+                >
+                  {"Delete Room "}
+                </a>
+              )}
+            </div>
+            <div className="modal-action">
+              <a
+                href="#/"
+                onClick={resetModalState}
+                className="btn hover:bg-purple-500"
+              >
+                {"Close "}
+              </a>
+              <a
+                href="#/"
+                onClick={async () => {
+                  console.log(RoomType[selectedOption]);
+                  if (RoomName !== "" && RoomName.length > 3) {
+                    setIsLoading(true);
+                    await updateRoomCall(
+                      RoomName,
+                      RoomType[selectedOption],
+                      currentRoom?.id!,
+                      selectedOption === RoomType.protected
+                        ? RoomPassword
+                        : undefined
+                    ).then((res) => {
+                      if (res?.status !== 200 && res?.status !== 201) {
+                        resetModalState();
+                      } else {
+                        toast.success("Room Updated Successfully");
+                        editRoom(RoomName, selectedOption, currentRoom?.id!);
+                        resetModalState();
+                      }
+                      setIsLoading(false);
+                    });
+                  } else {
+                    toast.error("Room name must be at least 4 characters");
+                    resetModalState();
+                  }
+                }}
+                className="btn hover:bg-purple-500"
+              >
+                {"Save "}
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -595,7 +659,7 @@ export const ExploreRoomsModal = () => {
       setIsLoading(true);
       await fetchRoomsCall(0, 30, false).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
-          toast.error("something went wrong, try again");
+          // toast.error("something went wrong, try again");
           resetModalState();
         } else {
           const rooms: ChatRoom[] = [];
@@ -635,7 +699,7 @@ export const ExploreRoomsModal = () => {
   }, [modalState]);
 
   return (
-    <div className="modal " id="my_modal_5">
+    <div className="modal w-screen " id="my_modal_5">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">

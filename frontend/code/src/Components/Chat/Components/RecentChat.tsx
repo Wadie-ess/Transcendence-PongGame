@@ -10,13 +10,10 @@ import users, {
 } from "./tools/Assets";
 
 import {
-  AddUsersModal,
-  CreateNewRoomModal,
-  ExploreRoomsModal,
+
   NullPlaceHolder,
   RoomChatPlaceHolder,
-  RoomSettingsModal,
-  ShowLogoModal,
+
 } from "./RoomChatHelpers";
 import { useModalStore } from "../Controllers/ModalControllers";
 
@@ -140,13 +137,7 @@ export const OnlineNowUsers = () => {
                 src={Explore}
               />
             </a>
-            <div>
-              <ExploreRoomsModal />
-              <RoomSettingsModal />
-              <AddUsersModal />
-              <CreateNewRoomModal />
-              <ShowLogoModal />
-            </div>
+         
           </div>
         </div>
         <div className="Message-Type-Buttons flex flex-row pt-2 pb-2 justify-between ">

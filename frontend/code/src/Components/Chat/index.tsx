@@ -5,7 +5,7 @@ import {
   chatRooms,
   RoomsIcon,
   RoomMember,
-  yas,
+
 } from "./Components/tools/Assets";
 import { useEffect, useState } from "react";
 import { Conversation } from "./Components/Conversation";
@@ -15,7 +15,14 @@ import React from "react";
 import { ChatType, useChatStore } from "./Controllers/ChatControllers";
 
 import { RecentConversations } from "./Components/RecentChat";
-import { NullPlaceHolder } from "./Components/RoomChatHelpers";
+import {
+  AddUsersModal,
+  CreateNewRoomModal,
+  ExploreRoomsModal,
+  NullPlaceHolder,
+  RoomSettingsModal,
+  ShowLogoModal,
+} from "./Components/RoomChatHelpers";
 import { getRoomMembersCall } from "./Services/ChatServices";
 
 import toast from "react-hot-toast";
@@ -39,9 +46,18 @@ export const Chat = () => {
   return (
     <>
       <div className="flex h-full divide-black divide-x-4 bg-[#1A1C26] relative">
+        <div>
+          <ExploreRoomsModal />
+          <RoomSettingsModal />
+          <AddUsersModal />
+          <CreateNewRoomModal />
+          <ShowLogoModal />
+        </div>
         <div
           className={classNames(
-            showUserPreview === true ? "w-9/12 " : "w-9/12 md:w-[350px]",
+            showUserPreview === true
+              ? "w-4/12 max-w-lg " // md:w-[420px]
+              : "w-4/12  max-w-xl md:w-5/12  ",
             "absolute md:relative h-full",
             "z-20 transition-transform transform data-[mobile-show=true]:translate-x-0 data-[mobile-show=false]:-translate-x-[1000px] md:!transform-none md:!transition-none duration-300"
           )}
@@ -173,7 +189,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
             {}
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
-          <div className="max-h-[280px] overflow-y-auto no-scrollbar ">
+          <div className="max-h-[310px] overflow-y-auto no-scrollbar ">
             {isLoading === false ? (
               <>
                 {currentUsers.map((user) => (

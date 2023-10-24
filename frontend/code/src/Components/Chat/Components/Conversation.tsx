@@ -95,12 +95,6 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Function to open the modal
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  // Function to handle the confirmation
   const handleConfirmation = () => {
     setIsModalOpen(false);
   };
@@ -117,6 +111,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               =
             </button>
           </div>
+
           <div className="pr-1">
             <img
               className="w-12 rounded-full "
