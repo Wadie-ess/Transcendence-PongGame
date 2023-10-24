@@ -40,7 +40,7 @@ export class ProfileController {
 
   @Get('me')
   @ApiOkResponse({ type: ProfileDto })
-  @UseGuards(AtGuard)
+  @UseGuards(AuthGuard('jwt'))
   async getMe(@GetCurrentUser('userId') userId: string): Promise<ProfileDto> {
     return await this.profileService.getProfile(userId);
   }

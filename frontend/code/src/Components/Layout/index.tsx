@@ -41,9 +41,12 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
       try {
         await user.login();  
       }
-      catch(e){
+      catch(e:any){
+          if (e?.response?.status !== 403 && e?.response?.data?.message !== "Please complete your profile")
+          {
           navigate("/");
           user.logout();
+          }
       }
         
 
