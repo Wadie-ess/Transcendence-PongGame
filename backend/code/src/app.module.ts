@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from './prisma/prisma.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
@@ -13,6 +12,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { Gateways } from './gateways/gateways.gateway';
 import { GameModule } from './game/game.module';
 import { LeaderBoardModule } from './leaderboard/leaderboard.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -27,8 +28,17 @@ import { LeaderBoardModule } from './leaderboard/leaderboard.module';
     EventEmitterModule.forRoot(),
     GameModule,
     LeaderBoardModule,
+    ThrottlerModule.forRoot([
+      {
+        ttl: 6000,
+			limit: 1000000,
+      },
+    ]),
   ],
   controllers: [AppController],
-  providers: [PrismaService, Gateways],
+  providers: [Gateways, {
+		provide: APP_GUARD,
+		useClass: ThrottlerGuard,
+	}],
 })
 export class AppModule {}

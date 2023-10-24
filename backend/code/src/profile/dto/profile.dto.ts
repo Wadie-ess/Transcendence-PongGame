@@ -21,7 +21,7 @@ export type PICTURE = {
 };
 
 export class ProfileDto {
-  constructor(userData: ProfileDtoProps) {
+  constructor(userData: ProfileDtoProps, is_friend: boolean) {
     this.id = userData.userId;
     this.profileFinished = userData.profileFinished;
     this.tfa = userData.tfaEnabled;
@@ -38,6 +38,9 @@ export class ProfileDto {
       large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${userData.avatar}`,
     };
     this.username = userData.Username;
+    if (is_friend) {
+      this.friendship = [...userData.left_friends, ...userData.right_friends];
+    }
   }
 
   @ApiProperty({ example: 'cln8xxhut0000stofeef' })
@@ -68,4 +71,6 @@ export class ProfileDto {
 
   @ApiProperty({ example: 'dexter' })
   username: string;
+
+  friendship: Friend[];
 }

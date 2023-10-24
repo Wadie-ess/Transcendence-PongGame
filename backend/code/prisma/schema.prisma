@@ -31,6 +31,8 @@ model User {
   discreption   String @default("")
   avatar        String?
   tfaEnabled    Boolean        @default(false)
+  tfaSecret     String?
+  tfaStatus     Boolean        @default(false)
   left_friends  Friend[]       @relation("from")
   right_friends Friend[]       @relation("to")
   matches       Match[]        @relation("participant1")
