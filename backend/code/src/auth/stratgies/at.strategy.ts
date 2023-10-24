@@ -2,11 +2,12 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtConsts } from '../constants/constants';
 import { Request } from 'express';
-import { Req } from '@nestjs/common';
+import { Inject, Req } from '@nestjs/common';
 import { JwtPayload } from '../types';
+import { UsersService } from 'src/users/users.service';
 
 export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor() {
+  constructor(@Inject(UsersService) private userService: UsersService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         AtStrategy.cookieExtractor,
@@ -24,6 +25,7 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: any): Promise<JwtPayload> {
-    return { userId: payload.sub, username: payload.username };
+    const curruser = await this.userService.getUserById(payload.sub);
+    return { ...curruser, username: payload.username };
   }
 }

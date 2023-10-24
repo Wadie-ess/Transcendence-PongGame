@@ -95,6 +95,11 @@ export class RoomsService {
       select: { type: true, password: true },
     });
     if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
+    if (room.type === 'protected' && !('password' in roomData))
+      throw new HttpException(
+        'missing password for protected room',
+        HttpStatus.BAD_REQUEST,
+      );
     if (room.type == 'protected') {
       const isPasswordCorrect = await bcrypt.compare(
         roomData.password,

@@ -54,4 +54,6 @@ export class UpdateUserDto {
   avatar?: string;
 
   discreption?: string;
+
+  tfaStatus?: boolean;
 }
