@@ -20,7 +20,7 @@ import RoomsIcon from "../../assets/group_share.svg";
 import Explore from "../../assets/explore.svg";
 import Lock from "../../assets/lockIcon.svg";
 import Unlock from "../../assets/UnlockIcon.svg";
-import ChatGif from "../../assets/chatGif.gif"
+import ChatGif from "../../assets/chatGif.gif";
 export enum RoomType {
   private,
   public,
@@ -50,7 +50,7 @@ export {
   Explore,
   Lock,
   Unlock,
-  ChatGif
+  ChatGif,
 };
 
 export interface Message {
@@ -61,10 +61,16 @@ export interface Message {
 }
 
 export interface RoomMember {
-  userId : string;
-  firstName : string;
-  lastName : string;
-  avatar : string;
+  id: string;
+  name: {
+    first: string;
+    last: string;
+  };
+  avatar: {
+    thumbnail: string;
+    medium: string;
+    large: string;
+  };
 }
 
 export interface ChatRoom {
@@ -77,10 +83,9 @@ export interface ChatRoom {
   type: RoomType;
 }
 
-
 export interface User {
-  firstName? : string;
-  lastName? : string
+  firstName?: string;
+  lastName?: string;
   id: string;
   name: string;
   image: string;

@@ -10,13 +10,10 @@ import users, {
 } from "./tools/Assets";
 
 import {
-  AddUsersModal,
-  CreateNewRoomModal,
-  ExploreRoomsModal,
+
   NullPlaceHolder,
   RoomChatPlaceHolder,
-  RoomSettingsModal,
-  ShowLogoModal,
+
 } from "./RoomChatHelpers";
 import { useModalStore } from "../Controllers/ModalControllers";
 
@@ -27,7 +24,7 @@ export const RecentConversations = () => {
     <div className="h-full flex flex-col ">
       <OnlineNowUsers />
       {MyUsers.length > 0 ? (
-        <div className="flex-grow overflow-y-auto no-scrollbar">
+        <div className="flex-grow overflow-y-auto no-scrollbar bg-[#1A1C26]">
           {MyUsers.filter((friend) => friend.messages.length > 0).map(
             // to change 0 to the last message here
             (friend) => (
@@ -140,13 +137,7 @@ export const OnlineNowUsers = () => {
                 src={Explore}
               />
             </a>
-            <div>
-              <ExploreRoomsModal />
-              <RoomSettingsModal />
-              <AddUsersModal />
-              <CreateNewRoomModal />
-              <ShowLogoModal />
-            </div>
+         
           </div>
         </div>
         <div className="Message-Type-Buttons flex flex-row pt-2 pb-2 justify-between ">
