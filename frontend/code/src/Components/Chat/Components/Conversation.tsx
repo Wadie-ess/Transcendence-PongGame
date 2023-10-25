@@ -219,7 +219,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                           ChatState.setIsLoading(false);
                           if (res?.status === 200 || res?.status === 201) {
                             toast.success("Room Left Successfully");
-                            ChatState.selectNewChatID(chatRooms[0].id);
+                            ChatState.deleteRoom(currentRoom?.id as string);
                           }
                         }
                       );

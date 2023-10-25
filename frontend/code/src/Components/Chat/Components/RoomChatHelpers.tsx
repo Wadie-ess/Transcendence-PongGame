@@ -75,7 +75,7 @@ export const RoomChatPlaceHolder = () => {
 
     fetch();
     // eslint-disable-next-line
-  }, [ChatRoomsState.selectedChatID]);
+  }, [ChatRoomsState.selectedChatID, ChatRoomsState.selectedChatType]);
 
   return ChatRoomsState.recentRooms.length > 0 ? (
     <div className="bg-[#1A1C26] h-full">
@@ -302,23 +302,39 @@ export const AddUsersModal = () => {
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
             <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
-              Select To Add Users
+              Add Friends To The Room
             </p>
           </div>
 
           {/* Scrollable part */}
           <div className="max-h-[300px] overflow-y-auto no-scrollbar">
             {MyUsers.map((user) => (
-              <SelectedUserTile
-                key={user.id}
-                id={user.id} // Make sure to add a unique key prop
-                username={user.name}
-                userImage={user.image}
-                message={""}
-                time={""}
-                isMe={false}
-                isRead={false}
-              />
+              <div>
+                <div className="flex flex-row justify-between p-3">
+                  <div className="flex flex-row items-center space-x-3">
+                    <div className="pr-1">
+                      <img
+                        className="w-12 rounded-full "
+                        alt=""
+                        src={user.image}
+                      />
+                    </div>
+
+                    <p className="text-white font-poppins text-base font-medium leading-normal">
+                      {user.name ?? "user"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="btn  swap swap-rotate bg-purple-500 p-3 rounded-xl text-white hover:bg-blue-400">
+                      <input type="checkbox" />
+                      <p className="swap-off fill-current">ADD</p>
+
+                      <p className="swap-on fill-current">ADDED</p>
+                    </label>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
 
@@ -657,7 +673,7 @@ export const ExploreRoomsModal = () => {
   useEffect(() => {
     const fetch = async () => {
       setIsLoading(true);
-      await fetchRoomsCall(0, 30, false).then((res) => {
+      await fetchRoomsCall(0, 100, false).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
           // toast.error("something went wrong, try again");
           resetModalState();
@@ -793,6 +809,7 @@ export const ExploreRoomsModal = () => {
                   } else {
                     toast.success("Room Joined Successfully");
                     recentRooms.selectNewChatID(SelectedRoomID);
+
                     resetModalState();
                   }
                 });

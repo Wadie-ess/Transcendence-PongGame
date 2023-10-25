@@ -95,42 +95,7 @@ export interface User {
 
 // chat rooms dummy data
 export const chatRooms: ChatRoom[] = [
-  // {
-  //   id: "7",
-  //   name: "Room 1",
-  //   messages: [
-  //     {
-  //       senderId: "1",
-  //       message: "Hello, everyone!",
-  //       time: "10:00 AM",
-  //       isRead: true,
-  //     },
-  //     {
-  //       senderId: "2",
-  //       message: "Hi there!",
-  //       time: "10:05 AM",
-  //       isRead: true,
-  //     },
-  //     {
-  //       senderId: "3",
-  //       message: "Hi there!",
-  //       time: "10:05 AM",
-  //       isRead: true,
-  //     },
-  //     {
-  //       senderId: "3",
-  //       message: "Hi there!",
-  //       time: "10:05 AM",
-  //       isRead: true,
-  //     },
-  //     // Add more messages for Room 1 here
-  //   ],
-  //   usersId: ["1", "2"], // User IDs participating in the chat room
-  //   isOwner: true,
-  //   isAdmin: true,
-  //   type: RoomType.public,
-  // },
-  // Add more chat rooms here
+
 ];
 
 export const users: User[] = [

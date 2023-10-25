@@ -81,10 +81,10 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
                 <Game selected={path === "Play"} className="mx-auto" />
                 <Message selected={path === "Chat"} className="mx-auto" />
                 <Profile selected={path === "Profile/:id"} className="mx-auto" />
-                <Settings selected={path === "Settings"} />
+                <Settings selected={path === "Settings"} className="mx-auto" />
               </div>
               <div className="flex flex-col justify-start">
-                <Out />
+                <Out  className="mx-auto" />
               </div>
             </div>
             <div className=" h-[8vh] fixed bottom-0 sm:hidden btm-nav bg-base-200 flex justify-end z-50">

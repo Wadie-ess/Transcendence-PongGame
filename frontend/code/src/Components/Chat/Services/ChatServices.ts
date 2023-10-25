@@ -175,7 +175,26 @@ export const DeleteRoomCall = async (
     console.log(e.response.data.message);
     toast.error(e.response.data.message);
   }
-
 }
 
+// unused
+export const getFriendsCall = async (
+  offset: number,
+  limit: number,
+
+
+) => {
+
+  try {
+    const response = await api.get(`/friends/list`,
+      { params: { offset: offset, limit: limit } });
+
+    console.log(response.status);
+    console.log(response.data);
+    return response;
+  } catch (e: any) {
+    console.log(e.response.data.message);
+  }
+
+}
 

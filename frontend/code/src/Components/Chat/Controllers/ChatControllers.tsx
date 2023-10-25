@@ -46,6 +46,7 @@ export const useChatStore = create<ChatState>()((set) => ({
   currentRoomMessages: chatRooms.find((room) => room.id === "1")
     ?.messages as Message[],
 
+    
   deleteRoom: (id: string) =>
     set((state) => {
       const roomIndex = chatRooms.findIndex((room) => room.id === id);
@@ -54,7 +55,10 @@ export const useChatStore = create<ChatState>()((set) => ({
       }
 
       state.recentRooms = [...chatRooms];
-      state.selectNewChatID(state.recentRooms[0].id);
+      if (state.recentRooms.length > 0)
+        state.selectedChatID = state.recentRooms[0].id;
+      else state.selectedChatID = "1";
+
       return { ...state };
     }),
   setIsLoading: (isLoading: boolean) =>

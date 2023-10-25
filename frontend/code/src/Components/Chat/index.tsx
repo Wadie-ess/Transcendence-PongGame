@@ -55,7 +55,7 @@ export const Chat = () => {
         <div
           className={classNames(
             showUserPreview === true
-              ? "w-4/5 lg:w-4/12 max-w-lg " // lg:w-[420px]
+              ? "w-4/5 lg:w-4/12 max-w-lg "
               : "w-4/5 lg:w-4/12  max-w-lg  ",
             "absolute lg:relative h-full min-w-[360px] lg:border-r-2 border-black",
             "z-20 transition-transform transform data-[mobile-show=true]:translate-x-0 data-[mobile-show=false]:-translate-x-[1000px] lg:!transform-none lg:!transition-none duration-300"
@@ -70,12 +70,7 @@ export const Chat = () => {
             onClick={() => toggleChatRooms()}
           />
         )}
-        <div
-          className={` ${
-            // showUserPreview ? "w-6/12" : "w-8/12"
-            "w-auto flex-1"
-          } overflow-hidden bg-gray-900`}
-        >
+        <div className={` ${"w-auto flex-1"} overflow-hidden bg-gray-900`}>
           {chatRooms.length < 1 && selectedChatType === ChatType.Room ? (
             <NullPlaceHolder message="" />
           ) : (
@@ -115,7 +110,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        await getRoomMembersCall(currentRoom?.id as string, 0, 10).then(
+        await getRoomMembersCall(SelectedChat as string, 0, 10).then(
           (res) => {
             if (res?.status === 200 || res?.status === 201) {
               const extractedData = res.data;
@@ -233,36 +228,6 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
   );
 };
 
-// {/* <table className="table">
-// <tbody>
-//   <tr>
-//     <th></th>
-//     <td>
-//       <div className="flex items-center justify-start space-x-2">
-//         {" "}
-//         {/* Center horizontally */}
-//         <div className="avatar">
-//           <div className="mask mask-squircle w-11 h-11">
-//             <img
-//               src={
-//                 user.avatar.medium ??
-//                 "https://brighterwriting.com/wp-content/uploads/icon-user-default.png"
-//               }
-//               alt="Avatar Tailwind CSS Component"
-//             />
-//           </div>
-//         </div>
-//         <div>
-//           <div className="text-gray-400 font-poppins font-medium text-base max-w-[80px] md:max-w-[50px]  truncate">
-//             {/* "kkdccd" */}
-//             {user.name?.first ?? "user"}
-//           </div>
-//         </div>
-//       </div>
-//     </td>
-//   </tr>
-// </tbody>
-// </table> */}
 
 export const SelectedUserTile = ({
   username,
