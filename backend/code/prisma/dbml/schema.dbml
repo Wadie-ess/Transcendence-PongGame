@@ -17,6 +17,8 @@ Table users {
   discreption String [not null, default: '']
   avatar String
   tfaEnabled Boolean [not null, default: false]
+  tfaSecret String
+  tfaStatus Boolean [not null, default: false]
   left_friends friends [not null]
   right_friends friends [not null]
   participant1 matches [not null]

@@ -9,24 +9,28 @@ import { Readable } from 'stream';
 export class ProfileService {
   constructor(private usersService: UsersService) {}
 
-  async getProfile(
-    userId: string,
-    friendId?: null | string,
-  ): Promise<ProfileDto> {
-    let id = userId;
-    if (friendId && friendId !== userId) {
-      const blockid = [userId, friendId].sort().join('-');
-      const block = await this.usersService.getBlockbyId(blockid);
-      if (block) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-      }
-      id = friendId;
-    }
-    const user = await this.usersService.getUserById(id);
+  async getProfile(userId: string): Promise<ProfileDto> {
+    const user = await this.usersService.getUserById(userId);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    return new ProfileDto(user);
+    return new ProfileDto(user, false);
+  }
+
+  async getFriendProfile(
+    userId: string,
+    friendId: string,
+  ): Promise<ProfileDto> {
+    const blockid = [userId, friendId].sort().join('-');
+    const block = await this.usersService.getBlockbyId(blockid);
+    if (block) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const user = await this.usersService.getUserById(friendId, userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return new ProfileDto(user, true);
   }
 
   async updateProfile(
@@ -49,7 +53,7 @@ export class ProfileService {
         profileFinished: true,
       });
     }
-    return new ProfileDto(user);
+    return new ProfileDto(user, false);
   }
 
   async uploadAvatar(userId: string, file: Express.Multer.File) {

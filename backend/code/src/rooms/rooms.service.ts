@@ -95,6 +95,11 @@ export class RoomsService {
       select: { type: true, password: true },
     });
     if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
+    if (room.type === 'protected' && !('password' in roomData))
+      throw new HttpException(
+        'missing password for protected room',
+        HttpStatus.BAD_REQUEST,
+      );
     if (room.type == 'protected') {
       const isPasswordCorrect = await bcrypt.compare(
         roomData.password,
@@ -417,7 +422,6 @@ export class RoomsService {
           lastname: member.user.lastName,
           avatar: avatar,
         };
-      }
     });
   }
   async banMember(memberData: ChangeOwnerDto, userId: string) {
@@ -500,16 +504,18 @@ export class RoomsService {
         name: true,
         type: true,
         ownerId: true,
-        members: {
+        ...(joined && {members: {
           where: {
             userId: userId,
           },
           select: {
             is_admin: true,
           },
-        },
+        }})
       },
     });
+    if (!joined)
+     return rooms;
     return rooms.map((room) => {
       const is_owner = room.ownerId === userId;
       return {

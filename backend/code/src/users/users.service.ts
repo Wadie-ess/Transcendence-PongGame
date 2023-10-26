@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NAME, PICTURE } from '../profile/dto/profile.dto';
+import { authenticator } from 'otplib';
+import { toDataURL } from 'qrcode';
 
 @Injectable()
 export class UsersService {
@@ -18,13 +20,16 @@ export class UsersService {
     return await this.prisma.user.findMany();
   }
 
-  async getUserById(userId: string, includeFriends?: boolean) {
+  async getUserById(userId: string, friendId?: string) {
     return await this.prisma.user.findUnique({
       where: { userId },
-      ...(includeFriends
+      ...(friendId
         ? {
             include: {
               left_friends: {
+                where: {
+                  id: [userId, friendId].sort().join('-'),
+                },
                 select: {
                   accepted: true,
                   fromId: true,
@@ -32,20 +37,13 @@ export class UsersService {
                 },
               },
               right_friends: {
+                where: {
+                  id: [userId, friendId].sort().join('-'),
+                },
                 select: {
                   accepted: true,
                   fromId: true,
                   toId: true,
-                },
-              },
-              owned_rooms: {
-                select: {
-                  id: true,
-                },
-              },
-              roomMember: {
-                select: {
-                  roomId: true,
                 },
               },
             },
@@ -142,5 +140,71 @@ export class UsersService {
       };
       return { name, id: user.userId, avatar };
     });
+  }
+
+  async twoFactorAuth(userId: string, tfaEnabled: boolean) {
+    const user = await this.getUserById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (user.tfaEnabled === tfaEnabled) {
+      throw new HttpException(
+        `Two factor authentication is already ${
+          tfaEnabled ? 'activated' : 'deactivated'
+        }`,
+        400,
+      );
+    }
+
+    const secret = authenticator.generateSecret();
+    await this.prisma.user.update({
+      where: { userId },
+      data: {
+        tfaEnabled,
+        ...(tfaEnabled ? { tfaSecret: secret } : { tfaSecret: null }),
+      },
+    });
+
+    return {
+      message: `Two factor authentication has been ${
+        tfaEnabled ? 'activated' : 'deactivated'
+      }`,
+    };
+  }
+
+  async genertQrcode(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { userId },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    const otpauth = authenticator.keyuri(
+      user.Username,
+      'PongGame',
+      user.tfaSecret,
+    );
+    return toDataURL(otpauth);
+  }
+
+  async validateTwoFactorAuth(userId: string, token: string) {
+    const user = await this.getUserById(userId);
+
+    if (!user) {
+      return null;
+    }
+    if (!user.tfaEnabled) {
+      throw new HttpException('Two factor authentication is not enabled', 400);
+    }
+    authenticator.options = { digits: 6 };
+    const isValid = authenticator.verify({
+      token,
+      secret: user.tfaSecret,
+    });
+    if (isValid) await this.updateUser(userId, { tfaStatus: true });
+    return { isValid };
   }
 }

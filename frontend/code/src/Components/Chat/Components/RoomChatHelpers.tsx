@@ -7,6 +7,7 @@ import users, {
   Lock,
   More,
   NullImage,
+  RoomMember,
   RoomType,
   Unlock,
   chatRooms,
@@ -16,14 +17,18 @@ import users, {
 import { SelectedUserTile } from "..";
 
 import {
+  DeleteRoomCall,
   createNewRoomCall,
   fetchRoomsCall,
+  getRoomMembersCall,
   joinRoomCall,
+  takeActionCall,
   updateRoomCall,
 } from "../Services/ChatServices";
 import toast from "react-hot-toast";
 import { Logo } from "../../Layout/Assets/Logo";
 import { useModalStore } from "../Controllers/ModalControllers";
+import { useUserStore } from "../../../Stores/stores";
 
 interface NullComponentProps {
   message: string;
@@ -40,19 +45,25 @@ export const RoomChatPlaceHolder = () => {
       // to make it dynamic later
       await fetchRoomsCall(0, 100, true).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
-          toast.error("something went wrong, try again");
+          // toast.error("something went wrong, try again");
         } else {
           const rooms: ChatRoom[] = [];
           res.data.forEach(
-            (room: { id: string; name: string; type: string }) => {
+            (room: {
+              id: string;
+              is_admin: boolean;
+              is_owner: boolean;
+              name: string;
+              type: string;
+            }) => {
               rooms.push({
                 id: room.id,
                 name: room.name,
                 type: RoomType[room.type as keyof typeof RoomType],
                 messages: [],
                 usersId: [],
-                isOwner: true,
-                isAdmin: true,
+                isOwner: room.is_owner,
+                isAdmin: room.is_admin,
               });
             }
           );
@@ -67,7 +78,7 @@ export const RoomChatPlaceHolder = () => {
   }, [ChatRoomsState.selectedChatID]);
 
   return ChatRoomsState.recentRooms.length > 0 ? (
-    <div>
+    <div className="bg-[#1A1C26] h-full">
       {ChatRoomsState.recentRooms.map((room) => (
         <div
           key={room.id}
@@ -149,7 +160,7 @@ export const CreateNewRoomModal = () => {
     setSelectedOption(RoomType.public);
   };
   return (
-    <div className="modal " id="my_modal_8">
+    <div className="modal w-screen " id="my_modal_8">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
@@ -232,8 +243,21 @@ export const CreateNewRoomModal = () => {
             <a
               href="#/"
               onClick={async () => {
-                console.log(RoomType[selectedOption]);
-                if (RoomName !== "" && RoomName.length > 3) {
+                // console.log(RoomType[selectedOption]);
+                if (
+                  RoomName !== "" &&
+                  RoomName.length > 3 &&
+                  RoomName.length < 20
+                ) {
+                  if (
+                    RoomPassword.length < 8 &&
+                    selectedOption === RoomType.protected
+                  ) {
+                    console.log(selectedOption);
+                    toast.error("password must be at least 8 characters");
+                    resetModalState();
+                    return;
+                  }
                   setIsLoading(true);
                   await createNewRoomCall(
                     RoomName,
@@ -243,7 +267,7 @@ export const CreateNewRoomModal = () => {
                       : undefined
                   ).then((res) => {
                     if (res?.status !== 200 && res?.status !== 201) {
-                      // toast.error("something went wrong, try again");
+                      toast.error("something went wrong, try again");
                       resetModalState();
                     } else {
                       createNewRoom(RoomName, selectedOption, res.data.id);
@@ -252,7 +276,9 @@ export const CreateNewRoomModal = () => {
                     setIsLoading(false);
                   });
                 } else {
-                  toast.error("Room name must be at least 4 characters");
+                  toast.error(
+                    "Room name must be at least 4 characters and less than 20 "
+                  );
                   resetModalState();
                 }
               }}
@@ -271,7 +297,7 @@ export const AddUsersModal = () => {
   const [MyUsers] = useState(users);
 
   return (
-    <div className="modal " id="my_modal_6">
+    <div className="modal w-screen " id="my_modal_6">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
@@ -311,15 +337,15 @@ export const AddUsersModal = () => {
 };
 
 export const RoomSettingsModal = () => {
+  const [currentUsers, setUsers] = useState<RoomMember[]>([]);
+  const currentUser = useUserStore((state) => state);
   const editRoom = useChatStore((state) => state.editRoom);
   const selectedChatID = useChatStore((state) => state.selectedChatID);
+  const deleteRoom = useChatStore((state) => state.deleteRoom);
   const currentRoom = chatRooms.find((room) => room.id === selectedChatID);
-  const currentRoomUsers = users.filter(
-    (user) => currentRoom?.usersId.includes(user.id) as boolean
-  );
 
   const setIsLoading = useChatStore((state) => state.setIsLoading);
-
+  const [skipCount, setSkipCount] = useState(true);
   const [RoomName, setName] = useState("");
   const [RoomPassword, setPassword] = useState("");
 
@@ -338,7 +364,28 @@ export const RoomSettingsModal = () => {
   useEffect(() => {
     setSelectedOption(currentRoom?.type as RoomType);
     setName(currentRoom?.name as string);
-  }, [currentRoom?.type, currentRoom?.name]);
+    if (skipCount) setSkipCount(false);
+    if (!skipCount) {
+      const fetchData = async () => {
+        try {
+          await getRoomMembersCall(currentRoom?.id as string, 0, 30).then(
+            (res) => {
+              if (res?.status === 200 || res?.status === 201) {
+                const extractedData = res.data;
+                setUsers(extractedData);
+              } else {
+              }
+            }
+          );
+        } catch (error) {
+          console.error("Error fetching data: ", error);
+        }
+      };
+
+      fetchData();
+    }
+    // eslint-disable-next-line
+  }, [selectedChatID]);
 
   const resetModalState = () => {
     setPassword("");
@@ -347,7 +394,7 @@ export const RoomSettingsModal = () => {
   };
 
   return (
-    <div className="modal " id="my_modal_9">
+    <div className="modal w-screen " id="my_modal_9">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar w-[90%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
@@ -404,7 +451,6 @@ export const RoomSettingsModal = () => {
             </label>
           </div>
 
-          {/* Conditionally render the text input */}
           {selectedOption === RoomType.protected && (
             <div className="flex flex-row p-3">
               <div className="flex flex-row w-full justify-center pt-2">
@@ -421,104 +467,171 @@ export const RoomSettingsModal = () => {
           <p className="p-2">Room Members</p>
 
           {/* Scrollable part */}
-          <div className="max-h-[300px] overflow-y-auto no-scrollbar">
-            {currentRoomUsers.map((user) => (
-              <div className="flex flex-row justify-between bg-[#1A1C26] p-3   border-gray-600  ">
-                <div className="flex flex-row items-center space-x-3">
-                  <div className="pr-1">
-                    <img
-                      className="w-12 rounded-full "
-                      alt=""
-                      src={user.image}
-                    />
+          <div className="max-h-[300px] overflow no-scrollbar justify-center relative">
+            {currentUsers
+              .filter((user) => user.id !== currentUser.id)
+              .map((user) => (
+                <div
+                  key={user.id}
+                  className="flex flex-row justify-between  bg-[#1A1C26] p-3 border-gray-600 relative"
+                >
+                  <div className="flex flex-row items-center space-x-3">
+                    <div className="pr-1">
+                      <img
+                        className="w-12 rounded-full "
+                        alt=""
+                        src={user.avatar.medium}
+                      />
+                    </div>
+
+                    <p className="text-white font-poppins text-base font-medium leading-normal">
+                      {user.name.first ?? "user"}
+                    </p>
                   </div>
 
-                  <p className="text-white font-poppins text-base font-medium leading-normal">
-                    {user.name}
-                  </p>
-                </div>
-
-                <div className="dropdown ">
-                  <label tabIndex={0} className="">
-                    <summary className="list-none p-3 cursor-pointer ">
-                      <img src={More} alt="More" />
-                    </summary>
-                  </label>
-                  <ul
-                    tabIndex={0}
-                    className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-40 absolute  right-full  "
-                  >
-                    <li>
-                      <span className="hover:bg-[#7940CF]">Ban</span>
-                    </li>
-                    <li>
-                      <span
-                        // onClick={onRemoveUserPreview}
-                        className="hover:bg-[#7940CF]"
+                  <div className="dropdown relative  top-0  z-100">
+                    <label tabIndex={0} className="">
+                      <summary className="list-none p-3 cursor-pointer ">
+                        <img src={More} alt="More" />
+                      </summary>
+                    </label>
+                    <ul
+                      tabIndex={0}
+                      className="p-2 right-5 bottom-7 shadow menu dropdown-content bg-base-100 rounded-box w-40"
+                    >
+                      <li
+                        onClick={async () => {
+                          await takeActionCall(
+                            selectedChatID as string,
+                            user.id,
+                            "ban"
+                          ).then((res) => {
+                            if (res?.status === 200 || res?.status === 201) {
+                              toast.success("User baned Successfully");
+                            }
+                          });
+                        }}
                       >
-                        mute
-                      </span>
-                    </li>
-
-                    <li>
-                      <span
-                        // onClick={onRemoveUserPreview}
-                        className="hover:bg-[#7940CF]"
+                        <span className="hover:bg-[#7940CF]">Ban</span>
+                      </li>
+                      <li
+                        onClick={async () => {
+                          await takeActionCall(
+                            selectedChatID as string,
+                            user.id,
+                            "mute"
+                          ).then((res) => {
+                            if (res?.status === 200 || res?.status === 201) {
+                              toast.success("User Muted Successfully");
+                            }
+                          });
+                        }}
                       >
-                        kick
-                      </span>
-                    </li>
-                    <li>
-                      <span className="hover:bg-[#7940CF]">Set as admin</span>
-                    </li>
-                  </ul>
+                        <span className="hover:bg-[#7940CF]">mute</span>
+                      </li>
+
+                      <li
+                        onClick={async () => {
+                          await takeActionCall(
+                            selectedChatID as string,
+                            user.id,
+                            "kick"
+                          ).then((res) => {
+                            if (res?.status === 200 || res?.status === 201) {
+                              toast.success("User Kicked Successfully");
+                            }
+                          });
+                        }}
+                      >
+                        <span className="hover:bg-[#7940CF]">kick</span>
+                      </li>
+                      <li
+                        onClick={async () => {
+                          await takeActionCall(
+                            selectedChatID as string,
+                            user.id,
+                            "setAdmin"
+                          ).then((res) => {
+                            if (res?.status === 200 || res?.status === 201) {
+                              toast.success(
+                                "User have been set as Admin Successfully"
+                              );
+                            }
+                          });
+                        }}
+                      >
+                        <span className="hover:bg-[#7940CF]">Set as admin</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
-
-          <div className="modal-action">
-            {
-              // eslint-disable-next-line
-            }
-            <a
-              href="#/"
-              onClick={resetModalState}
-              className="btn hover:bg-purple-500"
-            >
-              {"Close "}
-            </a>
-            <a
-              href="#/"
-              onClick={async () => {
-                console.log(RoomType[selectedOption]);
-                if (RoomName !== "" && RoomName.length > 3) {
-                  setIsLoading(true);
-                  await updateRoomCall(
-                    RoomName,
-                    RoomType[selectedOption],
-                    currentRoom?.id!,
-                    selectedOption === RoomType.protected
-                      ? RoomPassword
-                      : undefined
-                  ).then((res) => {
-                    if (res?.status !== 200 && res?.status !== 201) {
-                      resetModalState();
-                    } else {
-                      editRoom(RoomName, selectedOption, currentRoom?.id!);
-                      resetModalState();
-                    }
-                    setIsLoading(false);
-                  });
-                } else {
-                  toast.error("Room name must be at least 4 characters");
-                  resetModalState();
-                }
-              }}
-              className="btn hover:bg-purple-500"
-            >
-              {"Save "}
-            </a>
+          <div className="flex fex row justify-between items-baseline">
+            <div className="">
+              {currentRoom?.isOwner && (
+                <a
+                  href="#/"
+                  onClick={async () => {
+                    setIsLoading(true);
+                    await DeleteRoomCall(selectedChatID as string).then(
+                      (res) => {
+                        setIsLoading(false);
+                        if (res?.status === 200 || res?.status === 201) {
+                          deleteRoom(selectedChatID as string);
+                          toast.success("Room Deleted Successfully");
+                          resetModalState();
+                        }
+                      }
+                    );
+                  }}
+                  className="btn hover:bg-red-500  "
+                >
+                  {"Delete Room "}
+                </a>
+              )}
+            </div>
+            <div className="modal-action">
+              <a
+                href="#/"
+                onClick={resetModalState}
+                className="btn hover:bg-purple-500"
+              >
+                {"Close "}
+              </a>
+              <a
+                href="#/"
+                onClick={async () => {
+                  console.log(RoomType[selectedOption]);
+                  if (RoomName !== "" && RoomName.length > 3) {
+                    setIsLoading(true);
+                    await updateRoomCall(
+                      RoomName,
+                      RoomType[selectedOption],
+                      currentRoom?.id!,
+                      selectedOption === RoomType.protected
+                        ? RoomPassword
+                        : undefined
+                    ).then((res) => {
+                      if (res?.status !== 200 && res?.status !== 201) {
+                        resetModalState();
+                      } else {
+                        toast.success("Room Updated Successfully");
+                        editRoom(RoomName, selectedOption, currentRoom?.id!);
+                        resetModalState();
+                      }
+                      setIsLoading(false);
+                    });
+                  } else {
+                    toast.error("Room name must be at least 4 characters");
+                    resetModalState();
+                  }
+                }}
+                className="btn hover:bg-purple-500"
+              >
+                {"Save "}
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -527,6 +640,7 @@ export const RoomSettingsModal = () => {
 };
 
 export const ExploreRoomsModal = () => {
+  const [RoomPassword, setPassword] = useState("");
   const [ChatRooms, SetChatRooms] = useState(chatRooms);
   const [selectedOption, setSelectedOption] = useState(RoomType.public);
   const [SelectedRoomID, setSelectedRoomID] = useState("0");
@@ -535,6 +649,7 @@ export const ExploreRoomsModal = () => {
 
   const modalState = useModalStore((state) => state);
   const resetModalState = () => {
+    setPassword("");
     setSelectedOption(RoomType.public);
     setSelectedRoomID("0");
   };
@@ -544,14 +659,18 @@ export const ExploreRoomsModal = () => {
       setIsLoading(true);
       await fetchRoomsCall(0, 30, false).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
-          toast.error("something went wrong, try again");
+          // toast.error("something went wrong, try again");
           resetModalState();
         } else {
-          console.log("my recent");
-          console.log(recentRooms);
           const rooms: ChatRoom[] = [];
           res.data.forEach(
-            (room: { id: string; name: string; type: string }) => {
+            (room: {
+              id: string;
+              is_admin: boolean;
+              is_owner: boolean;
+              name: string;
+              type: string;
+            }) => {
               if (
                 recentRooms.recentRooms.find(
                   (recentRoom) => recentRoom.id === room.id
@@ -563,8 +682,8 @@ export const ExploreRoomsModal = () => {
                   type: RoomType[room.type as keyof typeof RoomType],
                   messages: [],
                   usersId: [],
-                  isOwner: true,
-                  isAdmin: true,
+                  isOwner: room.is_owner,
+                  isAdmin: room.is_admin,
                 });
               }
             }
@@ -576,11 +695,11 @@ export const ExploreRoomsModal = () => {
     };
 
     fetch();
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [modalState]);
 
   return (
-    <div className="modal " id="my_modal_5">
+    <div className="modal w-screen " id="my_modal_5">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
@@ -640,6 +759,8 @@ export const ExploreRoomsModal = () => {
             <div className="flex flex-row w-full justify-center pt-2">
               <p>Room Password</p>
               <input
+                value={RoomPassword}
+                onChange={(event) => setPassword(event.target.value)}
                 type="Password"
                 className="input w-full shadow-xl max-w-lg bg-[#272932] placeholder:text-gray-400 font-poppins text-base font-normal leading-normal"
               />
@@ -647,10 +768,6 @@ export const ExploreRoomsModal = () => {
           </div>
         )}
         <div className="modal-action">
-          {
-            // eslint-disable-next-line
-          }
-
           <a
             href="#/"
             onClick={resetModalState}
@@ -662,12 +779,19 @@ export const ExploreRoomsModal = () => {
             <a
               href="#/"
               onClick={async () => {
-                await joinRoomCall(SelectedRoomID, undefined).then((res) => {
-                  if (res?.status !== 200 && res?.status !== 201) {
-                    // toast.error("something went wrong, try again");
+                recentRooms.setIsLoading(true);
 
+                await joinRoomCall(
+                  SelectedRoomID,
+                  selectedOption === RoomType.protected
+                    ? RoomPassword
+                    : undefined
+                ).then((res) => {
+                  recentRooms.setIsLoading(false);
+                  if (res?.status !== 200 && res?.status !== 201) {
                     resetModalState();
                   } else {
+                    toast.success("Room Joined Successfully");
                     recentRooms.selectNewChatID(SelectedRoomID);
                     resetModalState();
                   }

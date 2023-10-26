@@ -43,7 +43,6 @@ export class MessagesService {
     }
 
     const roomMember = room.members[0];
-    console.log(roomMember);
 
     if (!roomMember) {
       throw new HttpException(
@@ -82,6 +81,7 @@ export class MessagesService {
         authorId: userId,
       },
     });
+
     const responseMessage: MessageFormatDto = new MessageFormatDto(messageData);
     this.eventEmitter.emit('sendMessages', responseMessage);
     return responseMessage;
