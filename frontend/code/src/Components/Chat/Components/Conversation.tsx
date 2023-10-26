@@ -7,12 +7,13 @@ import users, {
   More,
   Send,
 } from "./tools/Assets";
-import { ChatType, useChatStore } from "../Controllers/ChatControllers";
+import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 
 import { ChatPlaceHolder, ConfirmationModal } from "./RoomChatHelpers";
 import { KeyboardEvent } from "react";
 import { leaveRoomCall } from "../Services/ChatServices";
 import toast from "react-hot-toast";
+import { useModalStore } from "../Controllers/LayoutControllers";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -83,6 +84,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 }) => {
   const [MyUsers] = useState(users);
 
+  const LayoutState = useModalStore((state) => state);
   const ChatState = useChatStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
 
@@ -161,12 +163,17 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                   invite for a Pong Game
                 </span>
               </li>
-              <li className="hidden md:block">
-                <span
-                  onClick={onRemoveUserPreview}
-                  className="hover:bg-[#7940CF]"
-                >
-                  Show User Info
+              <li
+                onClick={() => {
+                  LayoutState.setShowPreviewCard(!LayoutState.showPreviewCard);
+                  onRemoveUserPreview();
+                }}
+                className="hidden md:block"
+              >
+                <span className="hover:bg-[#7940CF]">
+                  {LayoutState.showPreviewCard === false
+                    ? "Show User Info"
+                    : "hide User Info"}
                 </span>
               </li>
             </ul>
@@ -186,14 +193,30 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               {(currentRoom?.isAdmin === true ||
                 currentRoom?.isOwner === true) && (
                 <div className="icons-row flex flex-col  ">
-                  <a href="#my_modal_9" className="">
+                  <a
+                    onClick={() => {
+                      LayoutState.setShowSettingsModal(
+                        !LayoutState.showSettingsModal
+                      );
+                    }}
+                    href="#my_modal_9"
+                    className=""
+                  >
                     <li>
                       <span className="hover:bg-[#7940CF]">
                         Edit Room Settings
                       </span>
                     </li>
                   </a>
-                  <a href="#my_modal_6" className="">
+                  <a
+                    onClick={() => {
+                      LayoutState.setShowAddUsersModal(
+                        !LayoutState.showAddUsersModal
+                      );
+                    }}
+                    href="#my_modal_6"
+                    className=""
+                  >
                     <li>
                       <span className="hover:bg-[#7940CF]">Add Users</span>
                     </li>
@@ -201,12 +224,17 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                 </div>
               )}
 
-              <li className="hidden md:block">
-                <span
-                  onClick={onRemoveUserPreview}
-                  className="hover:bg-[#7940CF]"
-                >
-                  Show Room Info
+              <li
+                onClick={() => {
+                  LayoutState.setShowPreviewCard(!LayoutState.showPreviewCard);
+                  onRemoveUserPreview();
+                }}
+                className="hidden md:block"
+              >
+                <span className="hover:bg-[#7940CF]">
+                  {LayoutState.showPreviewCard === false
+                    ? "Show Room Info"
+                    : "hide Room Info"}
                 </span>
               </li>
               {currentRoom?.isOwner === false && (

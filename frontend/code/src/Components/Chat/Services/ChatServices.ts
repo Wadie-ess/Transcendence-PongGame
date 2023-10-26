@@ -41,6 +41,7 @@ export const updateRoomCall = async (
     console.log(response.status);
     return response;
   } catch (e: any) {
+    toast.error(e.response.data.message);
     console.log(e.response.data.message);
   }
 
@@ -188,7 +189,7 @@ export const getFriendsCall = async (
   try {
     const response = await api.get(`/friends/list`,
       { params: { offset: offset, limit: limit } });
-
+    console.log("friends list response");
     console.log(response.status);
     console.log(response.data);
     return response;

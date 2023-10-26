@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChatType, useChatStore } from "../Controllers/ChatControllers";
+import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 import { ChatPaceHolderProps } from "./Conversation";
 import users, {
   ChatIcon,
@@ -10,7 +10,7 @@ import users, {
 } from "./tools/Assets";
 
 import { NullPlaceHolder, RoomChatPlaceHolder } from "./RoomChatHelpers";
-import { useModalStore } from "../Controllers/ModalControllers";
+import { useModalStore } from "../Controllers/LayoutControllers";
 
 export const RecentConversations = () => {
   const [MyUsers] = useState(users);

@@ -21,6 +21,7 @@ import Explore from "../../assets/explore.svg";
 import Lock from "../../assets/lockIcon.svg";
 import Unlock from "../../assets/UnlockIcon.svg";
 import ChatGif from "../../assets/chatGif.gif";
+import NullUser from "../../assets/User_duotone.svg";
 export enum RoomType {
   private,
   public,
@@ -51,6 +52,7 @@ export {
   Lock,
   Unlock,
   ChatGif,
+  NullUser,
 };
 
 export interface Message {
@@ -94,9 +96,7 @@ export interface User {
 }
 
 // chat rooms dummy data
-export const chatRooms: ChatRoom[] = [
-
-];
+export const chatRooms: ChatRoom[] = [];
 
 export const users: User[] = [
   {

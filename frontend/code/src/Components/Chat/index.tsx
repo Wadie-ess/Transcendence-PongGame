@@ -5,13 +5,14 @@ import {
   chatRooms,
   RoomsIcon,
   RoomMember,
+  NullUser,
 } from "./Components/tools/Assets";
 import { useEffect, useState } from "react";
 import { Conversation } from "./Components/Conversation";
 import { ChatPaceHolderProps } from "./Components/Conversation";
 import users from "./Components/tools/Assets";
 import React from "react";
-import { ChatType, useChatStore } from "./Controllers/ChatControllers";
+import { ChatType, useChatStore } from "./Controllers/RoomChatControllers";
 
 import { RecentConversations } from "./Components/RecentChat";
 import {
@@ -26,6 +27,7 @@ import { getRoomMembersCall } from "./Services/ChatServices";
 
 import toast from "react-hot-toast";
 import { classNames } from "../../Utils/helpers";
+import { useModalStore } from "./Controllers/LayoutControllers";
 
 export interface ConversationProps {
   onRemoveUserPreview: () => void;
@@ -99,7 +101,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [currentUsers, setUsers] = useState<RoomMember[]>([]);
   const [MyUsers] = useState(users);
-
+  const LayoutState = useModalStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
 
   const currentUser = MyUsers.find((user) => user.id === SelectedChat);
@@ -110,24 +112,21 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        await getRoomMembersCall(SelectedChat as string, 0, 10).then(
-          (res) => {
-            if (res?.status === 200 || res?.status === 201) {
-              const extractedData = res.data;
-              setIsLoading(false);
-              setUsers(extractedData);
-            } else {
-              toast.error("Error getting room members");
-            }
+        await getRoomMembersCall(SelectedChat as string, 0, 10).then((res) => {
+          if (res?.status === 200 || res?.status === 201) {
+            const extractedData = res.data;
+            setIsLoading(false);
+            setUsers(extractedData);
+          } else {
+            toast.error("Error getting room members");
           }
-        );
+        });
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
     };
 
     fetchData();
-    // eslint-disable-next-line
   }, [SelectedChat]);
   return (
     <div className="flex flex-col p-4   ">
@@ -142,7 +141,12 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           </p>
         )}
 
-        <button onClick={onRemoveUserPreview}>
+        <button
+          onClick={() => {
+            LayoutState.setShowPreviewCard(false);
+            onRemoveUserPreview();
+          }}
+        >
           <img alt="" src={Close} />
         </button>
       </div>
@@ -191,22 +195,16 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
                 {currentUsers.map((user) => (
                   <div key={user.id} className="felx flex-row p-5">
                     <div className="flex items-center justify-start space-x-2">
-                      {" "}
-                      {/* Center horizontally */}
                       <div className="avatar">
                         <div className="mask mask-squircle w-11 h-11">
                           <img
-                            src={
-                              user.avatar.medium ??
-                              "https:brighterwriting.com/wp-content/uploads/icon-user-default.png"
-                            }
+                            src={user.avatar.medium ?? NullUser}
                             alt="Avatar Tailwind CSS Component"
                           />
                         </div>
                       </div>
                       <div>
                         <div className="text-gray-400 font-poppins font-medium text-base max-w-[80px] md:max-w-[180px]  truncate">
-                          {/* "kkdccd" */}
                           {user.name?.first ?? "user"}
                         </div>
                       </div>
@@ -227,7 +225,6 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
     </div>
   );
 };
-
 
 export const SelectedUserTile = ({
   username,
