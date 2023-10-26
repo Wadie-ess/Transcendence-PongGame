@@ -35,7 +35,8 @@ model User {
   tfaStatus     Boolean        @default(false)
   left_friends  Friend[]       @relation("from")
   right_friends Friend[]       @relation("to")
-  matches       Match[]        @relation("participant1")
+  participant1  Match[]        @relation("participant1")
+  participant2  Match[]        @relation("participant2")
   owned_rooms   Room[]         @relation("owner")
   roomMember    RoomMember[]
   blocked_by    BlockedUsers[] @relation("blocked_by")
@@ -85,6 +86,7 @@ model Match {
   score2         Int?
   gametype       String?
   participant1   User    @relation("participant1", fields: [participant1Id], references: [userId])
+  participant2   User    @relation("participant2", fields: [participant2Id], references: [userId])
 
   @@map("matches")
 }
