@@ -19,7 +19,8 @@ Table users {
   tfaEnabled Boolean [not null, default: false]
   left_friends friends [not null]
   right_friends friends [not null]
-  matches matches [not null]
+  participant1 matches [not null]
+  participant2 matches [not null]
   owned_rooms rooms [not null]
   roomMember room_members [not null]
   blocked_by blocked_friends [not null]
@@ -63,6 +64,7 @@ Table matches {
   score2 Int
   gametype String
   participant1 users [not null]
+  participant2 users [not null]
 }
 
 Table messages {
@@ -136,6 +138,8 @@ Ref: blocked_friends.blocked_by_id > users.userId
 Ref: blocked_friends.blocked_id > users.userId
 
 Ref: matches.participant1Id > users.userId
+
+Ref: matches.participant2Id > users.userId
 
 Ref: messages.roomId > rooms.id [delete: Cascade]
 

@@ -14,6 +14,7 @@ import { RoomSearchDto } from './dto/room-search.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomDataDto } from './dto/room-data.dto';
+import { PICTURE } from 'src/profile/dto/profile.dto';
 
 @Injectable()
 export class RoomsService {
@@ -215,7 +216,7 @@ export class RoomsService {
     if (room.ownerId !== userId)
       throw new UnauthorizedException('You are not the owner of this room');
     if (!member)
-      throw new UnauthorizedException('new owner is not a member of this room');
+      throw new UnauthorizedException('user is not a member of this room');
     await this.prisma.room.update({
       where: { id: roomData.roomId },
       data: { owner: { connect: { userId: roomData.memberId } } },
@@ -245,7 +246,7 @@ export class RoomsService {
     if (room.ownerId !== userId)
       throw new UnauthorizedException('You are not the owner of this room');
     if (!user)
-      throw new UnauthorizedException('new admin is not a member of this room');
+      throw new UnauthorizedException('user is not a member of this room');
     if (user.is_admin || room.ownerId === roomData.memberId)
       throw new UnauthorizedException(
         'new admin is already an admin of this room',
@@ -328,6 +329,11 @@ export class RoomsService {
           roomId: roomData.roomId,
         },
       },
+      select: {
+        room: true,
+        is_mueted: true,
+        userId: true,
+      },
     });
     if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
     if (!member)
@@ -336,6 +342,8 @@ export class RoomsService {
       throw new UnauthorizedException('You are not admin of this room');
     if (member.is_mueted)
       throw new UnauthorizedException('member is already muted');
+    if (member.room.ownerId === roomData.memberId)
+      throw new UnauthorizedException('You cannot mute the owner');
     if (member.userId === userId)
       throw new UnauthorizedException('You can not mute yourself');
     const afterFiveMin = new Date(Date.now() + 5 * 60 * 1000);
@@ -380,26 +388,38 @@ export class RoomsService {
     if (!user)
       throw new UnauthorizedException('You are not a member of this room');
 
-    return await this.prisma.roomMember.findMany({
+    const members = await this.prisma.roomMember.findMany({
       skip: offset,
       take: limit,
       where: {
         roomId: roomId,
-        is_banned: false,
       },
       select: {
         user: {
           select: {
-            userId: true,
             firstName: true,
             lastName: true,
             avatar: true,
           },
         },
+        is_banned: true,
       },
     });
+    return members.map((member) => {
+      if (!member.is_banned || user.is_admin) {
+        const avatar: PICTURE = {
+          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${member.user.avatar}`,
+          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${member.user.avatar}`,
+          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${member.user.avatar}`,
+        };
+        return {
+          firstname: member.user.firstName,
+          lastname: member.user.lastName,
+          avatar: avatar,
+        };
+      }
+    });
   }
-
   async banMember(memberData: ChangeOwnerDto, userId: string) {
     const user = await this.prisma.roomMember.findUnique({
       where: {

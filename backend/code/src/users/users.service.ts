@@ -140,7 +140,7 @@ export class UsersService {
         medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${user.avatar}`,
         large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${user.avatar}`,
       };
-      return { name , id: user.userId, avatar };
+      return { name, id: user.userId, avatar };
     });
   }
 }
