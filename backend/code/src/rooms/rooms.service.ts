@@ -389,10 +389,8 @@ export class RoomsService {
     const user = await this.prisma.roomMember.findUnique({
       where: { unique_user_room: { userId: userId, roomId: roomId } },
     });
-
     if (!user)
       throw new UnauthorizedException('You are not a member of this room');
-
     const members = await this.prisma.roomMember.findMany({
       skip: offset,
       take: limit,
@@ -422,6 +420,7 @@ export class RoomsService {
           lastname: member.user.lastName,
           avatar: avatar,
         };
+      }
     });
   }
   async banMember(memberData: ChangeOwnerDto, userId: string) {
@@ -439,8 +438,8 @@ export class RoomsService {
     if (userId == memberData.memberId)
       throw new UnauthorizedException('You cannot ban yourself');
     if (ownerId == memberData.memberId)
-      throw new UnauthorizedException('You cannot ban the Owner of thi Room');
-    return await this.prisma.roomMember.update({
+      throw new UnauthorizedException('You cannot ban the Owner of this Room');
+    await this.prisma.roomMember.update({
       where: {
         unique_user_room: {
           userId: memberData.memberId,
@@ -452,6 +451,41 @@ export class RoomsService {
         bannedAt: new Date(Date.now()),
       },
     });
+    return { message: 'member banned successfully' };
+  }
+
+  async unbanMember(memberData: ChangeOwnerDto, userId: string) {
+    const user = await this.prisma.roomMember.findUnique({
+      where: {
+        unique_user_room: { userId: userId, roomId: memberData.roomId },
+      },
+    });
+    const member = await this.prisma.roomMember.findUnique({
+      where: {
+        unique_user_room: {
+          userId: memberData.memberId,
+          roomId: memberData.roomId,
+        },
+      },
+    });
+    if (!member)
+      throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+    if (!member.is_banned)
+      throw new HttpException('member is not banned', HttpStatus.BAD_REQUEST);
+    if (!user.is_admin)
+      throw new UnauthorizedException('You are not admin of this room');
+    await this.prisma.roomMember.update({
+      where: {
+        unique_user_room: {
+          userId: memberData.memberId,
+          roomId: memberData.roomId,
+        },
+      },
+      data: {
+        is_banned: false,
+      },
+    });
+    return { message: 'member unbanned successfully' };
   }
 
   async addMember(memberData: ChangeOwnerDto, userId: string) {
@@ -504,18 +538,19 @@ export class RoomsService {
         name: true,
         type: true,
         ownerId: true,
-        ...(joined && {members: {
-          where: {
-            userId: userId,
+        ...(joined && {
+          members: {
+            where: {
+              userId: userId,
+            },
+            select: {
+              is_admin: true,
+            },
           },
-          select: {
-            is_admin: true,
-          },
-        }})
+        }),
       },
     });
-    if (!joined)
-     return rooms;
+    if (!joined) return rooms;
     return rooms.map((room) => {
       const is_owner = room.ownerId === userId;
       return {

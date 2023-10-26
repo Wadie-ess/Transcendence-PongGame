@@ -167,6 +167,16 @@ export class RoomsController {
     return await this.roomsService.banMember(memberData, userId);
   }
 
+  @Post('unban')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AtGuard)
+  async unbanMember(
+    @Body() memberData: ChangeOwnerDto,
+    @GetCurrentUser('userId') userId: string,
+  ) {
+    return await this.roomsService.unbanMember(memberData, userId);
+  }
+
   @Post('add')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
