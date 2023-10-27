@@ -301,7 +301,7 @@ export const AddUsersModal = () => {
   const [currentFriends, setUsers] = useState<RoomMember[]>([]);
   const LayoutState = useModalStore((state) => state);
   const [IsLoading, setIsLoading] = useState(false);
-
+  const [IsAdding, setIsAdding] = useState(false);
   const [skipCount, setSkipCount] = useState(true);
 
   useEffect(() => {
@@ -366,6 +366,7 @@ export const AddUsersModal = () => {
           ) : (
             <div className="max-h-[300px] overflow-y-auto no-scrollbar">
               {currentFriends.map((user) => (
+                
                 <div key={user.id}>
                   <div className="flex flex-row justify-between p-3">
                     <div className="flex flex-row items-center space-x-3">
@@ -385,11 +386,13 @@ export const AddUsersModal = () => {
                     <div>
                       <button
                         onClick={async () => {
+                          setIsAdding(true);
                           await takeActionCall(
                             selectedChatID,
                             user.id,
                             "add"
                           ).then((res) => {
+                            setIsAdding(false);
                             if (res?.status === 200 || res?.status === 201) {
                               toast.success("User Added Successfully");
                             }
@@ -397,7 +400,9 @@ export const AddUsersModal = () => {
                         }}
                         className="btn  swap swap-rotate bg-purple-500 p-3 rounded-xl text-white hover:bg-blue-400"
                       >
-                        <p className="swap-off fill-current">ADD</p>
+                        <p className="swap-off fill-current">
+                          {IsAdding === true ? "ADDING..." : "ADD"}
+                        </p>
                       </button>
                     </div>
                   </div>
@@ -428,6 +433,7 @@ export const RoomSettingsModal = () => {
   const deleteRoom = useChatStore((state) => state.deleteRoom);
   const currentRoom = chatRooms.find((room) => room.id === selectedChatID);
   const LayoutState = useModalStore((state) => state);
+  const [TakingAction, setTakeAction] = useState(false);
 
   const setIsLoading = useChatStore((state) => state.setIsLoading);
   const [skipCount, setSkipCount] = useState(true);
@@ -485,59 +491,67 @@ export const RoomSettingsModal = () => {
     <div className="modal w-screen " id="my_modal_9">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar w-[90%] md:w-[50%] ">
         <div className="flex flex-col">
-          <div className="flex flex-row justify-center">
-            <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
-              {RoomName}'s Settings
-            </p>
-          </div>
-          <div className="flex flex-row p-3">
-            <div className="flex flex-row w-full justify-center pt-2">
-              <img className="mr-2" alt="" src={GroupChat} />
-              <input
-                value={RoomName}
-                onChange={handleChange}
-                type="text"
-                placeholder="Set The Room Name"
-                className="input w-full shadow-xl max-w-lg bg-[#272932] placeholder:text-gray-400 font-poppins text-base font-normal leading-normal"
-              />
+          {TakingAction === true ? (
+            <div className="text-center p-2">
+              <span className="loading loading-infinity loading-lg bg-purple-500"></span>
+              <p>Processing...</p>
             </div>
-          </div>
-
-          <div className="flex flex-row form-control justify-around">
-            <label className="label cursor-pointer ">
-              <span className="label-text pr-2">Public</span>
-              <input
-                type="radio"
-                name="radio-20"
-                value="Public"
-                className="radio checked:bg-purple-500"
-                checked={selectedOption === RoomType.public}
-                onChange={() => setSelectedOption(RoomType.public)}
-              />
-            </label>
-            <label className="label cursor-pointer">
-              <span className="label-text pr-2">Private</span>
-              <input
-                type="radio"
-                name="radio-20"
-                value="Private"
-                className="radio checked:bg-red-500"
-                checked={selectedOption === RoomType.private}
-                onChange={() => setSelectedOption(RoomType.private)}
-              />
-            </label>
-            <label className="label cursor-pointer">
-              <span className="label-text pr-2">Protected</span>
-              <input
-                type="radio"
-                name="radio-20"
-                value="Protected"
-                className="radio checked:bg-orange-500"
-                checked={selectedOption === RoomType.protected}
-                onChange={() => setSelectedOption(RoomType.protected)}
-              />
-            </label>
-          </div>
+          ) : (
+            <div>
+              <div className="flex flex-row justify-center">
+                <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
+                  {RoomName}'s Settings
+                </p>
+              </div>
+              <div className="flex flex-row p-3">
+                <div className="flex flex-row w-full justify-center pt-2">
+                  <img className="mr-2" alt="" src={GroupChat} />
+                  <input
+                    value={RoomName}
+                    onChange={handleChange}
+                    type="text"
+                    placeholder="Set The Room Name"
+                    className="input w-full shadow-xl max-w-lg bg-[#272932] placeholder:text-gray-400 font-poppins text-base font-normal leading-normal"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row form-control justify-around">
+                <label className="label cursor-pointer ">
+                  <span className="label-text pr-2">Public</span>
+                  <input
+                    type="radio"
+                    name="radio-20"
+                    value="Public"
+                    className="radio checked:bg-purple-500"
+                    checked={selectedOption === RoomType.public}
+                    onChange={() => setSelectedOption(RoomType.public)}
+                  />
+                </label>
+                <label className="label cursor-pointer">
+                  <span className="label-text pr-2">Private</span>
+                  <input
+                    type="radio"
+                    name="radio-20"
+                    value="Private"
+                    className="radio checked:bg-red-500"
+                    checked={selectedOption === RoomType.private}
+                    onChange={() => setSelectedOption(RoomType.private)}
+                  />
+                </label>
+                <label className="label cursor-pointer">
+                  <span className="label-text pr-2">Protected</span>
+                  <input
+                    type="radio"
+                    name="radio-20"
+                    value="Protected"
+                    className="radio checked:bg-orange-500"
+                    checked={selectedOption === RoomType.protected}
+                    onChange={() => setSelectedOption(RoomType.protected)}
+                  />
+                </label>
+              </div>
+            </div>
+          )}
 
           {selectedOption === RoomType.protected && (
             <div className="flex flex-row p-3">
@@ -589,15 +603,17 @@ export const RoomSettingsModal = () => {
                       </label>
                       <ul
                         tabIndex={0}
-                        className="p-2 right-5 bottom-7 shadow menu dropdown-content bg-base-100 rounded-box w-40"
+                        className="p-2 right-5 bottom-0 shadow menu dropdown-content bg-base-100 rounded-box w-40"
                       >
                         <li
                           onClick={async () => {
+                            setTakeAction(true);
                             await takeActionCall(
                               selectedChatID as string,
                               user.id,
                               "ban"
                             ).then((res) => {
+                              setTakeAction(false);
                               if (res?.status === 200 || res?.status === 201) {
                                 toast.success("User baned Successfully");
                               }
@@ -606,13 +622,16 @@ export const RoomSettingsModal = () => {
                         >
                           <span className="hover:bg-[#7940CF]">Ban</span>
                         </li>
+
                         <li
                           onClick={async () => {
+                            setTakeAction(true);
                             await takeActionCall(
                               selectedChatID as string,
                               user.id,
                               "mute"
                             ).then((res) => {
+                              setTakeAction(false);
                               if (res?.status === 200 || res?.status === 201) {
                                 toast.success("User Muted Successfully");
                               }
@@ -624,11 +643,13 @@ export const RoomSettingsModal = () => {
 
                         <li
                           onClick={async () => {
+                            setTakeAction(true);
                             await takeActionCall(
                               selectedChatID as string,
                               user.id,
                               "kick"
                             ).then((res) => {
+                              setTakeAction(false);
                               if (res?.status === 200 || res?.status === 201) {
                                 toast.success("User Kicked Successfully");
                               }
@@ -639,11 +660,13 @@ export const RoomSettingsModal = () => {
                         </li>
                         <li
                           onClick={async () => {
+                            setTakeAction(true);
                             await takeActionCall(
                               selectedChatID as string,
                               user.id,
                               "setAdmin"
                             ).then((res) => {
+                              setTakeAction(false);
                               if (res?.status === 200 || res?.status === 201) {
                                 toast.success(
                                   "User have been set as Admin Successfully"
