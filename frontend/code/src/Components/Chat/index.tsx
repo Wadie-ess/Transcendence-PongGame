@@ -112,7 +112,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (SelectedChat === "1") {
+        if (SelectedChat === "1" && selectedChatType === ChatType.Room) {
           onRemoveUserPreview();
         } else {
           setIsLoading(true);

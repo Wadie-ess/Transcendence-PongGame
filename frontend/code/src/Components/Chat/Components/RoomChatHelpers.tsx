@@ -419,7 +419,7 @@ export const AddUsersModal = () => {
       <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
-            <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
+            <p className="text-purple-500 font-poppins text-lg font-medium leading-normal pb-2">
               Add Friends To The Room
             </p>
           </div>
@@ -430,6 +430,12 @@ export const AddUsersModal = () => {
             </div>
           ) : (
             <div className="max-h-[300px] overflow-y-auto no-scrollbar">
+              {currentFriends.filter(
+                (friend) =>
+                  !currentRoomMembers.some((member) => member.id === friend.id)
+              ).length < 1 && (
+                <NullPlaceHolder message="No Friends To Add Yet" />
+              )}
               {currentFriends
                 .filter(
                   (friend) =>
@@ -606,6 +612,7 @@ export const RoomSettingsModal = () => {
             </div>
           ) : (
             <div className="max-h-[300px] overflow no-scrollbar justify-center relative">
+              {currentUsers.length < 2 && <NullPlaceHolder message="You have No Members, Add someone!" />}
               {currentUsers
                 .filter((user) => user.id !== currentUser.id)
                 .map((user) => (
