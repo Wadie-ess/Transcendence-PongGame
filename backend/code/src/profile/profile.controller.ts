@@ -9,6 +9,7 @@ import {
   Param,
   ParseFilePipe,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -29,6 +30,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { QueryOffsetDto } from 'src/friends/dto/query-ofsset-dto';
 
 @ApiTags('profile')
 @ApiCookieAuth('X-Acces-Token')
@@ -105,5 +107,14 @@ export class ProfileController {
   @UseGuards(AtGuard)
   getAvatar(@Param('id') recourseId: string) {
     return this.profileService.getAvatar(recourseId);
+  }
+
+  @Get('notifications')
+  @UseGuards(AtGuard)
+  getNotifications(
+    @GetCurrentUser('userId') userId: string,
+    @Query() { offset, limit }: QueryOffsetDto,
+  ) {
+    return this.profileService.getNotifications(userId, offset, limit);
   }
 }
