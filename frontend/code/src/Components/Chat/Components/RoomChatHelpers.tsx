@@ -32,7 +32,6 @@ import toast from "react-hot-toast";
 import { Logo } from "../../Layout/Assets/Logo";
 import { useModalStore } from "../Controllers/LayoutControllers";
 import { useUserStore } from "../../../Stores/stores";
-import { Button } from "../../Login/Assets/Button";
 
 interface NullComponentProps {
   message: string;
@@ -296,13 +295,65 @@ export const CreateNewRoomModal = () => {
   );
 };
 
-export const AddUsersModal = () => {
+export const FriendTile = (props: { user: RoomMember }) => {
+  const [IsAdding, setIsAdding] = useState(false);
   const selectedChatID = useChatStore((state) => state.selectedChatID);
+  const LayoutState = useModalStore((state) => state);
+  const user = props.user;
+
+  return (
+    <div key={user.id}>
+      <div className="flex flex-row justify-between p-3">
+        <div className="flex flex-row items-center space-x-3">
+          <div className="pr-1">
+            <img
+              className="w-12 rounded-full "
+              alt=""
+              src={user?.avatar?.medium}
+            />
+          </div>
+
+          <p className="text-white font-poppins text-base font-medium leading-normal">
+            {user?.name?.first ?? "user"}
+          </p>
+        </div>
+
+        <div>
+          <button
+            onClick={async () => {
+              setIsAdding(true);
+              await takeActionCall(selectedChatID, user.id, "add").then(
+                (res) => {
+                  setIsAdding(false);
+                  if (res?.status === 200 || res?.status === 201) {
+                    LayoutState.setShowAddUsersModal(
+                      !LayoutState.showAddUsersModal
+                    );
+                    toast.success("User Added Successfully");
+                  }
+                }
+              );
+            }}
+            className="btn  swap swap-rotate bg-purple-500 p-3 rounded-xl text-white hover:bg-blue-400"
+          >
+            <p className="swap-off fill-current">
+              {IsAdding === true ? "ADDING..." : "ADD"}
+            </p>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const AddUsersModal = () => {
   const [currentFriends, setUsers] = useState<RoomMember[]>([]);
+  const [currentRoomMembers, setRoomMembers] = useState<RoomMember[]>([]);
   const LayoutState = useModalStore((state) => state);
   const [IsLoading, setIsLoading] = useState(false);
-  const [IsAdding, setIsAdding] = useState(false);
+
   const [skipCount, setSkipCount] = useState(true);
+  const ChatState = useChatStore((state) => state);
 
   useEffect(() => {
     if (skipCount) setSkipCount(false);
@@ -310,6 +361,21 @@ export const AddUsersModal = () => {
       const fetchData = async () => {
         try {
           setIsLoading(true);
+
+          await getRoomMembersCall(
+            ChatState.selectedChatID as string,
+            0,
+            100
+          ).then((res) => {
+            setIsLoading(false);
+            if (res?.status === 200 || res?.status === 201) {
+              const extractedData = res.data;
+              setRoomMembers(extractedData);
+            } else {
+              console.log("wrong");
+            }
+          });
+
           await getFriendsCall(0, 100).then((res) => {
             setIsLoading(false);
             if (res?.status === 200 || res?.status === 201) {
@@ -347,7 +413,6 @@ export const AddUsersModal = () => {
 
       fetchData();
     }
-    // to change later
   }, [LayoutState.showAddUsersModal]);
   return (
     <div className="modal w-screen " id="my_modal_6">
@@ -365,49 +430,16 @@ export const AddUsersModal = () => {
             </div>
           ) : (
             <div className="max-h-[300px] overflow-y-auto no-scrollbar">
-              {currentFriends.map((user) => (
-                
-                <div key={user.id}>
-                  <div className="flex flex-row justify-between p-3">
-                    <div className="flex flex-row items-center space-x-3">
-                      <div className="pr-1">
-                        <img
-                          className="w-12 rounded-full "
-                          alt=""
-                          src={user?.avatar?.medium}
-                        />
-                      </div>
-
-                      <p className="text-white font-poppins text-base font-medium leading-normal">
-                        {user?.name?.first ?? "user"}
-                      </p>
-                    </div>
-
-                    <div>
-                      <button
-                        onClick={async () => {
-                          setIsAdding(true);
-                          await takeActionCall(
-                            selectedChatID,
-                            user.id,
-                            "add"
-                          ).then((res) => {
-                            setIsAdding(false);
-                            if (res?.status === 200 || res?.status === 201) {
-                              toast.success("User Added Successfully");
-                            }
-                          });
-                        }}
-                        className="btn  swap swap-rotate bg-purple-500 p-3 rounded-xl text-white hover:bg-blue-400"
-                      >
-                        <p className="swap-off fill-current">
-                          {IsAdding === true ? "ADDING..." : "ADD"}
-                        </p>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              {currentFriends
+                .filter(
+                  (friend) =>
+                    !currentRoomMembers.some(
+                      (member) => member.id === friend.id
+                    )
+                )
+                .map((user) => (
+                  <FriendTile user={user} />
+                ))}
             </div>
           )}
 
@@ -608,6 +640,9 @@ export const RoomSettingsModal = () => {
                         <li
                           onClick={async () => {
                             setTakeAction(true);
+                            LayoutState.setShowSettingsModal(
+                              !LayoutState.showSettingsModal
+                            );
                             await takeActionCall(
                               selectedChatID as string,
                               user.id,
@@ -650,6 +685,10 @@ export const RoomSettingsModal = () => {
                               "kick"
                             ).then((res) => {
                               setTakeAction(false);
+                              LayoutState.setShowSettingsModal(
+                                !LayoutState.showSettingsModal
+                              );
+
                               if (res?.status === 200 || res?.status === 201) {
                                 toast.success("User Kicked Successfully");
                               }

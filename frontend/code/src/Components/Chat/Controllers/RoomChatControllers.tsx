@@ -33,7 +33,7 @@ export interface ChatState {
 }
 
 export const useChatStore = create<ChatState>()((set) => ({
-  selectedChatID: "1",
+  selectedChatID: chatRooms.length > 0 ? chatRooms[0].id : "1",
   selectedChatType: ChatType.Chat,
   recentRooms: chatRooms,
   isLoading: false,
@@ -46,7 +46,6 @@ export const useChatStore = create<ChatState>()((set) => ({
   currentRoomMessages: chatRooms.find((room) => room.id === "1")
     ?.messages as Message[],
 
-    
   deleteRoom: (id: string) =>
     set((state) => {
       const roomIndex = chatRooms.findIndex((room) => room.id === id);
@@ -66,11 +65,15 @@ export const useChatStore = create<ChatState>()((set) => ({
       state.isLoading = isLoading;
       return { ...state };
     }),
+    
   fillRecentRooms: (rooms: ChatRoom[]) =>
     set((state) => {
       chatRooms.length = 0;
       chatRooms.push(...rooms);
       state.recentRooms = [...chatRooms];
+      if (state.recentRooms.length > 0 && state.selectedChatID === "1")
+        state.selectedChatID = state.recentRooms[0].id;
+
       return { ...state };
     }),
 

@@ -23,6 +23,7 @@ import {
   RoomSettingsModal,
   ShowLogoModal,
 } from "./Components/RoomChatHelpers";
+
 import { getRoomMembersCall } from "./Services/ChatServices";
 
 import toast from "react-hot-toast";
@@ -111,16 +112,22 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
-        await getRoomMembersCall(SelectedChat as string, 0, 10).then((res) => {
-          if (res?.status === 200 || res?.status === 201) {
-            const extractedData = res.data;
-            setIsLoading(false);
-            setUsers(extractedData);
-          } else {
-            toast.error("Error getting room members");
-          }
-        });
+        if (SelectedChat === "1") {
+          onRemoveUserPreview();
+        } else {
+          setIsLoading(true);
+          await getRoomMembersCall(SelectedChat as string, 0, 10).then(
+            (res) => {
+              if (res?.status === 200 || res?.status === 201) {
+                const extractedData = res.data;
+                setIsLoading(false);
+                setUsers(extractedData);
+              } else {
+                toast.error("Error getting room members");
+              }
+            }
+          );
+        }
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
