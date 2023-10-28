@@ -11,7 +11,6 @@ import users, {
   RoomMember,
   RoomType,
   Unlock,
-  UserImage,
   chatRooms,
   check,
   groupIcon,
@@ -612,7 +611,9 @@ export const RoomSettingsModal = () => {
             </div>
           ) : (
             <div className="max-h-[300px] overflow no-scrollbar justify-center relative">
-              {currentUsers.length < 2 && <NullPlaceHolder message="You have No Members, Add someone!" />}
+              {currentUsers.length < 2 && (
+                <NullPlaceHolder message="You have No Members, Add someone!" />
+              )}
               {currentUsers
                 .filter((user) => user.id !== currentUser.id)
                 .map((user) => (

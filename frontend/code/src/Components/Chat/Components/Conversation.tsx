@@ -14,6 +14,13 @@ import { KeyboardEvent } from "react";
 import { leaveRoomCall } from "../Services/ChatServices";
 import toast from "react-hot-toast";
 import { useModalStore } from "../Controllers/LayoutControllers";
+import {
+  getRoomMessagesCall,
+  sendMessageCall,
+} from "../Services/MessagesServices";
+import { Message as UserMessage } from "../../Layout/Assets/Message";
+import { useStore } from "zustand";
+import { useUserStore } from "../../../Stores/stores";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -25,20 +32,16 @@ export interface ChatPaceHolderProps {
   id: string;
 }
 
-export const CurrentUserMessage = ({
-  message,
-  time,
-  // isRead,
-  senderId,
-}: Message) => {
+export const CurrentUserMessage = ({ message, time, senderId }: Message) => {
   const [MyUsers] = useState(users);
+  const currentUser = useUserStore((state) => state);
 
   const SelectedChat = useChatStore((state) => state.selectedChatID);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
 
   const currentChatMessages = MyUsers.find((user) => user.id === SelectedChat);
 
-  return senderId === "2" ? (
+  return senderId === currentUser.id ? (
     <div className="chat chat-end p-2 pl-5 ">
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
@@ -272,6 +275,8 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 export const Conversation: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
+  const [CurrentsMessages, setMessages] = useState<Message[]>([]);
+  const chatState = useChatStore((state) => state);
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const currentChatMessages = useChatStore((state) => state.currentMessages);
@@ -292,8 +297,35 @@ export const Conversation: React.FC<ConversationProps> = ({
     setInputValue(e.target.value); // Update the input value in state
   };
 
-  // Use the useEffect hook to scroll to the end when the component mounts
   useEffect(() => {
+    const fetch = async () =>
+      getRoomMessagesCall(chatState.selectedChatID, 0,30).then((res) => {
+        if (res?.status !== 200 && res?.status !== 201) {
+          toast.error("error getting room messages");
+        } else {
+          const messages: Message[] = [];
+          res.data.forEach(
+            (message: {
+              id: string;
+              content: string;
+              time: string;
+              roomId: string;
+              authorId: string;
+            }) => {
+              messages.push({
+                senderId: message.authorId,
+                message: message.content,
+                time: message.time,
+              });
+            }
+          );
+          setMessages(messages);
+        }
+
+        const response = res?.data;
+      });
+
+    fetch();
     scrollToBottom();
   }, [selectedMessages]);
 
@@ -327,8 +359,8 @@ export const Conversation: React.FC<ConversationProps> = ({
         className="flex-grow overflow-y-auto no-scrollbar"
         ref={messageContainerRef}
       >
-        {(selectedMessages?.length as number) > 0 ? (
-          selectedMessages?.map((message) => (
+        {(CurrentsMessages?.length as number) > 0 ? (
+          CurrentsMessages?.map((message) => (
             <CurrentUserMessage
               // to set a unique key
               // key={message.senderId}
@@ -357,15 +389,25 @@ export const Conversation: React.FC<ConversationProps> = ({
               />
 
               <button
-                onClick={() => {
+                onClick={async () => {
                   setInputValue("");
 
                   if (inputValue.length > 0) {
-                    pushMessage({
-                      senderId: "2000",
-                      message: inputValue,
-                      isRead: false,
-                      time: "10",
+                    await sendMessageCall(
+                      chatState.selectedChatID,
+                      inputValue
+                    ).then((res) => {
+                      if (res?.status !== 200 && res?.status !== 201) {
+                        toast.error("error sending message");
+                      } else {
+                        // hard coded to change
+                        pushMessage({
+                          senderId: "2000",
+                          message: inputValue,
+                          isRead: false,
+                          time: "10",
+                        });
+                      }
                     });
                   }
                 }}

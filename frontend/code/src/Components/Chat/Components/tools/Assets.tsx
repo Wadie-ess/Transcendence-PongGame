@@ -56,10 +56,13 @@ export {
 };
 
 export interface Message {
+  id?: string;
+  roomId? : string;
   senderId: string;
   message: string;
   time: string;
-  isRead: boolean;
+  isRead?: boolean;
+
 }
 
 export interface RoomMember {
