@@ -59,6 +59,7 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
 
     await this.usersService.updateUser(new_user.userId, {
       avatar: `v${result.version}/${result.public_id}.${result.format}`,
+      tfaStatus: false,
     });
 
     const tokens = await this.jwtUtils.generateTokens(

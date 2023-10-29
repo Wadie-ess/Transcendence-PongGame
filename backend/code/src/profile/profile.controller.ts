@@ -1,11 +1,15 @@
 import {
   Body,
   Controller,
+  FileTypeValidator,
   Get,
   HttpCode,
   HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -25,6 +29,8 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { QueryOffsetDto } from 'src/friends/dto/query-ofsset-dto';
 
 @ApiTags('profile')
 @ApiCookieAuth('X-Acces-Token')
@@ -36,14 +42,13 @@ export class ProfileController {
   @ApiOkResponse({ type: ProfileDto })
   @UseGuards(AtGuard)
   async getMe(@GetCurrentUser('userId') userId: string): Promise<ProfileDto> {
-    console.log(userId);
     return await this.profileService.getProfile(userId);
   }
 
   @Post('me')
   @ApiOkResponse({ type: ProfileDto })
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AtGuard)
+  @UseGuards(AuthGuard('jwt'))
   updateMe(
     @GetCurrentUser('userId') userId: string,
     @Body() update_data: UpdateProfileDto,
@@ -64,7 +69,7 @@ export class ProfileController {
     @Param('id') Id: string,
     @GetCurrentUser('userId') userId: string,
   ) {
-    return this.profileService.getProfile(userId, Id);
+    return this.profileService.getFriendProfile(userId, Id);
   }
 
   @Post('avatar')
@@ -84,7 +89,15 @@ export class ProfileController {
   @UseGuards(AtGuard)
   uploadAvatar(
     @GetCurrentUser('userId') userId: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5e6 }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
   ) {
     return this.profileService.uploadAvatar(userId, file);
   }
@@ -94,5 +107,14 @@ export class ProfileController {
   @UseGuards(AtGuard)
   getAvatar(@Param('id') recourseId: string) {
     return this.profileService.getAvatar(recourseId);
+  }
+
+  @Get('notifications')
+  @UseGuards(AtGuard)
+  getNotifications(
+    @GetCurrentUser('userId') userId: string,
+    @Query() { offset, limit }: QueryOffsetDto,
+  ) {
+    return this.profileService.getNotifications(userId, offset, limit);
   }
 }
