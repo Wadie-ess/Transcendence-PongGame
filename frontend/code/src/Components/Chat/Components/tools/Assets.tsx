@@ -18,6 +18,7 @@ import NullImage from "../../assets/null_asset.svg";
 import ChatIcon from "../../assets/Chat.svg";
 import RoomsIcon from "../../assets/group_share.svg";
 import Explore from "../../assets/explore.svg";
+import owner from "../../assets/owner.svg";
 import Lock from "../../assets/lockIcon.svg";
 import Unlock from "../../assets/UnlockIcon.svg";
 import ChatGif from "../../assets/chatGif.gif";
@@ -53,16 +54,16 @@ export {
   Unlock,
   ChatGif,
   NullUser,
+  owner,
 };
 
 export interface Message {
   id?: string;
-  roomId? : string;
+  roomId?: string;
   senderId: string;
   message: string;
   time: string;
   isRead?: boolean;
-
 }
 
 export interface RoomMember {
@@ -86,6 +87,7 @@ export interface ChatRoom {
   isOwner: boolean;
   isAdmin: boolean;
   type: RoomType;
+  membersCount?: number;
 }
 
 export interface User {
