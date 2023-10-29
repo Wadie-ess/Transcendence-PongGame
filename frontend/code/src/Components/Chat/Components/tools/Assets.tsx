@@ -70,12 +70,13 @@ export interface RoomMember {
   id: string;
   firstname: string;
   lastname: string;
-
   avatar: {
     thumbnail: string;
     medium: string;
     large: string;
   };
+  isBaned?: boolean;
+  isMuted?: boolean;
 }
 
 export interface ChatRoom {

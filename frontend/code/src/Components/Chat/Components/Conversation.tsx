@@ -18,8 +18,7 @@ import {
   getRoomMessagesCall,
   sendMessageCall,
 } from "../Services/MessagesServices";
-import { Message as UserMessage } from "../../Layout/Assets/Message";
-import { useStore } from "zustand";
+
 import { useUserStore } from "../../../Stores/stores";
 
 export interface ChatPaceHolderProps {
@@ -277,21 +276,12 @@ export const Conversation: React.FC<ConversationProps> = ({
 }) => {
   const chatState = useChatStore((state) => state);
   const messageContainerRef = useRef<HTMLDivElement>(null);
-  const selectedChatType = useChatStore((state) => state.selectedChatType);
-  const currentChatMessages = useChatStore((state) => state.currentMessages);
-  const currentRoomMessages = useChatStore(
-    (state) => state.currentRoomMessages
-  );
 
   const pushMessage = useChatStore((state) => state.addNewMessage);
   const [CurrentsMessages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [FailToSendMessage, setFail] = useState(false);
 
-  const selectedMessages =
-    selectedChatType === ChatType.Chat
-      ? currentChatMessages
-      : currentRoomMessages;
   // Function to handle input changes
   const handleInputChange = (e: {
     target: { value: React.SetStateAction<string> };
@@ -323,8 +313,6 @@ export const Conversation: React.FC<ConversationProps> = ({
           );
           setMessages(messages);
         }
-
-        const response = res?.data;
       });
 
     fetch();

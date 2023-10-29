@@ -14,7 +14,7 @@ import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
 import { FirstLogin } from "../FirstLogin";
-import { AxiosError, type AxiosResponse } from "axios";
+
 
 const routes = [
   { path: "Profile/:id" },

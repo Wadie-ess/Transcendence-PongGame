@@ -1,6 +1,6 @@
 import { SetStateAction, useEffect, useState } from "react";
 import { useChatStore } from "../Controllers/RoomChatControllers";
-import users, {
+import {
   ChatGif,
   ChatRoom,
   GroupChat,
@@ -15,7 +15,7 @@ import users, {
   check,
   groupIcon,
 } from "./tools/Assets";
-import { SelectedUserTile } from "..";
+
 
 import {
   DeleteRoomCall,
@@ -410,6 +410,7 @@ export const AddUsersModal = () => {
 
       fetchData();
     }
+    // eslint-disable-next-line
   }, [LayoutState.showAddUsersModal]);
   return (
     <div className="modal w-screen " id="my_modal_6">
@@ -475,7 +476,6 @@ export const RoomSettingsModal = () => {
   const [RoomName, setName] = useState("");
   const [RoomPassword, setPassword] = useState("");
   const [LoadingUsers, setLOading] = useState(false);
-
 
   const handlePasswordChange = (event: {
     target: { value: SetStateAction<string> };
@@ -647,43 +647,53 @@ export const RoomSettingsModal = () => {
                         <li
                           onClick={async () => {
                             setTakeAction(true);
-                            LayoutState.setShowSettingsModal(
-                              !LayoutState.showSettingsModal
-                            );
                             await takeActionCall(
                               selectedChatID as string,
                               user.id,
-                              "ban"
+                              user.isBaned ? "unban" : "ban"
                             ).then((res) => {
                               setTakeAction(false);
                               if (res?.status === 200 || res?.status === 201) {
-                                toast.success("User baned Successfully");
+                                toast.success(res.data.message);
                               }
+                              LayoutState.setShowSettingsModal(
+                                !LayoutState.showSettingsModal
+                              );
                             });
                           }}
                         >
-                          <span className="hover:bg-[#7940CF]">Ban</span>
+                          <span className="hover:bg-[#7940CF]">
+                            {user.isBaned ? "UnBan" : "Ban"}
+                          </span>
                         </li>
 
-                        <li
-                          onClick={async () => {
-                            setTakeAction(true);
-                            await takeActionCall(
-                              selectedChatID as string,
-                              user.id,
-                              "mute"
-                            ).then((res) => {
-                              setTakeAction(false);
-                              if (res?.status === 200 || res?.status === 201) {
-                                toast.success(
-                                  "User Muted For a 5 minutes Successfully"
+                        {user.isMuted === false && (
+                          <li
+                            onClick={async () => {
+                              setTakeAction(true);
+                              await takeActionCall(
+                                selectedChatID as string,
+                                user.id,
+                                "mute"
+                              ).then((res) => {
+                                setTakeAction(false);
+                                if (
+                                  res?.status === 200 ||
+                                  res?.status === 201
+                                ) {
+                                  toast.success(
+                                    "User Muted For a 5 minutes Successfully"
+                                  );
+                                }
+                                LayoutState.setShowSettingsModal(
+                                  !LayoutState.showSettingsModal
                                 );
-                              }
-                            });
-                          }}
-                        >
-                          <span className="hover:bg-[#7940CF]">mute</span>
-                        </li>
+                              });
+                            }}
+                          >
+                            <span className="hover:bg-[#7940CF]">mute</span>
+                          </li>
+                        )}
 
                         <li
                           onClick={async () => {

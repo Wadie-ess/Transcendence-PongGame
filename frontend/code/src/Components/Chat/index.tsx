@@ -134,6 +134,8 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
     };
 
     fetchData();
+
+    //eslint-disable-next-line
   }, [SelectedChat]);
   return (
     <div className="flex flex-col p-4   ">
