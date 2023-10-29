@@ -212,7 +212,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
                       </div>
                       <div>
                         <div className="text-gray-400 font-poppins font-medium text-base max-w-[80px] md:max-w-[180px]  truncate">
-                          {user.name?.first ?? "user"}
+                          {user?.firstname ?? "user"}
                         </div>
                       </div>
                     </div>

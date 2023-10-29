@@ -275,7 +275,6 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 export const Conversation: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
-  const [CurrentsMessages, setMessages] = useState<Message[]>([]);
   const chatState = useChatStore((state) => state);
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
@@ -283,8 +282,11 @@ export const Conversation: React.FC<ConversationProps> = ({
   const currentRoomMessages = useChatStore(
     (state) => state.currentRoomMessages
   );
+
   const pushMessage = useChatStore((state) => state.addNewMessage);
+  const [CurrentsMessages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [FailToSendMessage, setFail] = useState(false);
 
   const selectedMessages =
     selectedChatType === ChatType.Chat
@@ -294,14 +296,14 @@ export const Conversation: React.FC<ConversationProps> = ({
   const handleInputChange = (e: {
     target: { value: React.SetStateAction<string> };
   }) => {
+    setFail(false);
     setInputValue(e.target.value); // Update the input value in state
   };
 
   useEffect(() => {
     const fetch = async () =>
-      getRoomMessagesCall(chatState.selectedChatID, 0,30).then((res) => {
+      getRoomMessagesCall(chatState.selectedChatID, 0, 30).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
-          toast.error("error getting room messages");
         } else {
           const messages: Message[] = [];
           res.data.forEach(
@@ -327,7 +329,7 @@ export const Conversation: React.FC<ConversationProps> = ({
 
     fetch();
     scrollToBottom();
-  }, [selectedMessages]);
+  }, [chatState.selectedChatID]);
 
   const scrollToBottom = () => {
     if (messageContainerRef.current) {
@@ -385,7 +387,9 @@ export const Conversation: React.FC<ConversationProps> = ({
                 onChange={handleInputChange}
                 type="text"
                 placeholder="Type Message "
-                className="input w-full shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 placeholder:text-xs md:placeholder:text-base font-poppins text-base font-normal leading-normal "
+                className={`input w-full ${
+                  FailToSendMessage && " border-2 border-red-400 "
+                } shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 placeholder:text-xs md:placeholder:text-base font-poppins text-base font-normal leading-normal `}
               />
 
               <button
@@ -398,7 +402,11 @@ export const Conversation: React.FC<ConversationProps> = ({
                       inputValue
                     ).then((res) => {
                       if (res?.status !== 200 && res?.status !== 201) {
-                        toast.error("error sending message");
+                        setFail(true);
+                        toast.error(
+                          "you are not authorized to send messages in this room"
+                        );
+                        // set the input to red color
                       } else {
                         // hard coded to change
                         pushMessage({

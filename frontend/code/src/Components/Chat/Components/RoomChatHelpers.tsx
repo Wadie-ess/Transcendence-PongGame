@@ -313,7 +313,7 @@ export const FriendTile = (props: { user: RoomMember }) => {
           </div>
 
           <p className="text-white font-poppins text-base font-medium leading-normal">
-            {user?.name?.first ?? "user"}
+            {user?.firstname ?? "user"}
           </p>
         </div>
 
@@ -387,10 +387,8 @@ export const AddUsersModal = () => {
                 }) => {
                   friends.push({
                     id: friend.userId,
-                    name: {
-                      first: friend.firstName,
-                      last: friend.LastName,
-                    },
+                    firstname: friend.firstName,
+                    lastname: friend.LastName,
                     // to inject it with the real images later
                     avatar: {
                       thumbnail: NullUser,
@@ -463,20 +461,21 @@ export const AddUsersModal = () => {
 };
 
 export const RoomSettingsModal = () => {
-  const [currentUsers, setUsers] = useState<RoomMember[]>([]);
   const currentUser = useUserStore((state) => state);
   const editRoom = useChatStore((state) => state.editRoom);
   const selectedChatID = useChatStore((state) => state.selectedChatID);
   const deleteRoom = useChatStore((state) => state.deleteRoom);
   const currentRoom = chatRooms.find((room) => room.id === selectedChatID);
   const LayoutState = useModalStore((state) => state);
-  const [TakingAction, setTakeAction] = useState(false);
-
   const setIsLoading = useChatStore((state) => state.setIsLoading);
+
+  const [currentUsers, setUsers] = useState<RoomMember[]>([]);
   const [skipCount, setSkipCount] = useState(true);
+  const [TakingAction, setTakeAction] = useState(false);
   const [RoomName, setName] = useState("");
   const [RoomPassword, setPassword] = useState("");
   const [LoadingUsers, setLOading] = useState(false);
+
 
   const handlePasswordChange = (event: {
     target: { value: SetStateAction<string> };
@@ -631,7 +630,7 @@ export const RoomSettingsModal = () => {
                       </div>
 
                       <p className="text-white font-poppins text-base font-medium leading-normal">
-                        {user.name.first ?? "user"}
+                        {user?.firstname ?? "user"}
                       </p>
                     </div>
 
@@ -676,7 +675,9 @@ export const RoomSettingsModal = () => {
                             ).then((res) => {
                               setTakeAction(false);
                               if (res?.status === 200 || res?.status === 201) {
-                                toast.success("User Muted Successfully");
+                                toast.success(
+                                  "User Muted For a 5 minutes Successfully"
+                                );
                               }
                             });
                           }}

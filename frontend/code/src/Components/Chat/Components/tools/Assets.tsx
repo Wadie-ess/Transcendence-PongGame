@@ -68,10 +68,9 @@ export interface Message {
 
 export interface RoomMember {
   id: string;
-  name: {
-    first: string;
-    last: string;
-  };
+  firstname: string;
+  lastname: string;
+
   avatar: {
     thumbnail: string;
     medium: string;
