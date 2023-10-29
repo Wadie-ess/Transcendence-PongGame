@@ -8,12 +8,13 @@ import { Message } from "./Assets/Message";
 import { Profile } from "./Assets/Profile";
 import { Settings } from "./Assets/Settings";
 import { Out } from "./Assets/Out";
-import { FC, PropsWithChildren, useLayoutEffect } from "react";
+import { FC, PropsWithChildren, useLayoutEffect, useState , useEffect} from "react";
 import { Outlet } from "react-router";
 import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
 import { FirstLogin } from "../FirstLogin";
+import { io } from 'socket.io-client';
 
 const routes = [
   { path: "Profile/:id" },
@@ -32,7 +33,31 @@ const useCurrentPath = () => {
   return route.path;
 };
 
+export const socket = io("http://localhost:3004",{'transports': ['websocket', 'polling'],withCredentials:true});
 export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
+  const [isConnected, setIsConnected] = useState(socket.connected);
+  const [fooEvents, setFooEvents] = useState([]);
+  useEffect(() => {
+    function onConnect() {
+      console.log("hello")
+      setIsConnected(true);
+    }
+
+    function onDisconnect() {
+      setIsConnected(false);
+    }
+
+
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+    };
+  }, []);
+
   const user = useUserStore();
   const navigate = useNavigate();
 
