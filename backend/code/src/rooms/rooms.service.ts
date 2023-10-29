@@ -400,6 +400,7 @@ export class RoomsService {
       select: {
         user: {
           select: {
+            userId: true,
             firstName: true,
             lastName: true,
             avatar: true,
@@ -416,6 +417,7 @@ export class RoomsService {
           large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${member.user.avatar}`,
         };
         return {
+          id: member.user.userId,
           firstname: member.user.firstName,
           lastname: member.user.lastName,
           avatar: avatar,

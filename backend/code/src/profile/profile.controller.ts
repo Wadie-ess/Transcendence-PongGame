@@ -36,11 +36,11 @@ import { QueryOffsetDto } from 'src/friends/dto/query-ofsset-dto';
 @ApiCookieAuth('X-Acces-Token')
 @Controller('profile')
 export class ProfileController {
-  constructor(private readonly profileService: ProfileService) {}
+  constructor(private readonly profileService: ProfileService) { }
 
   @Get('me')
   @ApiOkResponse({ type: ProfileDto })
-  @UseGuards(AtGuard)
+  @UseGuards(AuthGuard('jwt'))
   async getMe(@GetCurrentUser('userId') userId: string): Promise<ProfileDto> {
     return await this.profileService.getProfile(userId);
   }
