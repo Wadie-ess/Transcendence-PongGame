@@ -26,6 +26,7 @@ Table users {
   roomMember room_members [not null]
   blocked_by blocked_friends [not null]
   blocked blocked_friends [not null]
+  Message messages [not null]
 }
 
 Table friends {
@@ -73,6 +74,7 @@ Table messages {
   id String [pk]
   authorId String [not null]
   room rooms [not null]
+  author users [not null]
   roomId String [not null]
   content String
 }
@@ -140,6 +142,8 @@ Ref: blocked_friends.blocked_id > users.userId
 Ref: matches.participant1Id > users.userId
 
 Ref: messages.roomId > rooms.id [delete: Cascade]
+
+Ref: messages.authorId > users.userId
 
 Ref: rooms.ownerId > users.userId
 

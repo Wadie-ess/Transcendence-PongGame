@@ -414,7 +414,7 @@ export class RoomsService {
         id: member.user.userId,
         name: { first: member.user.firstName, last: member.user.lastName },
         avatar,
-      }
+      };
     });
   }
 
@@ -490,7 +490,10 @@ export class RoomsService {
       skip: offset,
       take: limit,
       where: {
-        ...(joined && { members: { some: { userId: userId } } }),
+        ...(joined && {
+          members: { some: { userId: userId } },
+          NOT: { type: 'dm' },
+        }),
         ...(!joined && { OR: [{ type: 'public' }, { type: 'protected' }] }),
       },
       select: {
@@ -498,27 +501,64 @@ export class RoomsService {
         name: true,
         type: true,
         ownerId: true,
-        ...(joined && {members: {
-          where: {
-            userId: userId,
+        ...(joined && {
+          members: {
+            where: {
+              userId: userId,
+            },
+            select: {
+              is_admin: true,
+            },
           },
-          select: {
-            is_admin: true,
-          },
-        }})
+        }),
       },
     });
-    if (!joined)
-     return rooms;
-    return rooms.map((room) => {
-      const is_owner = room.ownerId === userId;
-      return {
-        id: room.id,
-        name: room.name,
-        type: room.type,
-        is_admin: room.members[0].is_admin,
-        is_owner,
-      };
-    });
+    if (!joined) return rooms;
+
+    type roomsData = {
+      is_admin: boolean;
+      id: string;
+      name: string;
+      type: string;
+      is_owner: boolean;
+      countMembers: number;
+      last_message: {
+        createdAt: Date;
+        content: string;
+      } | null;
+    };
+    const roomsData: roomsData[] = await Promise.all(
+      rooms.map(async (room) => {
+        const countMembers = await this.prisma.roomMember.count({
+          where: {
+            roomId: room.id,
+          },
+        });
+
+        const last_message = await this.prisma.message.findFirst({
+          where: {
+            roomId: room.id,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          select: {
+            content: true,
+            createdAt: true,
+          },
+        });
+        const is_owner = room.ownerId === userId;
+        return {
+          id: room.id,
+          name: room.name,
+          type: room.type,
+          is_admin: room.members[0].is_admin,
+          is_owner,
+          countMembers,
+          last_message,
+        };
+      }),
+    );
+    return roomsData;
   }
 }

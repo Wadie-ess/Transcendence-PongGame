@@ -6,12 +6,15 @@ import {
   IsOptional,
   IsString,
   Length,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateRoomDto {
-  @ApiProperty()
+  // @IgnoreName('type', { message: 'room name is not required on type dm' })
+  @ApiProperty({ description: 'name of the room required if type is not dm' })
   @IsString()
   @IsNotEmpty()
+  @ValidateIf((o) => o.type !== 'dm')
   name: string;
 
   @ApiProperty()
@@ -27,8 +30,9 @@ export class CreateRoomDto {
   @Length(8, 32)
   password?: string;
 
+  @ApiProperty({ description: 'second member of the room' })
+  @ValidateIf((o) => o.type === 'dm')
   @IsNotEmpty()
   @IsString()
-  @IsOptional()
   secondMember: string;
 }

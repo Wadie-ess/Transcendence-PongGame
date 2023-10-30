@@ -80,6 +80,13 @@ export class MessagesService {
         roomId: channelId,
         authorId: userId,
       },
+      include: {
+        author: {
+          select: {
+            avatar: true,
+          },
+        },
+      },
     });
 
     const responseMessage: MessageFormatDto = new MessageFormatDto(messageData);
@@ -116,6 +123,13 @@ export class MessagesService {
       },
       orderBy: {
         createdAt: 'desc',
+      },
+      include: {
+        author: {
+          select: {
+            avatar: true,
+          },
+        },
       },
       skip: offset,
       take: limit,
