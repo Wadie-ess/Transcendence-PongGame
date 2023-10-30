@@ -58,13 +58,8 @@ export class Gateways implements OnGatewayConnection {
   }
 
   @SubscribeMessage('startGame')
-  handleGameStartEvent(client: any) {
+  handleGameStartEvent(client: Socket) {
     this.eventEmitter.emit('game.start', client);
-  }
-
-  @SubscribeMessage('movePaddle')
-  handleMovePaddleEvent(client: any, data: any) {
-    this.server.to(data.channel).emit('movePaddle', data);
   }
 
   @OnEvent('game.launched')
