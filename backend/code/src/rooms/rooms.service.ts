@@ -407,6 +407,7 @@ export class RoomsService {
           },
         },
         is_banned: true,
+        is_mueted: true,
       },
     });
     return members.map((member) => {
@@ -421,6 +422,8 @@ export class RoomsService {
           firstname: member.user.firstName,
           lastname: member.user.lastName,
           avatar: avatar,
+          isBaned: member.is_banned,
+          isMuted: member.is_mueted,
         };
       }
     });
