@@ -476,15 +476,18 @@ export const RoomSettingsModal = () => {
   const [RoomName, setName] = useState("");
   const [RoomPassword, setPassword] = useState("");
   const [LoadingUsers, setLOading] = useState(false);
+  const [IsUpdated, setUpdate] = useState(false);
 
   const handlePasswordChange = (event: {
     target: { value: SetStateAction<string> };
   }) => {
+    setUpdate(true);
     setPassword(event.target.value);
   };
   const handleChange = (event: {
     target: { value: SetStateAction<string> };
   }) => {
+    setUpdate(true);
     setName(event.target.value);
   };
   const [selectedOption, setSelectedOption] = useState(RoomType.public);
@@ -518,6 +521,7 @@ export const RoomSettingsModal = () => {
   }, [LayoutState.showSettingsModal]);
 
   const resetModalState = () => {
+    setUpdate(false);
     setPassword("");
     setSelectedOption(currentRoom?.type as RoomType);
     setName(currentRoom?.name as string);
@@ -560,7 +564,10 @@ export const RoomSettingsModal = () => {
                     value="Public"
                     className="radio checked:bg-purple-500"
                     checked={selectedOption === RoomType.public}
-                    onChange={() => setSelectedOption(RoomType.public)}
+                    onChange={() => {
+                      setUpdate(true);
+                      setSelectedOption(RoomType.public);
+                    }}
                   />
                 </label>
                 <label className="label cursor-pointer">
@@ -571,7 +578,10 @@ export const RoomSettingsModal = () => {
                     value="Private"
                     className="radio checked:bg-red-500"
                     checked={selectedOption === RoomType.private}
-                    onChange={() => setSelectedOption(RoomType.private)}
+                    onChange={() => {
+                      setUpdate(true);
+                      setSelectedOption(RoomType.private);
+                    }}
                   />
                 </label>
                 <label className="label cursor-pointer">
@@ -582,7 +592,10 @@ export const RoomSettingsModal = () => {
                     value="Protected"
                     className="radio checked:bg-orange-500"
                     checked={selectedOption === RoomType.protected}
-                    onChange={() => setSelectedOption(RoomType.protected)}
+                    onChange={() => {
+                      setUpdate(true);
+                      setSelectedOption(RoomType.protected);
+                    }}
                   />
                 </label>
               </div>
@@ -776,38 +789,40 @@ export const RoomSettingsModal = () => {
               >
                 {"Close "}
               </a>
-              <a
-                href="#/"
-                onClick={async () => {
-                  console.log(RoomType[selectedOption]);
-                  if (RoomName !== "" && RoomName.length > 3) {
-                    setIsLoading(true);
-                    await updateRoomCall(
-                      RoomName,
-                      RoomType[selectedOption],
-                      currentRoom?.id!,
-                      selectedOption === RoomType.protected
-                        ? RoomPassword
-                        : undefined
-                    ).then((res) => {
-                      if (res?.status !== 200 && res?.status !== 201) {
-                        resetModalState();
-                      } else {
-                        toast.success("Room Updated Successfully");
-                        editRoom(RoomName, selectedOption, currentRoom?.id!);
-                        resetModalState();
-                      }
-                      setIsLoading(false);
-                    });
-                  } else {
-                    toast.error("Room name must be at least 4 characters");
-                    resetModalState();
-                  }
-                }}
-                className="btn hover:bg-purple-500"
-              >
-                {"Save "}
-              </a>
+              {IsUpdated === true && (
+                <a
+                  href="#/"
+                  onClick={async () => {
+                    console.log(RoomType[selectedOption]);
+                    if (RoomName !== "" && RoomName.length > 3) {
+                      setIsLoading(true);
+                      await updateRoomCall(
+                        RoomName,
+                        RoomType[selectedOption],
+                        currentRoom?.id!,
+                        selectedOption === RoomType.protected
+                          ? RoomPassword
+                          : undefined
+                      ).then((res) => {
+                        if (res?.status !== 200 && res?.status !== 201) {
+                          resetModalState();
+                        } else {
+                          toast.success("Room Updated Successfully");
+                          editRoom(RoomName, selectedOption, currentRoom?.id!);
+                          resetModalState();
+                        }
+                        setIsLoading(false);
+                      });
+                    } else {
+                      toast.error("Room name must be at least 4 characters");
+                      resetModalState();
+                    }
+                  }}
+                  className="btn hover:bg-purple-500"
+                >
+                  {"Save "}
+                </a>
+              )}
             </div>
           </div>
         </div>
