@@ -33,7 +33,7 @@ export interface ChatState {
 }
 
 export const useChatStore = create<ChatState>()((set) => ({
-  selectedChatID: "1",
+  selectedChatID: chatRooms.length > 0 ? chatRooms[0].id : "1",
   selectedChatType: ChatType.Chat,
   recentRooms: chatRooms,
   isLoading: false,
@@ -54,7 +54,10 @@ export const useChatStore = create<ChatState>()((set) => ({
       }
 
       state.recentRooms = [...chatRooms];
-      state.selectNewChatID(state.recentRooms[0].id);
+      if (state.recentRooms.length > 0)
+        state.selectedChatID = state.recentRooms[0].id;
+      else state.selectedChatID = "1";
+
       return { ...state };
     }),
   setIsLoading: (isLoading: boolean) =>
@@ -62,11 +65,15 @@ export const useChatStore = create<ChatState>()((set) => ({
       state.isLoading = isLoading;
       return { ...state };
     }),
+    
   fillRecentRooms: (rooms: ChatRoom[]) =>
     set((state) => {
       chatRooms.length = 0;
       chatRooms.push(...rooms);
       state.recentRooms = [...chatRooms];
+      if (state.recentRooms.length > 0 && state.selectedChatID === "1")
+        state.selectedChatID = state.recentRooms[0].id;
+
       return { ...state };
     }),
 

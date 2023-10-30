@@ -1,12 +1,13 @@
 import { SetStateAction, useEffect, useState } from "react";
-import { useChatStore } from "../Controllers/ChatControllers";
-import users, {
+import { useChatStore } from "../Controllers/RoomChatControllers";
+import {
   ChatGif,
   ChatRoom,
   GroupChat,
   Lock,
   More,
   NullImage,
+  NullUser,
   RoomMember,
   RoomType,
   Unlock,
@@ -14,12 +15,13 @@ import users, {
   check,
   groupIcon,
 } from "./tools/Assets";
-import { SelectedUserTile } from "..";
+
 
 import {
   DeleteRoomCall,
   createNewRoomCall,
   fetchRoomsCall,
+  getFriendsCall,
   getRoomMembersCall,
   joinRoomCall,
   takeActionCall,
@@ -27,7 +29,7 @@ import {
 } from "../Services/ChatServices";
 import toast from "react-hot-toast";
 import { Logo } from "../../Layout/Assets/Logo";
-import { useModalStore } from "../Controllers/ModalControllers";
+import { useModalStore } from "../Controllers/LayoutControllers";
 import { useUserStore } from "../../../Stores/stores";
 
 interface NullComponentProps {
@@ -42,10 +44,9 @@ export const RoomChatPlaceHolder = () => {
   useEffect(() => {
     const fetch = async () => {
       setIsLoading(true);
-      // to make it dynamic later
+
       await fetchRoomsCall(0, 100, true).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
-          // toast.error("something went wrong, try again");
         } else {
           const rooms: ChatRoom[] = [];
           res.data.forEach(
@@ -75,7 +76,7 @@ export const RoomChatPlaceHolder = () => {
 
     fetch();
     // eslint-disable-next-line
-  }, [ChatRoomsState.selectedChatID]);
+  }, [ChatRoomsState.selectedChatID, ChatRoomsState.selectedChatType]);
 
   return ChatRoomsState.recentRooms.length > 0 ? (
     <div className="bg-[#1A1C26] h-full">
@@ -293,34 +294,158 @@ export const CreateNewRoomModal = () => {
   );
 };
 
-export const AddUsersModal = () => {
-  const [MyUsers] = useState(users);
+export const FriendTile = (props: { user: RoomMember }) => {
+  const [IsAdding, setIsAdding] = useState(false);
+  const selectedChatID = useChatStore((state) => state.selectedChatID);
+  const LayoutState = useModalStore((state) => state);
+  const user = props.user;
 
+  return (
+    <div key={user.id}>
+      <div className="flex flex-row justify-between p-3">
+        <div className="flex flex-row items-center space-x-3">
+          <div className="pr-1">
+            <img
+              className="w-12 rounded-full "
+              alt=""
+              src={user?.avatar?.medium}
+            />
+          </div>
+
+          <p className="text-white font-poppins text-base font-medium leading-normal">
+            {user?.firstname ?? "user"}
+          </p>
+        </div>
+
+        <div>
+          <button
+            onClick={async () => {
+              setIsAdding(true);
+              await takeActionCall(selectedChatID, user.id, "add").then(
+                (res) => {
+                  setIsAdding(false);
+                  if (res?.status === 200 || res?.status === 201) {
+                    LayoutState.setShowAddUsersModal(
+                      !LayoutState.showAddUsersModal
+                    );
+                    toast.success("User Added Successfully");
+                  }
+                }
+              );
+            }}
+            className="btn  swap swap-rotate bg-purple-500 p-3 rounded-xl text-white hover:bg-blue-400"
+          >
+            <p className="swap-off fill-current">
+              {IsAdding === true ? "ADDING..." : "ADD"}
+            </p>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const AddUsersModal = () => {
+  const [currentFriends, setUsers] = useState<RoomMember[]>([]);
+  const [currentRoomMembers, setRoomMembers] = useState<RoomMember[]>([]);
+  const LayoutState = useModalStore((state) => state);
+  const [IsLoading, setIsLoading] = useState(false);
+
+  const [skipCount, setSkipCount] = useState(true);
+  const ChatState = useChatStore((state) => state);
+
+  useEffect(() => {
+    if (skipCount) setSkipCount(false);
+    if (!skipCount) {
+      const fetchData = async () => {
+        try {
+          setIsLoading(true);
+
+          await getRoomMembersCall(
+            ChatState.selectedChatID as string,
+            0,
+            100
+          ).then((res) => {
+            setIsLoading(false);
+            if (res?.status === 200 || res?.status === 201) {
+              const extractedData = res.data;
+              setRoomMembers(extractedData);
+            } else {
+              console.log("wrong");
+            }
+          });
+
+          await getFriendsCall(0, 100).then((res) => {
+            setIsLoading(false);
+            if (res?.status === 200 || res?.status === 201) {
+              const friends: RoomMember[] = [];
+              res.data.forEach(
+                (friend: {
+                  userId: string;
+                  firstName: string;
+                  LastName: string;
+                }) => {
+                  friends.push({
+                    id: friend.userId,
+                    firstname: friend.firstName,
+                    lastname: friend.LastName,
+                    // to inject it with the real images later
+                    avatar: {
+                      thumbnail: NullUser,
+                      medium: NullUser,
+                      large: NullUser,
+                    },
+                  } as RoomMember);
+                }
+              );
+
+              setUsers(friends);
+            } else {
+            }
+          });
+        } catch (error) {
+          console.error("Error fetching data: ", error);
+        }
+      };
+
+      fetchData();
+    }
+    // eslint-disable-next-line
+  }, [LayoutState.showAddUsersModal]);
   return (
     <div className="modal w-screen " id="my_modal_6">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
-            <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
-              Select To Add Users
+            <p className="text-purple-500 font-poppins text-lg font-medium leading-normal pb-2">
+              Add Friends To The Room
             </p>
           </div>
 
-          {/* Scrollable part */}
-          <div className="max-h-[300px] overflow-y-auto no-scrollbar">
-            {MyUsers.map((user) => (
-              <SelectedUserTile
-                key={user.id}
-                id={user.id} // Make sure to add a unique key prop
-                username={user.name}
-                userImage={user.image}
-                message={""}
-                time={""}
-                isMe={false}
-                isRead={false}
-              />
-            ))}
-          </div>
+          {IsLoading === true ? (
+            <div className="text-center p-2">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          ) : (
+            <div className="max-h-[300px] overflow-y-auto no-scrollbar">
+              {currentFriends.filter(
+                (friend) =>
+                  !currentRoomMembers.some((member) => member.id === friend.id)
+              ).length < 1 && (
+                <NullPlaceHolder message="No Friends To Add Yet" />
+              )}
+              {currentFriends
+                .filter(
+                  (friend) =>
+                    !currentRoomMembers.some(
+                      (member) => member.id === friend.id
+                    )
+                )
+                .map((user) => (
+                  <FriendTile user={user} />
+                ))}
+            </div>
+          )}
 
           <div className="modal-action ">
             <a href="#/" className="btn hover:bg-purple-500">
@@ -337,17 +462,20 @@ export const AddUsersModal = () => {
 };
 
 export const RoomSettingsModal = () => {
-  const [currentUsers, setUsers] = useState<RoomMember[]>([]);
   const currentUser = useUserStore((state) => state);
   const editRoom = useChatStore((state) => state.editRoom);
   const selectedChatID = useChatStore((state) => state.selectedChatID);
   const deleteRoom = useChatStore((state) => state.deleteRoom);
   const currentRoom = chatRooms.find((room) => room.id === selectedChatID);
-
+  const LayoutState = useModalStore((state) => state);
   const setIsLoading = useChatStore((state) => state.setIsLoading);
+
+  const [currentUsers, setUsers] = useState<RoomMember[]>([]);
   const [skipCount, setSkipCount] = useState(true);
+  const [TakingAction, setTakeAction] = useState(false);
   const [RoomName, setName] = useState("");
   const [RoomPassword, setPassword] = useState("");
+  const [LoadingUsers, setLOading] = useState(false);
 
   const handlePasswordChange = (event: {
     target: { value: SetStateAction<string> };
@@ -368,8 +496,10 @@ export const RoomSettingsModal = () => {
     if (!skipCount) {
       const fetchData = async () => {
         try {
+          setLOading(true);
           await getRoomMembersCall(currentRoom?.id as string, 0, 30).then(
             (res) => {
+              setLOading(false);
               if (res?.status === 200 || res?.status === 201) {
                 const extractedData = res.data;
                 setUsers(extractedData);
@@ -385,7 +515,7 @@ export const RoomSettingsModal = () => {
       fetchData();
     }
     // eslint-disable-next-line
-  }, [selectedChatID]);
+  }, [LayoutState.showSettingsModal]);
 
   const resetModalState = () => {
     setPassword("");
@@ -397,59 +527,67 @@ export const RoomSettingsModal = () => {
     <div className="modal w-screen " id="my_modal_9">
       <div className="modal-box bg-[#1A1C26]  no-scrollbar w-[90%] md:w-[50%] ">
         <div className="flex flex-col">
-          <div className="flex flex-row justify-center">
-            <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
-              {RoomName}'s Settings
-            </p>
-          </div>
-          <div className="flex flex-row p-3">
-            <div className="flex flex-row w-full justify-center pt-2">
-              <img className="mr-2" alt="" src={GroupChat} />
-              <input
-                value={RoomName}
-                onChange={handleChange}
-                type="text"
-                placeholder="Set The Room Name"
-                className="input w-full shadow-xl max-w-lg bg-[#272932] placeholder:text-gray-400 font-poppins text-base font-normal leading-normal"
-              />
+          {TakingAction === true ? (
+            <div className="text-center p-2">
+              <span className="loading loading-infinity loading-lg bg-purple-500"></span>
+              <p>Processing...</p>
             </div>
-          </div>
-
-          <div className="flex flex-row form-control justify-around">
-            <label className="label cursor-pointer ">
-              <span className="label-text pr-2">Public</span>
-              <input
-                type="radio"
-                name="radio-20"
-                value="Public"
-                className="radio checked:bg-purple-500"
-                checked={selectedOption === RoomType.public}
-                onChange={() => setSelectedOption(RoomType.public)}
-              />
-            </label>
-            <label className="label cursor-pointer">
-              <span className="label-text pr-2">Private</span>
-              <input
-                type="radio"
-                name="radio-20"
-                value="Private"
-                className="radio checked:bg-red-500"
-                checked={selectedOption === RoomType.private}
-                onChange={() => setSelectedOption(RoomType.private)}
-              />
-            </label>
-            <label className="label cursor-pointer">
-              <span className="label-text pr-2">Protected</span>
-              <input
-                type="radio"
-                name="radio-20"
-                value="Protected"
-                className="radio checked:bg-orange-500"
-                checked={selectedOption === RoomType.protected}
-                onChange={() => setSelectedOption(RoomType.protected)}
-              />
-            </label>
-          </div>
+          ) : (
+            <div>
+              <div className="flex flex-row justify-center">
+                <p className="text-purple-500 font-poppins text-lg font-medium leading-normal">
+                  {RoomName}'s Settings
+                </p>
+              </div>
+              <div className="flex flex-row p-3">
+                <div className="flex flex-row w-full justify-center pt-2">
+                  <img className="mr-2" alt="" src={GroupChat} />
+                  <input
+                    value={RoomName}
+                    onChange={handleChange}
+                    type="text"
+                    placeholder="Set The Room Name"
+                    className="input w-full shadow-xl max-w-lg bg-[#272932] placeholder:text-gray-400 font-poppins text-base font-normal leading-normal"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row form-control justify-around">
+                <label className="label cursor-pointer ">
+                  <span className="label-text pr-2">Public</span>
+                  <input
+                    type="radio"
+                    name="radio-20"
+                    value="Public"
+                    className="radio checked:bg-purple-500"
+                    checked={selectedOption === RoomType.public}
+                    onChange={() => setSelectedOption(RoomType.public)}
+                  />
+                </label>
+                <label className="label cursor-pointer">
+                  <span className="label-text pr-2">Private</span>
+                  <input
+                    type="radio"
+                    name="radio-20"
+                    value="Private"
+                    className="radio checked:bg-red-500"
+                    checked={selectedOption === RoomType.private}
+                    onChange={() => setSelectedOption(RoomType.private)}
+                  />
+                </label>
+                <label className="label cursor-pointer">
+                  <span className="label-text pr-2">Protected</span>
+                  <input
+                    type="radio"
+                    name="radio-20"
+                    value="Protected"
+                    className="radio checked:bg-orange-500"
+                    checked={selectedOption === RoomType.protected}
+                    onChange={() => setSelectedOption(RoomType.protected)}
+                  />
+                </label>
+              </div>
+            </div>
+          )}
 
           {selectedOption === RoomType.protected && (
             <div className="flex flex-row p-3">
@@ -466,107 +604,146 @@ export const RoomSettingsModal = () => {
           )}
           <p className="p-2">Room Members</p>
 
-          {/* Scrollable part */}
-          <div className="max-h-[300px] overflow no-scrollbar justify-center relative">
-            {currentUsers
-              .filter((user) => user.id !== currentUser.id)
-              .map((user) => (
-                <div
-                  key={user.id}
-                  className="flex flex-row justify-between  bg-[#1A1C26] p-3 border-gray-600 relative"
-                >
-                  <div className="flex flex-row items-center space-x-3">
-                    <div className="pr-1">
-                      <img
-                        className="w-12 rounded-full "
-                        alt=""
-                        src={user.avatar.medium}
-                      />
+          {LoadingUsers === true ? (
+            <div className="text-center p-2">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          ) : (
+            <div className="max-h-[300px] overflow no-scrollbar justify-center relative">
+              {currentUsers.length < 2 && (
+                <NullPlaceHolder message="You have No Members, Add someone!" />
+              )}
+              {currentUsers
+                .filter((user) => user.id !== currentUser.id)
+                .map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex flex-row justify-between  bg-[#1A1C26] p-3 border-gray-600 relative"
+                  >
+                    <div className="flex flex-row items-center space-x-3">
+                      <div className="pr-1">
+                        <img
+                          className="w-12 rounded-full "
+                          alt=""
+                          src={user.avatar.medium}
+                        />
+                      </div>
+
+                      <p className="text-white font-poppins text-base font-medium leading-normal">
+                        {user?.firstname ?? "user"}
+                      </p>
                     </div>
 
-                    <p className="text-white font-poppins text-base font-medium leading-normal">
-                      {user.name.first ?? "user"}
-                    </p>
-                  </div>
-
-                  <div className="dropdown relative  top-0  z-100">
-                    <label tabIndex={0} className="">
-                      <summary className="list-none p-3 cursor-pointer ">
-                        <img src={More} alt="More" />
-                      </summary>
-                    </label>
-                    <ul
-                      tabIndex={0}
-                      className="p-2 right-5 bottom-7 shadow menu dropdown-content bg-base-100 rounded-box w-40"
-                    >
-                      <li
-                        onClick={async () => {
-                          await takeActionCall(
-                            selectedChatID as string,
-                            user.id,
-                            "ban"
-                          ).then((res) => {
-                            if (res?.status === 200 || res?.status === 201) {
-                              toast.success("User baned Successfully");
-                            }
-                          });
-                        }}
+                    <div className="dropdown relative  top-0  z-100">
+                      <label tabIndex={0} className="">
+                        <summary className="list-none p-3 cursor-pointer ">
+                          <img src={More} alt="More" />
+                        </summary>
+                      </label>
+                      <ul
+                        tabIndex={0}
+                        className="p-2 right-5 bottom-0 shadow menu dropdown-content bg-base-100 rounded-box w-40"
                       >
-                        <span className="hover:bg-[#7940CF]">Ban</span>
-                      </li>
-                      <li
-                        onClick={async () => {
-                          await takeActionCall(
-                            selectedChatID as string,
-                            user.id,
-                            "mute"
-                          ).then((res) => {
-                            if (res?.status === 200 || res?.status === 201) {
-                              toast.success("User Muted Successfully");
-                            }
-                          });
-                        }}
-                      >
-                        <span className="hover:bg-[#7940CF]">mute</span>
-                      </li>
-
-                      <li
-                        onClick={async () => {
-                          await takeActionCall(
-                            selectedChatID as string,
-                            user.id,
-                            "kick"
-                          ).then((res) => {
-                            if (res?.status === 200 || res?.status === 201) {
-                              toast.success("User Kicked Successfully");
-                            }
-                          });
-                        }}
-                      >
-                        <span className="hover:bg-[#7940CF]">kick</span>
-                      </li>
-                      <li
-                        onClick={async () => {
-                          await takeActionCall(
-                            selectedChatID as string,
-                            user.id,
-                            "setAdmin"
-                          ).then((res) => {
-                            if (res?.status === 200 || res?.status === 201) {
-                              toast.success(
-                                "User have been set as Admin Successfully"
+                        <li
+                          onClick={async () => {
+                            setTakeAction(true);
+                            await takeActionCall(
+                              selectedChatID as string,
+                              user.id,
+                              user.isBaned ? "unban" : "ban"
+                            ).then((res) => {
+                              setTakeAction(false);
+                              if (res?.status === 200 || res?.status === 201) {
+                                toast.success(res.data.message);
+                              }
+                              LayoutState.setShowSettingsModal(
+                                !LayoutState.showSettingsModal
                               );
-                            }
-                          });
-                        }}
-                      >
-                        <span className="hover:bg-[#7940CF]">Set as admin</span>
-                      </li>
-                    </ul>
+                            });
+                          }}
+                        >
+                          <span className="hover:bg-[#7940CF]">
+                            {user.isBaned ? "UnBan" : "Ban"}
+                          </span>
+                        </li>
+
+                        {user.isMuted === false && (
+                          <li
+                            onClick={async () => {
+                              setTakeAction(true);
+                              await takeActionCall(
+                                selectedChatID as string,
+                                user.id,
+                                "mute"
+                              ).then((res) => {
+                                setTakeAction(false);
+                                if (
+                                  res?.status === 200 ||
+                                  res?.status === 201
+                                ) {
+                                  toast.success(
+                                    "User Muted For a 5 minutes Successfully"
+                                  );
+                                }
+                                LayoutState.setShowSettingsModal(
+                                  !LayoutState.showSettingsModal
+                                );
+                              });
+                            }}
+                          >
+                            <span className="hover:bg-[#7940CF]">mute</span>
+                          </li>
+                        )}
+
+                        <li
+                          onClick={async () => {
+                            setTakeAction(true);
+                            await takeActionCall(
+                              selectedChatID as string,
+                              user.id,
+                              "kick"
+                            ).then((res) => {
+                              setTakeAction(false);
+                              LayoutState.setShowSettingsModal(
+                                !LayoutState.showSettingsModal
+                              );
+
+                              if (res?.status === 200 || res?.status === 201) {
+                                toast.success("User Kicked Successfully");
+                              }
+                            });
+                          }}
+                        >
+                          <span className="hover:bg-[#7940CF]">kick</span>
+                        </li>
+                        <li
+                          onClick={async () => {
+                            setTakeAction(true);
+                            await takeActionCall(
+                              selectedChatID as string,
+                              user.id,
+                              "setAdmin"
+                            ).then((res) => {
+                              setTakeAction(false);
+                              if (res?.status === 200 || res?.status === 201) {
+                                toast.success(
+                                  "User have been set as Admin Successfully"
+                                );
+                              }
+                            });
+                          }}
+                        >
+                          <span className="hover:bg-[#7940CF]">
+                            Set as admin
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
-                </div>
-              ))}
-          </div>
+                ))}
+            </div>
+          )}
+
           <div className="flex fex row justify-between items-baseline">
             <div className="">
               {currentRoom?.isOwner && (
@@ -657,7 +834,7 @@ export const ExploreRoomsModal = () => {
   useEffect(() => {
     const fetch = async () => {
       setIsLoading(true);
-      await fetchRoomsCall(0, 30, false).then((res) => {
+      await fetchRoomsCall(0, 100, false).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
           // toast.error("something went wrong, try again");
           resetModalState();
@@ -793,6 +970,7 @@ export const ExploreRoomsModal = () => {
                   } else {
                     toast.success("Room Joined Successfully");
                     recentRooms.selectNewChatID(SelectedRoomID);
+
                     resetModalState();
                   }
                 });

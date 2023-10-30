@@ -7,12 +7,19 @@ import users, {
   More,
   Send,
 } from "./tools/Assets";
-import { ChatType, useChatStore } from "../Controllers/ChatControllers";
+import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 
 import { ChatPlaceHolder, ConfirmationModal } from "./RoomChatHelpers";
 import { KeyboardEvent } from "react";
 import { leaveRoomCall } from "../Services/ChatServices";
 import toast from "react-hot-toast";
+import { useModalStore } from "../Controllers/LayoutControllers";
+import {
+  getRoomMessagesCall,
+  sendMessageCall,
+} from "../Services/MessagesServices";
+
+import { useUserStore } from "../../../Stores/stores";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -24,20 +31,16 @@ export interface ChatPaceHolderProps {
   id: string;
 }
 
-export const CurrentUserMessage = ({
-  message,
-  time,
-  // isRead,
-  senderId,
-}: Message) => {
+export const CurrentUserMessage = ({ message, time, senderId }: Message) => {
   const [MyUsers] = useState(users);
+  const currentUser = useUserStore((state) => state);
 
   const SelectedChat = useChatStore((state) => state.selectedChatID);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
 
   const currentChatMessages = MyUsers.find((user) => user.id === SelectedChat);
 
-  return senderId === "2" ? (
+  return senderId === currentUser.id ? (
     <div className="chat chat-end p-2 pl-5 ">
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
@@ -83,6 +86,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 }) => {
   const [MyUsers] = useState(users);
 
+  const LayoutState = useModalStore((state) => state);
   const ChatState = useChatStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
 
@@ -103,7 +107,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
     <>
       <div className="flex flex-row justify-between bg-[#1A1C26] p-3 border-b-2  border-black  ">
         <div className="flex flex-row ">
-          <div className="flex items-center justify-center h-full mr-4 md:hidden">
+          <div className="flex items-center justify-center h-full mr-4 lg:hidden">
             <button
               className="w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center hover:bg-slate-600"
               onClick={() => toggleChatRooms()}
@@ -161,12 +165,17 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                   invite for a Pong Game
                 </span>
               </li>
-              <li className="hidden md:block">
-                <span
-                  onClick={onRemoveUserPreview}
-                  className="hover:bg-[#7940CF]"
-                >
-                  Show User Info
+              <li
+                onClick={() => {
+                  LayoutState.setShowPreviewCard(!LayoutState.showPreviewCard);
+                  onRemoveUserPreview();
+                }}
+                className="hidden md:block"
+              >
+                <span className="hover:bg-[#7940CF]">
+                  {LayoutState.showPreviewCard === false
+                    ? "Show User Info"
+                    : "hide User Info"}
                 </span>
               </li>
             </ul>
@@ -186,14 +195,30 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               {(currentRoom?.isAdmin === true ||
                 currentRoom?.isOwner === true) && (
                 <div className="icons-row flex flex-col  ">
-                  <a href="#my_modal_9" className="">
+                  <a
+                    onClick={() => {
+                      LayoutState.setShowSettingsModal(
+                        !LayoutState.showSettingsModal
+                      );
+                    }}
+                    href="#my_modal_9"
+                    className=""
+                  >
                     <li>
                       <span className="hover:bg-[#7940CF]">
                         Edit Room Settings
                       </span>
                     </li>
                   </a>
-                  <a href="#my_modal_6" className="">
+                  <a
+                    onClick={() => {
+                      LayoutState.setShowAddUsersModal(
+                        !LayoutState.showAddUsersModal
+                      );
+                    }}
+                    href="#my_modal_6"
+                    className=""
+                  >
                     <li>
                       <span className="hover:bg-[#7940CF]">Add Users</span>
                     </li>
@@ -201,12 +226,17 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                 </div>
               )}
 
-              <li className="hidden md:block">
-                <span
-                  onClick={onRemoveUserPreview}
-                  className="hover:bg-[#7940CF]"
-                >
-                  Show Room Info
+              <li
+                onClick={() => {
+                  LayoutState.setShowPreviewCard(!LayoutState.showPreviewCard);
+                  onRemoveUserPreview();
+                }}
+                className="hidden md:block"
+              >
+                <span className="hover:bg-[#7940CF]">
+                  {LayoutState.showPreviewCard === false
+                    ? "Show Room Info"
+                    : "hide Room Info"}
                 </span>
               </li>
               {currentRoom?.isOwner === false && (
@@ -219,7 +249,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                           ChatState.setIsLoading(false);
                           if (res?.status === 200 || res?.status === 201) {
                             toast.success("Room Left Successfully");
-                            ChatState.selectNewChatID(chatRooms[0].id);
+                            ChatState.deleteRoom(currentRoom?.id as string);
                           }
                         }
                       );
@@ -244,30 +274,50 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 export const Conversation: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
+  const chatState = useChatStore((state) => state);
   const messageContainerRef = useRef<HTMLDivElement>(null);
-  const selectedChatType = useChatStore((state) => state.selectedChatType);
-  const currentChatMessages = useChatStore((state) => state.currentMessages);
-  const currentRoomMessages = useChatStore(
-    (state) => state.currentRoomMessages
-  );
-  const pushMessage = useChatStore((state) => state.addNewMessage);
-  const [inputValue, setInputValue] = useState("");
 
-  const selectedMessages =
-    selectedChatType === ChatType.Chat
-      ? currentChatMessages
-      : currentRoomMessages;
+  const pushMessage = useChatStore((state) => state.addNewMessage);
+  const [CurrentsMessages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [FailToSendMessage, setFail] = useState(false);
+
   // Function to handle input changes
   const handleInputChange = (e: {
     target: { value: React.SetStateAction<string> };
   }) => {
+    setFail(false);
     setInputValue(e.target.value); // Update the input value in state
   };
 
-  // Use the useEffect hook to scroll to the end when the component mounts
   useEffect(() => {
+    const fetch = async () =>
+      getRoomMessagesCall(chatState.selectedChatID, 0, 30).then((res) => {
+        if (res?.status !== 200 && res?.status !== 201) {
+        } else {
+          const messages: Message[] = [];
+          res.data.forEach(
+            (message: {
+              id: string;
+              content: string;
+              time: string;
+              roomId: string;
+              authorId: string;
+            }) => {
+              messages.push({
+                senderId: message.authorId,
+                message: message.content,
+                time: message.time,
+              });
+            }
+          );
+          setMessages(messages);
+        }
+      });
+
+    fetch();
     scrollToBottom();
-  }, [selectedMessages]);
+  }, [chatState.selectedChatID]);
 
   const scrollToBottom = () => {
     if (messageContainerRef.current) {
@@ -299,8 +349,8 @@ export const Conversation: React.FC<ConversationProps> = ({
         className="flex-grow overflow-y-auto no-scrollbar"
         ref={messageContainerRef}
       >
-        {(selectedMessages?.length as number) > 0 ? (
-          selectedMessages?.map((message) => (
+        {(CurrentsMessages?.length as number) > 0 ? (
+          CurrentsMessages?.map((message) => (
             <CurrentUserMessage
               // to set a unique key
               // key={message.senderId}
@@ -325,19 +375,35 @@ export const Conversation: React.FC<ConversationProps> = ({
                 onChange={handleInputChange}
                 type="text"
                 placeholder="Type Message "
-                className="input w-full shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 placeholder:text-xs md:placeholder:text-base font-poppins text-base font-normal leading-normal "
+                className={`input w-full ${
+                  FailToSendMessage && " border-2 border-red-400 "
+                } shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 placeholder:text-xs md:placeholder:text-base font-poppins text-base font-normal leading-normal `}
               />
 
               <button
-                onClick={() => {
+                onClick={async () => {
                   setInputValue("");
 
                   if (inputValue.length > 0) {
-                    pushMessage({
-                      senderId: "2000",
-                      message: inputValue,
-                      isRead: false,
-                      time: "10",
+                    await sendMessageCall(
+                      chatState.selectedChatID,
+                      inputValue
+                    ).then((res) => {
+                      if (res?.status !== 200 && res?.status !== 201) {
+                        setFail(true);
+                        toast.error(
+                          "you are not authorized to send messages in this room"
+                        );
+                        // set the input to red color
+                      } else {
+                        // hard coded to change
+                        pushMessage({
+                          senderId: "2000",
+                          message: inputValue,
+                          isRead: false,
+                          time: "10",
+                        });
+                      }
                     });
                   }
                 }}

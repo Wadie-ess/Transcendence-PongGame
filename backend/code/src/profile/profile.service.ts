@@ -3,11 +3,15 @@ import { UsersService } from 'src/users/users.service';
 import { ProfileDto } from './dto/profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UploadApiResponse, v2 as cloudinary } from 'cloudinary';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { Readable } from 'stream';
 
 @Injectable()
 export class ProfileService {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   async getProfile(userId: string): Promise<ProfileDto> {
     const user = await this.usersService.getUserById(userId);
@@ -97,5 +101,15 @@ export class ProfileService {
       ],
     });
     return result;
+  }
+
+  async getNotifications(userId: string, offset: number, limit: number) {
+    return await this.prisma.notification.findMany({
+      skip: offset,
+      take: limit,
+      where: {
+        recipientId: userId,
+      },
+    });
   }
 }
