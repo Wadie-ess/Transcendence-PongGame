@@ -442,7 +442,7 @@ export const AddUsersModal = () => {
                     )
                 )
                 .map((user) => (
-                  <FriendTile user={user} />
+                  <FriendTile key={user.id} user={user} />
                 ))}
             </div>
           )}

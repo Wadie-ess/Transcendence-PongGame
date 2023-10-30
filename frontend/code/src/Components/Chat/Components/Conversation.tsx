@@ -191,7 +191,6 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               tabIndex={0}
               className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute  right-full  "
             >
-              {/* check if current user is admin or owner to show the settings toast */}
               {(currentRoom?.isAdmin === true ||
                 currentRoom?.isOwner === true) && (
                 <div className="icons-row flex flex-col  ">
@@ -282,12 +281,11 @@ export const Conversation: React.FC<ConversationProps> = ({
   const [inputValue, setInputValue] = useState("");
   const [FailToSendMessage, setFail] = useState(false);
 
-  // Function to handle input changes
   const handleInputChange = (e: {
     target: { value: React.SetStateAction<string> };
   }) => {
     setFail(false);
-    setInputValue(e.target.value); // Update the input value in state
+    setInputValue(e.target.value);
   };
 
   useEffect(() => {
@@ -352,8 +350,8 @@ export const Conversation: React.FC<ConversationProps> = ({
         {(CurrentsMessages?.length as number) > 0 ? (
           CurrentsMessages?.map((message) => (
             <CurrentUserMessage
-              // to set a unique key
-              // key={message.senderId}
+           
+              key={message.id}
               message={message.message}
               time={message.time}
               senderId={message.senderId}

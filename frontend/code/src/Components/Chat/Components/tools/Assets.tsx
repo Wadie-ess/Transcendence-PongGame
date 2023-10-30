@@ -23,6 +23,7 @@ import Lock from "../../assets/lockIcon.svg";
 import Unlock from "../../assets/UnlockIcon.svg";
 import ChatGif from "../../assets/chatGif.gif";
 import NullUser from "../../assets/User_duotone.svg";
+import exploreIcon from "../../assets/explore_icon.svg"
 export enum RoomType {
   private,
   public,
@@ -55,6 +56,7 @@ export {
   ChatGif,
   NullUser,
   owner,
+  exploreIcon
 };
 
 export interface Message {
