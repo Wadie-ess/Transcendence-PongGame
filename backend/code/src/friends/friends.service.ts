@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
 import { FriendResponseDto } from './dto/frined-response.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PICTURE } from 'src/profile/dto/profile.dto';
 
 @Injectable()
 export class FriendsService {
@@ -208,6 +209,7 @@ export class FriendsService {
             userId: true,
             firstName: true,
             lastName: true,
+            avatar: true,
           },
         },
         to: {
@@ -215,15 +217,37 @@ export class FriendsService {
             userId: true,
             firstName: true,
             lastName: true,
+            avatar: true,
           },
         },
       },
     });
-    return friends.map((friend) => {
+
+    return friends.map((friend: any) => {
       if (friend.from.userId === userId) {
-        return friend.to;
+        friend = friend.to as any;
+        const avatar: PICTURE = {
+          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${friend.avatar}`,
+          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${friend.avatar}`,
+          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${friend.avatar}`,
+        };
+        delete friend.avatar;
+        return {
+          ...friend.to,
+          avatar,
+        };
       } else {
-        return friend.from;
+        friend = friend.from as any;
+        const avatar: PICTURE = {
+          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${friend.avatar}`,
+          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${friend.avatar}`,
+          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${friend.avatar}`,
+        };
+        delete friend.avatar;
+        return {
+          ...friend.from,
+          avatar,
+        };
       }
     });
   }
