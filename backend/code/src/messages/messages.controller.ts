@@ -36,6 +36,7 @@ export class MessagesController {
     return this.messagesService.sendMessages(userId, channelId, messageDto);
   }
 
+  @ApiResponse({ type: MessageFormatDto, isArray: true })
   @Get('room/:id')
   @UseGuards(AtGuard)
   getMessages(
