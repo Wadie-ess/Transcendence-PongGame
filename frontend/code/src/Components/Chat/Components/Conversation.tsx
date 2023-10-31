@@ -20,6 +20,7 @@ import {
 } from "../Services/MessagesServices";
 
 import { useUserStore } from "../../../Stores/stores";
+import { formatTime } from "./tools/utils";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -31,7 +32,7 @@ export interface ChatPaceHolderProps {
   id: string;
 }
 
-export const CurrentUserMessage = ({ message, time, senderId }: Message) => {
+export const CurrentUserMessage = ({ message, time, senderId , avatar}: Message) => {
   const [MyUsers] = useState(users);
   const currentUser = useUserStore((state) => state);
 
@@ -44,7 +45,7 @@ export const CurrentUserMessage = ({ message, time, senderId }: Message) => {
     <div className="chat chat-end p-2 pl-5 ">
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
-          12:45 PM
+        {formatTime(time)}
         </time>
       </div>
       <div className="max-w-max chat-bubble bg-purple-500 text-white whitespace-normal break-words text-sm md:text-base w-[60%] inline-block  ">
@@ -58,19 +59,16 @@ export const CurrentUserMessage = ({ message, time, senderId }: Message) => {
     <div className="chat chat-start p-3 pr-5">
       <div className="chat-image avatar">
         <div className="w-10 rounded-full">
-          {selectedChatType === ChatType.Chat ? (
-            <img src={currentChatMessages?.image} alt="" />
-          ) : (
-            <img
-              src={MyUsers.find((user) => user.id === senderId)?.image}
+        <img
+              src={avatar?.medium}
               alt=""
             />
-          )}
+          
         </div>
       </div>
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
-          {time} PM
+          {formatTime(time)} 
         </time>
       </div>
 
@@ -141,7 +139,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               </p>
             ) : (
               <p className="text-gray-500 font-poppins text-sm font-medium leading-normal">
-                {currentRoom?.usersId.length} members
+                {currentRoom?.membersCount} members
               </p>
             )}
           </div>
@@ -297,19 +295,25 @@ export const Conversation: React.FC<ConversationProps> = ({
           res.data.forEach(
             (message: {
               id: string;
+              avatar: {
+                thumbnail: string;
+                medium: string;
+                large: string;
+              };
               content: string;
               time: string;
               roomId: string;
               authorId: string;
             }) => {
               messages.push({
+                avatar : message.avatar,
                 senderId: message.authorId,
                 message: message.content,
                 time: message.time,
               });
             }
           );
-          setMessages(messages);
+          setMessages(messages.reverse());
         }
       });
 
@@ -350,8 +354,9 @@ export const Conversation: React.FC<ConversationProps> = ({
         {(CurrentsMessages?.length as number) > 0 ? (
           CurrentsMessages?.map((message) => (
             <CurrentUserMessage
-           
+            
               key={message.id}
+              avatar={message.avatar}
               message={message.message}
               time={message.time}
               senderId={message.senderId}
@@ -396,10 +401,10 @@ export const Conversation: React.FC<ConversationProps> = ({
                       } else {
                         // hard coded to change
                         pushMessage({
-                          senderId: "2000",
+                          senderId: "10",
                           message: inputValue,
                           isRead: false,
-                          time: "10",
+                          time: Date().toString(),
                         });
                       }
                     });

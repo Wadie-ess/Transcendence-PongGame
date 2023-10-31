@@ -31,6 +31,8 @@ import toast from "react-hot-toast";
 import { Logo } from "../../Layout/Assets/Logo";
 import { useModalStore } from "../Controllers/LayoutControllers";
 import { useUserStore } from "../../../Stores/stores";
+import { formatTime } from "./tools/utils";
+import { getBlockedCall, unblockCall } from "../Services/FriendsServices";
 
 interface NullComponentProps {
   message: string;
@@ -51,9 +53,14 @@ export const RoomChatPlaceHolder = () => {
           const rooms: ChatRoom[] = [];
           res.data.forEach(
             (room: {
+              countMembers :number,
               id: string;
               is_admin: boolean;
               is_owner: boolean;
+              last_message : {
+                content : string,
+                createdAt :string,
+              }
               name: string;
               type: string;
             }) => {
@@ -65,6 +72,8 @@ export const RoomChatPlaceHolder = () => {
                 usersId: [],
                 isOwner: room.is_owner,
                 isAdmin: room.is_admin,
+                membersCount : room.countMembers,
+                last_message : room.last_message
               });
             }
           );
@@ -102,22 +111,23 @@ export const RoomChatPlaceHolder = () => {
                 <p className="text-gray-400 font-poppins text-sm font-light leading-normal"></p>
               </div>
               <p className="text-gray-400 font-poppins text-sm font-light leading-normal hidden md:block ">
-                {room?.usersId.length + 1} Members
+                {room?.membersCount} Members
               </p>
             </div>
             <div className=" flex flex-row justify-between pt-1">
               <p className="text-gray-400 font-poppins text-sm font-medium leading-normal max-w-[80px] md:max-w-[180px]  truncate hidden md:block ">
-                {room.messages.length > 0
-                  ? room.messages[room.messages?.length - 1]?.message
-                  : "No Messages*"}
+                {
+                room.last_message?.content ?? "No Messages*"}
               </p>
-              {room.messages[room.messages?.length - 1]?.isRead === false ? (
-                <div className="messages-dot relative  pt-1 hidden  md:block ">
-                  <div className="w-3 h-3 bg-red-500 rounded-full text-white flex items-baseline justify-self-end"></div>
+              {room.last_message !== null && (
+                  <div className="chat-header p-1">
+                  <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
+                    {formatTime(room.last_message?.createdAt ?? '')} 
+                  </time>
                 </div>
-              ) : (
-                <img alt="check" className="hidden md:block" src={check}></img>
-              )}
+              ) 
+           
+              }
             </div>
           </div>
         </div>
@@ -345,6 +355,167 @@ export const FriendTile = (props: { user: RoomMember }) => {
   );
 };
 
+
+export const BlockedFriendTile = (props: { user: RoomMember }) => {
+  const [IsAdding, setIsAdding] = useState(false);
+  const selectedChatID = useChatStore((state) => state.selectedChatID);
+  const LayoutState = useModalStore((state) => state);
+  const user = props.user;
+
+  return (
+    <div key={user.id}>
+      <div className="flex flex-row justify-between p-3">
+        <div className="flex flex-row items-center space-x-3">
+          <div className="pr-1">
+            <img
+              className="w-12 rounded-full "
+              alt=""
+              src={user?.avatar?.medium}
+            />
+          </div>
+
+          <p className="text-white font-poppins text-base font-medium leading-normal">
+            {user?.firstname ?? "user"}
+          </p>
+        </div>
+
+        <div>
+          <button
+            onClick={async () => {
+              setIsAdding(true);
+              await unblockCall(user.id).then(
+                (res) => {
+                  setIsAdding(false);
+                  if (res?.status === 200 || res?.status === 201) {
+                    LayoutState.setShowBlockedList(
+                      !LayoutState.showBlockedLIstModal
+                    );
+                    toast.success("User Unblocked Successfully");
+                  }
+                }
+              );
+            }}
+            className="btn  swap swap-rotate bg-purple-500 p-3 rounded-xl text-white hover:bg-blue-400"
+          >
+            <p className="swap-off fill-current">
+              {IsAdding === true ? "UNBLOCKING..." : "UNBLOCK"}
+            </p>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+
+
+
+
+
+
+export const BlockedUsersModal = () => {
+  const [currentFriends, setUsers] = useState<RoomMember[]>([]);
+  const [currentRoomMembers, setRoomMembers] = useState<RoomMember[]>([]);
+  const LayoutState = useModalStore((state) => state);
+  const [IsLoading, setIsLoading] = useState(false);
+
+  const [skipCount, setSkipCount] = useState(true);
+  const ChatState = useChatStore((state) => state);
+
+  useEffect(() => {
+    if (skipCount) setSkipCount(false);
+    if (!skipCount) {
+      const fetchData = async () => {
+        try {
+          setIsLoading(true);
+
+
+          await getBlockedCall(0, 100).then((res) => {
+            setIsLoading(false);
+            if (res?.status === 200 || res?.status === 201) {
+              const friends: RoomMember[] = [];
+              res.data.forEach(
+                (friend: {
+                  userId: string;
+                  firstName: string;
+                  lastName: string;
+                  avatar?: {
+                    thumbnail: string;
+                    medium: string;
+                    large: string;
+                  };
+                }) => {
+                  friends.push({
+                    id: friend.userId,
+                    firstname: friend.firstName,
+                    lastname: friend.lastName,
+                    // to inject it with the real images later
+                    avatar: friend.avatar
+                  } as RoomMember);
+                }
+              );
+
+              setUsers(friends);
+            } else {
+            }
+          });
+        } catch (error) {
+          console.error("Error fetching data: ", error);
+        }
+      };
+
+      fetchData();
+    }
+    // eslint-disable-next-line
+  }, [LayoutState.showBlockedLIstModal]);
+  return (
+    <div className="modal w-screen " id="my_modal_3">
+      <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
+        <div className="flex flex-col">
+          <div className="flex flex-row justify-center">
+            <p className="text-purple-500 font-poppins text-lg font-medium leading-normal pb-2">
+            Blocked Friends List
+            </p>
+          </div>
+
+          {IsLoading === true ? (
+            <div className="text-center p-2">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          ) : (
+            <div className="max-h-[300px] overflow-y-auto no-scrollbar">
+              {currentFriends.
+               
+              length < 1 && (
+                <NullPlaceHolder message="No Blocked Users  Yet" />
+              )}
+              {currentFriends
+                .map((user) => (
+                  <BlockedFriendTile key={user.id} user={user} />
+                ))}
+            </div>
+          )}
+
+          <div className="modal-action ">
+            <a href="#/" className="btn hover:bg-purple-500">
+              {"Close "}
+            </a>
+            <a href="#/" className="btn hover:bg-purple-500">
+              {"Done "}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+
+
+
+
 export const AddUsersModal = () => {
   const [currentFriends, setUsers] = useState<RoomMember[]>([]);
   const [currentRoomMembers, setRoomMembers] = useState<RoomMember[]>([]);
@@ -381,20 +552,21 @@ export const AddUsersModal = () => {
               const friends: RoomMember[] = [];
               res.data.forEach(
                 (friend: {
-                  userId: string;
-                  firstName: string;
-                  LastName: string;
+                  id: string;
+                  firstname: string;
+                  lastname: string;
+                  avatar: {
+                    thumbnail: string;
+                    medium: string;
+                    large: string;
+                  };
                 }) => {
                   friends.push({
-                    id: friend.userId,
-                    firstname: friend.firstName,
-                    lastname: friend.LastName,
+                    id: friend.id,
+                    firstname: friend.firstname,
+                    lastname: friend.lastname,
                     // to inject it with the real images later
-                    avatar: {
-                      thumbnail: NullUser,
-                      medium: NullUser,
-                      large: NullUser,
-                    },
+                    avatar: friend.avatar
                   } as RoomMember);
                 }
               );

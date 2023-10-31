@@ -17,6 +17,7 @@ import { ChatType, useChatStore } from "./Controllers/RoomChatControllers";
 import { RecentConversations } from "./Components/RecentChat";
 import {
   AddUsersModal,
+  BlockedUsersModal,
   CreateNewRoomModal,
   ExploreRoomsModal,
   NullPlaceHolder,
@@ -54,6 +55,7 @@ export const Chat = () => {
           <AddUsersModal />
           <CreateNewRoomModal />
           <ShowLogoModal />
+       
         </div>
         <div
           className={classNames(
@@ -198,16 +200,16 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
             {}
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
-          <div className="max-h-[310px] overflow-y-auto no-scrollbar ">
+          <div className="w-full overflow-y-auto no-scrollbar ">
             {isLoading === false ? (
               <>
                 {currentUsers.map((user) => (
-                  <div key={user.id} className="felx flex-row p-5">
+                  <div key={user?.id} className="felx flex-row p-5">
                     <div className="flex items-center justify-start space-x-2">
                       <div className="avatar">
                         <div className="mask mask-squircle w-11 h-11">
                           <img
-                            src={user.avatar.medium ?? NullUser}
+                            src={user?.avatar?.medium ?? NullUser}
                             alt="Avatar Tailwind CSS Component"
                           />
                         </div>

@@ -65,6 +65,11 @@ export interface Message {
   senderId: string;
   message: string;
   time: string;
+  avatar?: {
+    thumbnail: string;
+    medium: string;
+    large: string;
+  };
   isRead?: boolean;
 }
 
@@ -90,6 +95,11 @@ export interface ChatRoom {
   isAdmin: boolean;
   type: RoomType;
   membersCount?: number;
+  last_message? : {
+    content? : string,
+    createdAt? :string,
+  }
+
 }
 
 export interface User {

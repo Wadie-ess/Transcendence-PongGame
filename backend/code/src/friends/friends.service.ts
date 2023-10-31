@@ -223,29 +223,29 @@ export class FriendsService {
       },
     });
 
-    return friends.map((friend: any) => {
+    return friends.map((friend) => {
       if (friend.from.userId === userId) {
-        friend = friend.to as any;
         const avatar: PICTURE = {
-          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${friend.avatar}`,
-          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${friend.avatar}`,
-          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${friend.avatar}`,
+          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${friend.to.avatar}`,
+          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${friend.to.avatar}`,
+          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${friend.to.avatar}`,
         };
-        delete friend.avatar;
         return {
-          ...friend.to,
+          id: friend.to.userId,
+          firstname: friend.to.firstName,
+          lastname: friend.to.lastName,
           avatar,
         };
       } else {
-        friend = friend.from as any;
         const avatar: PICTURE = {
-          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${friend.avatar}`,
-          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${friend.avatar}`,
-          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${friend.avatar}`,
+          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${friend.from.avatar}`,
+          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${friend.from.avatar}`,
+          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${friend.from.avatar}`,
         };
-        delete friend.avatar;
         return {
-          ...friend.from,
+          id: friend.from.userId,
+          firstname: friend.from.firstName,
+          lastname: friend.from.lastName,
           avatar,
         };
       }

@@ -410,7 +410,8 @@ export class RoomsService {
         is_mueted: true,
       },
     });
-    return members.map((member) => {
+    const filtredmembers = members.filter((member) => !member.is_banned || user.is_admin)
+    return filtredmembers.map((member) => {
       if (!member.is_banned || user.is_admin) {
         const avatar: PICTURE = {
           thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${member.user.avatar}`,
