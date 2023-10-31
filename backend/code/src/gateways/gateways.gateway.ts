@@ -9,6 +9,7 @@ import { MessageFormatDto } from 'src/messages/dto/message-format.dto';
 import {} from '@nestjs/platform-socket.io';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Game } from 'src/game/game';
 @WebSocketGateway(3004, {
   cors: {
     origin: ['http://localhost:3001'],
@@ -20,6 +21,8 @@ export class Gateways implements OnGatewayConnection {
     private prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
+
+  private games_map = new Map<string, Game>();
   handleConnection(client: Socket) {
     const userId = client.data.user.sub;
     const rooms = this.prisma.roomMember.findMany({
@@ -65,9 +68,14 @@ export class Gateways implements OnGatewayConnection {
   @OnEvent('game.launched')
   handleGameLaunchedEvent(clients: any) {
     const game_channel = `Game:${clients[0].id}:${clients[1].id}`;
+		console.log(game_channel);
     clients.forEach((client: any) => {
       client.join(game_channel);
     });
+    const new_game = new Game();
+    new_game.setplayerScokets(clients[0], clients[1]);
+    new_game.start(game_channel);
+    this.games_map.set(game_channel, new_game);
     this.server.to(game_channel).emit('game.launched', game_channel);
   }
 }

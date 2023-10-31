@@ -40,6 +40,7 @@ export class AppController {
     <link href="css/style.css" rel="stylesheet" />
   </head>
   <body>
+<input type="text" onkeydown="hamid()" />
     <script type="module">
       import { io } from 'https://cdn.socket.io/4.4.1/socket.io.esm.min.js';
 
@@ -64,6 +65,12 @@ socket.on('disconnect', () => {
 
 socket.on('error', (error) => {
 });
+
+
+
+function  hamid() {
+	this.scoket.emit('move', {x: 1, y: 2});
+}
 
 
 
