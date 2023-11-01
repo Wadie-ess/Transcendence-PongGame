@@ -103,14 +103,14 @@ export const Profile = () =>{
                     <div className="flex flex-col gap-y-0 items-center h-full sm:flex-row sm:gap-x-4 justify-center sm:justify-start sm:items-end pb-4 sm:w-[25vw]">
                         {
                             params.id !== "me" && params.id !== user.id && status === 'none'  &&
-                            <div className=' flex items-center w-full gap-x-5 h-20'><button className={`btn btn-outline btn-primary text-neutral ${disabled}`} onClick={sendRequest}>
+                            <div className=' flex items-center w-full gap-x-5 h-20'><button className={`btn w-5/6 btn-primary text-neutral ${disabled}`} onClick={sendRequest}>
                             <VscAdd/>
                             Send request
                           </button></div>
                         }
                         {
                             params.id !== "me" && params.id !== user.id && status === 'sent' && 
-                            <div className=' flex items-center w-full gap-x-5 h-20'><button className={`btn btn-outline btn-primary text-neutral ${disabled}`} onClick={cancelRequest}>
+                            <div className=' flex items-center w-full gap-x-5 h-20'><button className={`btn w-5/6 btn-primary text-neutral ${disabled}`} onClick={cancelRequest}>
                                 <VscChromeClose/>
                             Cancel request
                           </button></div>
@@ -118,21 +118,21 @@ export const Profile = () =>{
                         {
                             params.id !== "me" && params.id !== user.id && status === 'recive' && 
                             <div className=' flex items-center w-full gap-x-5 h-20'>
-                                <button className={`btn btn-outline btn-square btn-primary text-neutral ${disabled}`} onClick={acceptRequest}>
+                                <button className={`btn btn-square w-5/6 btn-primary text-neutral ${disabled}`} onClick={acceptRequest}>
                                     <VscCheck/>
                                 </button>
-                                <button className={`btn btn-outline btn-square btn-primary text-neutral ${disabled}`} onClick={rejectRequest}>
+                                <button className={`btn btn-square w-5/6 btn-primary text-neutral ${disabled}`} onClick={rejectRequest}>
                                     <VscChromeClose/>
                                 </button>
                           </div>
                         }
                         {
                             params.id !== "me" && params.id !== user.id && status === 'friend' && 
-                            <div className=' flex items-center w-full gap-x-5 h-20'><button className={`btn btn-outline btn-primary text-neutral ${disabled}`} onClick={cancelRequest}>
+                            <div className=' flex items-center w-full gap-x-5 h-20'><button className={`btn btn-primary text-neutral ${disabled}`} onClick={cancelRequest}>
                                 <VscChromeClose/>
                                 Unfriend
                             </button>
-                            <Link to={`chat/${profile.id}`}><button className={`btn btn-outline btn-primary text-neutral ${disabled}`} onClick={cancelRequest}>
+                            <Link to={`chat/${profile.id}`}><button className={`btn btn-primary text-neutral ${disabled}`} onClick={cancelRequest}>
                                 <VscComment/>
                                 Message
                             </button>
