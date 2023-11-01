@@ -276,8 +276,14 @@ export const Conversation: React.FC<ConversationProps> = ({
   const chatState = useChatStore((state) => state);
   const messageContainerRef = useRef<HTMLDivElement>(null);
 
-  const pushMessage = useChatStore((state) => state.addNewMessage);
-  const [CurrentsMessages, setMessages] = useState<Message[]>([]);
+  const scrollToBottom = () => {
+    if (messageContainerRef.current) {
+      const container = messageContainerRef.current;
+      container.scrollTop = container.scrollHeight;
+    }
+  };
+
+  const currentUser = useUserStore((state) => state);
   const [inputValue, setInputValue] = useState("");
   const [FailToSendMessage, setFail] = useState(false);
 
@@ -295,9 +301,40 @@ export const Conversation: React.FC<ConversationProps> = ({
 
     socket.on("connect", onConnect);
 
-    socket.on("message", (message) => {
-      console.log("message :", message);
-    });
+    socket.on(
+      "message",
+      (message: {
+        id: string;
+        avatar: {
+          thumbnail: string;
+          medium: string;
+          large: string;
+        };
+        content: string;
+        time: string;
+        roomId: string;
+        authorId: string;
+      }) => {
+        console.log(message);
+        if (message.roomId === chatState.selectedChatID) {
+          const NewMessage: Message = {
+            avatar: message.avatar,
+            senderId: message.authorId,
+            message: message.content,
+            time: message.time,
+          };
+
+          if (
+            chatState.currentMessages.findIndex(
+              (message) => message.id === NewMessage.id
+            ) === -1
+          ) {
+            chatState.pushMessage(NewMessage);
+          }
+        }
+        scrollToBottom();
+      }
+    );
 
     const fetch = async () =>
       getRoomMessagesCall(chatState.selectedChatID, 0, 30).then((res) => {
@@ -325,31 +362,31 @@ export const Conversation: React.FC<ConversationProps> = ({
               });
             }
           );
-          setMessages(messages.reverse());
+          chatState.fillCurrentMessages(messages.reverse());
         }
       });
 
-    fetch();
-    scrollToBottom();
+    fetch().then((res) => {
+      scrollToBottom();
+    });
   }, [chatState.selectedChatID]);
-
-  const scrollToBottom = () => {
-    if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop =
-        messageContainerRef.current.scrollHeight;
-    }
-  };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      // validation check
       if (inputValue.length > 0) {
-        pushMessage({
-          senderId: "2",
+        chatState.pushMessage({
+          avatar: {
+            thumbnail: "",
+            medium: "",
+            large: "",
+          },
+          senderId: currentUser.id,
           message: inputValue,
-          isRead: false,
-          time: "10",
+          time: Date().toString(),
         });
+
+        scrollToBottom();
+
         setInputValue("");
       }
     }
@@ -360,11 +397,11 @@ export const Conversation: React.FC<ConversationProps> = ({
     <div className="flex flex-col h-[99%] ">
       <ConversationHeader onRemoveUserPreview={onRemoveUserPreview} />
       <div
-        className="flex-grow overflow-y-auto no-scrollbar"
+        className="flex-grow overflow-y-auto no-scrollbar "
         ref={messageContainerRef}
       >
-        {(CurrentsMessages?.length as number) > 0 ? (
-          CurrentsMessages?.map((message) => (
+        {(chatState.currentMessages?.length as number) > 0 ? (
+          chatState.currentMessages?.map((message) => (
             <CurrentUserMessage
               key={message.id}
               avatar={message.avatar}
@@ -410,13 +447,6 @@ export const Conversation: React.FC<ConversationProps> = ({
                         );
                         // set the input to red color
                       } else {
-                        // hard coded to change
-                        pushMessage({
-                          senderId: "10",
-                          message: inputValue,
-                          isRead: false,
-                          time: Date().toString(),
-                        });
                       }
                     });
                   }

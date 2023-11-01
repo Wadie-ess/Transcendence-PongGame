@@ -21,7 +21,9 @@ export interface ChatState {
   showChatRooms: boolean;
 
   recentRooms: ChatRoom[];
+  pushMessage: (message: Message) => void;
   deleteRoom: (id: string) => void;
+  fillCurrentMessages: (messages: Message[]) => void;
   fillRecentRooms: (rooms: ChatRoom[]) => void;
   setIsLoading: (isLoading: boolean) => void;
   selectNewChatID: (id: string) => void;
@@ -46,6 +48,18 @@ export const useChatStore = create<ChatState>()((set) => ({
   currentRoomMessages: chatRooms.find((room) => room.id === "1")
     ?.messages as Message[],
 
+  pushMessage: (message: Message) =>
+    set((state) => {
+      state.currentMessages = [...state.currentMessages, message];
+
+      return { ...state };
+    }),
+  fillCurrentMessages: (messages: Message[]) =>
+    set((state) => {
+      state.currentMessages = [...messages];
+      return { ...state };
+    }),
+
   deleteRoom: (id: string) =>
     set((state) => {
       const roomIndex = chatRooms.findIndex((room) => room.id === id);
@@ -65,7 +79,7 @@ export const useChatStore = create<ChatState>()((set) => ({
       state.isLoading = isLoading;
       return { ...state };
     }),
-    
+
   fillRecentRooms: (rooms: ChatRoom[]) =>
     set((state) => {
       chatRooms.length = 0;
