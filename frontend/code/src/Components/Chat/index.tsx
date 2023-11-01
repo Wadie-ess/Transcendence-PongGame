@@ -48,39 +48,8 @@ export const Chat = () => {
     setShowUserPreview(!showUserPreview);
   };
 
-  const [isConnected, setIsConnected] = useState(socket.connected);
-  const [fooEvents, setFooEvents] = useState([]);
-  // const [messages, setMessages] = useState([]);
-  useEffect(() => {
-    function onConnect() {
-      console.log("hello");
-      setIsConnected(true);
-    }
-
-    function onDisconnect() {
-      setIsConnected(false);
-    }
 
 
- 
-
-  
-
-    socket.on("connect", onConnect);
-    socket.emit('sendMessages',)
-
-    socket.on('message', (message) => {
-      console.log("message")
-    })
-    // socket.on("disconnect", onDisconnect);
-
-
-
-    return () => {
-      // socket.off("connect", onConnect);
-      // socket.off("disconnect", onDisconnect);
-    };
-  }, []);
   return (
     <>
       <div className="flex h-full bg-[#1A1C26] relative">

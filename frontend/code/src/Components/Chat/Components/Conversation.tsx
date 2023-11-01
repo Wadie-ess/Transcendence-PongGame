@@ -21,6 +21,7 @@ import {
 
 import { useUserStore } from "../../../Stores/stores";
 import { formatTime } from "./tools/utils";
+import { socket } from "../Services/SocketsServices";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -32,7 +33,12 @@ export interface ChatPaceHolderProps {
   id: string;
 }
 
-export const CurrentUserMessage = ({ message, time, senderId , avatar}: Message) => {
+export const CurrentUserMessage = ({
+  message,
+  time,
+  senderId,
+  avatar,
+}: Message) => {
   const [MyUsers] = useState(users);
   const currentUser = useUserStore((state) => state);
 
@@ -45,7 +51,7 @@ export const CurrentUserMessage = ({ message, time, senderId , avatar}: Message)
     <div className="chat chat-end p-2 pl-5 ">
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
-        {formatTime(time)}
+          {formatTime(time)}
         </time>
       </div>
       <div className="max-w-max chat-bubble bg-purple-500 text-white whitespace-normal break-words text-sm md:text-base w-[60%] inline-block  ">
@@ -59,16 +65,12 @@ export const CurrentUserMessage = ({ message, time, senderId , avatar}: Message)
     <div className="chat chat-start p-3 pr-5">
       <div className="chat-image avatar">
         <div className="w-10 rounded-full">
-        <img
-              src={avatar?.medium}
-              alt=""
-            />
-          
+          <img src={avatar?.medium} alt="" />
         </div>
       </div>
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
-          {formatTime(time)} 
+          {formatTime(time)}
         </time>
       </div>
 
@@ -287,6 +289,16 @@ export const Conversation: React.FC<ConversationProps> = ({
   };
 
   useEffect(() => {
+    function onConnect() {
+      console.log("hello");
+    }
+
+    socket.on("connect", onConnect);
+
+    socket.on("message", (message) => {
+      console.log("message :", message);
+    });
+
     const fetch = async () =>
       getRoomMessagesCall(chatState.selectedChatID, 0, 30).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
@@ -306,7 +318,7 @@ export const Conversation: React.FC<ConversationProps> = ({
               authorId: string;
             }) => {
               messages.push({
-                avatar : message.avatar,
+                avatar: message.avatar,
                 senderId: message.authorId,
                 message: message.content,
                 time: message.time,
@@ -354,7 +366,6 @@ export const Conversation: React.FC<ConversationProps> = ({
         {(CurrentsMessages?.length as number) > 0 ? (
           CurrentsMessages?.map((message) => (
             <CurrentUserMessage
-            
               key={message.id}
               avatar={message.avatar}
               message={message.message}
