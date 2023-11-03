@@ -92,7 +92,13 @@ export const RoomChatPlaceHolder = () => {
         <div
           key={room.id}
           onClick={() => selectNewChat(room.id)}
-          className="message-container flex   pt-5 pl-5 pb-5 pr-2 bg-[#1A1C26] items-center  hover:bg-[#272932] "
+          className={`message-container flex   px-4 py-5  hover:bg-[#272932] items-center  ${
+            ChatRoomsState.selectedChatID === room.id
+              ? "bg-[#272932]"
+              : "bg-[#1A1C26]"
+          }
+              
+                `}
         >
           <div className="user-image flex-shrink-0 mr-2">
             <img

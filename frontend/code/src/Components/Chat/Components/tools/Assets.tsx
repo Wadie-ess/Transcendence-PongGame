@@ -24,7 +24,7 @@ import Unlock from "../../assets/UnlockIcon.svg";
 import ChatGif from "../../assets/chatGif.gif";
 import NullUser from "../../assets/User_duotone.svg";
 import exploreIcon from "../../assets/explore_icon.svg";
-import Options from "../../assets/options.svg"
+import Options from "../../assets/options.svg";
 export enum RoomType {
   private,
   public,
@@ -85,6 +85,7 @@ export interface RoomMember {
     medium: string;
     large: string;
   };
+  bio?: string;
   isBaned?: boolean;
   isMuted?: boolean;
 }

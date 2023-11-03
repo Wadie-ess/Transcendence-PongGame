@@ -17,12 +17,19 @@ import api from "../../Api/base";
 import { GroupChat } from "../Chat/Components/tools/Assets";
 import { BlockedUsersModal } from "../Chat/Components/RoomChatHelpers";
 import { useModalStore } from "../Chat/Controllers/LayoutControllers";
+import { createNewRoomCall } from "../Chat/Services/ChatServices";
+import toast from "react-hot-toast";
+import {
+  ChatType,
+  useChatStore,
+} from "../Chat/Controllers/RoomChatControllers";
 // import  toast from 'react-hot-toast'
 export const Profile = () => {
   const user = useUserStore();
   const params = useParams();
   const LayoutState = useModalStore((state) => state);
   const navigate = useNavigate();
+  const ChatState = useChatStore((state) => state);
   console.log(`params : ${params.id} type ${typeof params.id}`);
   const [users, setUsers] = useState<null | any>(undefined);
 
@@ -84,7 +91,39 @@ export const Profile = () => {
             <div className="flex flex-col gap-y-0 items-center h-full sm:flex-row sm:gap-x-4 justify-center sm:justify-start sm:items-end pb-4 sm:w-[25vw]">
               {params.id !== "me" ? (
                 <>
-                  <Message />
+                  <div
+                    onClick={async () => {
+                      await createNewRoomCall(
+                        "",
+                        "dm",
+                        undefined,
+                        params.id
+                      ).then((res) => {
+                        if (res?.status === 200 || res?.status === 201) {
+                          ChatState.changeChatType(ChatType.Chat);
+                          ChatState.selectNewChatID(res?.data?.id);
+                          ChatState.setCurrentDmUser({
+                            id: users?.id,
+                            firstname: users?.name.first,
+                            lastname: users?.name.last,
+                            avatar: {
+                              thumbnail: users?.picture.thumbnail,
+                              medium: users?.picture.medium,
+                              large: users?.picture.large,
+                            },
+                            bio: users?.bio,
+                          });
+                          navigate(`/Dm/${params.id}`);
+                        } else {
+                          toast.error(
+                            "You Can't Send Message To this User For Now, try Again later"
+                          );
+                        }
+                      });
+                    }}
+                  >
+                    <Message />
+                  </div>
                   <Share />
                 </>
               ) : (

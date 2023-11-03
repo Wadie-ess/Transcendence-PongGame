@@ -100,7 +100,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
   const ChatState = useChatStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
 
-  const currentUser = MyUsers.find((user) => user.id === SelectedChat);
+  const currentUser = useChatStore((state) => state.currentDmUser);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
 
   const currentRoom = chatRooms.find((room) => room.id === SelectedChat);
@@ -129,7 +129,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               alt=""
               src={
                 selectedChatType === ChatType.Chat
-                  ? currentUser?.image
+                  ? currentUser?.avatar.large
                   : groupIcon
               }
             />
@@ -137,7 +137,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
           <div className="flex flex-col pl-2 ">
             <p className="text-white font-poppins text-base font-medium leading-normal">
               {selectedChatType === ChatType.Chat
-                ? currentUser?.name
+                ? currentUser?.firstname
                 : currentRoom?.isOwner
                 ? currentRoom.name + " ♚"
                 : currentRoom?.name}

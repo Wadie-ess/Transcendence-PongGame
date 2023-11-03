@@ -48,8 +48,6 @@ export const Chat = () => {
     setShowUserPreview(!showUserPreview);
   };
 
-
-
   return (
     <>
       <div className="flex h-full bg-[#1A1C26] relative">
@@ -110,7 +108,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
   const LayoutState = useModalStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
 
-  const currentUser = MyUsers.find((user) => user.id === SelectedChat);
+  const currentUser = useChatStore((state) => state.currentDmUser);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const currentRoom = chatRooms.find((room) => room.id === SelectedChat);
 
@@ -147,7 +145,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
       <div className="flex flex-row justify-between ">
         {selectedChatType === ChatType.Chat ? (
           <p className="text-white font-poppins font-light text-base">
-            {currentUser?.name}'s Info
+            {currentUser?.firstname}'s Info
           </p>
         ) : (
           <p className="text-white font-poppins font-light text-base">
@@ -169,14 +167,16 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           className="w-36 rounded-full "
           alt=""
           src={
-            selectedChatType === ChatType.Chat ? currentUser?.image : groupIcon
+            selectedChatType === ChatType.Chat
+              ? currentUser?.avatar.large
+              : groupIcon
           }
         />
       </div>
       <div className="flex flex-row justify-center p-1 text-white font-poppins text-26 font-medium">
         <p>
           {selectedChatType === ChatType.Chat
-            ? currentUser?.name
+            ? currentUser?.firstname
             : currentRoom?.name}
         </p>
       </div>
@@ -188,11 +188,11 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           <div className="flex flex-row  text-gray-400 font-poppins font-medium text-base ">
             <img alt="" src={Bio} />
             {}
-            <p className="pl-2">{currentUser?.name}'s Bio</p>
+            <p className="pl-2">{currentUser?.firstname}'s Bio</p>
           </div>
           <div className=" bg-[#1A1C26]">
-            <p className="text-white  p-1 pt-2 font-poppins font-normal whitespace-normal overflow-auto break-words">
-              hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+            <p className="text-center  p-1 pt-2 font-poppins font-normal whitespace-normal overflow-auto break-words ">
+              {currentUser?.bio ?? "NO"}
             </p>
           </div>
         </div>

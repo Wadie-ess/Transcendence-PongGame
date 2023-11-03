@@ -2,6 +2,7 @@ import { create } from "zustand";
 import users, {
   ChatRoom,
   Message,
+  RoomMember,
   RoomType,
   chatRooms,
 } from "../Components/tools/Assets";
@@ -15,12 +16,15 @@ export interface ChatState {
   selectedChatType: ChatType;
   selectedChatID: string;
   currentMessages: Message[];
+  currentDmUser: RoomMember;
   currentRoomMessages: Message[];
   isLoading: boolean;
 
   showChatRooms: boolean;
 
   recentRooms: ChatRoom[];
+
+  setCurrentDmUser: (user: RoomMember) => void;
   setMessageAsFailed: (id: string) => void;
   pushMessage: (message: Message) => void;
   deleteRoom: (id: string) => void;
@@ -43,11 +47,27 @@ export const useChatStore = create<ChatState>()((set) => ({
 
   // UI state
   showChatRooms: false,
+  currentDmUser: {
+    id: "1",
+    firstname: "John",
+    lastname: "Doe",
+    avatar: {
+      thumbnail: "",
+      medium: "",
+      large: "",
+    },
+  },
 
   // to fix this
   currentMessages: users.find((user) => user.id === "1")?.messages as Message[],
   currentRoomMessages: chatRooms.find((room) => room.id === "1")
     ?.messages as Message[],
+
+  setCurrentDmUser: (user: RoomMember) =>
+    set((state) => {
+      state.currentDmUser = user;
+      return { ...state };
+    }),
 
   setMessageAsFailed: (id: string) =>
     set((state) => {
