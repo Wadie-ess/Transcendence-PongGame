@@ -133,24 +133,24 @@ Enum RoomType {
   dm
 }
 
-Ref: friends.fromId > users.userId
+Ref: friends.fromId > users.userId [delete: Cascade]
 
-Ref: friends.toId > users.userId
+Ref: friends.toId > users.userId [delete: Cascade]
 
-Ref: blocked_friends.blocked_by_id > users.userId
+Ref: blocked_friends.blocked_by_id > users.userId [delete: Cascade]
 
-Ref: blocked_friends.blocked_id > users.userId
+Ref: blocked_friends.blocked_id > users.userId [delete: Cascade]
 
-Ref: matches.participant1Id > users.userId
+Ref: matches.participant1Id > users.userId [delete: Cascade]
 
-Ref: matches.participant2Id > users.userId
+Ref: matches.participant2Id > users.userId [delete: Cascade]
 
 Ref: messages.roomId > rooms.id [delete: Cascade]
 
-Ref: messages.authorId > users.userId
+Ref: messages.authorId > users.userId [delete: Cascade]
 
-Ref: rooms.ownerId > users.userId
+Ref: rooms.ownerId > users.userId [delete: Cascade]
 
-Ref: room_members.userId > users.userId
+Ref: room_members.userId > users.userId [delete: Cascade]
 
 Ref: room_members.roomId > rooms.id [delete: Cascade]

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PICTURE } from 'src/profile/dto/profile.dto';
 
@@ -12,11 +13,11 @@ export class GameService {
     this.launchGame();
   }
 
-  private waitingPlayers: string[] = [];
+  private waitingPlayers: Socket[] = [];
 
   @OnEvent('game.start')
-  handleGameStartEvent(client: any) {
-    this.waitingPlayers.push(client.id);
+  handleGameStartEvent(client: Socket) {
+    this.waitingPlayers.push(client);
     console.log('client subscribed to the queue');
   }
 

@@ -12,22 +12,10 @@ import { FriendsService } from './friends.service';
 import { AtGuard } from 'src/auth/guards/at.guard';
 import { FriendDto } from './dto/add-friend.dto';
 import { GetCurrentUser } from 'src/auth/decorator/get_current_user.decorator';
-import {
-  ApiCookieAuth,
-  ApiProperty,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FriendResponseDto } from './dto/frined-response.dto';
 import { QueryOffsetDto } from './dto/query-ofsset-dto';
-
-class ListType {
-  @ApiProperty({ example: '60f1a7b0e1b3c2a4e8b4a1a0' })
-  userId: string;
-  firstName: string;
-  lastName: string;
-}
+import { FriendProfileDto } from './dto/friend-profile.dto';
 
 @ApiTags('friends')
 @ApiCookieAuth('X-Acces-Token')
@@ -107,9 +95,7 @@ export class FriendsController {
 
   @Get('list')
   @UseGuards(AtGuard)
-  @ApiQuery({ name: 'offset', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiResponse({ type: ListType })
+  @ApiResponse({ type: FriendProfileDto })
   async getFriendsList(
     @GetCurrentUser('userId') userId: string,
     @Query() { offset, limit }: QueryOffsetDto,
@@ -119,8 +105,7 @@ export class FriendsController {
 
   @Get('requests')
   @UseGuards(AtGuard)
-  @ApiQuery({ name: 'offset', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({ type: FriendProfileDto })
   async getFriendsRequests(
     @GetCurrentUser('userId') userId: string,
     @Query() { offset, limit }: QueryOffsetDto,
@@ -130,6 +115,7 @@ export class FriendsController {
 
   @Get('blocklist')
   @UseGuards(AtGuard)
+  @ApiResponse({ type: FriendProfileDto })
   async getBlockList(
     @GetCurrentUser('userId') userId: string,
     @Query() { offset, limit }: QueryOffsetDto,
@@ -139,6 +125,7 @@ export class FriendsController {
 
   @Get('pending')
   @UseGuards(AtGuard)
+  @ApiResponse({ type: FriendProfileDto })
   async getFriendsPending(
     @GetCurrentUser('userId') userId: string,
     @Query() { offset, limit }: QueryOffsetDto,

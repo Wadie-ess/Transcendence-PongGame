@@ -62,20 +62,29 @@ export class Gateways implements OnGatewayConnection {
 
   @SubscribeMessage('startGame')
   handleGameStartEvent(client: Socket) {
+    console.log(client.data.user);
     this.eventEmitter.emit('game.start', client);
   }
 
   @OnEvent('game.launched')
   handleGameLaunchedEvent(clients: any) {
     const game_channel = `Game:${clients[0].id}:${clients[1].id}`;
-		console.log(game_channel);
+    console.log(game_channel);
     clients.forEach((client: any) => {
       client.join(game_channel);
     });
-    const new_game = new Game();
+    const new_game = new Game(this.eventEmitter);
     new_game.setplayerScokets(clients[0], clients[1]);
     new_game.start(game_channel);
     this.games_map.set(game_channel, new_game);
     this.server.to(game_channel).emit('game.launched', game_channel);
+  }
+
+  @OnEvent('game.end')
+  handleGameEndEvent(data: any) {
+    console.log('game ended');
+    console.log(data);
+    this.server.to(data.gameid).emit('game.end', data);
+    this.games_map.delete(data.gameid);
   }
 }

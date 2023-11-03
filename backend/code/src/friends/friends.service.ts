@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
 import { FriendResponseDto } from './dto/frined-response.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { PICTURE } from 'src/profile/dto/profile.dto';
+import { FriendProfileDto } from './dto/friend-profile.dto';
 
 @Injectable()
 export class FriendsService {
@@ -225,29 +225,9 @@ export class FriendsService {
 
     return friends.map((friend: any) => {
       if (friend.from.userId === userId) {
-        friend = friend.to as any;
-        const avatar: PICTURE = {
-          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${friend.avatar}`,
-          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${friend.avatar}`,
-          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${friend.avatar}`,
-        };
-        delete friend.avatar;
-        return {
-          ...friend.to,
-          avatar,
-        };
+        return new FriendProfileDto(friend.to);
       } else {
-        friend = friend.from as any;
-        const avatar: PICTURE = {
-          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${friend.avatar}`,
-          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${friend.avatar}`,
-          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${friend.avatar}`,
-        };
-        delete friend.avatar;
-        return {
-          ...friend.from,
-          avatar,
-        };
+        return new FriendProfileDto(friend.from);
       }
     });
   }
@@ -266,11 +246,12 @@ export class FriendsService {
             userId: true,
             firstName: true,
             lastName: true,
+            avatar: true,
           },
         },
       },
     });
-    return friends.map((friend) => friend.from);
+    return friends.map((friend) => new FriendProfileDto(friend.from));
   }
 
   async getBlockList(userId: string, offset: number, limit: number) {
@@ -286,11 +267,12 @@ export class FriendsService {
             userId: true,
             firstName: true,
             lastName: true,
+            avatar: true,
           },
         },
       },
     });
-    return blocked.map((friend) => friend.Blocked);
+    return blocked.map((friend) => new FriendProfileDto(friend.Blocked));
   }
 
   async getPendingRequests(userId: string, offset: number, limit: number) {
@@ -307,10 +289,11 @@ export class FriendsService {
             userId: true,
             firstName: true,
             lastName: true,
+            avatar: true,
           },
         },
       },
     });
-    return friends.map((friend) => friend.to);
+    return friends.map((friend) => new FriendProfileDto(friend.to));
   }
 }
