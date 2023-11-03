@@ -6,6 +6,7 @@ import users, {
   chatRooms,
   More,
   Send,
+  Options,
 } from "./tools/Assets";
 import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 
@@ -38,6 +39,7 @@ export const CurrentUserMessage = ({
   time,
   senderId,
   avatar,
+  isFailed,
 }: Message) => {
   const [MyUsers] = useState(users);
   const currentUser = useUserStore((state) => state);
@@ -54,11 +56,19 @@ export const CurrentUserMessage = ({
           {formatTime(time)}
         </time>
       </div>
-      <div className="max-w-max chat-bubble bg-purple-500 text-white whitespace-normal break-words text-sm md:text-base w-[60%] inline-block  ">
+      <div
+        className={` max-w-max chat-bubble ${
+          isFailed === true ? "bg-red-500" : "bg-purple-500"
+        }  text-white whitespace-normal break-words text-sm md:text-base w-[60%] inline-block  `}
+      >
         {message}
       </div>
-      <div className="chat-footer p-1 text-gray-400 font-poppins text-xs font-light leading-normal">
-        Delivered
+      <div
+        className={`chat-footer p-1 ${
+          isFailed ? "text-red-500" : "text-gray-400"
+        }  font-poppins text-xs font-light leading-normal`}
+      >
+        {isFailed ? "Failed" : "Delivered"}
       </div>
     </div>
   ) : (
@@ -108,11 +118,8 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
       <div className="flex flex-row justify-between bg-[#1A1C26] p-3 border-b-2  border-black  ">
         <div className="flex flex-row ">
           <div className="flex items-center justify-center h-full mr-4 lg:hidden">
-            <button
-              className="w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center hover:bg-slate-600"
-              onClick={() => toggleChatRooms()}
-            >
-              =
+            <button className="w-6 h-10" onClick={() => toggleChatRooms()}>
+              <img src={Options} />
             </button>
           </div>
 
@@ -283,9 +290,11 @@ export const Conversation: React.FC<ConversationProps> = ({
     }
   };
 
+  const [isFail, SetFailedMsg] = useState(false);
   const currentUser = useUserStore((state) => state);
   const [inputValue, setInputValue] = useState("");
   const [FailToSendMessage, setFail] = useState(false);
+  const [IsLoading, setLoading] = useState(true);
 
   const handleInputChange = (e: {
     target: { value: React.SetStateAction<string> };
@@ -293,6 +302,9 @@ export const Conversation: React.FC<ConversationProps> = ({
     setFail(false);
     setInputValue(e.target.value);
   };
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatState.currentMessages?.length]);
 
   useEffect(() => {
     function onConnect() {
@@ -301,43 +313,36 @@ export const Conversation: React.FC<ConversationProps> = ({
 
     socket.on("connect", onConnect);
 
-    socket.on(
-      "message",
-      (message: {
-        id: string;
-        avatar: {
-          thumbnail: string;
-          medium: string;
-          large: string;
+    const handleMessage = (message: {
+      id: string;
+      avatar: {
+        thumbnail: string;
+        medium: string;
+        large: string;
+      };
+      content: string;
+      time: string;
+      roomId: string;
+      authorId: string;
+    }) => {
+      console.log(message);
+      if (message.roomId === chatState.selectedChatID) {
+        const NewMessage: Message = {
+          avatar: message.avatar,
+          senderId: message.authorId,
+          message: message.content,
+          time: message.time,
         };
-        content: string;
-        time: string;
-        roomId: string;
-        authorId: string;
-      }) => {
-        console.log(message);
-        if (message.roomId === chatState.selectedChatID) {
-          const NewMessage: Message = {
-            avatar: message.avatar,
-            senderId: message.authorId,
-            message: message.content,
-            time: message.time,
-          };
-
-          if (
-            chatState.currentMessages.findIndex(
-              (message) => message.id === NewMessage.id
-            ) === -1
-          ) {
-            chatState.pushMessage(NewMessage);
-          }
-        }
+        chatState.pushMessage(NewMessage);
         scrollToBottom();
       }
-    );
+    };
+    socket.on("message", handleMessage);
 
-    const fetch = async () =>
+    const fetch = async () => {
+      setLoading(true);
       getRoomMessagesCall(chatState.selectedChatID, 0, 30).then((res) => {
+        setLoading(false);
         if (res?.status !== 200 && res?.status !== 201) {
         } else {
           const messages: Message[] = [];
@@ -365,32 +370,37 @@ export const Conversation: React.FC<ConversationProps> = ({
           chatState.fillCurrentMessages(messages.reverse());
         }
       });
+    };
 
-    fetch().then((res) => {
+    fetch().then(() => {
       scrollToBottom();
     });
+
+    // Cleanup function to remove event listeners when component unmounts
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("message", handleMessage);
+    };
   }, [chatState.selectedChatID]);
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      if (inputValue.length > 0) {
-        chatState.pushMessage({
-          avatar: {
-            thumbnail: "",
-            medium: "",
-            large: "",
-          },
-          senderId: currentUser.id,
-          message: inputValue,
-          time: Date().toString(),
-        });
-
-        scrollToBottom();
-
-        setInputValue("");
+  const sendMessage = async () => {
+    if (inputValue.length === 0) return;
+    await sendMessageCall(chatState.selectedChatID, inputValue).then((res) => {
+      setInputValue("");
+      if (res?.status !== 200 && res?.status !== 201) {
+        SetFailedMsg(true);
+        setFail(true);
+        toast.error("you are not authorized to send messages in this room");
+        chatState.setMessageAsFailed(res?.data.id);
+      } else {
       }
+    });
+  };
+
+  const handleKeyPress = async (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      await sendMessage().then(() => scrollToBottom());
     }
-    // do stuff
   };
 
   return (
@@ -400,19 +410,26 @@ export const Conversation: React.FC<ConversationProps> = ({
         className="flex-grow overflow-y-auto no-scrollbar "
         ref={messageContainerRef}
       >
-        {(chatState.currentMessages?.length as number) > 0 ? (
-          chatState.currentMessages?.map((message) => (
-            <CurrentUserMessage
-              key={message.id}
-              avatar={message.avatar}
-              message={message.message}
-              time={message.time}
-              senderId={message.senderId}
-              isRead={message.isRead}
-            />
-          ))
+        {IsLoading === false ? (
+          (chatState.currentMessages?.length as number) > 0 ? (
+            chatState.currentMessages?.map((message) => (
+              <CurrentUserMessage
+                isFailed={message.isFailed}
+                key={message.id}
+                avatar={message.avatar}
+                message={message.message}
+                time={message.time}
+                senderId={message.senderId}
+                isRead={message.isRead}
+              />
+            ))
+          ) : (
+            <ChatPlaceHolder message="No Messages Yet!, Send The First" />
+          )
         ) : (
-          <ChatPlaceHolder message="No Messages Yet!, Send The First" />
+          <div className=" text-center justify-center p-2 flex flex-col  items-center h-full">
+            <span className="loading loading-spinner loading-lg"></span>
+          </div>
         )}
       </div>
 
@@ -433,23 +450,7 @@ export const Conversation: React.FC<ConversationProps> = ({
 
               <button
                 onClick={async () => {
-                  setInputValue("");
-
-                  if (inputValue.length > 0) {
-                    await sendMessageCall(
-                      chatState.selectedChatID,
-                      inputValue
-                    ).then((res) => {
-                      if (res?.status !== 200 && res?.status !== 201) {
-                        setFail(true);
-                        toast.error(
-                          "you are not authorized to send messages in this room"
-                        );
-                        // set the input to red color
-                      } else {
-                      }
-                    });
-                  }
+                  await sendMessage().then(() => scrollToBottom());
                 }}
                 className="btn  ml-4 btn-square  bg-[#8C67F6] hover:bg-green-600"
               >

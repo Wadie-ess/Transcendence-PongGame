@@ -21,6 +21,7 @@ export interface ChatState {
   showChatRooms: boolean;
 
   recentRooms: ChatRoom[];
+  setMessageAsFailed: (id: string) => void;
   pushMessage: (message: Message) => void;
   deleteRoom: (id: string) => void;
   fillCurrentMessages: (messages: Message[]) => void;
@@ -47,6 +48,17 @@ export const useChatStore = create<ChatState>()((set) => ({
   currentMessages: users.find((user) => user.id === "1")?.messages as Message[],
   currentRoomMessages: chatRooms.find((room) => room.id === "1")
     ?.messages as Message[],
+
+  setMessageAsFailed: (id: string) =>
+    set((state) => {
+      const messageIndex = state.currentMessages.findIndex(
+        (message) => message.id === id
+      );
+      if (messageIndex !== -1) {
+        state.currentMessages[messageIndex].isFailed = true;
+      }
+      return { ...state };
+    }),
 
   pushMessage: (message: Message) =>
     set((state) => {

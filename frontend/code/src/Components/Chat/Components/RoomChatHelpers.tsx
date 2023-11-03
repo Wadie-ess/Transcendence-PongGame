@@ -16,7 +16,6 @@ import {
   groupIcon,
 } from "./tools/Assets";
 
-
 import {
   DeleteRoomCall,
   createNewRoomCall,
@@ -53,14 +52,14 @@ export const RoomChatPlaceHolder = () => {
           const rooms: ChatRoom[] = [];
           res.data.forEach(
             (room: {
-              countMembers :number,
+              countMembers: number;
               id: string;
               is_admin: boolean;
               is_owner: boolean;
-              last_message : {
-                content : string,
-                createdAt :string,
-              }
+              last_message: {
+                content: string;
+                createdAt: string;
+              };
               name: string;
               type: string;
             }) => {
@@ -72,8 +71,8 @@ export const RoomChatPlaceHolder = () => {
                 usersId: [],
                 isOwner: room.is_owner,
                 isAdmin: room.is_admin,
-                membersCount : room.countMembers,
-                last_message : room.last_message
+                membersCount: room.countMembers,
+                last_message: room.last_message,
               });
             }
           );
@@ -116,18 +115,15 @@ export const RoomChatPlaceHolder = () => {
             </div>
             <div className=" flex flex-row justify-between pt-1">
               <p className="text-gray-400 font-poppins text-sm font-medium leading-normal max-w-[80px] md:max-w-[180px]  truncate hidden md:block ">
-                {
-                room.last_message?.content ?? "No Messages*"}
+                {room.last_message?.content ?? "No Messages*"}
               </p>
               {room.last_message !== null && (
-                  <div className="chat-header p-1">
+                <div className="chat-header p-1">
                   <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
-                    {formatTime(room.last_message?.createdAt ?? '')} 
+                    {formatTime(room.last_message?.createdAt ?? "")}
                   </time>
                 </div>
-              ) 
-           
-              }
+              )}
             </div>
           </div>
         </div>
@@ -355,7 +351,6 @@ export const FriendTile = (props: { user: RoomMember }) => {
   );
 };
 
-
 export const BlockedFriendTile = (props: { user: RoomMember }) => {
   const [IsAdding, setIsAdding] = useState(false);
   const selectedChatID = useChatStore((state) => state.selectedChatID);
@@ -383,17 +378,15 @@ export const BlockedFriendTile = (props: { user: RoomMember }) => {
           <button
             onClick={async () => {
               setIsAdding(true);
-              await unblockCall(user.id).then(
-                (res) => {
-                  setIsAdding(false);
-                  if (res?.status === 200 || res?.status === 201) {
-                    LayoutState.setShowBlockedList(
-                      !LayoutState.showBlockedLIstModal
-                    );
-                    toast.success("User Unblocked Successfully");
-                  }
+              await unblockCall(user.id).then((res) => {
+                setIsAdding(false);
+                if (res?.status === 200 || res?.status === 201) {
+                  LayoutState.setShowBlockedList(
+                    !LayoutState.showBlockedLIstModal
+                  );
+                  toast.success("User Unblocked Successfully");
                 }
-              );
+              });
             }}
             className="btn  swap swap-rotate bg-purple-500 p-3 rounded-xl text-white hover:bg-blue-400"
           >
@@ -406,13 +399,6 @@ export const BlockedFriendTile = (props: { user: RoomMember }) => {
     </div>
   );
 };
-
-
-
-
-
-
-
 
 export const BlockedUsersModal = () => {
   const [currentFriends, setUsers] = useState<RoomMember[]>([]);
@@ -429,7 +415,6 @@ export const BlockedUsersModal = () => {
       const fetchData = async () => {
         try {
           setIsLoading(true);
-
 
           await getBlockedCall(0, 100).then((res) => {
             setIsLoading(false);
@@ -451,7 +436,7 @@ export const BlockedUsersModal = () => {
                     firstname: friend.firstName,
                     lastname: friend.lastName,
                     // to inject it with the real images later
-                    avatar: friend.avatar
+                    avatar: friend.avatar,
                   } as RoomMember);
                 }
               );
@@ -475,7 +460,7 @@ export const BlockedUsersModal = () => {
         <div className="flex flex-col">
           <div className="flex flex-row justify-center">
             <p className="text-purple-500 font-poppins text-lg font-medium leading-normal pb-2">
-            Blocked Friends List
+              Blocked Friends List
             </p>
           </div>
 
@@ -485,15 +470,12 @@ export const BlockedUsersModal = () => {
             </div>
           ) : (
             <div className="max-h-[300px] overflow-y-auto no-scrollbar">
-              {currentFriends.
-               
-              length < 1 && (
+              {currentFriends.length < 1 && (
                 <NullPlaceHolder message="No Blocked Users  Yet" />
               )}
-              {currentFriends
-                .map((user) => (
-                  <BlockedFriendTile key={user.id} user={user} />
-                ))}
+              {currentFriends.map((user) => (
+                <BlockedFriendTile key={user.id} user={user} />
+              ))}
             </div>
           )}
 
@@ -510,11 +492,6 @@ export const BlockedUsersModal = () => {
     </div>
   );
 };
-
-
-
-
-
 
 export const AddUsersModal = () => {
   const [currentFriends, setUsers] = useState<RoomMember[]>([]);
@@ -566,7 +543,7 @@ export const AddUsersModal = () => {
                     firstname: friend.firstname,
                     lastname: friend.lastname,
                     // to inject it with the real images later
-                    avatar: friend.avatar
+                    avatar: friend.avatar,
                   } as RoomMember);
                 }
               );
@@ -701,7 +678,7 @@ export const RoomSettingsModal = () => {
 
   return (
     <div className="modal w-screen " id="my_modal_9">
-      <div className="modal-box bg-[#1A1C26]  no-scrollbar w-[90%] md:w-[50%] ">
+      <div className="modal-box bg-[#1A1C26] relative no-scrollbar w-[90%] md:w-[50%] ">
         <div className="flex flex-col">
           {TakingAction === true ? (
             <div className="text-center p-2">
@@ -794,81 +771,59 @@ export const RoomSettingsModal = () => {
               <span className="loading loading-spinner loading-lg"></span>
             </div>
           ) : (
-            <div className="max-h-[300px] overflow no-scrollbar justify-center relative">
+            <div className="max-h-[300px]  overflow-y-auto no-scrollbar justify-center ">
               {currentUsers.length < 2 && (
                 <NullPlaceHolder message="You have No Members, Add someone!" />
               )}
-              {currentUsers
-                .filter((user) => user.id !== currentUser.id)
-                .map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex flex-row justify-between  bg-[#1A1C26] p-3 border-gray-600 relative"
-                  >
-                    <div className="flex flex-row items-center space-x-3">
-                      <div className="pr-1">
-                        <img
-                          className="w-12 rounded-full "
-                          alt=""
-                          src={user.avatar.medium}
-                        />
+              <div className="">
+                {currentUsers
+                  .filter((user) => user.id !== currentUser.id)
+                  .map((user) => (
+                    <div
+                      key={user.id}
+                      className="flex flex-row justify-between  bg-[#1A1C26] p-3 border-gray-600 "
+                    >
+                      <div className="flex flex-row items-center space-x-3">
+                        <div className="pr-1">
+                          <img
+                            className="w-12 rounded-full "
+                            alt=""
+                            src={user.avatar.medium}
+                          />
+                        </div>
+
+                        <p className="text-white font-poppins text-base font-medium leading-normal">
+                          {user?.firstname ?? "user"}
+                        </p>
                       </div>
 
-                      <p className="text-white font-poppins text-base font-medium leading-normal">
-                        {user?.firstname ?? "user"}
-                      </p>
-                    </div>
-
-                    <div className="dropdown relative  top-0  z-100">
-                      <label tabIndex={0} className="">
-                        <summary className="list-none p-3 cursor-pointer ">
-                          <img src={More} alt="More" />
-                        </summary>
-                      </label>
-                      <ul
-                        tabIndex={0}
-                        className="p-2 right-5 bottom-0 shadow menu dropdown-content bg-base-100 rounded-box w-40"
+                      <div
+                        className="dropdown top-0 z-100"
+                        style={{ position: "initial" }}
                       >
-                        <li
-                          onClick={async () => {
-                            setTakeAction(true);
-                            await takeActionCall(
-                              selectedChatID as string,
-                              user.id,
-                              user.isBaned ? "unban" : "ban"
-                            ).then((res) => {
-                              setTakeAction(false);
-                              if (res?.status === 200 || res?.status === 201) {
-                                toast.success(res.data.message);
-                              }
-                              LayoutState.setShowSettingsModal(
-                                !LayoutState.showSettingsModal
-                              );
-                            });
-                          }}
+                        <label tabIndex={0} className="">
+                          <summary className="list-none p-3 cursor-pointer ">
+                            <img src={More} alt="More" />
+                          </summary>
+                        </label>
+                        <ul
+                          tabIndex={0}
+                          className="p-2  z-101 absolute right-5 bottom-44 shadow menu dropdown-content bg-base-100 rounded-box w-40"
                         >
-                          <span className="hover:bg-[#7940CF]">
-                            {user.isBaned ? "UnBan" : "Ban"}
-                          </span>
-                        </li>
-
-                        {user.isMuted === false && (
                           <li
                             onClick={async () => {
                               setTakeAction(true);
                               await takeActionCall(
                                 selectedChatID as string,
                                 user.id,
-                                "mute"
+                                user.isBaned ? "unban" : "ban"
                               ).then((res) => {
                                 setTakeAction(false);
                                 if (
                                   res?.status === 200 ||
                                   res?.status === 201
                                 ) {
-                                  toast.success(
-                                    "User Muted For a 5 minutes Successfully"
-                                  );
+                                  toast.success(res.data.message);
                                 }
                                 LayoutState.setShowSettingsModal(
                                   !LayoutState.showSettingsModal
@@ -876,56 +831,92 @@ export const RoomSettingsModal = () => {
                               });
                             }}
                           >
-                            <span className="hover:bg-[#7940CF]">mute</span>
+                            <span className="hover:bg-[#7940CF]">
+                              {user.isBaned ? "UnBan" : "Ban"}
+                            </span>
                           </li>
-                        )}
 
-                        <li
-                          onClick={async () => {
-                            setTakeAction(true);
-                            await takeActionCall(
-                              selectedChatID as string,
-                              user.id,
-                              "kick"
-                            ).then((res) => {
-                              setTakeAction(false);
-                              LayoutState.setShowSettingsModal(
-                                !LayoutState.showSettingsModal
-                              );
+                          {user.isMuted === false && (
+                            <li
+                              onClick={async () => {
+                                setTakeAction(true);
+                                await takeActionCall(
+                                  selectedChatID as string,
+                                  user.id,
+                                  "mute"
+                                ).then((res) => {
+                                  setTakeAction(false);
+                                  if (
+                                    res?.status === 200 ||
+                                    res?.status === 201
+                                  ) {
+                                    toast.success(
+                                      "User Muted For a 5 minutes Successfully"
+                                    );
+                                  }
+                                  LayoutState.setShowSettingsModal(
+                                    !LayoutState.showSettingsModal
+                                  );
+                                });
+                              }}
+                            >
+                              <span className="hover:bg-[#7940CF]">mute</span>
+                            </li>
+                          )}
 
-                              if (res?.status === 200 || res?.status === 201) {
-                                toast.success("User Kicked Successfully");
-                              }
-                            });
-                          }}
-                        >
-                          <span className="hover:bg-[#7940CF]">kick</span>
-                        </li>
-                        <li
-                          onClick={async () => {
-                            setTakeAction(true);
-                            await takeActionCall(
-                              selectedChatID as string,
-                              user.id,
-                              "setAdmin"
-                            ).then((res) => {
-                              setTakeAction(false);
-                              if (res?.status === 200 || res?.status === 201) {
-                                toast.success(
-                                  "User have been set as Admin Successfully"
+                          <li
+                            onClick={async () => {
+                              setTakeAction(true);
+                              await takeActionCall(
+                                selectedChatID as string,
+                                user.id,
+                                "kick"
+                              ).then((res) => {
+                                setTakeAction(false);
+                                LayoutState.setShowSettingsModal(
+                                  !LayoutState.showSettingsModal
                                 );
-                              }
-                            });
-                          }}
-                        >
-                          <span className="hover:bg-[#7940CF]">
-                            Set as admin
-                          </span>
-                        </li>
-                      </ul>
+
+                                if (
+                                  res?.status === 200 ||
+                                  res?.status === 201
+                                ) {
+                                  toast.success("User Kicked Successfully");
+                                }
+                              });
+                            }}
+                          >
+                            <span className="hover:bg-[#7940CF]">kick</span>
+                          </li>
+                          <li
+                            onClick={async () => {
+                              setTakeAction(true);
+                              await takeActionCall(
+                                selectedChatID as string,
+                                user.id,
+                                "setAdmin"
+                              ).then((res) => {
+                                setTakeAction(false);
+                                if (
+                                  res?.status === 200 ||
+                                  res?.status === 201
+                                ) {
+                                  toast.success(
+                                    "User have been set as Admin Successfully"
+                                  );
+                                }
+                              });
+                            }}
+                          >
+                            <span className="hover:bg-[#7940CF]">
+                              Set as admin
+                            </span>
+                          </li>
+                        </ul>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+              </div>
             </div>
           )}
 
