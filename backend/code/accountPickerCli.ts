@@ -1,5 +1,4 @@
 import * as figlet from 'figlet';
-import * as clipboard from 'clipboardy';
 import * as fs from 'fs';
 import * as readline from 'node:readline';
 (async () => {
@@ -71,6 +70,5 @@ fetch("http://localhost:3001/auth/login", requestOptions)
   .then(response => response.text())
   .then(result => console.log(result))
   .catch(error => console.log('error', error));`;
-
-	clipboard.default.writeSync("ksksk")
+  console.log(codeTemplate);
 })();

@@ -550,6 +550,8 @@ export class RoomsService {
             },
             select: {
               is_admin: true,
+              is_banned: true,
+              bannedAt: true,
             },
           },
         }),
@@ -580,6 +582,9 @@ export class RoomsService {
         const last_message = await this.prisma.message.findFirst({
           where: {
             roomId: room.id,
+            ...(room.members[0].is_banned && {
+              createdAt: { lte: room.members[0].bannedAt },
+            }),
           },
           orderBy: {
             createdAt: 'desc',

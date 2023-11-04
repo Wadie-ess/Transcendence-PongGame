@@ -45,6 +45,7 @@ class dataSeeder extends PrismaClient {
           lastName: user.lastName,
           avatar: user.avatar,
           discreption: user.bio,
+          profileFinished: true,
         },
       });
       new_users.push(new_user);

@@ -87,4 +87,9 @@ export class Gateways implements OnGatewayConnection {
     this.server.to(data.gameid).emit('game.end', data);
     this.games_map.delete(data.gameid);
   }
+
+  @SubscribeMessage('roomDeparture')
+  hundleDeparture(client: Socket, data: { roomid: string; message: string }) {
+    console.log(data);
+  }
 }
