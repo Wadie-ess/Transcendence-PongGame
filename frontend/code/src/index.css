@@ -3,8 +3,8 @@
 @tailwind utilities;
 @layer utilities
 {
-    @variants responsive {
-      /* Hide scrollbar for Chrome, Safari and Opera */
+  @variants responsive {
+    /* Hide scrollbar for Chrome, Safari and Opera */
       .no-scrollbar::-webkit-scrollbar {
           display: none;
       }
@@ -13,13 +13,42 @@
       .no-scrollbar {
           -ms-overflow-style: none;  /* IE and Edge */
           scrollbar-width: none;  /* Firefox */
-      }
+        }
+        .customScroll {
+          --sb-track-color: #353135;
+          --sb-thumb-color: #7940CF;
+          --sb-size: 8px;
+      
+          scrollbar-color: var(--sb-thumb-color) 
+                          var(--sb-track-color);
+        }
+      
+        .customScroll::-webkit-scrollbar {
+          width: var(--sb-size) 
+        }
+      
+        .customScroll::-webkit-scrollbar-track {
+          background: var(--sb-track-color);
+          border-radius: 8px;
+        }
+      
+        .customScroll::-webkit-scrollbar-thumb {
+          background: var(--sb-thumb-color);
+          border-radius: 8px;
+          border: 2px solid #7940CF;
+        }
     }
+    
+
+    
   }
 @import url('https://fonts.googleapis.com/css2?family=Lexend+Peta:wght@400;700;800&family=Montserrat:ital,wght@0,700;1,500&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
 @layer base {
   html {
       @apply no-scrollbar;
       @apply font-montserrat;
+  }
+  *{
+      @apply customScroll
   }
 }

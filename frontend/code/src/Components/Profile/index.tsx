@@ -1,7 +1,5 @@
 import { Pong } from './assets/Pong'
 import { File } from './assets/File'
-import { Share } from './assets/ShareB'
-import { Message } from './assets/MessageB'
 import { History } from './History'
 import Hero from './assets/Hero.gif'
 import { useState , useEffect } from 'react'
@@ -47,7 +45,7 @@ export const Profile = () =>{
                 setProfile(user)
 
         //eslint-disable-next-line
-        },[params, user])
+        },[params.id, user])
         console.log(status)
         const sendRequest = async() => {
             setDisbaled("btn-disabled")
@@ -140,7 +138,7 @@ export const Profile = () =>{
                             </div>
                         }
                         {
-                            params.id === "me" || params.id === user.id && 
+                           ((params.id === "me" ) || (params.id === user.id)) && 
                                 <Link to={"/Settings"}><Edit/></Link>   
                             
                         }
@@ -161,7 +159,7 @@ export const Profile = () =>{
                     </div>
                 </div>
             </div>
-            <div className="relative flex w-[85vw] justify-center h-auto  overflow-scroll no-scrollbar">
+            <div className="relative flex w-[85vw] justify-center h-auto">
                 <History props={params.id}/>
             </div>
         </div>

@@ -1,11 +1,10 @@
-import { Link , useParams} from "react-router-dom"
 import { toast } from "react-hot-toast"
 import api from "../../../Api/base"
 export const Message = (props:any) => {
     const handleSendReq = async() => {
         toast.promise(api.post("friends/add",{friendId:props.profile.id}),{loading:`Sending friend request`,success:`request sent to ${props.profile.name.first}`,error:"could not send friend request"})
     }
-    const {id} = useParams()
+  
     return (
         // <Link to={`/chat/${id}`}>
             <svg onClick={handleSendReq} className="w-20 sm:w-40 hover:cursor-pointer" width="105" height="40" viewBox="0 0 105 40" fill="none" xmlns="http://www.w3.org/2000/svg">

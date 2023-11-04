@@ -8,14 +8,12 @@ import { Message } from "./Assets/Message";
 import { Profile } from "./Assets/Profile";
 import { Settings } from "./Assets/Settings";
 import { Out } from "./Assets/Out";
-import { FC, PropsWithChildren, useLayoutEffect, useState , useEffect} from "react";
+import { FC, PropsWithChildren, useLayoutEffect} from "react";
 import { Outlet } from "react-router";
 import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
 import { FirstLogin } from "../FirstLogin";
-import { io } from 'socket.io-client';
-
 const routes = [
   { path: "Profile/:id" },
   { path: "Settings" },
@@ -33,30 +31,7 @@ const useCurrentPath = () => {
   return route.path;
 };
 
-export const socket = io("http://localhost:3004",{'transports': ['websocket', 'polling'],withCredentials:true});
 export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
-  const [isConnected, setIsConnected] = useState(socket.connected);
-  const [fooEvents, setFooEvents] = useState([]);
-  useEffect(() => {
-    function onConnect() {
-      console.log("hello")
-      setIsConnected(true);
-    }
-
-    function onDisconnect() {
-      setIsConnected(false);
-    }
-
-
-
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-    };
-  }, []);
 
   const user = useUserStore();
   const navigate = useNavigate();
@@ -131,8 +106,11 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
                 <Settings selected={path === "Settings" ? true : false} />
               </button>
             </div>
-            <div className="sm:-ml-4 sm:w-[92vw] xl:w-[96vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-accent sm:rounded-tl-2xl">
-              <Outlet />
+            <div className="sm:-ml-4 sm:w-[92vw] xl:w-[96vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-accent sm:rounded-tl-2xl overflow-auto no-scrollbar" id='scrollTarget'>
+              {/* <div id="scrollableDiv"> */}
+                <Outlet />
+
+              {/* </div> */}
             </div>
           </div>
         </div>

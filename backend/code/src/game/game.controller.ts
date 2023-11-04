@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Query, UseGuards, Param } from '@nestjs/common';
 import { GameService } from './game.service';
 import { AtGuard } from 'src/auth/guards/at.guard';
 import { GetCurrentUser } from 'src/auth/decorator/get_current_user.decorator';
@@ -17,6 +17,15 @@ export class GameController {
   @UseGuards(AtGuard)
   getHistory(
     @GetCurrentUser('userId') userId: string,
+    @Query() { offset, limit }: QueryOffsetDto,
+  ) {
+    return this.gameService.getHistory(userId, offset, limit);
+  }
+
+  @Get('history/:id')
+  @UseGuards(AtGuard)
+  getHistoryId(
+    @Param('id') userId: string,
     @Query() { offset, limit }: QueryOffsetDto,
   ) {
     return this.gameService.getHistory(userId, offset, limit);
