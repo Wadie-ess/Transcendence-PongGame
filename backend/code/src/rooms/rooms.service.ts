@@ -608,4 +608,40 @@ export class RoomsService {
     );
     return roomsData;
   }
+
+  async getDms(userId: string, offset: number, limit: number) {
+    const rooms = await this.prisma.room.findMany({
+      skip: offset,
+      take: limit,
+      where: {
+        type: 'dm',
+        members: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        type: true,
+        ownerId: true,
+        members: {
+          select: {
+            userId: true,
+          },
+        },
+      },
+    });
+    return rooms.map((room) => {
+      const secondMember = room.members.find(
+        (member) => member.userId !== userId,
+      );
+      return {
+        id: room.id,
+        name: secondMember.userId,
+        type: room.type,
+        ownerId: room.ownerId,
+      };
+    });
+  }
 }

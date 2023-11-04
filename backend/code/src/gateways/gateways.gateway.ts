@@ -1,4 +1,5 @@
 import {
+  MessageBody,
   OnGatewayConnection,
   SubscribeMessage,
   WebSocketGateway,
@@ -41,6 +42,7 @@ export class Gateways implements OnGatewayConnection {
     rooms.then((rooms) => {
       rooms.forEach((room) => {
         client.join(`Romm:${room.room.id}`);
+        console.log(`Romm:${room.room.id}`);
       });
     });
     client.join(`notif:${userId}`);
@@ -89,7 +91,18 @@ export class Gateways implements OnGatewayConnection {
   }
 
   @SubscribeMessage('roomDeparture')
-  hundleDeparture(client: Socket, data: { roomid: string; message: string }) {
-    console.log(data);
+  async hundleDeparture(
+    @MessageBody() data: { roomId: string; memberId: string },
+  ) {
+    const clients = await this.server.in(`Romm:${data.roomId}`).fetchSockets();
+    console.log(`Romm:${data.roomId}`);
+    const clientToBan = clients.find(
+      (client) => client.data.user.sub === data.memberId,
+    );
+    if (clientToBan) {
+		clientToBan.leave(`Romm:${data.roomId}`);
+    } else {
+      console.log('client not found');
+    }
   }
 }

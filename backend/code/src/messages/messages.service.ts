@@ -11,6 +11,7 @@ export class MessagesService {
   ) {}
 
   async sendMessages(userId: string, channelId: string, messageDto: any) {
+    console.log(messageDto);
     if (messageDto.content.length > 1000) {
       throw new HttpException('Message is too long', HttpStatus.BAD_REQUEST);
     }
@@ -27,7 +28,9 @@ export class MessagesService {
         },
       },
     });
-
+    if (!room) {
+      throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
+    }
     if (room.type === 'dm') {
       const blocked = await this.prisma.blockedUsers.findFirst({
         where: {

@@ -10,7 +10,7 @@ export class GameService {
     private readonly prisma: PrismaService,
     private eventEmitter: EventEmitter2,
   ) {
-    this.launchGame();
+    // this.launchGame();
   }
 
   private waitingPlayers: Socket[] = [];

@@ -20,6 +20,7 @@ class dataSeeder extends PrismaClient {
     const registeredUsers = await this.registerUser(users);
     await this.makeFriendship(registeredUsers);
     await this.makeMatch(registeredUsers);
+    await this.createRoom(registeredUsers);
     await this.$disconnect();
   }
 
@@ -109,6 +110,50 @@ class dataSeeder extends PrismaClient {
       lastName: faker.person.lastName(),
       bio: faker.person.bio(),
     };
+  }
+
+  private async createRoom(users: User[]) {
+    const owner = users[Math.floor(Math.random() * users.length)];
+    const roomData = {
+      name: faker.lorem.word(),
+      ownerId: owner.userId,
+    };
+
+    // add random users to the room
+    const filtredUsers = users.filter((user) => user.userId !== owner.userId);
+    const randomUsers = filtredUsers.slice(
+      0,
+      Math.floor(Math.random() * filtredUsers.length),
+    );
+
+    const room = await this.room.create({
+      data: {
+        name: roomData.name,
+        ownerId: roomData.ownerId,
+        type: 'public',
+      },
+    });
+
+    for await (const user of randomUsers) {
+      await this.roomMember.create({
+        data: {
+          userId: user.userId,
+          roomId: room.id,
+          is_admin: Math.random() > 0.8 ? true : false,
+        },
+      });
+    }
+    await this.roomMember.create({
+      data: {
+        userId: owner.userId,
+        roomId: room.id,
+        is_admin: true,
+      },
+    });
+
+		console.log("roomid: ", room.id)
+		console.log("ownerid: ", owner.userId)
+		console.log("randomUsers: ", randomUsers)
   }
 }
 
