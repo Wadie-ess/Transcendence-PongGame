@@ -24,6 +24,7 @@ model User {
   refreshedHash   String?
   intraId         String? @unique
   profileFinished Boolean @default(false)
+  online          Boolean @default(false)
 
   Username      String?        @unique
   firstName     String?
@@ -54,8 +55,8 @@ model Friend {
   fromId   String
   toId     String
   accepted Boolean @default(false)
-  from     User    @relation("from", fields: [fromId], references: [userId])
-  to       User    @relation("to", fields: [toId], references: [userId])
+  from     User    @relation("from", fields: [fromId], references: [userId], onDelete: Cascade)
+  to       User    @relation("to", fields: [toId], references: [userId], onDelete: Cascade)
 
   @@unique([fromId, toId], name: "unique_friend")
   @@map("friends")
@@ -66,9 +67,9 @@ model BlockedUsers {
   createdAt DateTime @default(now())
 
   id            String  @id
-  Blcoked_by    User    @relation("blocked_by", fields: [blocked_by_id], references: [userId])
+  Blcoked_by    User    @relation("blocked_by", fields: [blocked_by_id], references: [userId], onDelete: Cascade)
   blocked_by_id String  @unique
-  Blocked       User    @relation("blocked", fields: [blocked_id], references: [userId])
+  Blocked       User    @relation("blocked", fields: [blocked_id], references: [userId], onDelete: Cascade)
   blocked_id    String  @unique
   dmRoomId      String?
 
@@ -86,8 +87,8 @@ model Match {
   score1         Int?
   score2         Int?
   gametype       String?
-  participant1   User    @relation("participant1", fields: [participant1Id], references: [userId])
-  participant2   User    @relation("participant2", fields: [participant2Id], references: [userId])
+  participant1   User    @relation("participant1", fields: [participant1Id], references: [userId], onDelete: Cascade)
+  participant2   User    @relation("participant2", fields: [participant2Id], references: [userId], onDelete: Cascade)
 
   @@map("matches")
 }
@@ -99,7 +100,7 @@ model Message {
   id       String  @id @default(cuid())
   authorId String
   room     Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  author   User    @relation(fields: [authorId], references: [userId])
+  author   User    @relation(fields: [authorId], references: [userId], onDelete: Cascade)
   roomId   String
   content  String?
 
@@ -116,7 +117,7 @@ model Room {
   ownerId  String
   type     RoomType     @default(public)
   password String?
-  owner    User         @relation("owner", fields: [ownerId], references: [userId])
+  owner    User         @relation("owner", fields: [ownerId], references: [userId], onDelete: Cascade)
   members  RoomMember[]
   messages Message[]
 
@@ -135,7 +136,7 @@ model RoomMember {
   bannedAt     DateTime?
   is_mueted    Boolean   @default(false)
   mute_expires DateTime?
-  user         User      @relation(fields: [userId], references: [userId])
+  user         User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
   room         Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   @@unique([userId, roomId], name: "unique_user_room")

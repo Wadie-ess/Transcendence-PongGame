@@ -45,6 +45,8 @@ async function bootstrap() {
     .addTag('friends')
     .addTag('rooms')
     .addTag('Messages')
+	.addTag('user')
+	.addTag('game')
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);

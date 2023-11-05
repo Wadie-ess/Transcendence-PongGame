@@ -1,31 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PICTURE } from 'src/profile/dto/profile.dto';
 
 @Injectable()
 export class GameService {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private eventEmitter: EventEmitter2,
+  ) {
     // this.launchGame();
   }
 
-  private waitingPlayers: string[] = [];
+  private waitingPlayers: Socket[] = [];
 
   @OnEvent('game.start')
-  handleGameStartEvent(client: any) {
-    this.waitingPlayers.push(client.id);
+  handleGameStartEvent(client: Socket) {
+    this.waitingPlayers.push(client);
     console.log('client subscribed to the queue');
   }
 
   private launchGame() {
     setInterval(() => {
-      console.log('waitingPlayers');
+      console.log('waitingPlayers', this.waitingPlayers.length);
       if (this.waitingPlayers.length >= 2) {
         console.log('Game launched!');
         const two_players = this.waitingPlayers.splice(0, 2);
-        console.log(two_players);
+        this.eventEmitter.emit('game.launched', two_players);
+        // console.log(two_players);
       }
-    }, 1000);
+    }, 5027);
   }
 
   async getHistory(userId: string, offset: number, limit: number) {

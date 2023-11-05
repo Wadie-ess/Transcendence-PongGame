@@ -14,7 +14,9 @@ import { usersSearchDto } from './dto/search-user.dto';
 import { TwoFactorDto } from './dto/two-factor.dto';
 import { GetCurrentUser } from 'src/auth/decorator/get_current_user.decorator';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('user')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

@@ -49,6 +49,22 @@ export class RoomsService {
           HttpStatus.FORBIDDEN,
         );
       }
+      // check if already there is an existing dm room
+      const dmRoom = await this.prisma.room.findFirst({
+        where: {
+          type: 'dm',
+          members: {
+            every: {
+              userId: {
+                in: [roomOwnerId, secondMember],
+              },
+            },
+          },
+        },
+      });
+      if (dmRoom) {
+        return new RoomDataDto(dmRoom);
+      }
     }
 
     const room = await this.prisma.room.create({
@@ -554,6 +570,8 @@ export class RoomsService {
             },
             select: {
               is_admin: true,
+              is_banned: true,
+              bannedAt: true,
             },
           },
         }),
@@ -584,6 +602,9 @@ export class RoomsService {
         const last_message = await this.prisma.message.findFirst({
           where: {
             roomId: room.id,
+            ...(room.members[0].is_banned && {
+              createdAt: { lte: room.members[0].bannedAt },
+            }),
           },
           orderBy: {
             createdAt: 'desc',
@@ -606,5 +627,80 @@ export class RoomsService {
       }),
     );
     return roomsData;
+  }
+
+  async getDMs(userId: string, offset: number, limit: number) {
+    const rooms = await this.prisma.room.findMany({
+      skip: offset,
+      take: limit,
+      where: {
+        type: 'dm',
+        members: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        type: true,
+        ownerId: true,
+        members: {
+          select: {
+            user: {
+              select: {
+                userId: true,
+                firstName: true,
+                lastName: true,
+                avatar: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    type DMsData = {
+      id: string;
+      name: string;
+      last_message: {
+        createdAt: Date;
+        content: string;
+      } | null;
+      secondMemberId: string;
+      avatar: PICTURE;
+    };
+    const dmsData: DMsData[] = await Promise.all(
+      rooms.map(async (room) => {
+        const secondMember = room.members.find(
+          (member) => member.user.userId !== userId,
+        );
+        const last_message = await this.prisma.message.findFirst({
+          where: {
+            roomId: room.id,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          select: {
+            content: true,
+            createdAt: true,
+          },
+        });
+        const avatar: PICTURE = {
+          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${secondMember.user.avatar}`,
+          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${secondMember.user.avatar}`,
+          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${secondMember.user.avatar}`,
+        };
+        return {
+          id: room.id,
+          name: secondMember.user.firstName + ' ' + secondMember.user.lastName,
+          secondMemberId: secondMember.user.userId,
+          last_message,
+          avatar,
+        };
+      }),
+    );
+    return dmsData;
   }
 }
