@@ -4,7 +4,8 @@ import api from "../../../Api/base";
 export const createNewRoomCall = async (
   name: string,
   type: string,
-  password?: string
+  password?: string,
+  secondMember? : string,
 ) => {
   try {
 
@@ -12,6 +13,7 @@ export const createNewRoomCall = async (
       name: name,
       type: type,
       password: password,
+      secondMember: secondMember,
     });
     console.log(response.data);
     console.log(response.status);
@@ -198,4 +200,6 @@ export const getFriendsCall = async (
   }
 
 }
+
+
 

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { ConversationProps } from "..";
-import users, {
+import {
   Message,
   groupIcon,
   chatRooms,
   More,
   Send,
+  Options,
 } from "./tools/Assets";
 import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 
@@ -20,6 +21,8 @@ import {
 } from "../Services/MessagesServices";
 
 import { useUserStore } from "../../../Stores/stores";
+import { formatTime } from "./tools/utils";
+import { socket } from "../Services/SocketsServices";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -31,46 +34,47 @@ export interface ChatPaceHolderProps {
   id: string;
 }
 
-export const CurrentUserMessage = ({ message, time, senderId }: Message) => {
-  const [MyUsers] = useState(users);
+export const CurrentUserMessage = ({
+  message,
+  time,
+  senderId,
+  avatar,
+  isFailed,
+}: Message) => {
   const currentUser = useUserStore((state) => state);
-
-  const SelectedChat = useChatStore((state) => state.selectedChatID);
-  const selectedChatType = useChatStore((state) => state.selectedChatType);
-
-  const currentChatMessages = MyUsers.find((user) => user.id === SelectedChat);
 
   return senderId === currentUser.id ? (
     <div className="chat chat-end p-2 pl-5 ">
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
-          12:45 PM
+          {formatTime(time)}
         </time>
       </div>
-      <div className="max-w-max chat-bubble bg-purple-500 text-white whitespace-normal break-words text-sm md:text-base w-[60%] inline-block  ">
+      <div
+        className={` max-w-max chat-bubble ${
+          isFailed === true ? "bg-red-500" : "bg-purple-500"
+        }  text-white whitespace-normal break-words text-sm md:text-base w-[60%] inline-block  `}
+      >
         {message}
       </div>
-      <div className="chat-footer p-1 text-gray-400 font-poppins text-xs font-light leading-normal">
-        Delivered
+      <div
+        className={`chat-footer p-1 ${
+          isFailed ? "text-red-500" : "text-gray-400"
+        }  font-poppins text-xs font-light leading-normal`}
+      >
+        {isFailed ? "Failed" : "Delivered"}
       </div>
     </div>
   ) : (
     <div className="chat chat-start p-3 pr-5">
       <div className="chat-image avatar">
         <div className="w-10 rounded-full">
-          {selectedChatType === ChatType.Chat ? (
-            <img src={currentChatMessages?.image} alt="" />
-          ) : (
-            <img
-              src={MyUsers.find((user) => user.id === senderId)?.image}
-              alt=""
-            />
-          )}
+          <img src={avatar?.medium} alt="" />
         </div>
       </div>
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
-          {time} PM
+          {formatTime(time)}
         </time>
       </div>
 
@@ -84,13 +88,11 @@ export const CurrentUserMessage = ({ message, time, senderId }: Message) => {
 export const ConversationHeader: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
-  const [MyUsers] = useState(users);
-
   const LayoutState = useModalStore((state) => state);
   const ChatState = useChatStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
 
-  const currentUser = MyUsers.find((user) => user.id === SelectedChat);
+  const currentUser = useChatStore((state) => state.currentDmUser);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
 
   const currentRoom = chatRooms.find((room) => room.id === SelectedChat);
@@ -108,11 +110,8 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
       <div className="flex flex-row justify-between bg-[#1A1C26] p-3 border-b-2  border-black  ">
         <div className="flex flex-row ">
           <div className="flex items-center justify-center h-full mr-4 lg:hidden">
-            <button
-              className="w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center hover:bg-slate-600"
-              onClick={() => toggleChatRooms()}
-            >
-              =
+            <button className="w-6 h-10" onClick={() => toggleChatRooms()}>
+              <img alt="options" src={Options} />
             </button>
           </div>
 
@@ -122,7 +121,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               alt=""
               src={
                 selectedChatType === ChatType.Chat
-                  ? currentUser?.image
+                  ? currentUser?.avatar.large
                   : groupIcon
               }
             />
@@ -130,7 +129,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
           <div className="flex flex-col pl-2 ">
             <p className="text-white font-poppins text-base font-medium leading-normal">
               {selectedChatType === ChatType.Chat
-                ? currentUser?.name
+                ? currentUser?.firstname
                 : currentRoom?.isOwner
                 ? currentRoom.name + " ♚"
                 : currentRoom?.name}
@@ -141,7 +140,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               </p>
             ) : (
               <p className="text-gray-500 font-poppins text-sm font-medium leading-normal">
-                {currentRoom?.usersId.length} members
+                {currentRoom?.membersCount} members
               </p>
             )}
           </div>
@@ -191,7 +190,6 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               tabIndex={0}
               className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute  right-full  "
             >
-              {/* check if current user is admin or owner to show the settings toast */}
               {(currentRoom?.isAdmin === true ||
                 currentRoom?.isOwner === true) && (
                 <div className="icons-row flex flex-col  ">
@@ -277,91 +275,158 @@ export const Conversation: React.FC<ConversationProps> = ({
   const chatState = useChatStore((state) => state);
   const messageContainerRef = useRef<HTMLDivElement>(null);
 
-  const pushMessage = useChatStore((state) => state.addNewMessage);
-  const [CurrentsMessages, setMessages] = useState<Message[]>([]);
+  const scrollToBottom = () => {
+    if (messageContainerRef.current) {
+      const container = messageContainerRef.current;
+      container.scrollTop = container.scrollHeight;
+    }
+  };
+
+  const currentUser = useUserStore((state) => state);
   const [inputValue, setInputValue] = useState("");
   const [FailToSendMessage, setFail] = useState(false);
+  const [IsLoading, setLoading] = useState(true);
 
-  // Function to handle input changes
   const handleInputChange = (e: {
     target: { value: React.SetStateAction<string> };
   }) => {
     setFail(false);
-    setInputValue(e.target.value); // Update the input value in state
+    setInputValue(e.target.value);
   };
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatState.currentMessages?.length]);
 
   useEffect(() => {
-    const fetch = async () =>
+    const handleMessage = (message: {
+      id: string;
+      avatar: {
+        thumbnail: string;
+        medium: string;
+        large: string;
+      };
+      content: string;
+      time: string;
+      roomId: string;
+      authorId: string;
+    }) => {
+      console.log(message);
+      if (message.roomId === chatState.selectedChatID) {
+        const NewMessage: Message = {
+          avatar: message.avatar,
+          senderId: message.authorId,
+          message: message.content,
+          time: message.time,
+        };
+        chatState.pushMessage(NewMessage);
+        scrollToBottom();
+      }
+    };
+    socket.on("message", handleMessage);
+
+    const fetch = async () => {
+      setLoading(true);
       getRoomMessagesCall(chatState.selectedChatID, 0, 30).then((res) => {
+        setLoading(false);
         if (res?.status !== 200 && res?.status !== 201) {
         } else {
           const messages: Message[] = [];
           res.data.forEach(
             (message: {
               id: string;
+              avatar: {
+                thumbnail: string;
+                medium: string;
+                large: string;
+              };
               content: string;
               time: string;
               roomId: string;
               authorId: string;
             }) => {
               messages.push({
+                avatar: message.avatar,
                 senderId: message.authorId,
                 message: message.content,
                 time: message.time,
               });
             }
           );
-          setMessages(messages);
+          chatState.fillCurrentMessages(messages.reverse());
         }
       });
+    };
 
-    fetch();
-    scrollToBottom();
+    fetch().then(() => {
+      scrollToBottom();
+    });
+    return () => {
+      socket.off("message", handleMessage);
+    };
+    // eslint-disable-next-line
   }, [chatState.selectedChatID]);
 
-  const scrollToBottom = () => {
-    if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop =
-        messageContainerRef.current.scrollHeight;
-    }
+  const sendMessage = async () => {
+    if (inputValue.length === 0) return;
+    await sendMessageCall(chatState.selectedChatID, inputValue).then((res) => {
+      setInputValue("");
+      if (res?.status !== 200 && res?.status !== 201) {
+        setFail(true);
+        toast.error("you are not authorized to send messages in this room");
+        chatState.setMessageAsFailed(res?.data.id);
+      } else {
+        // for debug
+        if (chatState.selectedChatType === ChatType.Chat) {
+          const message: Message = {
+            id: res.data.id,
+            avatar: {
+              thumbnail: currentUser.picture.thumbnail,
+              medium: currentUser.picture.medium,
+              large: currentUser.picture.large,
+            },
+            senderId: currentUser.id,
+            message: res.data.content,
+            time: res.data.time,
+          };
+          chatState.pushMessage(message);
+        }
+      }
+    });
   };
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = async (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      // validation check
-      if (inputValue.length > 0) {
-        pushMessage({
-          senderId: "2",
-          message: inputValue,
-          isRead: false,
-          time: "10",
-        });
-        setInputValue("");
-      }
+      await sendMessage().then(() => scrollToBottom());
     }
-    // do stuff
   };
 
   return (
     <div className="flex flex-col h-[99%] ">
       <ConversationHeader onRemoveUserPreview={onRemoveUserPreview} />
       <div
-        className="flex-grow overflow-y-auto no-scrollbar"
+        className="flex-grow overflow-y-auto no-scrollbar "
         ref={messageContainerRef}
       >
-        {(CurrentsMessages?.length as number) > 0 ? (
-          CurrentsMessages?.map((message) => (
-            <CurrentUserMessage
-              // to set a unique key
-              // key={message.senderId}
-              message={message.message}
-              time={message.time}
-              senderId={message.senderId}
-              isRead={message.isRead}
-            />
-          ))
+        {IsLoading === false ? (
+          (chatState.currentMessages?.length as number) > 0 ? (
+            chatState.currentMessages?.map((message) => (
+              <CurrentUserMessage
+                isFailed={message.isFailed}
+                key={message.id}
+                avatar={message.avatar}
+                message={message.message}
+                time={message.time}
+                senderId={message.senderId}
+                isRead={message.isRead}
+              />
+            ))
+          ) : (
+            <ChatPlaceHolder message="No Messages Yet!, Send The First" />
+          )
         ) : (
-          <ChatPlaceHolder message="No Messages Yet!, Send The First" />
+          <div className=" text-center justify-center p-2 flex flex-col  items-center h-full">
+            <span className="loading loading-spinner loading-lg"></span>
+          </div>
         )}
       </div>
 
@@ -382,30 +447,7 @@ export const Conversation: React.FC<ConversationProps> = ({
 
               <button
                 onClick={async () => {
-                  setInputValue("");
-
-                  if (inputValue.length > 0) {
-                    await sendMessageCall(
-                      chatState.selectedChatID,
-                      inputValue
-                    ).then((res) => {
-                      if (res?.status !== 200 && res?.status !== 201) {
-                        setFail(true);
-                        toast.error(
-                          "you are not authorized to send messages in this room"
-                        );
-                        // set the input to red color
-                      } else {
-                        // hard coded to change
-                        pushMessage({
-                          senderId: "2000",
-                          message: inputValue,
-                          isRead: false,
-                          time: "10",
-                        });
-                      }
-                    });
-                  }
+                  await sendMessage().then(() => scrollToBottom());
                 }}
                 className="btn  ml-4 btn-square  bg-[#8C67F6] hover:bg-green-600"
               >

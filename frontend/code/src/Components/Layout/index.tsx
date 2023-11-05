@@ -14,10 +14,11 @@ import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
 import { FirstLogin } from "../FirstLogin";
-
+import { socket } from "../Chat/Services/SocketsServices";
 
 const routes = [
   { path: "Profile/:id" },
+  { path: "Dm/:id" },
   { path: "Settings" },
   { path: "Home" },
   { path: "Chat" },
@@ -26,13 +27,15 @@ const routes = [
   { path: "Game" },
 ];
 
-
 const useCurrentPath = () => {
   const location = useLocation();
   const [{ route }]: any = matchRoutes(routes, location);
   return route.path;
 };
 
+function onConnect() {
+  console.log("hello");
+}
 export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   const user = useUserStore();
   const navigate = useNavigate();
@@ -40,16 +43,18 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   useLayoutEffect(() => {
     const log = async () => {
       try {
-        await user.login();  
+        await user.login();
+      } catch (e) {
+        navigate("/");
+        user.logout();
       }
-      catch(e){
-          navigate("/");
-          user.logout();
-      }
-        
-
     };
+
+    socket.on("connect", onConnect);
     log();
+    return () => {
+      socket.off("connect", onConnect);
+    };
     //eslint-disable-next-line
   }, []);
   const path: string = useCurrentPath();
@@ -62,7 +67,6 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
         <div
           data-theme="mytheme"
           className={`h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
-
         >
           <div className=" flex flex-row  w-screen h-[8vh]  bg-base-200">
             <div className="flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full">
@@ -80,11 +84,14 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
                 <Dash selected={path === "Home"} className="mx-auto" />
                 <Game selected={path === "Play"} className="mx-auto" />
                 <Message selected={path === "Chat"} className="mx-auto" />
-                <Profile selected={path === "Profile/:id"} className="mx-auto" />
+                <Profile
+                  selected={path === "Profile/:id"}
+                  className="mx-auto"
+                />
                 <Settings selected={path === "Settings"} className="mx-auto" />
               </div>
               <div className="flex flex-col justify-start">
-                <Out  className="mx-auto" />
+                <Out className="mx-auto" />
               </div>
             </div>
             <div className=" h-[8vh] fixed bottom-0 sm:hidden btm-nav bg-base-200 flex justify-end z-50">
