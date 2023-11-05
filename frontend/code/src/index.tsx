@@ -15,8 +15,7 @@ root.render(
       toastOptions={{
         style:{
           background:"#7247c8",
-          color:"white"
-
+          color:"white",
         },
         className: "relative top-[6vh] bg-base-100 text-white",
         duration: 3000

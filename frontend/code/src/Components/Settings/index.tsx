@@ -32,14 +32,14 @@ export const Setting = () => {
 
   return (
     <>
-      <div className="flex h-[90vh] w-full font-poppins font-medium ">
+      <div className="flex h-[90vh] w-full font-poppins font-medium overflow-hidden">
         <h1 className="pt-6 pl-6 font-poppins font-medium text-xl text-neutral">
           Profile Settings
         </h1>
         <div className=" h-[82%] w-[90%] flex flex-col absolute bottom-0 right-0 bg-base-200 rounded-tl-2xl">
           <h2 className="pt-4 pl-4 text-neutral ">change preview</h2>
           <div className="flex justify-center h-1/3 w-full pt-8">
-            <div className="flex flex-col sm:flex-row  items-center gap-4 sm:justify-between justify-center overflow-scroll no-scrollbar  w-[90%]  max-h-[30vh] h-[20vh]  bg-base-100 border-solid border-gray-400 border-2  rounded-3xl">
+            <div className="flex flex-col sm:flex-row  items-center gap-4 sm:justify-between justify-center overflow-hidden no-scrollbar  w-[90%]  max-h-[30vh] h-[25vh]  bg-base-100 border-solid border-gray-400 border-2  rounded-3xl">
               <div className="flex justify-between items-center  gap-x-10 px-2 sm:px-0">
                 <div className="relative sm:pl-10 pt-6 sm:pt-0">
                   <UploadLogic/>
@@ -85,9 +85,9 @@ export const Setting = () => {
           </div>
 
           <h2 className="pt-4 pl-4 text-neutral">change preview</h2>
-          <div className="flex justify-center  overflow-auto no-scrollbar  h-full w-full pt-8">
+          <div className="flex justify-center  h-full w-full pt-8 overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between w-[90%] h-[50vh] sm:max-h-[50vh] max-h-[40vh] bg-base-100 border-solid border-gray-400 border-2  rounded-3xl">
-              <div className="overflow-scroll no-scrollbar h-full gap-4 p-6 flex-wrap shrink grid md:grid-cols-2  grid-cols-1 justify-between w-full">
+              <div className="h-full gap-4 p-6 flex-wrap shrink grid md:grid-cols-2 overflow-auto grid-cols-1 justify-between w-full">
                 {data_names.map((x, index) => {
                   return (
                     <Inputs key={index} name={x} data={data_content[index]} payload={payload_objects[index]} />

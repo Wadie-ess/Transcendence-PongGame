@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom'
 import { Load , Loading} from '../../Loading/';
 import { Logo } from '../../Layout/Assets/Logo';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { NullPlaceHolder } from '../../Chat/Components/RoomChatHelpers';
 import api from '../../../Api/base';
 import toast from 'react-hot-toast';
-
 const getColor = (v1 : number , v2:number) => {
   if (v1 > v2) return "text-lime-400";
   if (v1 < v2) return "text-red-400";
@@ -61,10 +61,10 @@ export const Table = (props:any) =>
     },[props.props.props])
     console.log(props)
     return (
-        <div className='w-full h-full overflow-auto'>
+        history.length > 0 || loading === true ? (<div className='w-full h-full overflow-auto'>
           <InfiniteScroll
             hasMore={hasMore}
-            loader={<div className='flex items-center justify-center'><Logo x={"6"} y={"6"}/></div>}
+            loader={<div className='flex items-center w-full h-full justify-center'><Logo x={"16"} y={"16"}/></div>}
             dataLength={history.length}
             next={fetchData}
             className='overflow-auto'
@@ -109,7 +109,8 @@ export const Table = (props:any) =>
               </table>
 
           </InfiniteScroll>
-          </div>
+          </div>)
+          :(<div className='flex items-center justify-center w-full h-full font-montserrat text-neutral'><NullPlaceHolder message='No History Available'/></div>)
         )
       
 
