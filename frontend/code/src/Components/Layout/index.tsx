@@ -14,6 +14,7 @@ import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
 import { FirstLogin } from "../FirstLogin";
+import { socket } from "../Chat/Services/SocketsServices";
 
 const routes = [
   { path: "Profile/:id" },
@@ -32,6 +33,9 @@ const useCurrentPath = () => {
   return route.path;
 };
 
+function onConnect() {
+  console.log("hello");
+}
 export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   const user = useUserStore();
   const navigate = useNavigate();
@@ -45,7 +49,12 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
         user.logout();
       }
     };
+
+    socket.on("connect", onConnect);
     log();
+    return () => {
+      socket.off("connect", onConnect);
+    };
     //eslint-disable-next-line
   }, []);
   const path: string = useCurrentPath();

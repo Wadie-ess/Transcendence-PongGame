@@ -4,7 +4,6 @@ import { Conversation } from "./Conversation";
 import { useParams } from "react-router-dom";
 import api from "../../../Api/base";
 import { useChatStore } from "../Controllers/RoomChatControllers";
-import { RoomMember, chatRooms } from "./tools/Assets";
 
 export const UserToUserChat = () => {
   const params = useParams();
@@ -14,9 +13,10 @@ export const UserToUserChat = () => {
   const [showUserPreview, setShowUserPreview] = useState(true);
 
   useEffect(() => {
+    console.log("selected chat id ", ChatState.selectedChatID);
     const fetchUser = async () => {
       try {
-        const res = await api.get(`profile/${params.id}`).then((res) => {
+         await api.get(`profile/${params.id}`).then((res) => {
           console.log(res.data);
           ChatState.setCurrentDmUser({
             id: res.data.id,

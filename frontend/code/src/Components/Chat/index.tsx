@@ -10,14 +10,13 @@ import {
 import { useEffect, useState } from "react";
 import { Conversation } from "./Components/Conversation";
 import { ChatPaceHolderProps } from "./Components/Conversation";
-import users from "./Components/tools/Assets";
+
 import React from "react";
 import { ChatType, useChatStore } from "./Controllers/RoomChatControllers";
 
 import { RecentConversations } from "./Components/RecentChat";
 import {
   AddUsersModal,
-  BlockedUsersModal,
   CreateNewRoomModal,
   ExploreRoomsModal,
   NullPlaceHolder,
@@ -30,7 +29,6 @@ import { getRoomMembersCall } from "./Services/ChatServices";
 import toast from "react-hot-toast";
 import { classNames } from "../../Utils/helpers";
 import { useModalStore } from "./Controllers/LayoutControllers";
-import { socket } from "./Services/SocketsServices";
 
 export interface ConversationProps {
   onRemoveUserPreview: () => void;
@@ -104,7 +102,6 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentUsers, setUsers] = useState<RoomMember[]>([]);
-  const [MyUsers] = useState(users);
   const LayoutState = useModalStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
 
@@ -203,7 +200,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
             {}
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
-          <div className="w-full overflow-y-auto no-scrollbar ">
+          <div className="overflow-y-auto no-scrollbar ">
             {isLoading === false ? (
               <>
                 {currentUsers.map((user) => (

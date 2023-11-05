@@ -7,12 +7,12 @@ import {
   Lock,
   More,
   NullImage,
-  NullUser,
+
   RoomMember,
   RoomType,
   Unlock,
   chatRooms,
-  check,
+
   groupIcon,
 } from "./tools/Assets";
 
@@ -119,12 +119,12 @@ export const RoomChatPlaceHolder = () => {
                 {room?.membersCount} Members
               </p>
             </div>
-            <div className=" flex flex-row justify-between pt-1">
+            <div className=" flex flex-row justify-between pt-1 text-base">
               <p className="text-gray-400 font-poppins text-sm font-medium leading-normal max-w-[80px] md:max-w-[180px]  truncate hidden md:block ">
                 {room.last_message?.content ?? "No Messages*"}
               </p>
               {room.last_message !== null && (
-                <div className="chat-header p-1">
+                <div className="">
                   <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
                     {formatTime(room.last_message?.createdAt ?? "")}
                   </time>
@@ -359,7 +359,6 @@ export const FriendTile = (props: { user: RoomMember }) => {
 
 export const BlockedFriendTile = (props: { user: RoomMember }) => {
   const [IsAdding, setIsAdding] = useState(false);
-  const selectedChatID = useChatStore((state) => state.selectedChatID);
   const LayoutState = useModalStore((state) => state);
   const user = props.user;
 
@@ -408,12 +407,10 @@ export const BlockedFriendTile = (props: { user: RoomMember }) => {
 
 export const BlockedUsersModal = () => {
   const [currentFriends, setUsers] = useState<RoomMember[]>([]);
-  const [currentRoomMembers, setRoomMembers] = useState<RoomMember[]>([]);
   const LayoutState = useModalStore((state) => state);
   const [IsLoading, setIsLoading] = useState(false);
 
   const [skipCount, setSkipCount] = useState(true);
-  const ChatState = useChatStore((state) => state);
 
   useEffect(() => {
     if (skipCount) setSkipCount(false);

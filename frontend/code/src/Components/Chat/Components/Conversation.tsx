@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ConversationProps } from "..";
-import users, {
+import {
   Message,
   groupIcon,
   chatRooms,
@@ -41,13 +41,7 @@ export const CurrentUserMessage = ({
   avatar,
   isFailed,
 }: Message) => {
-  const [MyUsers] = useState(users);
   const currentUser = useUserStore((state) => state);
-
-  const SelectedChat = useChatStore((state) => state.selectedChatID);
-  const selectedChatType = useChatStore((state) => state.selectedChatType);
-
-  const currentChatMessages = MyUsers.find((user) => user.id === SelectedChat);
 
   return senderId === currentUser.id ? (
     <div className="chat chat-end p-2 pl-5 ">
@@ -94,8 +88,6 @@ export const CurrentUserMessage = ({
 export const ConversationHeader: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
-  const [MyUsers] = useState(users);
-
   const LayoutState = useModalStore((state) => state);
   const ChatState = useChatStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
@@ -119,7 +111,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
         <div className="flex flex-row ">
           <div className="flex items-center justify-center h-full mr-4 lg:hidden">
             <button className="w-6 h-10" onClick={() => toggleChatRooms()}>
-              <img src={Options} />
+              <img alt="options" src={Options} />
             </button>
           </div>
 
@@ -290,7 +282,6 @@ export const Conversation: React.FC<ConversationProps> = ({
     }
   };
 
-  const [isFail, SetFailedMsg] = useState(false);
   const currentUser = useUserStore((state) => state);
   const [inputValue, setInputValue] = useState("");
   const [FailToSendMessage, setFail] = useState(false);
@@ -307,12 +298,6 @@ export const Conversation: React.FC<ConversationProps> = ({
   }, [chatState.currentMessages?.length]);
 
   useEffect(() => {
-    function onConnect() {
-      console.log("hello");
-    }
-
-    socket.on("connect", onConnect);
-
     const handleMessage = (message: {
       id: string;
       avatar: {
@@ -375,12 +360,10 @@ export const Conversation: React.FC<ConversationProps> = ({
     fetch().then(() => {
       scrollToBottom();
     });
-
-    // Cleanup function to remove event listeners when component unmounts
     return () => {
-      socket.off("connect", onConnect);
       socket.off("message", handleMessage);
     };
+    // eslint-disable-next-line
   }, [chatState.selectedChatID]);
 
   const sendMessage = async () => {
@@ -388,11 +371,25 @@ export const Conversation: React.FC<ConversationProps> = ({
     await sendMessageCall(chatState.selectedChatID, inputValue).then((res) => {
       setInputValue("");
       if (res?.status !== 200 && res?.status !== 201) {
-        SetFailedMsg(true);
         setFail(true);
         toast.error("you are not authorized to send messages in this room");
         chatState.setMessageAsFailed(res?.data.id);
       } else {
+        // for debug
+        if (chatState.selectedChatType === ChatType.Chat) {
+          const message: Message = {
+            id: res.data.id,
+            avatar: {
+              thumbnail: currentUser.picture.thumbnail,
+              medium: currentUser.picture.medium,
+              large: currentUser.picture.large,
+            },
+            senderId: currentUser.id,
+            message: res.data.content,
+            time: res.data.time,
+          };
+          chatState.pushMessage(message);
+        }
       }
     });
   };
