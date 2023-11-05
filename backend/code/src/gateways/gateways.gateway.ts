@@ -1,6 +1,7 @@
 import {
   MessageBody,
   OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -11,20 +12,22 @@ import {} from '@nestjs/platform-socket.io';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Game } from 'src/game/game';
+
 @WebSocketGateway(3004, {
   cors: {
     origin: ['http://localhost:3001'],
   },
   transports: ['websocket'],
 })
-export class Gateways implements OnGatewayConnection {
+export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
+  @WebSocketServer() private server: Server;
   private games_map = new Map<string, Game>();
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     const userId = client.data.user.sub;
     const rooms = this.prisma.roomMember.findMany({
       where: {
@@ -45,10 +48,48 @@ export class Gateways implements OnGatewayConnection {
         console.log(`Romm:${room.room.id}`);
       });
     });
-    client.join(`notif:${userId}`);
+    client.join(`User:${userId}`);
+
+    await this.prisma.user.update({
+      where: {
+        userId,
+      },
+      data: {
+        online: true,
+      },
+    });
+
+    const frienduserIds = await this.prisma.friend.findMany({
+      where: {
+        OR: [
+          {
+            fromId: userId,
+          },
+          {
+            toId: userId,
+          },
+        ],
+      },
+      select: {
+        fromId: true,
+        toId: true,
+      },
+    });
+
+    const friendIds = frienduserIds
+      .map((friend) => (friend.toId === userId ? friend.fromId : friend.toId))
+      .filter((id) => this.server.sockets.adapter.rooms.get(`User:${id}`)?.size);
+
+    client.emit('onlineFriends', friendIds);
+
+    this.server.emit('friendOnline', userId);
   }
 
-  @WebSocketServer() private server: Server;
+  async handleDisconnect(client: Socket) {
+    const userId = client.data.user.sub;
+
+    this.server.emit('friendOffline', userId);
+  }
 
   @OnEvent('sendMessages')
   sendMessage(message: MessageFormatDto) {
@@ -58,7 +99,7 @@ export class Gateways implements OnGatewayConnection {
 
   @OnEvent('addFriendNotif')
   sendFriendReq(notif: any) {
-    const channellname: string = `notif:${notif.recipientId}`;
+    const channellname: string = `User:${notif.recipientId}`;
     this.server.to(channellname).emit('message', notif);
   }
 
@@ -90,9 +131,49 @@ export class Gateways implements OnGatewayConnection {
     this.games_map.delete(data.gameid);
   }
 
+  @SubscribeMessage('joinRoom')
+  async handleJoinRoomEvent(client: Socket, data: any) {
+    const member = await this.prisma.roomMember.findFirst({
+      where: {
+        userId: client.data.user.sub,
+        roomId: data.roomId,
+      },
+    });
+    if (member) {
+      client.join(`Romm:${data.roomId}`);
+    }
+  }
+
+  @SubscribeMessage('unban')
+  async handleUnbanEvent(client: Socket, data: any) {
+    const owner = await this.prisma.roomMember.findFirst({
+      where: {
+        userId: client.data.user.sub,
+        roomId: data.roomId,
+      },
+    });
+    if (!owner || owner.is_admin === false) {
+      return;
+    }
+    const member = await this.prisma.roomMember.findFirst({
+      where: {
+        userId: data.memberId,
+        roomId: data.roomId,
+      },
+    });
+    if (member) {
+      const banedClientSocket = await this.server
+        .in(`User:${data.memberId}`)
+        .fetchSockets();
+      if (banedClientSocket.length > 0) {
+        banedClientSocket[0].join(`Romm:${data.roomId}`);
+      }
+    }
+  }
+
   @SubscribeMessage('roomDeparture')
   async hundleDeparture(
-    @MessageBody() data: { roomId: string; memberId: string },
+    @MessageBody() data: { roomId: string; memberId: string; type: string },
   ) {
     const clients = await this.server.in(`Romm:${data.roomId}`).fetchSockets();
     console.log(`Romm:${data.roomId}`);
@@ -100,9 +181,13 @@ export class Gateways implements OnGatewayConnection {
       (client) => client.data.user.sub === data.memberId,
     );
     if (clientToBan) {
-		clientToBan.leave(`Romm:${data.roomId}`);
-    } else {
-      console.log('client not found');
+      clientToBan.leave(`Romm:${data.roomId}`);
+      if (data?.type === 'kick') {
+        clientToBan.emit('roomDeparture', {
+          roomId: data.roomId,
+          type: 'kick',
+        });
+      }
     }
   }
 }
