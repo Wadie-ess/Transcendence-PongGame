@@ -49,22 +49,6 @@ export class RoomsService {
           HttpStatus.FORBIDDEN,
         );
       }
-      // check if already there is an existing dm room
-      const dmRoom = await this.prisma.room.findFirst({
-        where: {
-          type: 'dm',
-          members: {
-            every: {
-              userId: {
-                in: [roomOwnerId, secondMember],
-              },
-            },
-          },
-        },
-      });
-      if (dmRoom) {
-        return new RoomDataDto(dmRoom);
-      }
     }
 
     const room = await this.prisma.room.create({
@@ -625,7 +609,7 @@ export class RoomsService {
     return roomsData;
   }
 
-  async getDMs(userId: string, offset: number, limit: number) {
+  async getDms(userId: string, offset: number, limit: number) {
     const rooms = await this.prisma.room.findMany({
       skip: offset,
       take: limit,
@@ -643,60 +627,21 @@ export class RoomsService {
         ownerId: true,
         members: {
           select: {
-            user: {
-              select: {
-                userId: true,
-                firstName: true,
-                lastName: true,
-                avatar: true,
-              },
-            },
+            userId: true,
           },
         },
       },
     });
-
-    type DMsData = {
-      id: string;
-      name: string;
-      last_message: {
-        createdAt: Date;
-        content: string;
-      } | null;
-      secondMemberId: string;
-      avatar: PICTURE;
-    };
-    const dmsData: DMsData[] = await Promise.all(
-      rooms.map(async (room) => {
-        const secondMember = room.members.find(
-          (member) => member.user.userId !== userId,
-        );
-        const last_message = await this.prisma.message.findFirst({
-          where: {
-            roomId: room.id,
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-          select: {
-            content: true,
-            createdAt: true,
-          },
-        });
-        const avatar: PICTURE = {
-          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${secondMember.user.avatar}`,
-          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${secondMember.user.avatar}`,
-          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${secondMember.user.avatar}`,
-        };
-        return {
-          id: room.id,
-          name: secondMember.user.firstName + ' ' + secondMember.user.lastName,
-          secondMemberId: secondMember.user.userId,
-          last_message,
-          avatar,
-        };
-      }),
-    );
-    return dmsData;
+    return rooms.map((room) => {
+      const secondMember = room.members.find(
+        (member) => member.userId !== userId,
+      );
+      return {
+        id: room.id,
+        name: secondMember.userId,
+        type: room.type,
+        ownerId: room.ownerId,
+      };
+    });
   }
 }
