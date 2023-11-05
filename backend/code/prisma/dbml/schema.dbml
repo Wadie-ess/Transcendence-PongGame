@@ -11,6 +11,7 @@ Table users {
   refreshedHash String
   intraId String [unique]
   profileFinished Boolean [not null, default: false]
+  online Boolean [not null, default: false]
   Username String [unique]
   firstName String
   lastName String

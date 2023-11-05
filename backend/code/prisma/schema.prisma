@@ -24,6 +24,7 @@ model User {
   refreshedHash   String?
   intraId         String? @unique
   profileFinished Boolean @default(false)
+  online          Boolean @default(false)
 
   Username      String?        @unique
   firstName     String?
