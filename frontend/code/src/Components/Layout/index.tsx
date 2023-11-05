@@ -8,7 +8,7 @@ import { Message } from "./Assets/Message";
 import { Profile } from "./Assets/Profile";
 import { Settings } from "./Assets/Settings";
 import { Out } from "./Assets/Out";
-import { FC, PropsWithChildren, useLayoutEffect } from "react";
+import { FC, PropsWithChildren, useLayoutEffect} from "react";
 import { Outlet } from "react-router";
 import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
@@ -37,6 +37,7 @@ function onConnect() {
   console.log("hello");
 }
 export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
+
   const user = useUserStore();
   const navigate = useNavigate();
 
@@ -44,10 +45,16 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
     const log = async () => {
       try {
         await user.login();
-      } catch (e) {
-        navigate("/");
-        user.logout();
+      } 
+      catch(e:any){
+          if (e?.response?.status !== 403 && e?.response?.data?.message !== "Please complete your profile")
+          {
+          navigate("/");
+          user.logout();
+          }
       }
+        
+
     };
 
     socket.on("connect", onConnect);
@@ -111,8 +118,9 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
                 <Settings selected={path === "Settings"} />
               </button>
             </div>
-            <div className="sm:w-[92vw] xl:w-[96vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh] bg-accent sm:rounded-tl-2xl overflow-hidden">
-              <Outlet />
+            <div className="sm:-ml-4 sm:w-[92vw] xl:w-[96vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-accent sm:rounded-tl-2xl overflow-auto no-scrollbar" id='scrollTarget'>
+                <Outlet />
+
             </div>
           </div>
         </div>

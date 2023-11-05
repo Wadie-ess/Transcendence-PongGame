@@ -1,10 +1,10 @@
-import { FC } from 'react'
 import { Button } from './assets/Button'
 import { LeaderBoard } from './LeaderBoard'
 import { Link } from 'react-router-dom'
 import herosvg from './assets/Hero.png'
-export const Home : FC = () : JSX.Element =>{
 
+export const Home  = () : JSX.Element =>{
+ 
     return (
         <>
        
@@ -16,10 +16,12 @@ export const Home : FC = () : JSX.Element =>{
                         <div className='absolute xl:text-4xl md:text-3xl sm:text-2xl   flex top-[15%] right-2/6 text-neutral font-lexend font-extrabold'>READY TO PLAY A GAME? </div>
                    
                 </div>
-                <div className='flex justify-center relative items-start pt-6 h-auto w-[90vw] sm:w-[85vw]  overflow-hidden'>
-                    <LeaderBoard/>
+               
+                    <div className='flex justify-center relative items-start pt-6 h-auto w-[90vw] sm:w-[85vw]'  >
+                        <LeaderBoard/>
 
-                </div>
+                    </div>
+
                 
             </div>
         </>
