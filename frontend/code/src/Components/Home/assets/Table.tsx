@@ -80,7 +80,7 @@ export const Table: FC = () =>
         <InfiniteScroll
                     dataLength={users.length}
                     next={fetchItems}
-                    loader={<div className='flex items-center justify-center w-full '><Logo x={"6"} y={"6"}/></div>}
+                    loader={<div className='flex items-center justify-center w-full '><Logo x={"12"} y={"12"}/></div>}
                     endMessage={<div className='p-4 flex justify-center items-center font-montserrat text-neutral'>No more results!</div>}
                     hasMore={hasMoreItems.current} 
                     scrollableTarget="scrollTarget"
@@ -115,7 +115,7 @@ export const Table: FC = () =>
                       <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
                       <img src={`https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${x?.avatar}`} alt="Avatar Tailwind CSS Component" />                      </div>
                     </div>
-                    <div className="flex font-montserrat w-12 text-neutral font-semibold">{x?.Username}</div>
+                    <div className="flex font-montserrat w-20 text-neutral font-semibold ">{x?.Username}</div>
                     </div>
                     </Link>
                     </td>

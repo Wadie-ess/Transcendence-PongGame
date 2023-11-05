@@ -1,14 +1,18 @@
 import { classNames } from "../../../Utils/helpers";
-
+import { useUserStore } from "../../../Stores/stores";
+import { Link } from "react-router-dom";
 
 
 type OutProps = React.HTMLAttributes<HTMLDivElement> & {
     selected?: boolean;
   };
 export const Out = ({ selected, className, ...props} : OutProps) => {
+  const user = useUserStore();
     return (
-        <div
-        
+      <>
+      { process.env?.REACT_APP_LOGOUT &&
+        <Link onClick={() => user.logout()} to={process.env.REACT_APP_LOGOUT}>
+      <div
         className={classNames(
             "h-9 w-9 hover:bg-secondary rounded-xl flex justify-center items-center hover:cursor-pointer",
             selected && "bg-secondary",
@@ -20,6 +24,9 @@ export const Out = ({ selected, className, ...props} : OutProps) => {
             <path d="M16 12L16.7809 11.3753L17.2806 12L16.7809 12.6247L16 12ZM4 13C3.44771 13 3 12.5523 3 12C3 11.4477 3.44771 11 4 11V13ZM12.7809 6.3753L16.7809 11.3753L15.2191 12.6247L11.2191 7.6247L12.7809 6.3753ZM16.7809 12.6247L12.7809 17.6247L11.2191 16.3753L15.2191 11.3753L16.7809 12.6247ZM16 13H4V11H16V13Z" fill="#BDBDBD"/>
             </svg>
         </div>
+        </Link>
+      }
+      </>
        
     )
 }

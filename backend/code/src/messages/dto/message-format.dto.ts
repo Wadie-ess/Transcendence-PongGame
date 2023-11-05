@@ -3,12 +3,15 @@ import { Message, User } from '@prisma/client';
 import { PICTURE } from 'src/profile/dto/profile.dto';
 
 export class MessageFormatDto {
+  Username: any;
   constructor(messageData: Message & { author: Partial<User> }) {
     this.id = messageData.id;
     this.content = messageData.content;
     this.time = messageData.createdAt;
     this.roomId = messageData.roomId;
     this.authorId = messageData.authorId;
+    this.Username = messageData.author.Username;
+    
     this.avatar = {
       thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${messageData.author.avatar}`,
       medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${messageData.author.avatar}`,

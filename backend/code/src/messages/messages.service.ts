@@ -82,11 +82,13 @@ export class MessagesService {
         content: messageDto.content,
         roomId: channelId,
         authorId: userId,
+        
       },
       include: {
         author: {
           select: {
             avatar: true,
+            Username:true,
           },
         },
       },
