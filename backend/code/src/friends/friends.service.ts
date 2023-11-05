@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
 import { FriendResponseDto } from './dto/frined-response.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PICTURE } from 'src/profile/dto/profile.dto';
 
 @Injectable()
 export class FriendsService {
@@ -208,6 +209,7 @@ export class FriendsService {
             userId: true,
             firstName: true,
             lastName: true,
+            avatar: true,
           },
         },
         to: {
@@ -215,15 +217,37 @@ export class FriendsService {
             userId: true,
             firstName: true,
             lastName: true,
+            avatar: true,
           },
         },
       },
     });
+
     return friends.map((friend) => {
       if (friend.from.userId === userId) {
-        return friend.to;
+        const avatar: PICTURE = {
+          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${friend.to.avatar}`,
+          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${friend.to.avatar}`,
+          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${friend.to.avatar}`,
+        };
+        return {
+          id: friend.to.userId,
+          firstname: friend.to.firstName,
+          lastname: friend.to.lastName,
+          avatar,
+        };
       } else {
-        return friend.from;
+        const avatar: PICTURE = {
+          thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${friend.from.avatar}`,
+          medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${friend.from.avatar}`,
+          large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${friend.from.avatar}`,
+        };
+        return {
+          id: friend.from.userId,
+          firstname: friend.from.firstName,
+          lastname: friend.from.lastName,
+          avatar,
+        };
       }
     });
   }

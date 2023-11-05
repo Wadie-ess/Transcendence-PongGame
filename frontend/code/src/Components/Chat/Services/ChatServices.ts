@@ -4,7 +4,8 @@ import api from "../../../Api/base";
 export const createNewRoomCall = async (
   name: string,
   type: string,
-  password?: string
+  password?: string,
+  secondMember? : string,
 ) => {
   try {
 
@@ -12,6 +13,7 @@ export const createNewRoomCall = async (
       name: name,
       type: type,
       password: password,
+      secondMember: secondMember,
     });
     console.log(response.data);
     console.log(response.status);
@@ -41,6 +43,7 @@ export const updateRoomCall = async (
     console.log(response.status);
     return response;
   } catch (e: any) {
+    toast.error(e.response.data.message);
     console.log(e.response.data.message);
   }
 
@@ -175,7 +178,28 @@ export const DeleteRoomCall = async (
     console.log(e.response.data.message);
     toast.error(e.response.data.message);
   }
+}
+
+// unused
+export const getFriendsCall = async (
+  offset: number,
+  limit: number,
+
+
+) => {
+
+  try {
+    const response = await api.get(`/friends/list`,
+      { params: { offset: offset, limit: limit } });
+    console.log("friends list response");
+    console.log(response.status);
+    console.log(response.data);
+    return response;
+  } catch (e: any) {
+    console.log(e.response.data.message);
+  }
 
 }
+
 
 

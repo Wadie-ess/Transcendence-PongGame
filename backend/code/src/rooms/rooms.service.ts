@@ -400,15 +400,18 @@ export class RoomsService {
       select: {
         user: {
           select: {
+            userId: true,
             firstName: true,
             lastName: true,
             avatar: true,
           },
         },
         is_banned: true,
+        is_mueted: true,
       },
     });
-    return members.map((member) => {
+    const filtredmembers = members.filter((member) => !member.is_banned || user.is_admin)
+    return filtredmembers.map((member) => {
       if (!member.is_banned || user.is_admin) {
         const avatar: PICTURE = {
           thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${member.user.avatar}`,
@@ -416,9 +419,12 @@ export class RoomsService {
           large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${member.user.avatar}`,
         };
         return {
+          id: member.user.userId,
           firstname: member.user.firstName,
           lastname: member.user.lastName,
           avatar: avatar,
+          isBaned: member.is_banned,
+          isMuted: member.is_mueted,
         };
       }
     });
@@ -530,7 +536,10 @@ export class RoomsService {
       skip: offset,
       take: limit,
       where: {
-        ...(joined && { members: { some: { userId: userId } } }),
+        ...(joined && {
+          members: { some: { userId: userId } },
+          NOT: { type: 'dm' },
+        }),
         ...(!joined && { OR: [{ type: 'public' }, { type: 'protected' }] }),
       },
       select: {
@@ -551,15 +560,51 @@ export class RoomsService {
       },
     });
     if (!joined) return rooms;
-    return rooms.map((room) => {
-      const is_owner = room.ownerId === userId;
-      return {
-        id: room.id,
-        name: room.name,
-        type: room.type,
-        is_admin: room.members[0].is_admin,
-        is_owner,
-      };
-    });
+
+    type roomsData = {
+      is_admin: boolean;
+      id: string;
+      name: string;
+      type: string;
+      is_owner: boolean;
+      countMembers: number;
+      last_message: {
+        createdAt: Date;
+        content: string;
+      } | null;
+    };
+    const roomsData: roomsData[] = await Promise.all(
+      rooms.map(async (room) => {
+        const countMembers = await this.prisma.roomMember.count({
+          where: {
+            roomId: room.id,
+          },
+        });
+
+        const last_message = await this.prisma.message.findFirst({
+          where: {
+            roomId: room.id,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          select: {
+            content: true,
+            createdAt: true,
+          },
+        });
+        const is_owner = room.ownerId === userId;
+        return {
+          id: room.id,
+          name: room.name,
+          type: room.type,
+          is_admin: room.members[0].is_admin,
+          is_owner,
+          countMembers,
+          last_message,
+        };
+      }),
+    );
+    return roomsData;
   }
 }

@@ -10,5 +10,5 @@ export const Profile = ({selected} : boolean | any) => {
             </svg>
         </div>
     </Link>
-    )
-}
+  );
+};

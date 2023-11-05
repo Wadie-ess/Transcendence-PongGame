@@ -59,7 +59,7 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: "Pure",
+        path: "Dm/:id",
         lazy: async () => {
           let { UserToUserChat } = await import("../Components/Chat/Components/UserToUserChat");
           return { Component: UserToUserChat };

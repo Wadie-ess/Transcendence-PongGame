@@ -47,6 +47,7 @@ export class Gateways implements OnGatewayConnection {
 
   @OnEvent('sendMessages')
   sendMessage(message: MessageFormatDto) {
+    console.log("recive msg !")
     const chanellname: string = `Romm:${message.roomId}`;
     this.server.to(chanellname).emit('message', message);
   }
@@ -58,13 +59,8 @@ export class Gateways implements OnGatewayConnection {
   }
 
   @SubscribeMessage('startGame')
-  handleGameStartEvent(client: any) {
+  handleGameStartEvent(client: Socket) {
     this.eventEmitter.emit('game.start', client);
-  }
-
-  @SubscribeMessage('movePaddle')
-  handleMovePaddleEvent(client: any, data: any) {
-    this.server.to(data.channel).emit('movePaddle', data);
   }
 
   @OnEvent('game.launched')

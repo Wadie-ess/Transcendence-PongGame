@@ -1,5 +1,6 @@
 import { Pong } from './assets/Pong'
 import { File } from './assets/File'
+
 import { History } from './History'
 import Hero from './assets/Hero.gif'
 import { useState , useEffect } from 'react'
@@ -11,7 +12,6 @@ import  Ultimate  from '../Badges/Ultimate.svg'
 import { Edit } from './assets/Edit'
 import { useUserStore } from '../../Stores/stores'
 import { VscChromeClose , VscAdd , VscCheck , VscComment} from "react-icons/vsc";
-// import dots from './assets/svg/threedots.svg'
 import api from '../../Api/base'
 import  toast from 'react-hot-toast'
 type FRIENDSHIP = 'none' | 'friend' | 'sent' | 'recive' | 'blocked' | undefined;
@@ -45,7 +45,7 @@ export const Profile = () =>{
                 setProfile(user)
 
         //eslint-disable-next-line
-        },[params.id, user])
+        },[params, user])
         console.log(status)
         const sendRequest = async() => {
             setDisbaled("btn-disabled")
@@ -138,7 +138,7 @@ export const Profile = () =>{
                             </div>
                         }
                         {
-                           ((params.id === "me" ) || (params.id === user.id)) && 
+                            (params.id === "me" || params.id === user.id) && 
                                 <Link to={"/Settings"}><Edit/></Link>   
                             
                         }
@@ -159,7 +159,7 @@ export const Profile = () =>{
                     </div>
                 </div>
             </div>
-            <div className="relative flex w-[85vw] justify-center h-auto">
+            <div className="relative flex w-[85vw] justify-center h-auto overflow-">
                 <History props={params.id}/>
             </div>
         </div>

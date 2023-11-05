@@ -3,6 +3,9 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@material-ui/core": "^4.12.4",
-    "@mui/material": "^5.14.13"
+    "@mui/material": "^5.14.13",
+    "lord-icon-element": "^4.1.2",
+    "lottie-web": "^5.12.2",
+    "socket.io-client": "^4.7.2"
   }
 }

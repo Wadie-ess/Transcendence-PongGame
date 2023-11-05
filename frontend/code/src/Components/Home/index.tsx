@@ -3,7 +3,7 @@ import { LeaderBoard } from './LeaderBoard'
 import { Link } from 'react-router-dom'
 import herosvg from './assets/Hero.png'
 
-export const Home : FC = () : JSX.Element =>{
+export const Home  = () : JSX.Element =>{
  
     return (
         <>

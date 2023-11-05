@@ -18,9 +18,13 @@ import NullImage from "../../assets/null_asset.svg";
 import ChatIcon from "../../assets/Chat.svg";
 import RoomsIcon from "../../assets/group_share.svg";
 import Explore from "../../assets/explore.svg";
+import owner from "../../assets/owner.svg";
 import Lock from "../../assets/lockIcon.svg";
 import Unlock from "../../assets/UnlockIcon.svg";
 import ChatGif from "../../assets/chatGif.gif";
+import NullUser from "../../assets/User_duotone.svg";
+import exploreIcon from "../../assets/explore_icon.svg";
+import Options from "../../assets/options.svg";
 export enum RoomType {
   private,
   public,
@@ -51,26 +55,39 @@ export {
   Lock,
   Unlock,
   ChatGif,
+  NullUser,
+  owner,
+  exploreIcon,
+  Options,
 };
 
 export interface Message {
+  id?: string;
+  roomId?: string;
   senderId: string;
   message: string;
   time: string;
-  isRead: boolean;
+  avatar?: {
+    thumbnail: string;
+    medium: string;
+    large: string;
+  };
+  isRead?: boolean;
+  isFailed?: boolean;
 }
 
 export interface RoomMember {
   id: string;
-  name: {
-    first: string;
-    last: string;
-  };
+  firstname: string;
+  lastname: string;
   avatar: {
     thumbnail: string;
     medium: string;
     large: string;
   };
+  bio?: string;
+  isBaned?: boolean;
+  isMuted?: boolean;
 }
 
 export interface ChatRoom {
@@ -81,6 +98,11 @@ export interface ChatRoom {
   isOwner: boolean;
   isAdmin: boolean;
   type: RoomType;
+  membersCount?: number;
+  last_message?: {
+    content?: string;
+    createdAt?: string;
+  };
 }
 
 export interface User {
@@ -94,44 +116,7 @@ export interface User {
 }
 
 // chat rooms dummy data
-export const chatRooms: ChatRoom[] = [
-  // {
-  //   id: "7",
-  //   name: "Room 1",
-  //   messages: [
-  //     {
-  //       senderId: "1",
-  //       message: "Hello, everyone!",
-  //       time: "10:00 AM",
-  //       isRead: true,
-  //     },
-  //     {
-  //       senderId: "2",
-  //       message: "Hi there!",
-  //       time: "10:05 AM",
-  //       isRead: true,
-  //     },
-  //     {
-  //       senderId: "3",
-  //       message: "Hi there!",
-  //       time: "10:05 AM",
-  //       isRead: true,
-  //     },
-  //     {
-  //       senderId: "3",
-  //       message: "Hi there!",
-  //       time: "10:05 AM",
-  //       isRead: true,
-  //     },
-  //     // Add more messages for Room 1 here
-  //   ],
-  //   usersId: ["1", "2"], // User IDs participating in the chat room
-  //   isOwner: true,
-  //   isAdmin: true,
-  //   type: RoomType.public,
-  // },
-  // Add more chat rooms here
-];
+export const chatRooms: ChatRoom[] = [];
 
 export const users: User[] = [
   {

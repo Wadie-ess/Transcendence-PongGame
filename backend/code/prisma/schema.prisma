@@ -25,10 +25,10 @@ model User {
   intraId         String? @unique
   profileFinished Boolean @default(false)
 
-  Username String? @unique
+  Username      String?        @unique
   firstName     String?
   lastName      String?
-  discreption   String @default("")
+  discreption   String         @default("")
   avatar        String?
   tfaEnabled    Boolean        @default(false)
   tfaSecret     String?
@@ -41,6 +41,7 @@ model User {
   roomMember    RoomMember[]
   blocked_by    BlockedUsers[] @relation("blocked_by")
   blocked       BlockedUsers[] @relation("blocked")
+  Message       Message[]
 
   @@map("users")
 }
@@ -64,12 +65,12 @@ model BlockedUsers {
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 
-  id            String @id
-  Blcoked_by    User   @relation("blocked_by", fields: [blocked_by_id], references: [userId])
-  blocked_by_id String @unique
-  Blocked       User   @relation("blocked", fields: [blocked_id], references: [userId])
-  blocked_id    String @unique
-  dmRoomId		String?
+  id            String  @id
+  Blcoked_by    User    @relation("blocked_by", fields: [blocked_by_id], references: [userId])
+  blocked_by_id String  @unique
+  Blocked       User    @relation("blocked", fields: [blocked_id], references: [userId])
+  blocked_id    String  @unique
+  dmRoomId      String?
 
   @@map("blocked_friends")
 }
@@ -98,12 +99,12 @@ model Message {
   id       String  @id @default(cuid())
   authorId String
   room     Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  author   User    @relation(fields: [authorId], references: [userId])
   roomId   String
   content  String?
 
-
-  @@map("messages")
   @@unique([createdAt])
+  @@map("messages")
 }
 
 model Room {
@@ -142,16 +143,16 @@ model RoomMember {
 }
 
 model Notification {
-  createdAt   DateTime  @default(now())
+  createdAt DateTime @default(now())
 
-  id           String    @id @default(cuid())
+  id          String    @id @default(cuid())
   recipientId String
   content     NotifType
-  is_read     Boolean @default(false)
+  is_read     Boolean   @default(false)
   readAt      DateTime?
 
-  @@map("notifications")
   @@unique([createdAt])
+  @@map("notifications")
 }
 
 enum NotifType {

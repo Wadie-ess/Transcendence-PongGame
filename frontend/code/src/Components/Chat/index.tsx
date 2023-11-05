@@ -5,14 +5,14 @@ import {
   chatRooms,
   RoomsIcon,
   RoomMember,
-
+  NullUser,
 } from "./Components/tools/Assets";
 import { useEffect, useState } from "react";
 import { Conversation } from "./Components/Conversation";
 import { ChatPaceHolderProps } from "./Components/Conversation";
-import users from "./Components/tools/Assets";
+
 import React from "react";
-import { ChatType, useChatStore } from "./Controllers/ChatControllers";
+import { ChatType, useChatStore } from "./Controllers/RoomChatControllers";
 
 import { RecentConversations } from "./Components/RecentChat";
 import {
@@ -23,10 +23,12 @@ import {
   RoomSettingsModal,
   ShowLogoModal,
 } from "./Components/RoomChatHelpers";
+
 import { getRoomMembersCall } from "./Services/ChatServices";
 
 import toast from "react-hot-toast";
 import { classNames } from "../../Utils/helpers";
+import { useModalStore } from "./Controllers/LayoutControllers";
 
 export interface ConversationProps {
   onRemoveUserPreview: () => void;
@@ -43,9 +45,10 @@ export const Chat = () => {
   const handleRemoveUserPreview = () => {
     setShowUserPreview(!showUserPreview);
   };
+
   return (
     <>
-      <div className="flex h-full divide-black divide-x-4 bg-[#1A1C26] relative">
+      <div className="flex h-full bg-[#1A1C26] relative">
         <div>
           <ExploreRoomsModal />
           <RoomSettingsModal />
@@ -56,10 +59,10 @@ export const Chat = () => {
         <div
           className={classNames(
             showUserPreview === true
-              ? "w-4/12 max-w-lg " // md:w-[420px]
-              : "w-4/12  max-w-xl md:w-5/12  ",
-            "absolute md:relative h-full",
-            "z-20 transition-transform transform data-[mobile-show=true]:translate-x-0 data-[mobile-show=false]:-translate-x-[1000px] md:!transform-none md:!transition-none duration-300"
+              ? "w-4/5 lg:w-4/12 max-w-lg "
+              : "w-4/5 lg:w-4/12  max-w-lg  ",
+            "absolute lg:relative h-full min-w-[360px] lg:border-r-2 border-black",
+            "z-20 transition-transform transform data-[mobile-show=true]:translate-x-0 data-[mobile-show=false]:-translate-x-[1000px] lg:!transform-none lg:!transition-none duration-300"
           )}
           data-mobile-show={showChatRooms}
         >
@@ -67,16 +70,11 @@ export const Chat = () => {
         </div>
         {showChatRooms && (
           <div
-            className="z-10 absolute inset-0 md:hidden bg-black/40"
+            className="z-10 absolute inset-0 lg:hidden bg-black/40"
             onClick={() => toggleChatRooms()}
           />
         )}
-        <div
-          className={` ${
-            // showUserPreview ? "w-6/12" : "w-8/12"
-            "w-auto flex-1"
-          } overflow-hidden bg-gray-900`}
-        >
+        <div className={` ${"w-auto flex-1"} overflow-hidden bg-gray-900`}>
           {chatRooms.length < 1 && selectedChatType === ChatType.Room ? (
             <NullPlaceHolder message="" />
           ) : (
@@ -85,8 +83,10 @@ export const Chat = () => {
         </div>
         <div
           className={` ${
-            showUserPreview ? "w-3/12" : "!hidden"
-          }  bg-[#1A1C26] hidden sm:block`}
+            showUserPreview
+              ? "w-full absolute inset-0 lg:w-3/12 lg:relative"
+              : "!hidden"
+          }  bg-[#1A1C26] lg:border-l-2 border-black`}
         >
           {showUserPreview && (
             <UserPreviewCard onRemoveUserPreview={handleRemoveUserPreview} />
@@ -102,43 +102,47 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentUsers, setUsers] = useState<RoomMember[]>([]);
-  const [MyUsers] = useState(users);
-
+  const LayoutState = useModalStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
 
-  const currentUser = MyUsers.find((user) => user.id === SelectedChat);
+  const currentUser = useChatStore((state) => state.currentDmUser);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const currentRoom = chatRooms.find((room) => room.id === SelectedChat);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
-        await getRoomMembersCall(currentRoom?.id as string, 0, 10).then(
-          (res) => {
-            if (res?.status === 200 || res?.status === 201) {
-              const extractedData = res.data;
-              setIsLoading(false);
-              setUsers(extractedData);
-            } else {
-              toast.error("Error getting room members");
+        if (SelectedChat === "1" && selectedChatType === ChatType.Room) {
+          onRemoveUserPreview();
+        } else {
+          setIsLoading(true);
+          await getRoomMembersCall(SelectedChat as string, 0, 10).then(
+            (res) => {
+              if (res?.status === 200 || res?.status === 201) {
+                const extractedData = res.data;
+                setIsLoading(false);
+                setUsers(extractedData);
+              } else {
+                toast.error("Error getting room members");
+              }
             }
-          }
-        );
+          );
+        }
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
     };
 
     fetchData();
-    // eslint-disable-next-line
+
+    //eslint-disable-next-line
   }, [SelectedChat]);
   return (
     <div className="flex flex-col p-4   ">
       <div className="flex flex-row justify-between ">
         {selectedChatType === ChatType.Chat ? (
           <p className="text-white font-poppins font-light text-base">
-            {currentUser?.name}'s Info
+            {currentUser?.firstname}'s Info
           </p>
         ) : (
           <p className="text-white font-poppins font-light text-base">
@@ -146,7 +150,12 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           </p>
         )}
 
-        <button onClick={onRemoveUserPreview}>
+        <button
+          onClick={() => {
+            LayoutState.setShowPreviewCard(false);
+            onRemoveUserPreview();
+          }}
+        >
           <img alt="" src={Close} />
         </button>
       </div>
@@ -155,14 +164,16 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           className="w-36 rounded-full "
           alt=""
           src={
-            selectedChatType === ChatType.Chat ? currentUser?.image : groupIcon
+            selectedChatType === ChatType.Chat
+              ? currentUser?.avatar.large
+              : groupIcon
           }
         />
       </div>
       <div className="flex flex-row justify-center p-1 text-white font-poppins text-26 font-medium">
         <p>
           {selectedChatType === ChatType.Chat
-            ? currentUser?.name
+            ? currentUser?.firstname
             : currentRoom?.name}
         </p>
       </div>
@@ -174,11 +185,11 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           <div className="flex flex-row  text-gray-400 font-poppins font-medium text-base ">
             <img alt="" src={Bio} />
             {}
-            <p className="pl-2">{currentUser?.name}'s Bio</p>
+            <p className="pl-2">{currentUser?.firstname}'s Bio</p>
           </div>
           <div className=" bg-[#1A1C26]">
-            <p className="text-white  p-1 pt-2 font-poppins font-normal whitespace-normal overflow-auto break-words">
-              hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+            <p className="text-center  p-1 pt-2 font-poppins font-normal whitespace-normal overflow-auto break-words ">
+              {currentUser?.bio ?? "NO"}
             </p>
           </div>
         </div>
@@ -189,29 +200,23 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
             {}
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
-          <div className="max-h-[310px] overflow-y-auto no-scrollbar ">
+          <div className="overflow-y-auto no-scrollbar ">
             {isLoading === false ? (
               <>
                 {currentUsers.map((user) => (
-                  <div key={user.id} className="felx flex-row p-5">
+                  <div key={user?.id} className="felx flex-row p-5">
                     <div className="flex items-center justify-start space-x-2">
-                      {" "}
-                      {/* Center horizontally */}
                       <div className="avatar">
                         <div className="mask mask-squircle w-11 h-11">
                           <img
-                            src={
-                              user.avatar.medium ??
-                              "https:brighterwriting.com/wp-content/uploads/icon-user-default.png"
-                            }
+                            src={user?.avatar?.medium ?? NullUser}
                             alt="Avatar Tailwind CSS Component"
                           />
                         </div>
                       </div>
                       <div>
                         <div className="text-gray-400 font-poppins font-medium text-base max-w-[80px] md:max-w-[180px]  truncate">
-                          {/* "kkdccd" */}
-                          {user.name?.first ?? "user"}
+                          {user?.firstname ?? "user"}
                         </div>
                       </div>
                     </div>
@@ -231,37 +236,6 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
     </div>
   );
 };
-
-// {/* <table className="table">
-// <tbody>
-//   <tr>
-//     <th></th>
-//     <td>
-//       <div className="flex items-center justify-start space-x-2">
-//         {" "}
-//         {/* Center horizontally */}
-//         <div className="avatar">
-//           <div className="mask mask-squircle w-11 h-11">
-//             <img
-//               src={
-//                 user.avatar.medium ??
-//                 "https://brighterwriting.com/wp-content/uploads/icon-user-default.png"
-//               }
-//               alt="Avatar Tailwind CSS Component"
-//             />
-//           </div>
-//         </div>
-//         <div>
-//           <div className="text-gray-400 font-poppins font-medium text-base max-w-[80px] md:max-w-[50px]  truncate">
-//             {/* "kkdccd" */}
-//             {user.name?.first ?? "user"}
-//           </div>
-//         </div>
-//       </div>
-//     </td>
-//   </tr>
-// </tbody>
-// </table> */}
 
 export const SelectedUserTile = ({
   username,

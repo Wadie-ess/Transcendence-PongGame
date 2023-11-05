@@ -1,13 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Message } from '@prisma/client';
+import { Message, User } from '@prisma/client';
+import { PICTURE } from 'src/profile/dto/profile.dto';
 
 export class MessageFormatDto {
-  constructor(messageData: Message) {
+  constructor(messageData: Message & { author: Partial<User> }) {
     this.id = messageData.id;
     this.content = messageData.content;
     this.time = messageData.createdAt;
     this.roomId = messageData.roomId;
     this.authorId = messageData.authorId;
+    this.avatar = {
+      thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${messageData.author.avatar}`,
+      medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${messageData.author.avatar}`,
+      large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${messageData.author.avatar}`,
+    };
   }
 
   @ApiProperty({ example: 'clnx16e7a00003b6moh6yipir' })
@@ -20,4 +26,7 @@ export class MessageFormatDto {
   roomId: string;
   @ApiProperty({ example: 'clnx18i8x00003b6lrp84ufb3' })
   authorId: string;
+
+  @ApiProperty({ example: 'clnx18i8x00003b6lrp84ufb3' })
+  avatar: PICTURE;
 }

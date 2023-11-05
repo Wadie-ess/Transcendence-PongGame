@@ -14,8 +14,11 @@ import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
 import { FirstLogin } from "../FirstLogin";
+import { socket } from "../Chat/Services/SocketsServices";
+
 const routes = [
   { path: "Profile/:id" },
+  { path: "Dm/:id" },
   { path: "Settings" },
   { path: "Home" },
   { path: "Chat" },
@@ -24,13 +27,15 @@ const routes = [
   { path: "Game" },
 ];
 
-
 const useCurrentPath = () => {
   const location = useLocation();
   const [{ route }]: any = matchRoutes(routes, location);
   return route.path;
 };
 
+function onConnect() {
+  console.log("hello");
+}
 export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
 
   const user = useUserStore();
@@ -39,8 +44,8 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   useLayoutEffect(() => {
     const log = async () => {
       try {
-        await user.login();  
-      }
+        await user.login();
+      } 
       catch(e:any){
           if (e?.response?.status !== 403 && e?.response?.data?.message !== "Please complete your profile")
           {
@@ -51,7 +56,12 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
         
 
     };
+
+    socket.on("connect", onConnect);
     log();
+    return () => {
+      socket.off("connect", onConnect);
+    };
     //eslint-disable-next-line
   }, []);
   const path: string = useCurrentPath();
@@ -64,7 +74,6 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
         <div
           data-theme="mytheme"
           className={`h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
-
         >
           <div className=" flex flex-row  w-screen h-[8vh]  bg-base-200">
             <div className="flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full">
@@ -76,41 +85,42 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
               <Avatar picture={`${user?.picture?.medium}`} />
             </div>
           </div>
-          <div className="flex">
-            <div className="sm:flex flex-col hidden justify-around items-stretch h-[92vh] bg-base-200 overflow-auto md:pt-10  sm:w-[11vw]  md:w-[9vw] lg:w-[8vw] xl:w-[7vw] 2xl:w-[6vw] 3xl:w-[5vw]">
-              <div className="flex flex-col pl-[1.4vw] justify-evenly content-start gap-y-10 pb-44 ">
-                <Dash selected={path === "Home" ? true : false} />
-                <Game selected={path === "Play" ? true : false} />
-                <Message selected={path === "Chat" ? true : false} />
-                <Profile selected={path === "Profile/:id" ? true : false} />
-                <Settings selected={path === "Settings" ? true : false} />
+          <div className="flex bg-base-200">
+            <div className="sm:flex flex-col hidden justify-around items-stretch h-[92vh] bg-base-200 overflow-auto md:pt-10 w-20 min-w-[5rem] max-w-[5rem]">
+              <div className="flex flex-col justify-evenly content-start gap-y-10 pb-44">
+                <Dash selected={path === "Home"} className="mx-auto" />
+                <Game selected={path === "Play"} className="mx-auto" />
+                <Message selected={path === "Chat"} className="mx-auto" />
+                <Profile
+                  selected={path === "Profile/:id"}
+                  className="mx-auto"
+                />
+                <Settings selected={path === "Settings"} className="mx-auto" />
               </div>
-              <div className="flex flex-col pl-[1vw] justify-start">
-                <Out />
+              <div className="flex flex-col justify-start">
+                <Out className="mx-auto" />
               </div>
             </div>
             <div className=" h-[8vh] fixed bottom-0 sm:hidden btm-nav bg-base-200 flex justify-end z-50">
               <button className="">
-                <Dash selected={path === "Home" ? true : false} />
+                <Dash selected={path === "Home"} />
               </button>
               <button className="">
-                <Game selected={path === "Play" ? true : false} />
+                <Game selected={path === "Play"} />
               </button>
               <button className="">
-                <Message selected={path === "Chat" ? true : false} />
+                <Message selected={path === "Chat"} />
               </button>
               <button className="">
-                <Profile selected={path === "Profile/:id" ? true : false} />
+                <Profile selected={path === "Profile/:id"} />
               </button>
               <button className="">
-                <Settings selected={path === "Settings" ? true : false} />
+                <Settings selected={path === "Settings"} />
               </button>
             </div>
             <div className="sm:-ml-4 sm:w-[92vw] xl:w-[96vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-accent sm:rounded-tl-2xl overflow-auto no-scrollbar" id='scrollTarget'>
-              {/* <div id="scrollableDiv"> */}
                 <Outlet />
 
-              {/* </div> */}
             </div>
           </div>
         </div>
