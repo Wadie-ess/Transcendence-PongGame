@@ -10,7 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { Conversation } from "./Components/Conversation";
 import { ChatPaceHolderProps } from "./Components/Conversation";
-import users from "./Components/tools/Assets";
+
 import React from "react";
 import { ChatType, useChatStore } from "./Controllers/RoomChatControllers";
 
@@ -45,6 +45,7 @@ export const Chat = () => {
   const handleRemoveUserPreview = () => {
     setShowUserPreview(!showUserPreview);
   };
+
   return (
     <>
       <div className="flex h-full bg-[#1A1C26] relative">
@@ -101,11 +102,10 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentUsers, setUsers] = useState<RoomMember[]>([]);
-  const [MyUsers] = useState(users);
   const LayoutState = useModalStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
 
-  const currentUser = MyUsers.find((user) => user.id === SelectedChat);
+  const currentUser = useChatStore((state) => state.currentDmUser);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const currentRoom = chatRooms.find((room) => room.id === SelectedChat);
 
@@ -142,7 +142,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
       <div className="flex flex-row justify-between ">
         {selectedChatType === ChatType.Chat ? (
           <p className="text-white font-poppins font-light text-base">
-            {currentUser?.name}'s Info
+            {currentUser?.firstname}'s Info
           </p>
         ) : (
           <p className="text-white font-poppins font-light text-base">
@@ -164,14 +164,16 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           className="w-36 rounded-full "
           alt=""
           src={
-            selectedChatType === ChatType.Chat ? currentUser?.image : groupIcon
+            selectedChatType === ChatType.Chat
+              ? currentUser?.avatar.large
+              : groupIcon
           }
         />
       </div>
       <div className="flex flex-row justify-center p-1 text-white font-poppins text-26 font-medium">
         <p>
           {selectedChatType === ChatType.Chat
-            ? currentUser?.name
+            ? currentUser?.firstname
             : currentRoom?.name}
         </p>
       </div>
@@ -183,11 +185,11 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           <div className="flex flex-row  text-gray-400 font-poppins font-medium text-base ">
             <img alt="" src={Bio} />
             {}
-            <p className="pl-2">{currentUser?.name}'s Bio</p>
+            <p className="pl-2">{currentUser?.firstname}'s Bio</p>
           </div>
           <div className=" bg-[#1A1C26]">
-            <p className="text-white  p-1 pt-2 font-poppins font-normal whitespace-normal overflow-auto break-words">
-              hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+            <p className="text-center  p-1 pt-2 font-poppins font-normal whitespace-normal overflow-auto break-words ">
+              {currentUser?.bio ?? "NO"}
             </p>
           </div>
         </div>
@@ -198,16 +200,16 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
             {}
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
-          <div className="max-h-[310px] overflow-y-auto no-scrollbar ">
+          <div className="overflow-y-auto no-scrollbar ">
             {isLoading === false ? (
               <>
                 {currentUsers.map((user) => (
-                  <div key={user.id} className="felx flex-row p-5">
+                  <div key={user?.id} className="felx flex-row p-5">
                     <div className="flex items-center justify-start space-x-2">
                       <div className="avatar">
                         <div className="mask mask-squircle w-11 h-11">
                           <img
-                            src={user.avatar.medium ?? NullUser}
+                            src={user?.avatar?.medium ?? NullUser}
                             alt="Avatar Tailwind CSS Component"
                           />
                         </div>

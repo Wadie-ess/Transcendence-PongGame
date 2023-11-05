@@ -23,6 +23,8 @@ import Lock from "../../assets/lockIcon.svg";
 import Unlock from "../../assets/UnlockIcon.svg";
 import ChatGif from "../../assets/chatGif.gif";
 import NullUser from "../../assets/User_duotone.svg";
+import exploreIcon from "../../assets/explore_icon.svg";
+import Options from "../../assets/options.svg";
 export enum RoomType {
   private,
   public,
@@ -55,6 +57,8 @@ export {
   ChatGif,
   NullUser,
   owner,
+  exploreIcon,
+  Options,
 };
 
 export interface Message {
@@ -63,7 +67,13 @@ export interface Message {
   senderId: string;
   message: string;
   time: string;
+  avatar?: {
+    thumbnail: string;
+    medium: string;
+    large: string;
+  };
   isRead?: boolean;
+  isFailed?: boolean;
 }
 
 export interface RoomMember {
@@ -75,6 +85,7 @@ export interface RoomMember {
     medium: string;
     large: string;
   };
+  bio?: string;
   isBaned?: boolean;
   isMuted?: boolean;
 }
@@ -88,6 +99,10 @@ export interface ChatRoom {
   isAdmin: boolean;
   type: RoomType;
   membersCount?: number;
+  last_message?: {
+    content?: string;
+    createdAt?: string;
+  };
 }
 
 export interface User {

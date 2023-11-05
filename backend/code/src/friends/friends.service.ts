@@ -223,7 +223,7 @@ export class FriendsService {
       },
     });
 
-    return friends.map((friend: any) => {
+    return friends.map((friend) => {
       if (friend.from.userId === userId) {
         return new FriendProfileDto(friend.to);
       } else {

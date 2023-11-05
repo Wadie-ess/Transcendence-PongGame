@@ -8,16 +8,17 @@ import { Message } from "./Assets/Message";
 import { Profile } from "./Assets/Profile";
 import { Settings } from "./Assets/Settings";
 import { Out } from "./Assets/Out";
-import { FC, PropsWithChildren, useLayoutEffect } from "react";
+import { FC, PropsWithChildren, useLayoutEffect} from "react";
 import { Outlet } from "react-router";
 import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
 import { FirstLogin } from "../FirstLogin";
-
+import { socket } from "../Chat/Services/SocketsServices";
 
 const routes = [
   { path: "Profile/:id" },
+  { path: "Dm/:id" },
   { path: "Settings" },
   { path: "Home" },
   { path: "Chat" },
@@ -26,30 +27,41 @@ const routes = [
   { path: "Game" },
 ];
 
-
 const useCurrentPath = () => {
   const location = useLocation();
   const [{ route }]: any = matchRoutes(routes, location);
   return route.path;
 };
 
+function onConnect() {
+  console.log("hello");
+}
 export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
+
   const user = useUserStore();
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
     const log = async () => {
       try {
-        await user.login();  
-      }
-      catch(e){
+        await user.login();
+      } 
+      catch(e:any){
+          if (e?.response?.status !== 403 && e?.response?.data?.message !== "Please complete your profile")
+          {
           navigate("/");
           user.logout();
+          }
       }
         
 
     };
+
+    socket.on("connect", onConnect);
     log();
+    return () => {
+      socket.off("connect", onConnect);
+    };
     //eslint-disable-next-line
   }, []);
   const path: string = useCurrentPath();
@@ -62,7 +74,6 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
         <div
           data-theme="mytheme"
           className={`h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
-
         >
           <div className=" flex flex-row  w-screen h-[8vh]  bg-base-200">
             <div className="flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full">
@@ -80,11 +91,14 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
                 <Dash selected={path === "Home"} className="mx-auto" />
                 <Game selected={path === "Play"} className="mx-auto" />
                 <Message selected={path === "Chat"} className="mx-auto" />
-                <Profile selected={path === "Profile/:id"} className="mx-auto" />
+                <Profile
+                  selected={path === "Profile/:id"}
+                  className="mx-auto"
+                />
                 <Settings selected={path === "Settings"} className="mx-auto" />
               </div>
               <div className="flex flex-col justify-start">
-                <Out  className="mx-auto" />
+                <Out className="mx-auto" />
               </div>
             </div>
             <div className=" h-[8vh] fixed bottom-0 sm:hidden btm-nav bg-base-200 flex justify-end z-50">
@@ -104,8 +118,9 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
                 <Settings selected={path === "Settings"} />
               </button>
             </div>
-            <div className="sm:w-[92vw] xl:w-[96vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh] bg-accent sm:rounded-tl-2xl overflow-hidden">
-              <Outlet />
+            <div className="sm:-ml-4 sm:w-[92vw] xl:w-[96vw] md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[92vh]  bg-accent sm:rounded-tl-2xl overflow-auto no-scrollbar" id='scrollTarget'>
+                <Outlet />
+
             </div>
           </div>
         </div>

@@ -56,12 +56,14 @@ export class GameService {
         score2: true,
         participant1: {
           select: {
+            userId:true,
             Username: true,
             avatar: true,
           },
         },
         participant2: {
           select: {
+            userId:true,
             Username: true,
             avatar: true,
           },
@@ -83,11 +85,13 @@ export class GameService {
         match: {
           createdAt: match.createdAt,
           Player1: {
+            id:match.participant1.userId,
             username: match.participant1.Username,
             score: match.score1,
             avatar: avatar1,
           },
           Player2: {
+            id:match.participant2.userId,
             username: match.participant2.Username,
             score: match.score2,
             avatar: avatar2,

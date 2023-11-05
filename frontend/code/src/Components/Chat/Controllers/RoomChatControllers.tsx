@@ -2,6 +2,7 @@ import { create } from "zustand";
 import users, {
   ChatRoom,
   Message,
+  RoomMember,
   RoomType,
   chatRooms,
 } from "../Components/tools/Assets";
@@ -15,13 +16,19 @@ export interface ChatState {
   selectedChatType: ChatType;
   selectedChatID: string;
   currentMessages: Message[];
+  currentDmUser: RoomMember;
   currentRoomMessages: Message[];
   isLoading: boolean;
 
   showChatRooms: boolean;
 
   recentRooms: ChatRoom[];
+
+  setCurrentDmUser: (user: RoomMember) => void;
+  setMessageAsFailed: (id: string) => void;
+  pushMessage: (message: Message) => void;
   deleteRoom: (id: string) => void;
+  fillCurrentMessages: (messages: Message[]) => void;
   fillRecentRooms: (rooms: ChatRoom[]) => void;
   setIsLoading: (isLoading: boolean) => void;
   selectNewChatID: (id: string) => void;
@@ -40,11 +47,50 @@ export const useChatStore = create<ChatState>()((set) => ({
 
   // UI state
   showChatRooms: false,
+  currentDmUser: {
+    id: "1",
+    firstname: "John",
+    lastname: "Doe",
+    avatar: {
+      thumbnail: "",
+      medium: "",
+      large: "",
+    },
+  },
 
   // to fix this
   currentMessages: users.find((user) => user.id === "1")?.messages as Message[],
   currentRoomMessages: chatRooms.find((room) => room.id === "1")
     ?.messages as Message[],
+
+  setCurrentDmUser: (user: RoomMember) =>
+    set((state) => {
+      state.currentDmUser = user;
+      return { ...state };
+    }),
+
+  setMessageAsFailed: (id: string) =>
+    set((state) => {
+      const messageIndex = state.currentMessages.findIndex(
+        (message) => message.id === id
+      );
+      if (messageIndex !== -1) {
+        state.currentMessages[messageIndex].isFailed = true;
+      }
+      return { ...state };
+    }),
+
+  pushMessage: (message: Message) =>
+    set((state) => {
+      state.currentMessages = [...state.currentMessages, message];
+
+      return { ...state };
+    }),
+  fillCurrentMessages: (messages: Message[]) =>
+    set((state) => {
+      state.currentMessages = [...messages];
+      return { ...state };
+    }),
 
   deleteRoom: (id: string) =>
     set((state) => {
@@ -65,7 +111,7 @@ export const useChatStore = create<ChatState>()((set) => ({
       state.isLoading = isLoading;
       return { ...state };
     }),
-    
+
   fillRecentRooms: (rooms: ChatRoom[]) =>
     set((state) => {
       chatRooms.length = 0;

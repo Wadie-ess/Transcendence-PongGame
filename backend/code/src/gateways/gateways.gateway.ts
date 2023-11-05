@@ -93,6 +93,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
 
   @OnEvent('sendMessages')
   sendMessage(message: MessageFormatDto) {
+    console.log("recive msg !")
     const chanellname: string = `Romm:${message.roomId}`;
     this.server.to(chanellname).emit('message', message);
   }
