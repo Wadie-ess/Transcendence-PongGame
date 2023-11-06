@@ -18,7 +18,20 @@ export class ProfileService {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    return new ProfileDto(user, false);
+    const wonMatches = await this.prisma.match.count({
+      where: {
+        winner_id: userId,
+      },
+    });
+
+    const achievement =
+      wonMatches === 0
+        ? null
+        : wonMatches >= 100
+        ? 2
+        : Math.floor(Math.log10(wonMatches));
+
+    return new ProfileDto({ ...user, achievement }, false);
   }
 
   async getFriendProfile(
@@ -34,7 +47,20 @@ export class ProfileService {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    return new ProfileDto(user, true);
+
+    const wonMatches = await this.prisma.match.count({
+      where: {
+        winner_id: friendId,
+      },
+    });
+
+    const achievement =
+      wonMatches === 0
+        ? null
+        : wonMatches >= 100
+        ? 2
+        : Math.floor(Math.log10(wonMatches));
+    return new ProfileDto({ ...user, achievement }, true);
   }
 
   async updateProfile(
