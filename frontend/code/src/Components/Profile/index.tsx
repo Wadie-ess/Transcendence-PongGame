@@ -14,6 +14,7 @@ import { useUserStore } from '../../Stores/stores'
 import { VscChromeClose , VscAdd , VscCheck , VscComment} from "react-icons/vsc";
 import api from '../../Api/base'
 import  toast from 'react-hot-toast'
+import { AxiosError } from 'axios'
 type FRIENDSHIP = 'none' | 'friend' | 'sent' | 'recive' | 'blocked' | undefined;
 export const Profile = () =>{
     const user = useUserStore();
@@ -35,8 +36,11 @@ export const Profile = () =>{
                     res.data.friendship.length > 0 && !res.data.friendship[0].accepted && res.data.friendship[0].fromId !== user.id && setStatus('recive')
                     console.log(res.data)
                 } catch (error) {
-                    
-                    navigate("/NotFound")
+                    if (error instanceof AxiosError)
+                    {
+                        if (error?.response?.status !== 401)
+                            navigate("/NotFound")
+                    }
                 }
             }
             if (params.id !== user.id || params.id !== "me")
