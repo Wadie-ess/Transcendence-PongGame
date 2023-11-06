@@ -90,6 +90,11 @@ export class MessagesService {
             Username: true,
           },
         },
+        room: {
+          select: {
+            type: true,
+          },
+        },
       },
     });
 
