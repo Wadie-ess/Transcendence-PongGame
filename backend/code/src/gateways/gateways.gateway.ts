@@ -78,7 +78,9 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
 
     const friendIds = frienduserIds
       .map((friend) => (friend.toId === userId ? friend.fromId : friend.toId))
-      .filter((id) => this.server.sockets.adapter.rooms.get(`User:${id}`)?.size);
+      .filter(
+        (id) => this.server.sockets.adapter.rooms.get(`User:${id}`)?.size,
+      );
 
     client.emit('onlineFriends', friendIds);
 
@@ -93,7 +95,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
 
   @OnEvent('sendMessages')
   sendMessage(message: MessageFormatDto) {
-    console.log("recive msg !")
+    console.log('recive msg !');
     const chanellname: string = `Romm:${message.roomId}`;
     this.server.to(chanellname).emit('message', message);
   }

@@ -16,8 +16,8 @@ export class LeaderBoardService {
         },
       },
     });
-    const leaderboardsPromises =  leaderboard.map(async (user ) => {
-        const lead = await this.prisma.user.findUnique({
+    const leaderboardsPromises = leaderboard.map(async (user) => {
+      const lead = await this.prisma.user.findUnique({
         where: {
           userId: user.winner_id,
         },
@@ -28,12 +28,11 @@ export class LeaderBoardService {
           avatar: true,
           userId: true,
         },
-      },
-      )
+      });
       return {
         ...lead,
-        wins: user._count.id
-      }
+        wins: user._count.id,
+      };
     });
     return await Promise.all(leaderboardsPromises);
   }

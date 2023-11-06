@@ -7,6 +7,7 @@ type ProfileDtoProps = Partial<User> &
     right_friends: Friend[];
     roomMember: RoomMember[];
     owned_rooms: Room[];
+    achievement: number;
   }>;
 
 export type NAME = {
@@ -41,6 +42,7 @@ export class ProfileDto {
     if (is_friend) {
       this.friendship = [...userData.left_friends, ...userData.right_friends];
     }
+    this.achievement = userData.achievement;
   }
 
   @ApiProperty({ example: 'cln8xxhut0000stofeef' })
@@ -73,4 +75,7 @@ export class ProfileDto {
   username: string;
 
   friendship: Friend[];
+
+  @ApiProperty({ example: 1, required: false })
+  achievement: number;
 }

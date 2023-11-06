@@ -426,7 +426,9 @@ export class RoomsService {
         is_mueted: true,
       },
     });
-    const filtredmembers = members.filter((member) => !member.is_banned || user.is_admin)
+    const filtredmembers = members.filter(
+      (member) => !member.is_banned || user.is_admin,
+    );
     return filtredmembers.map((member) => {
       if (!member.is_banned || user.is_admin) {
         const avatar: PICTURE = {

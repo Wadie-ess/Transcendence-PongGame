@@ -208,13 +208,13 @@ export class RoomsController {
     return this.roomsService.listRooms(userId, offset, limit, joined);
   }
 
-	@Get('dms')
-	@HttpCode(HttpStatus.OK)
-	@UseGuards(AtGuard)
-	async getDMs(
-		@GetCurrentUser('userId') userId: string,
-		@Query() { offset, limit }: QueryOffsetDto,
-	) {
-		return this.roomsService.getDMs(userId, offset, limit);
-	}
+  @Get('dms')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AtGuard)
+  async getDMs(
+    @GetCurrentUser('userId') userId: string,
+    @Query() { offset, limit }: QueryOffsetDto,
+  ) {
+    return this.roomsService.getDMs(userId, offset, limit);
+  }
 }
