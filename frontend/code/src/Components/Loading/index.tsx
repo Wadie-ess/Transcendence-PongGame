@@ -5,7 +5,7 @@ export const Loading = (size:any) =>{
       )
 }
 export const Load = () => {
-    return (<div className="relative top-14 left-10 h- loading loading-bars loading-lg "></div>)
+    return (<div className="relative  loading loading-bars loading-sm "></div>)
 
 }
 

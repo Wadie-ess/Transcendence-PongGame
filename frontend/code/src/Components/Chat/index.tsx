@@ -21,7 +21,7 @@ import {
   ExploreRoomsModal,
   NullPlaceHolder,
   RoomSettingsModal,
-  ShowLogoModal,
+  
 } from "./Components/RoomChatHelpers";
 
 import { getRoomMembersCall } from "./Services/ChatServices";
@@ -54,7 +54,7 @@ export const Chat = () => {
           <RoomSettingsModal />
           <AddUsersModal />
           <CreateNewRoomModal />
-          <ShowLogoModal />
+         
         </div>
         <div
           className={classNames(
@@ -142,7 +142,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
       <div className="flex flex-row justify-between ">
         {selectedChatType === ChatType.Chat ? (
           <p className="text-white font-poppins font-light text-base">
-            {currentUser?.firstname}'s Info
+            {currentUser?.name}'s Info
           </p>
         ) : (
           <p className="text-white font-poppins font-light text-base">
@@ -173,7 +173,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
       <div className="flex flex-row justify-center p-1 text-white font-poppins text-26 font-medium">
         <p>
           {selectedChatType === ChatType.Chat
-            ? currentUser?.firstname
+            ? currentUser?.name
             : currentRoom?.name}
         </p>
       </div>
@@ -185,11 +185,11 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           <div className="flex flex-row  text-gray-400 font-poppins font-medium text-base ">
             <img alt="" src={Bio} />
             {}
-            <p className="pl-2">{currentUser?.firstname}'s Bio</p>
+            <p className="pl-2">{currentUser?.name}'s Bio</p>
           </div>
           <div className=" bg-[#1A1C26]">
             <p className="text-center  p-1 pt-2 font-poppins font-normal whitespace-normal overflow-auto break-words ">
-              {currentUser?.bio ?? "NO"}
+              {currentUser?.id ?? "NO"}
             </p>
           </div>
         </div>
@@ -200,7 +200,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
             {}
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
-          <div className="overflow-y-auto no-scrollbar ">
+          <div className="h-max[100px] overflow-scroll no-scrollbar ">
             {isLoading === false ? (
               <>
                 {currentUsers.map((user) => (

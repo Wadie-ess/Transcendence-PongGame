@@ -129,7 +129,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
           <div className="flex flex-col pl-2 ">
             <p className="text-white font-poppins text-base font-medium leading-normal">
               {selectedChatType === ChatType.Chat
-                ? currentUser?.firstname
+                ? currentUser?.name
                 : currentRoom?.isOwner
                 ? currentRoom.name + " ♚"
                 : currentRoom?.name}
@@ -282,7 +282,7 @@ export const Conversation: React.FC<ConversationProps> = ({
     }
   };
 
-  const currentUser = useUserStore((state) => state);
+  
   const [inputValue, setInputValue] = useState("");
   const [FailToSendMessage, setFail] = useState(false);
   const [IsLoading, setLoading] = useState(true);
@@ -375,21 +375,7 @@ export const Conversation: React.FC<ConversationProps> = ({
         toast.error("you are not authorized to send messages in this room");
         chatState.setMessageAsFailed(res?.data.id);
       } else {
-        // for debug
-        if (chatState.selectedChatType === ChatType.Chat) {
-          const message: Message = {
-            id: res.data.id,
-            avatar: {
-              thumbnail: currentUser.picture.thumbnail,
-              medium: currentUser.picture.medium,
-              large: currentUser.picture.large,
-            },
-            senderId: currentUser.id,
-            message: res.data.content,
-            time: res.data.time,
-          };
-          chatState.pushMessage(message);
-        }
+   
       }
     });
   };

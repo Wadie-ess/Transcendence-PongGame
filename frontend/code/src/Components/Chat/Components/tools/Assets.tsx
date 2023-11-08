@@ -90,6 +90,21 @@ export interface RoomMember {
   isMuted?: boolean;
 }
 
+export interface DmRoom {
+  id: string;
+  last_message?: {
+    content?: string;
+    createdAt?: string;
+  };
+  name: string;
+  bio?: string;
+
+  avatar: {
+    thumbnail: string;
+    medium: string;
+    large: string;
+  };
+}
 export interface ChatRoom {
   id: string;
   name: string;
@@ -136,8 +151,6 @@ export const users: User[] = [
         time: "05:00",
         isRead: true,
       },
-
-      // Add more messages as needed
     ],
   },
   {

@@ -18,17 +18,15 @@ export const UserToUserChat = () => {
       try {
          await api.get(`profile/${params.id}`).then((res) => {
           console.log(res.data);
-          ChatState.setCurrentDmUser({
-            id: res.data.id,
-            firstname: res.data.name.first,
-            lastname: res.data.name.last,
-            avatar: {
-              thumbnail: res.data.picture.thumbnail,
-              medium: res.data.picture.medium,
-              large: res.data.picture.large,
-            },
-            bio: res.data.bio,
-          });
+          // ChatState.setCurrentDmUser({
+          //   id: res.data.id,
+          //   name: `${res.data.firstName} `,
+          //   avatar: {
+          //     thumbnail: res.data.image,
+          //     medium: res.data.image,
+          //     large: res.data.image,
+          //   },
+          // });
         });
       } catch (error) {}
     };

@@ -13,7 +13,7 @@ export const Profile = ({ selected, className, ...props }: ProfileProps) => {
     <Link to={`Profile/${userStore?.id}`}>
       <div
         className={classNames(
-          "h-9 w-9 hover:bg-secondary rounded-xl flex justify-center items-center hover:cursor-pointer",
+          "h-10 w-10 hover:bg-secondary rounded-xl flex justify-center items-center hover:cursor-pointer",
           selected && "bg-secondary",
           className
         )}

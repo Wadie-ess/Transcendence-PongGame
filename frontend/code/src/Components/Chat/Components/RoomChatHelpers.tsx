@@ -7,12 +7,10 @@ import {
   Lock,
   More,
   NullImage,
-
   RoomMember,
   RoomType,
   Unlock,
   chatRooms,
-
   groupIcon,
 } from "./tools/Assets";
 
@@ -256,7 +254,6 @@ export const CreateNewRoomModal = () => {
             <a
               href="#/"
               onClick={async () => {
-                // console.log(RoomType[selectedOption]);
                 if (
                   RoomName !== "" &&
                   RoomName.length > 3 &&
@@ -532,7 +529,7 @@ export const AddUsersModal = () => {
               const friends: RoomMember[] = [];
               res.data.forEach(
                 (friend: {
-                  id: string;
+                  userId: string;
                   firstname: string;
                   lastname: string;
                   avatar: {
@@ -542,7 +539,7 @@ export const AddUsersModal = () => {
                   };
                 }) => {
                   friends.push({
-                    id: friend.id,
+                    id: friend.userId,
                     firstname: friend.firstname,
                     lastname: friend.lastname,
                     // to inject it with the real images later
