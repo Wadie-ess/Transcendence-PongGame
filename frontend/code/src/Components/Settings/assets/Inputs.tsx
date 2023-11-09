@@ -33,10 +33,11 @@ export const Inputs = (props:MyComponentProps) => {
     //eslint-disable-next-line
     const { register, handleSubmit, reset, formState: {errors} } = useForm();
     const handleError = (errors : any) => {
+        console.log(errors)
         if (errors[`${props.payload}`]?.type === "required")  toast.error(`${props.name} ${ERROR_MESSAGES[0]} `); 
         if (errors[`${props.payload}`]?.type === "minLength") toast.error(`${props.name} ${ERROR_MESSAGES[1]} 4`);
         if (errors[`${props.payload}`]?.type === "maxLength")toast.error(`${props.name} ${ERROR_MESSAGES[2]} 50 `);
-    
+        if (errors[`email`].type === "pattern")toast.error(`${errors['email'].message}`);
     }
     const onSubmit = (data : any ) => {
         toast.promise(
@@ -103,8 +104,19 @@ export const Inputs = (props:MyComponentProps) => {
         <div className="flex items-center h-16">
         <form className='gap-y-2  p-2 flex justify-center items-center'>
                 <div className="flex  gap-x-2">
-                    <input type="text" className={`h-12 w-full rounded-3xl text-center`} defaultValue={props.data} placeholder={props.payload} {...register(`${props.payload}`, {required: true, maxLength: 50 , minLength:4 , disabled:!input ? true:false})} />  
-                   
+                    {
+                     props.name === "Email" ? (
+                    <input type="email" className={`h-12 w-full rounded-3xl text-center`} defaultValue={props.data} placeholder={props.payload} {...register(`${props.payload}`, {required: true ,pattern: {
+                        value: /\S+@\S+\.\S+/,
+                        message: "Invalid Email format",
+                        
+                      }, maxLength: 50 , minLength:4 , disabled:!input ? true:false})} />  
+                     ):
+                     (
+                        <input type="text" className={`h-12 w-full rounded-3xl text-center`} defaultValue={props.data} placeholder={props.payload} {...register(`${props.payload}`, {required: true , maxLength: 50 , minLength:4 , disabled:!input ? true:false})} />  
+
+                     )
+                    }
                 </div>
             {!input  && <animated.div 
             style={{

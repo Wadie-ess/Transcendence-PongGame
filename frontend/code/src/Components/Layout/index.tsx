@@ -14,7 +14,7 @@ import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
 import { FirstLogin } from "../FirstLogin";
-import { socket } from "../Chat/Services/SocketsServices";
+import { useSocketStore } from "../Chat/Services/SocketsServices";
 import toast from "react-hot-toast";
 import { ShowLogoModal } from "../Chat/Components/RoomChatHelpers";
 
@@ -42,6 +42,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
 
   const user = useUserStore();
   const navigate = useNavigate();
+  const socketStore = useSocketStore();
 
   useLayoutEffect(() => {
     const log = async () => {
@@ -58,9 +59,9 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
         
 
     };
-
-    socket.on("connect", onConnect);
-    socket.on("message",(msg) => {
+    socketStore.socket = socketStore.setSocket();
+    socketStore.socket.on("connect", onConnect);
+    socketStore.socket.on("message",(msg:any) => {
       toast.custom((t) => (
         <div
           className={`${
@@ -99,7 +100,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
     })
     log();
     return () => {
-      socket.off("connect", onConnect);
+      socketStore.socket.off("connect", onConnect);
     };
     //eslint-disable-next-line
   }, []);
