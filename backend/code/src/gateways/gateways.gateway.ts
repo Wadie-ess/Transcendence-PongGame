@@ -50,15 +50,6 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     });
     client.join(`User:${userId}`);
 
-    await this.prisma.user.update({
-      where: {
-        userId,
-      },
-      data: {
-        online: true,
-      },
-    });
-
     const frienduserIds = await this.prisma.friend.findMany({
       where: {
         OR: [
@@ -78,7 +69,9 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
 
     const friendIds = frienduserIds
       .map((friend) => (friend.toId === userId ? friend.fromId : friend.toId))
-      .filter((id) => this.server.sockets.adapter.rooms.get(`User:${id}`)?.size);
+      .filter(
+        (id) => this.server.sockets.adapter.rooms.get(`User:${id}`)?.size,
+      );
 
     client.emit('onlineFriends', friendIds);
 
@@ -93,7 +86,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
 
   @OnEvent('sendMessages')
   sendMessage(message: MessageFormatDto) {
-    console.log("recive msg !")
+    console.log('recive msg !');
     const chanellname: string = `Romm:${message.roomId}`;
     this.server.to(chanellname).emit('message', message);
   }
@@ -133,15 +126,20 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('joinRoom')
-  async handleJoinRoomEvent(client: Socket, data: any) {
+  async handleJoinRoomEvent(data: any) {
     const member = await this.prisma.roomMember.findFirst({
       where: {
-        userId: client.data.user.sub,
+        userId: data.memberId,
         roomId: data.roomId,
       },
     });
     if (member) {
-      client.join(`Romm:${data.roomId}`);
+      const banedClientSocket = await this.server
+        .in(`User:${data.memberId}`)
+        .fetchSockets();
+      if (banedClientSocket.length > 0) {
+        banedClientSocket[0].join(`Romm:${data.roomId}`);
+      }
     }
   }
 
