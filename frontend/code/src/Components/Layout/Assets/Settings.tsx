@@ -9,7 +9,7 @@ export const Settings = ({ selected, className, ...props }: SettingsProps) => {
     <Link to={"Settings"}>
       <div
         className={classNames(
-          "h-9 w-9 hover:bg-secondary rounded-xl flex justify-center items-center hover:cursor-pointer",
+          "h-10 w-10 hover:bg-secondary rounded-xl flex justify-center text-center items-center hover:cursor-pointer",
           selected && "bg-secondary",
           className
         )}

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 import { ChatPaceHolderProps } from "./Conversation";
 import users, {
   ChatIcon,
+  DmRoom,
   Explore,
   GroupChat,
   RoomsIcon,
@@ -11,33 +12,88 @@ import users, {
 
 import { NullPlaceHolder, RoomChatPlaceHolder } from "./RoomChatHelpers";
 import { useModalStore } from "../Controllers/LayoutControllers";
+import { fetchDmsCall } from "../Services/ChatServices";
+import { formatTime } from "./tools/utils";
 
 export const RecentConversations = () => {
-  const [MyUsers] = useState(users);
+  const [isLoading, setLoading] = useState(false);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
+  const ChatRoomsState = useChatStore((state) => state);
+
+  useEffect(() => {
+    const fetch = async () => {
+      setLoading(true);
+      await fetchDmsCall(0, 100).then((res) => {
+        setLoading(false);
+        if (res?.status !== 200 && res?.status !== 201) {
+        } else {
+          const rooms: DmRoom[] = [];
+          res.data.forEach(
+            (room: {
+              secondMemberId: string;
+              id: string;
+              last_message?: {
+                content?: string;
+                createdAt?: string;
+              };
+              name: string;
+
+              avatar: {
+                thumbnail: string;
+                medium: string;
+                large: string;
+              };
+            }) => {
+              rooms.push({
+                secondUserId: room.secondMemberId,
+                id: room.id,
+                name: room.name,
+                avatar: room.avatar,
+                last_message: {
+                  content: room.last_message?.content,
+                  createdAt: room.last_message?.createdAt,
+                },
+              });
+            }
+          );
+          // setIsLoading(false);
+          ChatRoomsState.fillRecentDms(rooms);
+        }
+      });
+    };
+    fetch();
+    // eslint-disable-next-line
+  }, [ChatRoomsState.selectedChatID, ChatRoomsState.selectedChatType]);
+
   return selectedChatType === ChatType.Chat ? (
     <div className="h-full flex flex-col ">
       <OnlineNowUsers />
-      {MyUsers.length > 0 ? (
+      {ChatRoomsState.recentDms.length > 0 ? (
         <div className="flex-grow overflow-y-auto no-scrollbar bg-[#1A1C26]">
-          {MyUsers.filter((friend) => friend.messages.length > 0).map(
-            // to change 0 to the last message here
-            (friend) => (
-              <ChatPlaceHolder
-                key={friend.id}
-                id={friend.id}
-                username={friend.name}
-                message={friend.messages[friend.messages.length - 1].message}
-                time={friend.messages[friend.messages.length - 1].time}
-                isMe={true}
-                isRead={true}
-                userImage={friend.image}
-              />
-            )
-          )}
+          {ChatRoomsState.recentDms.map((friend) => (
+            <ChatPlaceHolder
+              key={friend.id}
+              secondUserId={friend.secondUserId}
+              id={friend.id}
+              username={friend.name}
+              message={friend.last_message?.content ?? "No Messages*"}
+              time={friend.last_message?.createdAt ?? ""}
+              isMe={true}
+              isRead={true}
+              userImage={friend.avatar.medium}
+            />
+          ))}
         </div>
       ) : (
-        <NullPlaceHolder message="No Conversation Yet!, Be The First" />
+        <>
+          {isLoading === true ? (
+            <div className="text-center">
+              <span className="loading loading-spinner loading-lg "></span>
+            </div>
+          ) : (
+            <NullPlaceHolder message="No Conversation Yet!, Be The First" />
+          )}
+        </>
       )}
     </div>
   ) : (
@@ -57,18 +113,31 @@ export const ChatPlaceHolder = ({
   isRead,
   userImage,
   id,
+  secondUserId,
 }: ChatPaceHolderProps) => {
   const selectNewChat = useChatStore((state) => state.selectNewChatID);
   const selectedChatID = useChatStore((state) => state.selectedChatID);
+  const chatState = useChatStore((state) => state);
 
   return (
     <div
-      onClick={() => selectNewChat(id)}
+      onClick={() => {
+        selectedChatID !== id && selectNewChat(id);
+        chatState.setCurrentDmUser({
+          // back here
+          secondUserId: secondUserId,
+          id: id,
+          name: username,
+          avatar: {
+            thumbnail: userImage,
+            medium: userImage,
+            large: userImage,
+          },
+        });
+      }}
       className={`message-container flex   px-4 py-5  hover:bg-[#272932] items-center  ${
         selectedChatID === id ? "bg-[#272932]" : "bg-[#1A1C26]"
-      }
-          
-            `}
+      }`}
     >
       <div className="user-image flex-shrink-0 mr-2">
         <img
@@ -82,8 +151,8 @@ export const ChatPlaceHolder = ({
           <p className="text-white font-poppins text-sm md:text-base font-normal leading-normal ">
             {username}
           </p>
-          <p className="text-gray-400 font-poppins text-sm font-light leading-normal hidden md:block ">
-            {time} PM
+          <p className="text-gray-400 font-poppins text-xs font-light leading-normal">
+            {formatTime(time)}
           </p>
         </div>
         <div className=" flex flex-row justify-between">

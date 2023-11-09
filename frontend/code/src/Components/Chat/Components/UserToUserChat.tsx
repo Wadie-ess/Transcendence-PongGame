@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { UserPreviewCard } from "..";
 import { Conversation } from "./Conversation";
 import { useParams } from "react-router-dom";
-import api from "../../../Api/base";
+
 import { useChatStore } from "../Controllers/RoomChatControllers";
 
 export const UserToUserChat = () => {
@@ -15,22 +15,21 @@ export const UserToUserChat = () => {
   useEffect(() => {
     console.log("selected chat id ", ChatState.selectedChatID);
     const fetchUser = async () => {
-      try {
-         await api.get(`profile/${params.id}`).then((res) => {
-          console.log(res.data);
-          ChatState.setCurrentDmUser({
-            id: res.data.id,
-            firstname: res.data.name.first,
-            lastname: res.data.name.last,
-            avatar: {
-              thumbnail: res.data.picture.thumbnail,
-              medium: res.data.picture.medium,
-              large: res.data.picture.large,
-            },
-            bio: res.data.bio,
-          });
-        });
-      } catch (error) {}
+      // try {
+      //    await api.get(`profile/${params.id}`).then((res) => {
+      //     console.log(res.data);
+      //     ChatState.setCurrentDmUser({
+      //       secondUserId: res.data.id,
+      //       id: res.data.id,
+      //       name: `${res.data.firstName} `,
+      //       avatar: {
+      //         thumbnail: res.data.image,
+      //         medium: res.data.image,
+      //         large: res.data.image,
+      //       },
+      //     });
+      //   });
+      // } catch (error) {}
     };
     fetchUser();
     // eslint-disable-next-line

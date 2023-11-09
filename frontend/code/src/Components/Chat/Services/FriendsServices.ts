@@ -35,4 +35,22 @@ export const getBlockedCall = async (
       console.log(e.response.data.message);
     }
   };
+
+  export const blockUserCall  = async (
+    friendId : string
+  ) => {
+    try {
+      const response = await api.post("/friends/block", {
+        friendId :friendId
+      });
+      console.log(response.data);
+      console.log(response.status);
+      return response;
+      
+    } catch (e : any) {
+      console.log(e.response.data.message);
+      
+    }
+
+  }
   

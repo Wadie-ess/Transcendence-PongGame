@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { FirstLogin } from "../FirstLogin";
 import { socket } from "../Chat/Services/SocketsServices";
 import toast from "react-hot-toast";
+import { ShowLogoModal } from "../Chat/Components/RoomChatHelpers";
 
 const routes = [
   { path: "Profile/:id" },
@@ -88,7 +89,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
           <div className="flex border-l border-gray-200">
             <button
               onClick={() => toast.dismiss(t.id)}
-              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-neutral hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-neutral hover:text-gray-600 focus:outline-none focus:ring-2 focus:[#8C67F6]"
             >
               Close
             </button>
@@ -116,6 +117,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
         >
           <div className=" flex flex-row  w-screen h-[9vh]  bg-base-200">
             <div className="flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full">
+            <ShowLogoModal />
               <Logo {...obj} />
             </div>
             <div className="flex items-center  justify-end pr-6 gap-6 h-full w-full">
