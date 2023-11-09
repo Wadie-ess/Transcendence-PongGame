@@ -205,7 +205,29 @@ const raw = JSON.stringify({"content": message});
     socket.on("message", function(data) {
       displayMessage(data);
     });
-  </script>
+
+function sendFriendRequest() {
+  const friendId = document.getElementById("friendIdInput").value;
+
+  fetch("http://localhost:3001/friends/add", {
+    method: "POST",
+    body: JSON.stringify({ friendId: friendId }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then(function(response) {
+      if (response.ok) {
+        console.log("Friend request sent to: " + friendId);
+      } else {
+        console.error("Friend request sending failed");
+      }
+    })
+    .catch(function(error) {
+      console.error("Error: " + error);
+    });
+}
+ </script>
 </head>
 <body>
   <h1>Socket.io Example</h1>
@@ -237,6 +259,13 @@ const raw = JSON.stringify({"content": message});
       <input type="text" id="memberIdUnbanInput" name="memberIdUnban" required>
       <button type="button" onclick="unbanMember()">Unban Member</button>
     </form>
+
+<!-- Form to send a POST request to send a friend request -->
+<form onsubmit="sendFriendRequest(event)">
+  <label for="friendId">Friend ID:</label>
+  <input type="text" id="friendIdInput" name="friendId" required>
+  <button type="button" onclick="sendFriendRequest()">Send Friend Request</button>
+</form>
   </div>
 </body>
 </html>

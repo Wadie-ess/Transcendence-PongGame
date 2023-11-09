@@ -13,7 +13,6 @@ import { AtGuard } from 'src/auth/guards/at.guard';
 import { usersSearchDto } from './dto/search-user.dto';
 import { TwoFactorDto } from './dto/two-factor.dto';
 import { GetCurrentUser } from 'src/auth/decorator/get_current_user.decorator';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('user')
@@ -42,14 +41,5 @@ export class UsersController {
   @UseGuards(AtGuard)
   async get2faQrCode(@GetCurrentUser('userId') userId: string) {
     return this.usersService.genertQrcode(userId);
-  }
-
-  @Post('validate2fa')
-  @UseGuards(AuthGuard('jwt'))
-  async validate2fa(
-    @Body('otp') token: string,
-    @GetCurrentUser('userId') userId: string,
-  ) {
-    return this.usersService.validateTwoFactorAuth(userId, token);
   }
 }

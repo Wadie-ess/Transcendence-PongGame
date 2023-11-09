@@ -189,22 +189,4 @@ export class UsersService {
     );
     return toDataURL(otpauth);
   }
-
-  async validateTwoFactorAuth(userId: string, token: string) {
-    const user = await this.getUserById(userId);
-
-    if (!user) {
-      return null;
-    }
-    if (!user.tfaEnabled) {
-      throw new HttpException('Two factor authentication is not enabled', 400);
-    }
-    authenticator.options = { digits: 6 };
-    const isValid = authenticator.verify({
-      token,
-      secret: user.tfaSecret,
-    });
-    if (isValid) await this.updateUser(userId, { tfaStatus: true });
-    return { isValid };
-  }
 }

@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MessageFormatDto } from './dto/message-format.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { $Enums } from '@prisma/client';
 
 @Injectable()
 export class MessagesService {
@@ -99,6 +100,12 @@ export class MessagesService {
     });
 
     const responseMessage: MessageFormatDto = new MessageFormatDto(messageData);
+    this.eventEmitter.emit('sendNotification', {
+      actorId: userId,
+      type: $Enums.NotifType.addFriend,
+      entityId: messageData.id,
+      entity_type: 'message',
+    });
     this.eventEmitter.emit('sendMessages', responseMessage);
     return responseMessage;
   }
