@@ -22,7 +22,7 @@ import {
 
 import { useUserStore } from "../../../Stores/stores";
 import { formatTime } from "./tools/utils";
-import { socket } from "../Services/SocketsServices";
+import { useSocketStore } from "../Services/SocketsServices";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -32,6 +32,7 @@ export interface ChatPaceHolderProps {
   isRead: boolean;
   userImage: string;
   id: string;
+  secondUserId: string;
 }
 
 export const CurrentUserMessage = ({
@@ -91,7 +92,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
   const LayoutState = useModalStore((state) => state);
   const ChatState = useChatStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
-
+  
   const currentUser = useChatStore((state) => state.currentDmUser);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
 
@@ -100,10 +101,34 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
   const toggleChatRooms = useChatStore((state) => state.toggleChatRooms);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isOnline, SetOnline] = useState(false);
+  const sockerStore = useSocketStore();
   const handleConfirmation = () => {
     setIsModalOpen(false);
   };
+
+  useEffect(() => {
+    SetOnline(false);
+    const handleOnline = (userId: string) => {
+      currentUser.secondUserId === userId && SetOnline(true);
+      console.log(currentUser.id);
+
+      console.log("user online", userId);
+    };
+    const handleOffline = (userId: string) => {
+      currentUser.id === userId && SetOnline(false);
+      console.log("user offline", userId);
+    };
+
+    sockerStore.socket.on("friendOffline", handleOffline);
+    sockerStore.socket.on("friendOnline", handleOnline);
+
+    return () => {
+      sockerStore.socket.off("friendOffline", handleOffline);
+      sockerStore.socket.off("friendOnline", handleOnline);
+    };
+    // eslint-disable-next-line
+  }, [ChatState.selectedChatID]);
 
   return (
     <>
@@ -129,14 +154,18 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
           <div className="flex flex-col pl-2 ">
             <p className="text-white font-poppins text-base font-medium leading-normal">
               {selectedChatType === ChatType.Chat
-                ? currentUser?.firstname
+                ? currentUser?.name
                 : currentRoom?.isOwner
                 ? currentRoom.name + " ♚"
                 : currentRoom?.name}
             </p>
             {selectedChatType === ChatType.Chat ? (
-              <p className="text-green-500 font-poppins text-sm font-medium leading-normal">
-                online
+              <p
+                className={`${
+                  isOnline ? "text-green-500" : "text-red-500"
+                } font-poppins text-sm font-medium leading-normal`}
+              >
+                {isOnline ? "online" : "offline"}
               </p>
             ) : (
               <p className="text-gray-500 font-poppins text-sm font-medium leading-normal">
@@ -274,7 +303,7 @@ export const Conversation: React.FC<ConversationProps> = ({
 }) => {
   const chatState = useChatStore((state) => state);
   const messageContainerRef = useRef<HTMLDivElement>(null);
-
+  const socketStore = useSocketStore();
   const scrollToBottom = () => {
     if (messageContainerRef.current) {
       const container = messageContainerRef.current;
@@ -282,7 +311,6 @@ export const Conversation: React.FC<ConversationProps> = ({
     }
   };
 
-  const currentUser = useUserStore((state) => state);
   const [inputValue, setInputValue] = useState("");
   const [FailToSendMessage, setFail] = useState(false);
   const [IsLoading, setLoading] = useState(true);
@@ -322,7 +350,7 @@ export const Conversation: React.FC<ConversationProps> = ({
         scrollToBottom();
       }
     };
-    socket.on("message", handleMessage);
+    socketStore.socket.on("message", handleMessage);
 
     const fetch = async () => {
       setLoading(true);
@@ -361,7 +389,7 @@ export const Conversation: React.FC<ConversationProps> = ({
       scrollToBottom();
     });
     return () => {
-      socket.off("message", handleMessage);
+      socketStore.socket.off("message", handleMessage);
     };
     // eslint-disable-next-line
   }, [chatState.selectedChatID]);
@@ -375,21 +403,6 @@ export const Conversation: React.FC<ConversationProps> = ({
         toast.error("you are not authorized to send messages in this room");
         chatState.setMessageAsFailed(res?.data.id);
       } else {
-        // for debug
-        if (chatState.selectedChatType === ChatType.Chat) {
-          const message: Message = {
-            id: res.data.id,
-            avatar: {
-              thumbnail: currentUser.picture.thumbnail,
-              medium: currentUser.picture.medium,
-              large: currentUser.picture.large,
-            },
-            senderId: currentUser.id,
-            message: res.data.content,
-            time: res.data.time,
-          };
-          chatState.pushMessage(message);
-        }
       }
     });
   };
@@ -411,8 +424,8 @@ export const Conversation: React.FC<ConversationProps> = ({
           (chatState.currentMessages?.length as number) > 0 ? (
             chatState.currentMessages?.map((message) => (
               <CurrentUserMessage
-                isFailed={message.isFailed}
                 key={message.id}
+                isFailed={message.isFailed}
                 avatar={message.avatar}
                 message={message.message}
                 time={message.time}

@@ -65,6 +65,24 @@ export const fetchRoomsCall = async (
     console.log(response.data);
     return response;
   } catch (e: any) {
+    console.log(e.response.data.message as string);
+  }
+
+}
+
+export const fetchDmsCall = async (
+  offset: number,
+  limit: number,
+
+) => {
+  try {
+    const response = await api.get(`/rooms/dms`,
+      { params: { offset: offset, limit: limit} });
+     console.log("dms :");
+    console.log(response.status);
+    console.log(response.data);
+    return response;
+  } catch (e: any) {
     console.log(e.response.data.message);
   }
 

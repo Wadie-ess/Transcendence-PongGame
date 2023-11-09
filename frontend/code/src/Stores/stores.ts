@@ -139,6 +139,8 @@ export const useUserStore = create<State & Action>()(
         // console.log(userInitialValue)
         set({ ...userInitialValue });
         return userInitialValue.isLogged
+    
+      
       },
       logout: () => {
         set({},true);

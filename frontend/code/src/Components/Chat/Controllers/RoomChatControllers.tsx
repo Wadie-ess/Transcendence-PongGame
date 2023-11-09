@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import users, {
   ChatRoom,
+  DmRoom,
   Message,
-  RoomMember,
   RoomType,
   chatRooms,
 } from "../Components/tools/Assets";
@@ -16,20 +16,21 @@ export interface ChatState {
   selectedChatType: ChatType;
   selectedChatID: string;
   currentMessages: Message[];
-  currentDmUser: RoomMember;
+  currentDmUser: DmRoom;
   currentRoomMessages: Message[];
   isLoading: boolean;
+  recentRooms: ChatRoom[];
+  recentDms: DmRoom[];
 
   showChatRooms: boolean;
 
-  recentRooms: ChatRoom[];
-
-  setCurrentDmUser: (user: RoomMember) => void;
+  setCurrentDmUser: (user: DmRoom) => void;
   setMessageAsFailed: (id: string) => void;
   pushMessage: (message: Message) => void;
   deleteRoom: (id: string) => void;
   fillCurrentMessages: (messages: Message[]) => void;
   fillRecentRooms: (rooms: ChatRoom[]) => void;
+  fillRecentDms: (dms: DmRoom[]) => void;
   setIsLoading: (isLoading: boolean) => void;
   selectNewChatID: (id: string) => void;
   editRoom: (name: string, roomType: RoomType, id: string) => void;
@@ -40,17 +41,16 @@ export interface ChatState {
 }
 
 export const useChatStore = create<ChatState>()((set) => ({
-  selectedChatID: chatRooms.length > 0 ? chatRooms[0].id : "1",
+  selectedChatID: "1",
   selectedChatType: ChatType.Chat,
   recentRooms: chatRooms,
+  recentDms: [],
   isLoading: false,
-
-  // UI state
   showChatRooms: false,
   currentDmUser: {
     id: "1",
-    firstname: "John",
-    lastname: "Doe",
+    secondUserId: "2",
+    name: "name",
     avatar: {
       thumbnail: "",
       medium: "",
@@ -63,7 +63,13 @@ export const useChatStore = create<ChatState>()((set) => ({
   currentRoomMessages: chatRooms.find((room) => room.id === "1")
     ?.messages as Message[],
 
-  setCurrentDmUser: (user: RoomMember) =>
+  fillRecentDms: (dms: DmRoom[]) => {
+    set((state) => {
+      state.recentDms = [...dms];
+      return { ...state };
+    });
+  },
+  setCurrentDmUser: (user: DmRoom) =>
     set((state) => {
       state.currentDmUser = user;
       return { ...state };
@@ -154,6 +160,12 @@ export const useChatStore = create<ChatState>()((set) => ({
   changeChatType: (type: ChatType) =>
     set((state) => {
       state.selectedChatType = type;
+      if (type === ChatType.Room ) {
+        state.selectedChatID = chatRooms.length > 0 ? chatRooms[0].id : "1";
+      } else if (type === ChatType.Chat) {
+        state.selectedChatID =
+          state.recentDms.length > 0 ? state.recentDms[0].id : "1";
+      }
       return { ...state };
     }),
   addNewMessage: (message: Message) =>
