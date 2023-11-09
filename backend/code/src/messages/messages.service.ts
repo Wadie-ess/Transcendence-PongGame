@@ -137,6 +137,12 @@ export class MessagesService {
         author: {
           select: {
             avatar: true,
+            Username: true,
+          },
+        },
+        room: {
+          select: {
+            type: true,
           },
         },
       },
