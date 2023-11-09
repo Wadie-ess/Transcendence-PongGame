@@ -4,6 +4,8 @@ import { Strategy, Profile, VerifyCallback } from 'passport-42';
 import { JwtUtils } from '../utils/jwt_utils/jwt_utils';
 import { UsersService } from 'src/users/users.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import * as crypto from 'crypto';
+import { Response } from 'express';
 
 @Injectable()
 export class FtStrategy extends PassportStrategy(Strategy, '42') {
@@ -27,10 +29,17 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
     profile: Profile,
     cb: VerifyCallback,
   ): Promise<any> {
-    const res = req.res;
+    const res: Response = req.res;
 
     const user = await this.usersService.getUserByIntraId(profile.id);
     if (user) {
+      if (user.tfaEnabled) {
+        const tfaToken = crypto.randomBytes(20).toString('hex');
+        await this.usersService.updateUser(user.userId, { tfaToken });
+        res.redirect(process.env.FRONT_URL + '/tfa/' + tfaToken);
+        return cb(null, profile);
+      }
+
       const tokens = await this.jwtUtils.generateTokens(
         user.email,
         user.userId,
@@ -39,8 +48,15 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
         user.userId,
         tokens.refresh_token,
       );
+      console.log(tokens);
       res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
-      res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
+      res.cookie('X-Refresh-Token', tokens.refresh_token, {
+        httpOnly: true,
+        path: '/auth',
+      });
+      res.redirect(
+        process.env.FRONT_URL ? process.env.FRONT_URL + '/Home' : '/',
+      );
       return cb(null, profile);
     }
     const new_user = await this.usersService.createUser({
@@ -59,7 +75,6 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
 
     await this.usersService.updateUser(new_user.userId, {
       avatar: `v${result.version}/${result.public_id}.${result.format}`,
-      tfaStatus: false,
     });
 
     const tokens = await this.jwtUtils.generateTokens(
@@ -73,7 +88,11 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
     );
 
     res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
-    res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
+    res.cookie('X-Refresh-Token', tokens.refresh_token, {
+      httpOnly: true,
+      path: '/auth',
+    });
+    res.redirect(process.env.FRONT_URL ? process.env.FRONT_URL + '/Home' : '/');
     return cb(null, profile);
   }
 }

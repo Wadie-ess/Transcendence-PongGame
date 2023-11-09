@@ -12,6 +12,7 @@ import {} from '@nestjs/platform-socket.io';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Game } from 'src/game/game';
+import { $Enums, Notification } from '@prisma/client';
 
 @WebSocketGateway(3004, {
   cors: {
@@ -29,25 +30,25 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   private games_map = new Map<string, Game>();
   async handleConnection(client: Socket) {
     const userId = client.data.user.sub;
-    const rooms = this.prisma.roomMember.findMany({
-      where: {
-        userId: userId,
-      },
-      select: {
-        room: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
-    rooms.then((rooms) => {
-      rooms.forEach((room) => {
-        client.join(`Romm:${room.room.id}`);
-        console.log(`Romm:${room.room.id}`);
-      });
-    });
+    // const rooms = this.prisma.roomMember.findMany({
+    //   where: {
+    //     userId: userId,
+    //   },
+    //   select: {
+    //     room: {
+    //       select: {
+    //         id: true,
+    //         name: true,
+    //       },
+    //     },
+    //   },
+    // });
+    // rooms.then((rooms) => {
+    //   rooms.forEach((room) => {
+    //     client.join(`Room:${room.room.id}`);
+    //     console.log(`Room:${room.room.id}`);
+    //   });
+    // });
     client.join(`User:${userId}`);
 
     const frienduserIds = await this.prisma.friend.findMany({
@@ -87,14 +88,108 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   @OnEvent('sendMessages')
   sendMessage(message: MessageFormatDto) {
     console.log('recive msg !');
-    const chanellname: string = `Romm:${message.roomId}`;
+    const chanellname: string = `Room:${message.roomId}`;
     this.server.to(chanellname).emit('message', message);
   }
 
-  @OnEvent('addFriendNotif')
-  sendFriendReq(notif: any) {
-    const channellname: string = `User:${notif.recipientId}`;
-    this.server.to(channellname).emit('message', notif);
+  private async createNotification(notif: Partial<Notification>) {
+    const newNotif = await this.prisma.notification.create({
+      data: {
+        actorId: notif.actorId,
+        receiverId: notif.receiverId,
+        type: notif.type,
+        entity_type: notif.entity_type,
+        entityId: notif.entityId,
+      },
+      include: {
+        actor: {
+          select: {
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+        receiver: {
+          select: {
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+    return newNotif;
+  }
+
+  @OnEvent('sendNotification')
+  async sendNotification(notif: Partial<Notification>) {
+    // create the notification on the database
+    switch (notif.type) {
+      case $Enums.NotifType.acceptFriend:
+      case $Enums.NotifType.addFriend: {
+        const newNotif = await this.createNotification(notif);
+        const channellname: string = `User:${newNotif.receiverId}`;
+        this.server.to(channellname).emit('notification', {
+          ...newNotif,
+          entity: null,
+        });
+        break;
+      }
+      case $Enums.NotifType.message: {
+        const message = await this.prisma.message.findUnique({
+          where: {
+            id: notif.entityId,
+          },
+          include: {
+            author: {
+              select: {
+                avatar: true,
+                Username: true,
+              },
+            },
+            room: {
+              select: {
+                type: true,
+              },
+            },
+          },
+        });
+        const roomMembers = await this.prisma.roomMember.findMany({
+          where: {
+            roomId: message.roomId,
+          },
+          select: {
+            userId: true,
+          },
+        });
+        const clientsSockets = await this.server
+          .in(`Room:${message.roomId}`)
+          .fetchSockets();
+        for await (const member of roomMembers) {
+          let found = false;
+          for await (const clientSocket of clientsSockets) {
+            if (clientSocket.data.user.sub === member.userId) {
+              found = true;
+              break;
+            }
+          }
+
+          if (found) {
+            continue;
+          }
+          const newNotif = await this.createNotification({
+            ...notif,
+            receiverId: member.userId,
+          });
+          const channellname: string = `User:${newNotif.receiverId}`;
+          this.server.to(channellname).emit('notification', {
+            ...newNotif,
+            entity: new MessageFormatDto(message),
+          });
+        }
+        break;
+      }
+    }
   }
 
   @SubscribeMessage('startGame')
@@ -133,12 +228,12 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
         roomId: data.roomId,
       },
     });
-    if (member) {
+    if (member && !member.is_banned) {
       const banedClientSocket = await this.server
         .in(`User:${data.memberId}`)
         .fetchSockets();
       if (banedClientSocket.length > 0) {
-        banedClientSocket[0].join(`Romm:${data.roomId}`);
+        banedClientSocket[0].join(`Room:${data.roomId}`);
       }
     }
   }
@@ -165,7 +260,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
         .in(`User:${data.memberId}`)
         .fetchSockets();
       if (banedClientSocket.length > 0) {
-        banedClientSocket[0].join(`Romm:${data.roomId}`);
+        banedClientSocket[0].join(`Room:${data.roomId}`);
       }
     }
   }
@@ -174,13 +269,13 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   async hundleDeparture(
     @MessageBody() data: { roomId: string; memberId: string; type: string },
   ) {
-    const clients = await this.server.in(`Romm:${data.roomId}`).fetchSockets();
-    console.log(`Romm:${data.roomId}`);
+    const clients = await this.server.in(`Room:${data.roomId}`).fetchSockets();
+    console.log(`Room:${data.roomId}`);
     const clientToBan = clients.find(
       (client) => client.data.user.sub === data.memberId,
     );
     if (clientToBan) {
-      clientToBan.leave(`Romm:${data.roomId}`);
+      clientToBan.leave(`Room:${data.roomId}`);
       if (data?.type === 'kick') {
         clientToBan.emit('roomDeparture', {
           roomId: data.roomId,

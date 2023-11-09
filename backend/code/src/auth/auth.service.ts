@@ -9,32 +9,24 @@ import * as bcrypt from 'bcrypt';
 import { Tokens } from './types/auth.type';
 import { JwtUtils } from './utils/jwt_utils/jwt_utils';
 import { UsersService } from 'src/users/users.service';
+import { authenticator } from 'otplib';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtUtils: JwtUtils,
     private usersService: UsersService,
+    private prisma: PrismaService,
   ) {}
 
-  async signUp(dto: AuthDto): Promise<Tokens> {
+  async signUp(dto: AuthDto) {
     const hash = await bcrypt.hash(dto.password, 10);
 
-    const new_user = await this.usersService.createUser({
+    await this.usersService.createUser({
       email: dto.email,
       password: hash,
     });
-
-    const tokens = await this.jwtUtils.generateTokens(
-      new_user.email,
-      new_user.userId,
-    );
-    await this.jwtUtils.updateRefreshedHash(
-      new_user.userId,
-      tokens.refresh_token,
-    );
-
-    return tokens;
   }
 
   async login(dto: AuthDto): Promise<Tokens> {
@@ -70,5 +62,48 @@ export class AuthService {
 
   async logout(userId: string): Promise<void> {
     await this.usersService.updateUser(userId, { refreshedHash: null });
+  }
+
+  async validateTwoFactorAuth(token: string, tfaToken: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { tfaToken },
+      select: {
+        tfaSecret: true,
+        userId: true,
+        tfaEnabled: true,
+        email: true,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('Invalid token', 400);
+    }
+
+    if (!user.tfaEnabled) {
+      throw new HttpException('Two factor authentication is not enabled', 400);
+    }
+
+    authenticator.options = { digits: 6 };
+    const isValid = authenticator.verify({
+      token,
+      secret: user.tfaSecret,
+    });
+
+    if (isValid) {
+      await this.prisma.user.update({
+        where: { userId: user.userId },
+        data: { tfaToken: null },
+      });
+      const tokens = await this.jwtUtils.generateTokens(
+        user.email,
+        user.userId,
+      );
+      await this.jwtUtils.updateRefreshedHash(
+        user.userId,
+        tokens.refresh_token,
+      );
+      return { isValid, tokens };
+    }
+    return { isValid };
   }
 }
