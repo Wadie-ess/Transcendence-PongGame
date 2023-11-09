@@ -32,6 +32,7 @@ export interface ChatPaceHolderProps {
   isRead: boolean;
   userImage: string;
   id: string;
+  secondUserId: string;
 }
 
 export const CurrentUserMessage = ({
@@ -100,10 +101,33 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
   const toggleChatRooms = useChatStore((state) => state.toggleChatRooms);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOnline, SetOnline] = useState(false);
 
   const handleConfirmation = () => {
     setIsModalOpen(false);
   };
+
+  useEffect(() => {
+    SetOnline(false);
+    const handleOnline = (userId: string) => {
+      currentUser.secondUserId === userId && SetOnline(true);
+      console.log(currentUser.id);
+
+      console.log("user online", userId);
+    };
+    const handleOffline = (userId: string) => {
+      currentUser.id === userId && SetOnline(false);
+      console.log("user offline", userId);
+    };
+
+    socket.on("friendOffline", handleOffline);
+    socket.on("friendOnline", handleOnline);
+
+    return () => {
+      socket.off("friendOffline", handleOffline);
+      socket.off("friendOnline", handleOnline);
+    };
+  }, [ChatState.selectedChatID]);
 
   return (
     <>
@@ -135,8 +159,12 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                 : currentRoom?.name}
             </p>
             {selectedChatType === ChatType.Chat ? (
-              <p className="text-green-500 font-poppins text-sm font-medium leading-normal">
-                online
+              <p
+                className={`${
+                  isOnline ? "text-green-500" : "text-red-500"
+                } font-poppins text-sm font-medium leading-normal`}
+              >
+                {isOnline ? "online" : "offline"}
               </p>
             ) : (
               <p className="text-gray-500 font-poppins text-sm font-medium leading-normal">
@@ -282,7 +310,6 @@ export const Conversation: React.FC<ConversationProps> = ({
     }
   };
 
-  
   const [inputValue, setInputValue] = useState("");
   const [FailToSendMessage, setFail] = useState(false);
   const [IsLoading, setLoading] = useState(true);
@@ -322,6 +349,7 @@ export const Conversation: React.FC<ConversationProps> = ({
         scrollToBottom();
       }
     };
+
     socket.on("message", handleMessage);
 
     const fetch = async () => {
@@ -375,7 +403,6 @@ export const Conversation: React.FC<ConversationProps> = ({
         toast.error("you are not authorized to send messages in this room");
         chatState.setMessageAsFailed(res?.data.id);
       } else {
-   
       }
     });
   };
@@ -397,8 +424,8 @@ export const Conversation: React.FC<ConversationProps> = ({
           (chatState.currentMessages?.length as number) > 0 ? (
             chatState.currentMessages?.map((message) => (
               <CurrentUserMessage
-                isFailed={message.isFailed}
                 key={message.id}
+                isFailed={message.isFailed}
                 avatar={message.avatar}
                 message={message.message}
                 time={message.time}

@@ -30,6 +30,7 @@ export const RecentConversations = () => {
           const rooms: DmRoom[] = [];
           res.data.forEach(
             (room: {
+              secondMemberId: string;
               id: string;
               last_message?: {
                 content?: string;
@@ -44,6 +45,7 @@ export const RecentConversations = () => {
               };
             }) => {
               rooms.push({
+                secondUserId: room.secondMemberId,
                 id: room.id,
                 name: room.name,
                 avatar: room.avatar,
@@ -70,8 +72,8 @@ export const RecentConversations = () => {
         <div className="flex-grow overflow-y-auto no-scrollbar bg-[#1A1C26]">
           {ChatRoomsState.recentDms.map((friend) => (
             <ChatPlaceHolder
-            
               key={friend.id}
+              secondUserId={friend.secondUserId}
               id={friend.id}
               username={friend.name}
               message={friend.last_message?.content ?? "No Messages*"}
@@ -111,33 +113,31 @@ export const ChatPlaceHolder = ({
   isRead,
   userImage,
   id,
+  secondUserId,
 }: ChatPaceHolderProps) => {
   const selectNewChat = useChatStore((state) => state.selectNewChatID);
   const selectedChatID = useChatStore((state) => state.selectedChatID);
-  const chatState  = useChatStore((state) => state)
+  const chatState = useChatStore((state) => state);
 
   return (
     <div
       onClick={() => {
-        selectNewChat(id);
-        chatState.setCurrentDmUser(
-          {
-            id: id,
-            name: username,
-            avatar: {
-              thumbnail: userImage,
-              medium: userImage,
-              large: userImage,
-            },
-          }
-        )
-        
+        selectedChatID !== id && selectNewChat(id);
+        chatState.setCurrentDmUser({
+          // back here
+          secondUserId: secondUserId,
+          id: id,
+          name: username,
+          avatar: {
+            thumbnail: userImage,
+            medium: userImage,
+            large: userImage,
+          },
+        });
       }}
       className={`message-container flex   px-4 py-5  hover:bg-[#272932] items-center  ${
         selectedChatID === id ? "bg-[#272932]" : "bg-[#1A1C26]"
-      }
-          
-            `}
+      }`}
     >
       <div className="user-image flex-shrink-0 mr-2">
         <img
@@ -151,7 +151,7 @@ export const ChatPlaceHolder = ({
           <p className="text-white font-poppins text-sm md:text-base font-normal leading-normal ">
             {username}
           </p>
-          <p className="text-gray-400 font-poppins text-sm font-light leading-normal hidden md:block ">
+          <p className="text-gray-400 font-poppins text-xs font-light leading-normal">
             {formatTime(time)}
           </p>
         </div>

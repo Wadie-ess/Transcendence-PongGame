@@ -4,6 +4,7 @@ import {
   ChatGif,
   ChatRoom,
   GroupChat,
+  InitChat,
   Lock,
   More,
   NullImage,
@@ -134,7 +135,7 @@ export const RoomChatPlaceHolder = () => {
       ))}
     </div>
   ) : (
-    <div className="p-3 text-center">
+    <div className="p-3 text-center bg-[#1A1C26] h-full">
       {isLoading === true ? (
         <span className="loading loading-spinner loading-lg"></span>
       ) : (
@@ -1220,11 +1221,29 @@ export const ChatPlaceHolder: React.FC<NullComponentProps> = ({ message }) => {
     <div className="null image flex flex-col justify-center items-center h-full">
       <img
         alt="null"
-        className="w-[35%] bottom-2 opacity-50 max-w-xs"
+        className="w-[35%] bottom-2 opacity-40 max-w-xs"
         src={ChatGif}
       ></img>
       <p className="text-gray-500 font-montserrat text-18 font-semibold leading-28 p-3">
         {message}
+      </p>
+    </div>
+  );
+};
+
+export const InitChatPlaceholder = () => {
+  return (
+    <div className="null image flex flex-col justify-center items-center h-full">
+      <img
+        alt="null"
+        className="w-[30%] bottom-2 opacity-30 max-w-xs"
+        src={InitChat}
+      ></img>
+      {/* <p className="text-gray-300 font-montserrat text-18 font-bold leading-28 p-1">
+          Your Messages
+      </p> */}
+      <p className="text-gray-500 font-montserrat text-18 font-semibold leading-28 p-3">
+        Send private and Public messages to a friends or groups
       </p>
     </div>
   );

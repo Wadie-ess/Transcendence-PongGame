@@ -258,6 +258,7 @@ export const Profile = () => {
                             ChatState.changeChatType(ChatType.Chat);
                             ChatState.selectNewChatID(res?.data?.id);
                             ChatState.setCurrentDmUser({
+                              secondUserId : profile.id,
                               id: profile.id,
                               name: `${profile.name.first} `,
                               avatar: profile?.picture,

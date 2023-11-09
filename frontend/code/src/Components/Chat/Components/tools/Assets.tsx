@@ -25,6 +25,8 @@ import ChatGif from "../../assets/chatGif.gif";
 import NullUser from "../../assets/User_duotone.svg";
 import exploreIcon from "../../assets/explore_icon.svg";
 import Options from "../../assets/options.svg";
+import InitChat from "../../assets/Chat_big.svg"
+import Initblack from "../../assets/Chat_black.svg"
 export enum RoomType {
   private,
   public,
@@ -59,6 +61,8 @@ export {
   owner,
   exploreIcon,
   Options,
+  InitChat,
+  Initblack
 };
 
 export interface Message {
@@ -98,6 +102,7 @@ export interface DmRoom {
   };
   name: string;
   bio?: string;
+  secondUserId: string;
 
   avatar: {
     thumbnail: string;
@@ -133,160 +138,6 @@ export interface User {
 // chat rooms dummy data
 export const chatRooms: ChatRoom[] = [];
 
-export const users: User[] = [
-  {
-    id: "1",
-    name: "User 1",
-    image: yas,
-    messages: [
-      {
-        senderId: "1",
-        message: "Hello!",
-        time: "00:00",
-        isRead: true,
-      },
-      {
-        senderId: "2",
-        message: "Hi there!",
-        time: "05:00",
-        isRead: true,
-      },
-    ],
-  },
-  {
-    id: "2",
-    name: "User 2",
-    image: yas2,
-    messages: [
-      {
-        senderId: "2",
-        message: "Hey!",
-        time: "10:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "How are you?",
-        time: "15:00",
-        isRead: false,
-      },
-      {
-        senderId: "2",
-        message: "Hey!",
-        time: "10:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "How are you?",
-        time: "15:00",
-        isRead: false,
-      },
-
-      // Add more messages as needed
-    ],
-  },
-  {
-    id: "3",
-    name: "User 3",
-    image: yas,
-    messages: [
-      {
-        senderId: "2",
-        message: "Hey!",
-        time: "10:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "How are you?",
-        time: "15:00",
-        isRead: false,
-      },
-      {
-        senderId: "2",
-        message: "Hey!",
-        time: "10:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "How are you?",
-        time: "15:00",
-        isRead: false,
-      },
-
-      // Add more messages as needed
-    ],
-  },
-  {
-    id: "8",
-    name: "User 4",
-    image: yas,
-    messages: [
-      {
-        senderId: "2",
-        message: "Hey!",
-        time: "10:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "How are you?",
-        time: "15:00",
-        isRead: false,
-      },
-      {
-        senderId: "2",
-        message: "Hey!",
-        time: "10:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "How are you?",
-        time: "15:00",
-        isRead: false,
-      },
-
-      // Add more messages as needed
-    ],
-  },
-  {
-    id: "9",
-    name: "User 5",
-    image: yas,
-    messages: [
-      {
-        senderId: "2",
-        message: "Hey!",
-        time: "10:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "How are you?",
-        time: "15:00",
-        isRead: false,
-      },
-      {
-        senderId: "2",
-        message: "Hey!",
-        time: "10:00",
-        isRead: true,
-      },
-      {
-        senderId: "1",
-        message: "How are you?",
-        time: "15:00",
-        isRead: false,
-      },
-
-      // Add more messages as needed
-    ],
-  },
-
-  // Add more users as needed
-];
+export const users: User[] = [];
 
 export default users;

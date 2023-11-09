@@ -41,16 +41,15 @@ export interface ChatState {
 }
 
 export const useChatStore = create<ChatState>()((set) => ({
-  selectedChatID: chatRooms.length > 0 ? chatRooms[0].id : "1",
+  selectedChatID: "1",
   selectedChatType: ChatType.Chat,
   recentRooms: chatRooms,
   recentDms: [],
   isLoading: false,
-
-  // UI state
   showChatRooms: false,
   currentDmUser: {
     id: "1",
+    secondUserId: "2",
     name: "name",
     avatar: {
       thumbnail: "",
@@ -161,6 +160,12 @@ export const useChatStore = create<ChatState>()((set) => ({
   changeChatType: (type: ChatType) =>
     set((state) => {
       state.selectedChatType = type;
+      if (type === ChatType.Room ) {
+        state.selectedChatID = chatRooms.length > 0 ? chatRooms[0].id : "1";
+      } else if (type === ChatType.Chat) {
+        state.selectedChatID =
+          state.recentDms.length > 0 ? state.recentDms[0].id : "1";
+      }
       return { ...state };
     }),
   addNewMessage: (message: Message) =>

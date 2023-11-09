@@ -15,20 +15,21 @@ export const UserToUserChat = () => {
   useEffect(() => {
     console.log("selected chat id ", ChatState.selectedChatID);
     const fetchUser = async () => {
-      try {
-         await api.get(`profile/${params.id}`).then((res) => {
-          console.log(res.data);
-          // ChatState.setCurrentDmUser({
-          //   id: res.data.id,
-          //   name: `${res.data.firstName} `,
-          //   avatar: {
-          //     thumbnail: res.data.image,
-          //     medium: res.data.image,
-          //     large: res.data.image,
-          //   },
-          // });
-        });
-      } catch (error) {}
+      // try {
+      //    await api.get(`profile/${params.id}`).then((res) => {
+      //     console.log(res.data);
+      //     ChatState.setCurrentDmUser({
+      //       secondUserId: res.data.id,
+      //       id: res.data.id,
+      //       name: `${res.data.firstName} `,
+      //       avatar: {
+      //         thumbnail: res.data.image,
+      //         medium: res.data.image,
+      //         large: res.data.image,
+      //       },
+      //     });
+      //   });
+      // } catch (error) {}
     };
     fetchUser();
     // eslint-disable-next-line

@@ -19,9 +19,9 @@ import {
   AddUsersModal,
   CreateNewRoomModal,
   ExploreRoomsModal,
+  InitChatPlaceholder,
   NullPlaceHolder,
   RoomSettingsModal,
-  
 } from "./Components/RoomChatHelpers";
 
 import { getRoomMembersCall } from "./Services/ChatServices";
@@ -37,6 +37,7 @@ export interface ConversationProps {
 export const Chat = () => {
   const [showUserPreview, setShowUserPreview] = useState(false);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
+  const ChatState = useChatStore((state) => state);
 
   const showChatRooms = useChatStore((state) => state.showChatRooms);
   const toggleChatRooms = useChatStore((state) => state.toggleChatRooms);
@@ -54,7 +55,6 @@ export const Chat = () => {
           <RoomSettingsModal />
           <AddUsersModal />
           <CreateNewRoomModal />
-         
         </div>
         <div
           className={classNames(
@@ -75,8 +75,8 @@ export const Chat = () => {
           />
         )}
         <div className={` ${"w-auto flex-1"} overflow-hidden bg-gray-900`}>
-          {chatRooms.length < 1 && selectedChatType === ChatType.Room ? (
-            <NullPlaceHolder message="" />
+          {chatRooms.length < 1  && ChatState.selectedChatID === "1" ? (
+            <InitChatPlaceholder />
           ) : (
             <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
           )}
