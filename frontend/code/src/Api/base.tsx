@@ -1,10 +1,10 @@
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
-import { useUserStore } from "../Stores/stores";
-const useNavigateCustom = () => {
-  const navigate = useNavigate();
-  return navigate;
-};
+// import { useNavigate } from 'react-router-dom';
+// import { useUserStore } from "../Stores/stores";
+// const useNavigateCustom = () => {
+//   const navigate = useNavigate();
+//   return navigate;
+// };
 const api = axios.create({
   baseURL: `${process.env.REACT_APP_API_ENDPOINT}`,
   timeout: 10000,

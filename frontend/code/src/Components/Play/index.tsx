@@ -1,12 +1,9 @@
-import { VsUser } from './assets/VsUser'
 import { VsBot } from './assets/VsBot'
-import { Watch } from './assets/Watch'
-import { Link } from 'react-router-dom'
-import { useSocketStore } from '../Chat/Services/SocketsServices'
+// import { useSocketStore } from '../Chat/Services/SocketsServices'
 import api from '../../Api/base'
 import toast from 'react-hot-toast'
 export const Play = () => {
-    const socketStore = useSocketStore();
+    // const socketStore = useSocketStore();
     const subscribeToGame = async() => {
         // socketStore.socket.emit
         try {
