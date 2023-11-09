@@ -15,8 +15,9 @@ import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
 import { FirstLogin } from "../FirstLogin";
 import { useSocketStore } from "../Chat/Services/SocketsServices";
-import toast from "react-hot-toast";
 import { ShowLogoModal } from "../Chat/Components/RoomChatHelpers";
+import { Modal } from "./Assets/Modal";
+import toast from "react-hot-toast";
 
 const routes = [
   { path: "Profile/:id" },
@@ -43,7 +44,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   const user = useUserStore();
   const navigate = useNavigate();
   const socketStore = useSocketStore();
-
+  
   useLayoutEffect(() => {
     const log = async () => {
       try {
@@ -59,8 +60,10 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
         
 
     };
+    
     socketStore.socket = socketStore.setSocket();
     socketStore.socket.on("connect", onConnect);
+   
     socketStore.socket.on("message",(msg:any) => {
       toast.custom((t) => (
         <div
@@ -113,9 +116,10 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
         <FirstLogin />
       ) : (
         <div
-          data-theme="mytheme"
-          className={`h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
+        data-theme="mytheme"
+        className={`h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
         >
+          <Modal/>
           <div className=" flex flex-row  w-screen h-[9vh]  bg-base-200">
             <div className="flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full">
             <ShowLogoModal />

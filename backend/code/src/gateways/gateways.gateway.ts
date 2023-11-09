@@ -110,7 +110,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     clients.forEach((client: any) => {
       client.join(game_channel);
     });
-    const new_game = new Game(this.eventEmitter);
+    const new_game = new Game(this.eventEmitter , this.server);
     new_game.setplayerScokets(clients[0], clients[1]);
     new_game.start(game_channel);
     this.games_map.set(game_channel, new_game);

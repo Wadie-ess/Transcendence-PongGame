@@ -4,6 +4,7 @@ import { create } from 'zustand'
 export const useSocketStore:any = create((set:any) => ({
     socket:null,
     setSocket : () => {
+        
         const s = io("http://localhost:3004", {
         transports: ['websocket'],
         withCredentials: true,
