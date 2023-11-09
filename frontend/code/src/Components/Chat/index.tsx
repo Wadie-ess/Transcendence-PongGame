@@ -20,7 +20,6 @@ import {
   CreateNewRoomModal,
   ExploreRoomsModal,
   InitChatPlaceholder,
-  NullPlaceHolder,
   RoomSettingsModal,
 } from "./Components/RoomChatHelpers";
 
@@ -36,7 +35,6 @@ export interface ConversationProps {
 
 export const Chat = () => {
   const [showUserPreview, setShowUserPreview] = useState(false);
-  const selectedChatType = useChatStore((state) => state.selectedChatType);
   const ChatState = useChatStore((state) => state);
 
   const showChatRooms = useChatStore((state) => state.showChatRooms);

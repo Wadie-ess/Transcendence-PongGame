@@ -127,6 +127,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
       socket.off("friendOffline", handleOffline);
       socket.off("friendOnline", handleOnline);
     };
+    // eslint-disable-next-line
   }, [ChatState.selectedChatID]);
 
   return (

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { UserPreviewCard } from "..";
 import { Conversation } from "./Conversation";
 import { useParams } from "react-router-dom";
-import api from "../../../Api/base";
+
 import { useChatStore } from "../Controllers/RoomChatControllers";
 
 export const UserToUserChat = () => {
