@@ -1,15 +1,16 @@
 import { VsBot } from './assets/VsBot'
-// import { useSocketStore } from '../Chat/Services/SocketsServices'
-import api from '../../Api/base'
+import { useSocketStore } from '../Chat/Services/SocketsServices'
 import toast from 'react-hot-toast'
 export const Play = () => {
-    // const socketStore = useSocketStore();
+    const socketStore = useSocketStore();
     const subscribeToGame = async() => {
         // socketStore.socket.emit
         try {
-            const res = await api.post("/game/start");
-            console.log("res")
-            console.log(res.data)
+            socketStore.socket.emit("startGame");
+            toast.success("Match making in Progress you can move until find opponent"
+            ,{
+                duration:5000
+            })
         } catch (error) {
             toast.error("can not start game")          
         }

@@ -10,7 +10,7 @@ export class GameService {
     private readonly prisma: PrismaService,
     private eventEmitter: EventEmitter2,
   ) {
-    // this.launchGame();
+    this.launchGame();
   }
 
   private waitingPlayers: Socket[] = [];
@@ -28,7 +28,7 @@ export class GameService {
         console.log('Game launched!');
         const two_players = this.waitingPlayers.splice(0, 2);
         this.eventEmitter.emit('game.launched', two_players);
-        // console.log(two_players);
+        console.log(two_players);
       }
     }, 5027);
   }
