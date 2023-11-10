@@ -1,6 +1,5 @@
 import { Pong } from "./assets/Pong";
 
-
 import { History } from "./History";
 import Hero from "./assets/Hero.gif";
 import { useState, useEffect } from "react";
@@ -8,7 +7,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Load } from "../Loading/";
 import Newbie from "../Badges/Newbie.svg";
 import Master from "../Badges/Master.svg";
-import Ultimate from "../Badges/Ultimate.svg"
+import Ultimate from "../Badges/Ultimate.svg";
 import { useUserStore } from "../../Stores/stores";
 import {
   VscChromeClose,
@@ -258,13 +257,13 @@ export const Profile = () => {
                             ChatState.changeChatType(ChatType.Chat);
                             ChatState.selectNewChatID(res?.data?.id);
                             ChatState.setCurrentDmUser({
-                              secondUserId : profile.id,
+                              secondUserId: profile.id,
                               id: profile.id,
                               name: `${profile.name.first} `,
                               avatar: profile?.picture,
                               bio: profile?.bio,
                             });
-                            navigate(`/Dm/${params.id}`);
+                            navigate(`/Dm/${res?.data.id}`);
                           } else {
                             toast.error(
                               "You Can't Send Message To this User For Now, try Again later"

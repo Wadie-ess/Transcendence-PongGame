@@ -14,6 +14,8 @@ import { NullPlaceHolder, RoomChatPlaceHolder } from "./RoomChatHelpers";
 import { useModalStore } from "../Controllers/LayoutControllers";
 import { fetchDmsCall } from "../Services/ChatServices";
 import { formatTime } from "./tools/utils";
+import { useSocketStore } from "../Services/SocketsServices";
+import { useUserStore } from "../../../Stores/stores";
 
 export const RecentConversations = () => {
   const [isLoading, setLoading] = useState(false);
@@ -23,7 +25,7 @@ export const RecentConversations = () => {
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);
-      await fetchDmsCall(0, 100).then((res) => {
+      await fetchDmsCall(0, 20).then((res) => {
         setLoading(false);
         if (res?.status !== 200 && res?.status !== 201) {
         } else {
@@ -43,6 +45,7 @@ export const RecentConversations = () => {
                 medium: string;
                 large: string;
               };
+              bio: string;
             }) => {
               rooms.push({
                 secondUserId: room.secondMemberId,
@@ -53,6 +56,7 @@ export const RecentConversations = () => {
                   content: room.last_message?.content,
                   createdAt: room.last_message?.createdAt,
                 },
+                bio: room.bio,
               });
             }
           );
@@ -118,13 +122,19 @@ export const ChatPlaceHolder = ({
   const selectNewChat = useChatStore((state) => state.selectNewChatID);
   const selectedChatID = useChatStore((state) => state.selectedChatID);
   const chatState = useChatStore((state) => state);
-
+  const socketStore = useSocketStore();
+  const currentUser = useUserStore((state) => state);
   return (
     <div
       onClick={() => {
-        selectedChatID !== id && selectNewChat(id);
+        if (selectedChatID !== id) {
+          // socketStore.socket.emit("joinRoom", {
+          //   memberId: currentUser.id,
+          //   roomId: id,
+          // });
+          selectNewChat(id);
+        }
         chatState.setCurrentDmUser({
-          // back here
           secondUserId: secondUserId,
           id: id,
           name: username,

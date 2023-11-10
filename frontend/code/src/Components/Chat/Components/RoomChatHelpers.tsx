@@ -31,6 +31,7 @@ import { useModalStore } from "../Controllers/LayoutControllers";
 import { useUserStore } from "../../../Stores/stores";
 import { formatTime } from "./tools/utils";
 import { getBlockedCall, unblockCall } from "../Services/FriendsServices";
+import { useSocketStore } from "../Services/SocketsServices";
 
 interface NullComponentProps {
   message: string;
@@ -45,7 +46,7 @@ export const RoomChatPlaceHolder = () => {
     const fetch = async () => {
       setIsLoading(true);
 
-      await fetchRoomsCall(0, 100, true).then((res) => {
+      await fetchRoomsCall(0, 20, true).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
         } else {
           const rooms: ChatRoom[] = [];
@@ -619,6 +620,8 @@ export const RoomSettingsModal = () => {
   const currentRoom = chatRooms.find((room) => room.id === selectedChatID);
   const LayoutState = useModalStore((state) => state);
   const setIsLoading = useChatStore((state) => state.setIsLoading);
+  const socketStore = useSocketStore();
+  const chatState = useChatStore((state) => state);
 
   const [currentUsers, setUsers] = useState<RoomMember[]>([]);
   const [skipCount, setSkipCount] = useState(true);
@@ -638,19 +641,19 @@ export const RoomSettingsModal = () => {
     target: { value: SetStateAction<string> };
   }) => {
     setUpdate(true);
-    setName(event.target.value);
+    setName(event.target.value || '');
   };
   const [selectedOption, setSelectedOption] = useState(RoomType.public);
 
   useEffect(() => {
     setSelectedOption(currentRoom?.type as RoomType);
-    setName(currentRoom?.name as string);
+    setName((currentRoom?.name || '') as string);
     if (skipCount) setSkipCount(false);
     if (!skipCount) {
       const fetchData = async () => {
         try {
           setLOading(true);
-          await getRoomMembersCall(currentRoom?.id as string, 0, 30).then(
+          await getRoomMembersCall(currentRoom?.id as string, 0, 20).then(
             (res) => {
               setLOading(false);
               if (res?.status === 200 || res?.status === 201) {
@@ -674,7 +677,7 @@ export const RoomSettingsModal = () => {
     setUpdate(false);
     setPassword("");
     setSelectedOption(currentRoom?.type as RoomType);
-    setName(currentRoom?.name as string);
+    setName((currentRoom?.name || '') as string);
   };
 
   return (
@@ -824,6 +827,23 @@ export const RoomSettingsModal = () => {
                                   res?.status === 200 ||
                                   res?.status === 201
                                 ) {
+                                  if(user.isBaned === true)
+                                  {
+                                    socketStore.socket.emit("roomDeparture", {
+                                      "roomId" : chatState.selectedChatID,
+                                      "memberId" : user.id,
+                                                               
+                                    }) 
+                                  }
+                                  else if(user.isBaned === false)
+                                  {
+                                    socketStore.socket.emit("unban", {
+                                      "roomId" : chatState.selectedChatID,
+                                      "memberId" : user.id                    
+                                    }) 
+
+                                  }
+                                  
                                   toast.success(res.data.message);
                                 }
                                 LayoutState.setShowSettingsModal(
@@ -883,6 +903,12 @@ export const RoomSettingsModal = () => {
                                   res?.status === 201
                                 ) {
                                   toast.success("User Kicked Successfully");
+                                  socketStore.socket.emit("roomDeparture", {
+                                    "roomId" : chatState.selectedChatID,
+                                    "memberId" : user.id,
+                                    "type" : "kick"
+                            
+                                  })
                                 }
                               });
                             }}
@@ -1013,7 +1039,7 @@ export const ExploreRoomsModal = () => {
   useEffect(() => {
     const fetch = async () => {
       setIsLoading(true);
-      await fetchRoomsCall(0, 100, false).then((res) => {
+      await fetchRoomsCall(0, 20, false).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
           // toast.error("something went wrong, try again");
           resetModalState();
@@ -1258,7 +1284,7 @@ export const ShowLogoModal = () => {
       <div className="modal-box bg-[#2d2f3b] rounded-lg shadow-white  p-5 border-2 border-purple-500 text-center">
         <div>
           <div className="pl-48 p-4">
-            <Logo x={""} y={""} />
+            <Logo />
           </div>
 
           <p>Loading...</p>

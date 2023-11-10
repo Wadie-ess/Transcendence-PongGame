@@ -73,7 +73,7 @@ export const Chat = () => {
           />
         )}
         <div className={` ${"w-auto flex-1"} overflow-hidden bg-gray-900`}>
-          {chatRooms.length < 1  && ChatState.selectedChatID === "1" ? (
+          {chatRooms.length < 1 && ChatState.selectedChatID === "1" ? (
             <InitChatPlaceholder />
           ) : (
             <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
@@ -110,7 +110,8 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (SelectedChat === "1" && selectedChatType === ChatType.Room) {
+        console.log("selected chat type", selectedChatType);
+        if (SelectedChat === "1" && selectedChatType !== ChatType.Room) {
           onRemoveUserPreview();
         } else {
           setIsLoading(true);
@@ -187,7 +188,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           </div>
           <div className=" bg-[#1A1C26]">
             <p className="text-center  p-1 pt-2 font-poppins font-normal whitespace-normal overflow-auto break-words ">
-              {currentUser?.id ?? "NO"}
+              {currentUser?.bio ?? "NO"}
             </p>
           </div>
         </div>

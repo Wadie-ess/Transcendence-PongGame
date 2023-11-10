@@ -106,4 +106,18 @@ export class AuthService {
     }
     return { isValid };
   }
+
+
+  async checkToken(tfaToken: string)
+  {
+    const user = await this.prisma.user.findUnique({
+      where: { tfaToken },
+      select: {
+       tfaToken: true
+      },
+    });
+    if(!user)
+      return false;
+    return true;  
+  }
 }

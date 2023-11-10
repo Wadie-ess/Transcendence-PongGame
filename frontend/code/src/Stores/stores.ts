@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import  api  from "../Api/base";
+import api from "../Api/base";
 export type State = {
   isLogged: boolean;
   id: string;
@@ -21,7 +21,7 @@ export type State = {
   banListIds: string[];
   achivments: number[];
   dmsIds: string[];
-  profileComplet:boolean;
+  profileComplet: boolean;
   history:
     | [
         {
@@ -43,74 +43,77 @@ export type State = {
 };
 
 type Action = {
- 
-    login: () => Promise<boolean>;
-    logout: () => void;
-  
-  toggleTfa: (tfa: State["tfa"]) => void;
+  login: () => Promise<boolean>;
+  logout: () => void;
+  fetchNotifications: (
+    offset: number,
+    limit: number
+  ) => Promise<Record<string, string>[]>;
+
+  toggleTfa: () => void;
   updateFirstName: (firstName: State["name"]["first"]) => void;
   updateLastName: (lastName: State["name"]["last"]) => void;
   updateEmail: (email: State["email"]) => void;
   updatePhone: (phone: State["phone"]) => void;
   updateBio: (bio: State["bio"]) => void;
-  setAvatar : (picture : State['picture']) =>void;
+  setAvatar: (picture: State["picture"]) => void;
 };
 
-
 export const useUserStore = create<State & Action>()(
-  persist((set) => ({
-    isLogged: false,
-    id: "",
-    bio: "",
-    phone: "",
-    name: {
-      first: "",
-      last: "",
-    },
-    picture: {
-      thumbnail: "",
-      medium: "",
-      large: "",
-    },
-    email: "",
-    tfa: false,
-    friendListIds: [],
-    banListIds: [],
-    achivments: [],
-    dmsIds: [],
-    history: [],
-    chatRoomsJoinedIds: [],
-    profileComplet:false,
-    toggleTfa: (tfa) => set(() => ({ tfa: !tfa })),
-    updateFirstName: (firstName) =>
-      set((state) => ({
-        name: {
-          ...state.name,
-          first: firstName,
-        },
-      })),
-    updateLastName: (lastName: string) =>
-      set((state) => ({
-        name: {
-          ...state.name,
-          last: lastName,
-        },
-      })),
-    updateEmail: (email: string) =>
-      set(() => ({
-        email: email,
-      })),
-    updatePhone: (phone: State["phone"]) => set(() => ({ phone: phone })),
-    updateBio: (bio: State["bio"]) => set(() => ({ bio: bio })),
-    setAvatar : (picture : State['picture']) => set(() => ({picture:picture})),
+  persist(
+    (set, get) => ({
+      isLogged: false,
+      id: "",
+      bio: "",
+      phone: "",
+      name: {
+        first: "",
+        last: "",
+      },
+      picture: {
+        thumbnail: "",
+        medium: "",
+        large: "",
+      },
+      email: "",
+      tfa: false,
+      friendListIds: [],
+      banListIds: [],
+      achivments: [],
+      dmsIds: [],
+      history: [],
+      chatRoomsJoinedIds: [],
+      profileComplet: false,
+      toggleTfa: () => set(({ tfa }) => ({ tfa: !tfa })),
+      updateFirstName: (firstName) =>
+        set((state) => ({
+          name: {
+            ...state.name,
+            first: firstName,
+          },
+        })),
+      updateLastName: (lastName: string) =>
+        set((state) => ({
+          name: {
+            ...state.name,
+            last: lastName,
+          },
+        })),
+      updateEmail: (email: string) =>
+        set(() => ({
+          email: email,
+        })),
+      updatePhone: (phone: State["phone"]) => set(() => ({ phone: phone })),
+      updateBio: (bio: State["bio"]) => set(() => ({ bio: bio })),
+      setAvatar: (picture: State["picture"]) =>
+        set(() => ({ picture: picture })),
       login: async () => {
         const res = await api.get("/profile/me");
         var user_data = res.data;
         // user_data.picture= null
-        const check = user_data.picture.large.split`/`
-        if (check[check.length - 1] === "null")
-          user_data.picture = null;
-        const userInitialValue :State= {
+        const check = user_data.picture.large.split`/`;
+        if (check[check.length - 1] === "null") user_data.picture = null;
+        const userInitialValue: State = {
           isLogged: true,
           id: user_data.id,
           bio: user_data?.bio ?? "default bio",
@@ -121,34 +124,49 @@ export const useUserStore = create<State & Action>()(
             last: user_data.name.last,
           },
           picture: {
-            thumbnail: user_data?.picture?.thumbnail ?? `https://ui-avatars.com/api/?name=${user_data.name.first}-${user_data.name.last}&background=7940CF&color=fff`,
-            medium: user_data?.picture?.medium ??  `https://ui-avatars.com/api/?name=${user_data.name.first}-${user_data.name.last}&background=7940CF&color=fff`,
-            large: user_data?.picture?.large ?? `https://ui-avatars.com/api/?name=${user_data.name.first}-${user_data.name.last}&background=7940CF&color=fff`,
+            thumbnail:
+              user_data?.picture?.thumbnail ??
+              `https://ui-avatars.com/api/?name=${user_data.name.first}-${user_data.name.last}&background=7940CF&color=fff`,
+            medium:
+              user_data?.picture?.medium ??
+              `https://ui-avatars.com/api/?name=${user_data.name.first}-${user_data.name.last}&background=7940CF&color=fff`,
+            large:
+              user_data?.picture?.large ??
+              `https://ui-avatars.com/api/?name=${user_data.name.first}-${user_data.name.last}&background=7940CF&color=fff`,
           },
 
           email: user_data.email,
-          tfa: false,
+          tfa: user_data.tfa,
           friendListIds: [],
           banListIds: [],
           achivments: [],
           dmsIds: [],
           history: [],
           chatRoomsJoinedIds: [],
-          profileComplet:user_data.profileFinished,
+          profileComplet: user_data.profileFinished,
         };
         // console.log(userInitialValue)
+        const state = get();
+        const notifs = await state.fetchNotifications(0, 20);
         set({ ...userInitialValue });
-        return userInitialValue.isLogged
-    
-      
+        return userInitialValue.isLogged;
       },
       logout: () => {
-        set({},true);
-          },
-    
-  }),
-  {
-    name: "userStore",
-    storage : createJSONStorage(() => localStorage) as any,
-}
-))
+        set({}, true);
+      },
+
+      fetchNotifications: async (offset: number, limit: number) => {
+        const response = await api.get(
+          `/profile/notifications/?offset=${offset}&limit=${limit}`,
+          { params: { offset, limit } }
+        );
+        console.log("notifications:", response.data);
+        return [];
+      },
+    }),
+    {
+      name: "userStore",
+      storage: createJSONStorage(() => localStorage) as any,
+    }
+  )
+);

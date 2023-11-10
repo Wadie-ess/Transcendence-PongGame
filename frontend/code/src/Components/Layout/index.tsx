@@ -8,7 +8,7 @@ import { Message } from "./Assets/Message";
 import { Profile } from "./Assets/Profile";
 import { Settings } from "./Assets/Settings";
 import { Out } from "./Assets/Out";
-import { FC, PropsWithChildren, useLayoutEffect} from "react";
+import { FC, PropsWithChildren, useLayoutEffect } from "react";
 import { Outlet } from "react-router";
 import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
@@ -40,35 +40,33 @@ function onConnect() {
   console.log("hello");
 }
 export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
-
   const user = useUserStore();
   const navigate = useNavigate();
   const socketStore = useSocketStore();
-  
+
   useLayoutEffect(() => {
     const log = async () => {
       try {
         await user.login();
-      } 
-      catch(e:any){
-          if (e?.response?.status !== 403 && e?.response?.data?.message !== "Please complete your profile")
-          {
+      } catch (e: any) {
+        if (
+          e?.response?.status !== 403 &&
+          e?.response?.data?.message !== "Please complete your profile"
+        ) {
           navigate("/");
           user.logout();
-          }
+        }
       }
-        
-
     };
-    
+
     socketStore.socket = socketStore.setSocket();
     socketStore.socket.on("connect", onConnect);
-   
-    socketStore.socket.on("message",(msg:any) => {
+
+    socketStore.socket.on("message", (msg: any) => {
       toast.custom((t) => (
         <div
           className={`${
-            t.visible ? 'animate-enter' : 'animate-leave'
+            t.visible ? "animate-enter" : "animate-leave"
           } max-w-md w-full transition-opacity ease-in  bg-indigo-900 shadow-lg rounded-lg pointer-events-auto flex ring-1 relative top-[6vh] ring-black ring-opacity-5`}
         >
           <div className="flex-1 w-0 p-4">
@@ -99,8 +97,8 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
             </button>
           </div>
         </div>
-      ))
-    })
+      ));
+    });
     log();
     return () => {
       socketStore.socket.off("connect", onConnect);
@@ -109,21 +107,21 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   }, []);
 
   const path: string = useCurrentPath();
-  const obj = { x: "30", y: "20" };
+
   return (
     <>
       {user.profileComplet === false && user.isLogged ? (
         <FirstLogin />
       ) : (
         <div
-        data-theme="mytheme"
-        className={`h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
+          data-theme="mytheme"
+          className={`h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
         >
-          <Modal/>
+          <Modal />
           <div className=" flex flex-row  w-screen h-[9vh]  bg-base-200">
-            <div className="flex justify-start items-center z-50 pl-1  sm:pl-2  h-full w-full">
-            <ShowLogoModal />
-              <Logo {...obj} />
+            <div className="flex justify-start items-center z-50 h-full w-full">
+              <ShowLogoModal />
+              <Logo className="sm:w-30 w-20" />
             </div>
             <div className="flex items-center  justify-end pr-6 gap-6 h-full w-full">
               <Search />
@@ -164,9 +162,11 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
                 <Settings selected={path === "Settings"} />
               </button>
             </div>
-            <div className="sm:-ml-4 sm:w-[92vw] xl:w-[95.5vw]  md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[91vh]  bg-accent sm:rounded-tl-2xl overflow-auto no-scrollbar" id='scrollTarget'>
-                <Outlet />
-
+            <div
+              className="sm:w-[92vw] xl:w-[95.5vw]  md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[91vh]  bg-accent sm:rounded-tl-2xl overflow-auto no-scrollbar"
+              id="scrollTarget"
+            >
+              <Outlet />
             </div>
           </div>
         </div>

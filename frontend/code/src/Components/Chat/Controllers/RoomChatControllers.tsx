@@ -50,7 +50,7 @@ export const useChatStore = create<ChatState>()((set) => ({
   currentDmUser: {
     id: "1",
     secondUserId: "2",
-    name: "name",
+    name: "Loading...",
     avatar: {
       thumbnail: "",
       medium: "",

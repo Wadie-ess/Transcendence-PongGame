@@ -645,6 +645,7 @@ export class RoomsService {
                 firstName: true,
                 lastName: true,
                 avatar: true,
+                discreption: true,
               },
             },
           },
@@ -680,9 +681,55 @@ export class RoomsService {
           secondMemberId: secondMember.user.userId,
           last_message,
           avatar,
+          bio: secondMember.user.discreption,
         };
       }),
     );
     return dmsData;
+  }
+
+  async getDM(userId: string, dmId: string) {
+    const room = await this.prisma.room.findUnique({
+      where: {
+        id: dmId,
+      },
+      select: {
+        id: true,
+        type: true,
+        ownerId: true,
+        members: {
+          select: {
+            user: {
+              select: {
+                userId: true,
+                firstName: true,
+                lastName: true,
+                avatar: true,
+                discreption: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
+    const member = room.members.find((member) => member.user.userId === userId);
+    if (!member)
+      throw new UnauthorizedException('you are not a member of this room');
+    const secondMember = room.members.find(
+      (member) => member.user.userId !== userId,
+    );
+    const avatar: PICTURE = {
+      thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${secondMember.user.avatar}`,
+      medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${secondMember.user.avatar}`,
+      large: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_128,w_128/${secondMember.user.avatar}`,
+    };
+    return {
+      id: room.id,
+      name: secondMember.user.firstName + ' ' + secondMember.user.lastName,
+      secondMemberId: secondMember.user.userId,
+      avatar,
+      bio: secondMember.user.discreption,
+    };
   }
 }

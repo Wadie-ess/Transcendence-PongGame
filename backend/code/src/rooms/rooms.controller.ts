@@ -219,4 +219,17 @@ export class RoomsController {
   ) {
     return this.roomsService.getDMs(userId, offset, limit);
   }
+
+  @Get('dm/:id')
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AtGuard)
+  async getDM(
+    @GetCurrentUser('userId') userId: string,
+    @Param('id') dmId: string,
+  ) {
+    return this.roomsService.getDM(userId, dmId);
+  }
 }
