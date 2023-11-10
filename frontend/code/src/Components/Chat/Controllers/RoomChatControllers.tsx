@@ -160,11 +160,13 @@ export const useChatStore = create<ChatState>()((set) => ({
   changeChatType: (type: ChatType) =>
     set((state) => {
       state.selectedChatType = type;
-      if (type === ChatType.Room ) {
+      if (type === ChatType.Room) {
         state.selectedChatID = chatRooms.length > 0 ? chatRooms[0].id : "1";
       } else if (type === ChatType.Chat) {
         state.selectedChatID =
           state.recentDms.length > 0 ? state.recentDms[0].id : "1";
+        state.recentDms.length > 0 &&
+          state.setCurrentDmUser(state.recentDms[0]);
       }
       return { ...state };
     }),
