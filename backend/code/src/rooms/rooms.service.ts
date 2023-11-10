@@ -15,6 +15,8 @@ import * as bcrypt from 'bcrypt';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomDataDto } from './dto/room-data.dto';
 import { PICTURE } from 'src/profile/dto/profile.dto';
+import { DMsData } from './types/room-dms-type';
+import { roomsData } from './types/room-types';
 
 @Injectable()
 export class RoomsService {
@@ -581,18 +583,6 @@ export class RoomsService {
     });
     if (!joined) return rooms;
 
-    type roomsData = {
-      is_admin: boolean;
-      id: string;
-      name: string;
-      type: string;
-      is_owner: boolean;
-      countMembers: number;
-      last_message: {
-        createdAt: Date;
-        content: string;
-      } | null;
-    };
     const roomsData: roomsData[] = await Promise.all(
       rooms.map(async (room) => {
         const countMembers = await this.prisma.roomMember.count({
@@ -662,16 +652,6 @@ export class RoomsService {
       },
     });
 
-    type DMsData = {
-      id: string;
-      name: string;
-      last_message: {
-        createdAt: Date;
-        content: string;
-      } | null;
-      secondMemberId: string;
-      avatar: PICTURE;
-    };
     const dmsData: DMsData[] = await Promise.all(
       rooms.map(async (room) => {
         const secondMember = room.members.find(

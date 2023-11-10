@@ -22,7 +22,7 @@ import {
 
 import { useUserStore } from "../../../Stores/stores";
 import { formatTime } from "./tools/utils";
-import { socket } from "../Services/SocketsServices";
+import { useSocketStore } from "../Services/SocketsServices";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -92,7 +92,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
   const LayoutState = useModalStore((state) => state);
   const ChatState = useChatStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
-
+  
   const currentUser = useChatStore((state) => state.currentDmUser);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
 
@@ -102,7 +102,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOnline, SetOnline] = useState(false);
-
+  const sockerStore = useSocketStore();
   const handleConfirmation = () => {
     setIsModalOpen(false);
   };
@@ -120,12 +120,12 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
       console.log("user offline", userId);
     };
 
-    socket.on("friendOffline", handleOffline);
-    socket.on("friendOnline", handleOnline);
+    sockerStore.socket.on("friendOffline", handleOffline);
+    sockerStore.socket.on("friendOnline", handleOnline);
 
     return () => {
-      socket.off("friendOffline", handleOffline);
-      socket.off("friendOnline", handleOnline);
+      sockerStore.socket.off("friendOffline", handleOffline);
+      sockerStore.socket.off("friendOnline", handleOnline);
     };
     // eslint-disable-next-line
   }, [ChatState.selectedChatID]);
@@ -303,7 +303,7 @@ export const Conversation: React.FC<ConversationProps> = ({
 }) => {
   const chatState = useChatStore((state) => state);
   const messageContainerRef = useRef<HTMLDivElement>(null);
-
+  const socketStore = useSocketStore();
   const scrollToBottom = () => {
     if (messageContainerRef.current) {
       const container = messageContainerRef.current;
@@ -350,8 +350,7 @@ export const Conversation: React.FC<ConversationProps> = ({
         scrollToBottom();
       }
     };
-
-    socket.on("message", handleMessage);
+    socketStore.socket.on("message", handleMessage);
 
     const fetch = async () => {
       setLoading(true);
@@ -390,7 +389,7 @@ export const Conversation: React.FC<ConversationProps> = ({
       scrollToBottom();
     });
     return () => {
-      socket.off("message", handleMessage);
+      socketStore.socket.off("message", handleMessage);
     };
     // eslint-disable-next-line
   }, [chatState.selectedChatID]);

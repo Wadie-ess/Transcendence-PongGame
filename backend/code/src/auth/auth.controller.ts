@@ -17,6 +17,7 @@ import { Tokens } from './types';
 import { Response } from 'express';
 import { RtGuard } from './guards/rt.guard';
 import { ApiCookieAuth, ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
+import { TfaValidateDto } from './dto/tfa-validta.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -24,20 +25,19 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signup')
-  async signUp(
-    @Res({ passthrough: true }) res: Response,
-    @Body() dto: AuthDto,
-  ) {
-    const tokens: Tokens = await this.authService.signUp(dto);
-    res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
-    res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
+  async signUp(@Body() dto: AuthDto) {
+    return this.authService.signUp(dto);
   }
+
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Res({ passthrough: true }) res: Response, @Body() dto: AuthDto) {
     const tokens: Tokens = await this.authService.login(dto);
     res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
-    res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
+    res.cookie('X-Refresh-Token', tokens.refresh_token, {
+      httpOnly: true,
+      path: '/auth',
+    });
   }
 
   @Get('login/42')
@@ -49,7 +49,6 @@ export class AuthController {
   @ApiExcludeEndpoint()
   @Get('login/42/return')
   @UseGuards(FtOauthGuard)
-  @Redirect(process.env.FRONT_URL ? process.env.FRONT_URL + '/Home' : '/') //WARNING:
   login42Return() {
     return;
   }
@@ -57,7 +56,7 @@ export class AuthController {
   @Get('logout')
   @ApiCookieAuth('X-Refresh-Token')
   @UseGuards(RtGuard)
-  @Redirect(process.env.FRONT_URL)
+  @Redirect(process.env.FRONT_URL ? process.env.FRONT_URL : '/')
   async logout(
     @GetCurrentUser('userId') userId: string,
     @Res({ passthrough: true }) res: Response,
@@ -80,8 +79,32 @@ export class AuthController {
     const tokens: Tokens = await this.authService.refresh(refreshToken, userId);
 
     res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
-    res.cookie('X-Refresh-Token', tokens.refresh_token, { httpOnly: true });
+    res.cookie('X-Refresh-Token', tokens.refresh_token, {
+      httpOnly: true,
+      path: '/auth',
+    });
 
     return { message: 'ok' };
+  }
+
+  @Post('validate2fa')
+  async validate2fa(
+    @Body() tfaValidation: TfaValidateDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const data = await this.authService.validateTwoFactorAuth(
+      tfaValidation.otp,
+      tfaValidation.tfaToken,
+    );
+    if (!data.isValid) {
+      res.status(HttpStatus.BAD_REQUEST).send({ message: 'Invalid token' });
+      return;
+    }
+    const tokens = data.tokens;
+    res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
+    res.cookie('X-Refresh-Token', tokens.refresh_token, {
+      httpOnly: true,
+      path: '/auth',
+    });
   }
 }

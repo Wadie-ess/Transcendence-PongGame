@@ -55,5 +55,5 @@ export class UpdateUserDto {
 
   discreption?: string;
 
-  tfaStatus?: boolean;
+  tfaToken?: string;
 }

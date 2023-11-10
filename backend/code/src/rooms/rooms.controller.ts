@@ -20,7 +20,7 @@ import { UpdateRoomDto } from './dto/update-room.dto';
 import { ChangeOwnerDto } from './dto/change-owner.dto';
 import { QueryOffsetDto } from '../friends/dto/query-ofsset-dto';
 import { RoomSearchDto } from './dto/room-search.dto';
-import { ApiCookieAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoomDataDto } from './dto/room-data.dto';
 import { ListRoomsDto } from './dto/list-rooms.dto';
 
@@ -187,6 +187,7 @@ export class RoomsController {
     return await this.roomsService.addMember(memberData, userId);
   }
 
+  @Get('')
   @ApiResponse({
     status: HttpStatus.OK,
     schema: {
@@ -197,8 +198,6 @@ export class RoomsController {
       },
     },
   })
-  @ApiQuery({ type: ListRoomsDto })
-  @Get('')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
   async listRooms(
@@ -209,6 +208,9 @@ export class RoomsController {
   }
 
   @Get('dms')
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
   async getDMs(

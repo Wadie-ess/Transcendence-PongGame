@@ -19,7 +19,7 @@ Table users {
   avatar String
   tfaEnabled Boolean [not null, default: false]
   tfaSecret String
-  tfaStatus Boolean [not null, default: false]
+  tfaToken String [unique]
   left_friends friends [not null]
   right_friends friends [not null]
   participant1 matches [not null]
@@ -29,6 +29,8 @@ Table users {
   blocked_by blocked_friends [not null]
   blocked blocked_friends [not null]
   Message messages [not null]
+  actor notifications [not null]
+  receiver notifications [not null]
 }
 
 Table friends {
@@ -117,14 +119,20 @@ Table room_members {
 Table notifications {
   createdAt DateTime [default: `now()`, unique, not null]
   id String [pk]
-  recipientId String [not null]
-  content NotifType [not null]
+  actorId String [not null]
+  receiverId String [not null]
+  type NotifType [not null]
+  entityId String
+  entity_type String
   is_read Boolean [not null, default: false]
-  readAt DateTime
+  actor users [not null]
+  receiver users [not null]
 }
 
 Enum NotifType {
   addFriend
+  acceptFriend
+  message
 }
 
 Enum RoomType {
@@ -155,3 +163,7 @@ Ref: rooms.ownerId > users.userId [delete: Cascade]
 Ref: room_members.userId > users.userId [delete: Cascade]
 
 Ref: room_members.roomId > rooms.id [delete: Cascade]
+
+Ref: notifications.actorId > users.userId [delete: Cascade]
+
+Ref: notifications.receiverId > users.userId [delete: Cascade]

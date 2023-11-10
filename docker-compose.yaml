@@ -29,6 +29,9 @@ services :
     depends_on: 
       - database
     restart: always
+    ports:
+      - 3001:3001
+      - 3004:3004
     init : true
     
   nginx :

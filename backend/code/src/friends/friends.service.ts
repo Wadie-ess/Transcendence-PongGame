@@ -4,6 +4,7 @@ import { UsersService } from 'src/users/users.service';
 import { FriendResponseDto } from './dto/frined-response.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FriendProfileDto } from './dto/friend-profile.dto';
+import { $Enums } from '@prisma/client';
 
 @Injectable()
 export class FriendsService {
@@ -37,13 +38,14 @@ export class FriendsService {
       },
       update: {},
     });
-    const notifData = await this.prisma.notification.create({
-      data: {
-        recipientId: friendId,
-        content: 'addFriend',
-      },
+    // this.evenEmitter.emit('addFriendNotif', notifData);  TODO: emit an event with the correct data
+    this.evenEmitter.emit('sendNotification', {
+      receiverId: friendId,
+      actorId: userId,
+      type: $Enums.NotifType.addFriend,
+      entityId: friendshipId,
+      entity_type: 'friend',
     });
-    this.evenEmitter.emit('addFriendNotif', notifData);
     return new FriendResponseDto(frinedship);
   }
 
@@ -82,6 +84,13 @@ export class FriendsService {
       data: {
         accepted: true,
       },
+    });
+    this.evenEmitter.emit('sendNotification', {
+      receiverId: friendId,
+      actorId: userId,
+      type: $Enums.NotifType.acceptFriend,
+      entityId: friendshipId,
+      entity_type: 'friend',
     });
     return new FriendResponseDto(friendship);
   }

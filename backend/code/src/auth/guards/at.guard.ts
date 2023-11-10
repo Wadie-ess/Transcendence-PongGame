@@ -16,9 +16,6 @@ export class AtGuard extends AuthGuard('jwt') {
     if (err || !user) {
       throw err || new UnauthorizedException();
     }
-    if (user.tfaEnabled) {
-      if (!user.tfaStatus) throw new HttpException('la7g inak', 403);
-    }
     if (!user.profileFinished)
       throw new HttpException('Please complete your profile', 403);
     return user;

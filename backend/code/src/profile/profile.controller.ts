@@ -56,22 +56,6 @@ export class ProfileController {
     return this.profileService.updateProfile(userId, update_data);
   }
 
-  @Get(':id')
-  @ApiOkResponse({ type: ProfileDto })
-  @ApiParam({
-    name: 'id',
-    type: 'string',
-    description: 'User id',
-    example: '60f1a7b0e1b3c2a4e8b4a1a0',
-  })
-  @UseGuards(AtGuard)
-  getUserById(
-    @Param('id') Id: string,
-    @GetCurrentUser('userId') userId: string,
-  ) {
-    return this.profileService.getFriendProfile(userId, Id);
-  }
-
   @Post('avatar')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -115,6 +99,23 @@ export class ProfileController {
     @GetCurrentUser('userId') userId: string,
     @Query() { offset, limit }: QueryOffsetDto,
   ) {
+    console.log('getNotifications');
     return this.profileService.getNotifications(userId, offset, limit);
+  }
+
+  @Get(':id')
+  @ApiOkResponse({ type: ProfileDto })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    description: 'User id',
+    example: '60f1a7b0e1b3c2a4e8b4a1a0',
+  })
+  @UseGuards(AtGuard)
+  getUserById(
+    @Param('id') Id: string,
+    @GetCurrentUser('userId') userId: string,
+  ) {
+    return this.profileService.getFriendProfile(userId, Id);
   }
 }
