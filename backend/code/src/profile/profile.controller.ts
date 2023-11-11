@@ -99,7 +99,6 @@ export class ProfileController {
     @GetCurrentUser('userId') userId: string,
     @Query() { offset, limit }: QueryOffsetDto,
   ) {
-    console.log('getNotifications');
     return this.profileService.getNotifications(userId, offset, limit);
   }
 

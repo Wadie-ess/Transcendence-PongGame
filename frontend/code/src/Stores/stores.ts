@@ -40,15 +40,14 @@ export type State = {
         }
       ]
     | [];
+
+  notifications: any;
 };
 
 type Action = {
   login: () => Promise<boolean>;
   logout: () => void;
-  fetchNotifications: (
-    offset: number,
-    limit: number
-  ) => Promise<Record<string, string>[]>;
+  fetchNotifications: (offset: number, limit: number) => Promise<any>;
 
   toggleTfa: () => void;
   updateFirstName: (firstName: State["name"]["first"]) => void;
@@ -84,6 +83,7 @@ export const useUserStore = create<State & Action>()(
       history: [],
       chatRoomsJoinedIds: [],
       profileComplet: false,
+      notifications: [],
       toggleTfa: () => set(({ tfa }) => ({ tfa: !tfa })),
       updateFirstName: (firstName) =>
         set((state) => ({
@@ -144,11 +144,13 @@ export const useUserStore = create<State & Action>()(
           history: [],
           chatRoomsJoinedIds: [],
           profileComplet: user_data.profileFinished,
+          notifications: [],
         };
         // console.log(userInitialValue)
         const state = get();
-        const notifs = await state.fetchNotifications(0, 20);
-        set({ ...userInitialValue });
+        const notifications = await state.fetchNotifications(0, 20);
+        console.log("notifications:",  notifications);
+        set({ ...userInitialValue, notifications });
         return userInitialValue.isLogged;
       },
       logout: () => {
@@ -160,8 +162,8 @@ export const useUserStore = create<State & Action>()(
           `/profile/notifications/?offset=${offset}&limit=${limit}`,
           { params: { offset, limit } }
         );
-        console.log("notifications:", response.data);
-        return [];
+        
+        return response.data;
       },
     }),
     {

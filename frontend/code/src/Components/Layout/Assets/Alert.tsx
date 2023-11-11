@@ -1,22 +1,117 @@
+import { useUserStore } from "../../../Stores/stores";
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+// [
+//     {
+//         "createdAt": "2023-11-10T23:36:34.923Z",
+//         "id": "clot9bii20002p93s2q9cieig",
+//         "actorId": "clot8zfrw0000p93sl1pyvi5k",
+//         "receiverId": "clot8mpw00000p93sharhtnat",
+//         "type": "addFriend",
+//         "entityId": "clot8mpw00000p93sharhtnat-clot8zfrw0000p93sl1pyvi5k",
+//         "entity_type": "friend",
+//         "is_read": false,
+//         "actor": {
+//             "firstName": "Saad eddyne",
+//             "lastName": "El abdari",
+//             "avatar": "v1699658832/nest-blog/clot8zfrw0000p93sl1pyvi5k.png"
+//         },
+//         "receiver": {
+//             "firstName": "Abdessamad",
+//             "lastName": "El bahri",
+//             "avatar": "v1699658239/nest-blog/clot8mpw00000p93sharhtnat.png"
+//         }
+//     }
+// ]
+export const Alert = () => {
+  const user = useUserStore();
+  const navigate = useNavigate();
+  console.log("here also", user.notifications);
+  const messages: Record<string, string> = useMemo(
+    () => ({
+      addFriend: "sent you a friend requst",
+      acceptFriend: "accepted your friend request",
+    }),
+    []
+  );
 
-export const Alert = () => { 
- 
-    return (
-        <>
-        <div className="hover:cursor-pointer dropdown">
-        
-        <div tabIndex={0} className="dropdown-content z-[60] card card-compact w-64 p-2 shadow bg-base-200 text-primary-content relative -left-44 -bottom-32">
-            <div className="card-body">
-            <h3 className="card-title text-neutral">Notifacitions</h3>
-            <p>frend request</p>
-            </div>
+  return (
+    <>
+      <div className="dropdown">
+        <div
+          tabIndex={0}
+          className="dropdown-content z-[60] card card-compact w-80 shadow bg-base-300 text-neutral relative right-0 top-16 overflow-hidden "
+        >
+          <div className="card-body !p-0 !gap-0">
+            <h3 className="text-neutral text-xl p-4">Notifications</h3>
+            <ul className="bg-base-100/50 border-t-2 border-violet-800">
+              {user.notifications.map((notification: any) => (
+                <li
+                  key={notification.id}
+                  className="flex flex-row justify-start text-xs gap-3 p-4 hover:cursor-pointer"
+                  onClick={() => {
+                        navigate(`/profile/${notification.actor.userId}`)
+                  }}
+                >
+                  <img
+                    src={`https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${notification.actor.avatar}`}
+                    alt=""
+                    className="rounded-full"
+                  />
+                  <div className="flex items-center flex-col  ">
+                    <div className="w-full line-clamp-2">
+                      {`${notification.actor.firstName} ${
+                        notification.actor.lastName
+                      }  ${messages[notification.type]}`}
+                    </div>
+                    <div className="text-right w-full text-[10px] text-gray-400">
+                      {new Date(notification.createdAt).toDateString()}
+                    </div>
+                  </div>
+                </li>
+              ))}
+              {user.notifications.map((notification: any) => (
+                <li
+                  key={notification.id}
+                  className="flex flex-row justify-start text-xs gap-3 p-4 opacity-50"
+                >
+                  <img
+                    src={`https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${notification.actor.avatar}`}
+                    alt=""
+                    className="rounded-full"
+                  />
+                  <div className="flex items-center flex-col  ">
+                    <div className="w-full">
+                      {`${notification.actor.firstName} ${
+                        notification.actor.lastName
+                      }  ${messages[notification.type]}`}
+                    </div>
+                    <div className="text-right w-full text-[10px] text-gray-400">
+                      {new Date(notification.createdAt).toDateString()}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-        <label tabIndex={0} className=""><svg className="flex justify-center items-center w-10 sm:w-12 hover:cursor-pointer" width="62" height="62" viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="62" height="62" rx="20" fill="black"/>
-        <path d="M27.9189 40.1081C28.5314 39.9785 32.2636 39.9785 32.8761 40.1081C33.3997 40.229 33.966 40.5116 33.966 41.1286C33.9355 41.716 33.5909 42.2367 33.1148 42.5674C32.4974 43.0487 31.7729 43.3535 31.0155 43.4633C30.5966 43.5176 30.185 43.5188 29.7807 43.4633C29.0221 43.3535 28.2976 43.0487 27.6814 42.5662C27.2041 42.2367 26.8594 41.716 26.829 41.1286C26.829 40.5116 27.3952 40.229 27.9189 40.1081ZM30.4698 19C33.0185 19 35.6219 20.2093 37.1684 22.2158C38.1718 23.5078 38.6321 24.7986 38.6321 26.8051V27.327C38.6321 28.8658 39.0388 29.7728 39.9338 30.818C40.6121 31.588 40.8288 32.5765 40.8288 33.6488C40.8288 34.7199 40.4769 35.7367 39.7719 36.5623C38.8488 37.552 37.5471 38.1838 36.2186 38.2936C34.2934 38.4577 32.367 38.5959 30.415 38.5959C28.4618 38.5959 26.5366 38.5132 24.6114 38.2936C23.2817 38.1838 21.98 37.552 21.0582 36.5623C20.3531 35.7367 20 34.7199 20 33.6488C20 32.5765 20.218 31.588 20.895 30.818C21.818 29.7728 22.198 28.8658 22.198 27.327V26.8051C22.198 24.7443 22.7118 23.3967 23.77 22.0776C25.3433 20.1538 27.8652 19 30.3602 19H30.4698Z" fill="#8F8F8F"/>
-        </svg>
+        <label tabIndex={0} className="">
+          <svg
+            className="flex justify-center items-center w-10 sm:w-12 hover:cursor-pointer"
+            width="62"
+            height="62"
+            viewBox="0 0 62 62"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect width="62" height="62" rx="20" fill="black" />
+            <path
+              d="M27.9189 40.1081C28.5314 39.9785 32.2636 39.9785 32.8761 40.1081C33.3997 40.229 33.966 40.5116 33.966 41.1286C33.9355 41.716 33.5909 42.2367 33.1148 42.5674C32.4974 43.0487 31.7729 43.3535 31.0155 43.4633C30.5966 43.5176 30.185 43.5188 29.7807 43.4633C29.0221 43.3535 28.2976 43.0487 27.6814 42.5662C27.2041 42.2367 26.8594 41.716 26.829 41.1286C26.829 40.5116 27.3952 40.229 27.9189 40.1081ZM30.4698 19C33.0185 19 35.6219 20.2093 37.1684 22.2158C38.1718 23.5078 38.6321 24.7986 38.6321 26.8051V27.327C38.6321 28.8658 39.0388 29.7728 39.9338 30.818C40.6121 31.588 40.8288 32.5765 40.8288 33.6488C40.8288 34.7199 40.4769 35.7367 39.7719 36.5623C38.8488 37.552 37.5471 38.1838 36.2186 38.2936C34.2934 38.4577 32.367 38.5959 30.415 38.5959C28.4618 38.5959 26.5366 38.5132 24.6114 38.2936C23.2817 38.1838 21.98 37.552 21.0582 36.5623C20.3531 35.7367 20 34.7199 20 33.6488C20 32.5765 20.218 31.588 20.895 30.818C21.818 29.7728 22.198 28.8658 22.198 27.327V26.8051C22.198 24.7443 22.7118 23.3967 23.77 22.0776C25.3433 20.1538 27.8652 19 30.3602 19H30.4698Z"
+              fill="#8F8F8F"
+            />
+          </svg>
         </label>
-        </div>
-        </>
-    )
-}
+      </div>
+    </>
+  );
+};

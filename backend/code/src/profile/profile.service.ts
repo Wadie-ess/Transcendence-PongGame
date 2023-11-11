@@ -135,10 +135,16 @@ export class ProfileService {
       take: limit,
       where: {
         receiverId: userId,
+        entity_type: {
+          not: {
+            equals: 'message',
+          },
+        },
       },
       include: {
         actor: {
           select: {
+            userId: true,
             firstName: true,
             lastName: true,
             avatar: true,
@@ -146,6 +152,7 @@ export class ProfileService {
         },
         receiver: {
           select: {
+            userId: true,
             firstName: true,
             lastName: true,
             avatar: true,
@@ -153,52 +160,6 @@ export class ProfileService {
         },
       },
     });
-
-    const groupedNotifs = notifications.reduce((acc, notif) => {
-      if (!acc[notif.entity_type]) {
-        acc[notif.entity_type] = [];
-      }
-      acc[notif.entity_type].push(notif);
-      return acc;
-    }, {});
-
-    const data: any = [];
-    for (const key in groupedNotifs) {
-      if (key === 'message') {
-        const messages = await this.prisma.message.findMany({
-          where: {
-            id: {
-              in: groupedNotifs[key].map((notif: any) => notif.entityId),
-            },
-          },
-
-          include: {
-            author: {
-              select: {
-                avatar: true,
-                Username: true,
-              },
-            },
-            room: {
-              select: {
-                type: true,
-              },
-            },
-          },
-        });
-        for (const notif of groupedNotifs[key]) {
-          const message = messages.find(
-            (message) => message.id === notif.entityId,
-          );
-          data.push({
-            ...notif,
-            entity: message,
-          });
-        }
-      } else {
-        data.push(...groupedNotifs[key]);
-      }
-    }
-    return data;
+    return notifications;
   }
 }
