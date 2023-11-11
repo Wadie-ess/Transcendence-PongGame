@@ -17,7 +17,7 @@
     "@types/node": "^16.18.38",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
-    "axios": "^1.5.0",
+    "axios": "^1.6.0",
     "framer-motion": "^10.16.4",
     "preline": "^1.9.0",
     "react": "^18.2.0",
