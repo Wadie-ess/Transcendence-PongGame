@@ -7,9 +7,7 @@ type GameStateType = {
   ball:{
     x:number,
     y:number,
-    speed:number,
-    cx:number,
-    cy:number,
+    size:number
   };
   lPaddle:number;
   rPaddle:number;
@@ -32,7 +30,7 @@ export const useGameState = create<GameStateType & GameActions>((set)=> ({
   width : 0,
   height : 0,
   mobile : false,
-  ball : {x: 0,y:0,speed:0,cx:0,cy:0},
+  ball : {x: 0,y:0,size:0},
   lPaddle : 0,
   rPaddle : 0,
   p1Score:0,

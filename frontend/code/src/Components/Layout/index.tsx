@@ -27,7 +27,7 @@ const routes = [
   { path: "Chat" },
   { path: "Play" },
   { path: "Pure" },
-  { path: "Game" },
+  { path: "Game/:id" },
 ];
 
 const useCurrentPath = () => {
@@ -36,9 +36,7 @@ const useCurrentPath = () => {
   return route.path;
 };
 
-function onConnect() {
-  console.log("hello");
-}
+
 export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
 
   const user = useUserStore();
@@ -62,8 +60,6 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
     };
     
     socketStore.socket = socketStore.setSocket();
-    socketStore.socket.on("connect", onConnect);
-   
     socketStore.socket.on("message",(msg:any) => {
       toast.custom((t) => (
         <div
@@ -102,9 +98,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
       ))
     })
     log();
-    return () => {
-      socketStore.socket.off("connect", onConnect);
-    };
+ 
     //eslint-disable-next-line
   }, []);
 

@@ -25,8 +25,8 @@ export const UploadAvatar = () => {
         try{
 
           toast.promise(api.post("/profile/me",{...data ,finishProfile: true }) , {loading:"Saving user information",success:"Saved successfully",error:"Error on Saving Data"})
-          userStore.login();
           navigate("/Home")
+          userStore.login();
         }catch(e)
         {}
   }

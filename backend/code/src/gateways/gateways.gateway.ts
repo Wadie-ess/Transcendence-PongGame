@@ -217,7 +217,9 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     console.log('game ended');
     console.log(data);
     this.server.to(data.gameid).emit('game.end', data);
+   
     this.games_map.delete(data.gameid);
+    
   }
 
   @SubscribeMessage('joinRoom')

@@ -5,6 +5,7 @@ export type State = {
   isLogged: boolean;
   id: string;
   bio: string;
+  achievement : number | null;
   phone: string;
   name: {
     first: string;
@@ -19,7 +20,6 @@ export type State = {
   tfa: boolean;
   friendListIds: string[];
   banListIds: string[];
-  achivments: number[];
   dmsIds: string[];
   profileComplet:boolean;
   history:
@@ -63,6 +63,7 @@ export const useUserStore = create<State & Action>()(
     id: "",
     bio: "",
     phone: "",
+    achievement : null,
     name: {
       first: "",
       last: "",
@@ -106,7 +107,6 @@ export const useUserStore = create<State & Action>()(
       login: async () => {
         const res = await api.get("/profile/me");
         var user_data = res.data;
-        // user_data.picture= null
         const check = user_data.picture.large.split`/`
         if (check[check.length - 1] === "null")
           user_data.picture = null;
@@ -114,7 +114,7 @@ export const useUserStore = create<State & Action>()(
           isLogged: true,
           id: user_data.id,
           bio: user_data?.bio ?? "default bio",
-
+          achievement : user_data?.achievement ?? null,
           phone: user_data.cell,
           name: {
             first: user_data.name.first,
@@ -130,13 +130,11 @@ export const useUserStore = create<State & Action>()(
           tfa: false,
           friendListIds: [],
           banListIds: [],
-          achivments: [],
           dmsIds: [],
           history: [],
           chatRoomsJoinedIds: [],
           profileComplet:user_data.profileFinished,
         };
-        // console.log(userInitialValue)
         set({ ...userInitialValue });
         return userInitialValue.isLogged
     

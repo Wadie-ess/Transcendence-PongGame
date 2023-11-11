@@ -363,17 +363,17 @@ export const Profile = () => {
 
           <div className="flex h-full w-full flex-row gap-x-4 justify-center sm:justify-start items-center  sm:w-auto sm:pr-4 sm:pt-0 pt-4">
             <img
-              className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] `}
+              className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] ${profile?.achievement !== null && profile?.achievement >= 0   ? "":"opacity-30"}`}
               src={Newbie}
               alt="newbie badge"
             />
             <img
-              className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] opacity-30`}
+              className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] ${profile?.achievement !== null && profile?.achievement >= 1 ? "":"opacity-30"}`}
               src={Master}
               alt="Master badge"
             />
             <img
-              className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] `}
+              className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] ${profile?.achievement !== null && profile?.achievement >= 2 ? "":"opacity-30"}`}
               src={Ultimate}
               alt="Ultimate badge"
             />

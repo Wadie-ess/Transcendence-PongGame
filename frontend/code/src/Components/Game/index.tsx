@@ -1,106 +1,95 @@
 import { useEffect , useState} from "react"
-// import { Rect, Stage , Layer , Circle, Line} from "react-konva"
+import { Rect, Stage , Layer , Circle, Line} from "react-konva"
 import { BsFillArrowRightCircleFill, BsFillArrowLeftCircleFill} from "react-icons/bs";
 import { useUserStore } from "../../Stores/stores";
 import { useGameState } from "./States/GameState";
+import { useSocketStore } from "../Chat/Services/SocketsServices";
+import { useNavigate } from "react-router-dom";
 
-// const DURATION = 20;
+const DURATION = 20;
+type Cords = {
+  x:number;
+  y:number;
+  ballsize:number;
+}
 type  ball ={
   x:number,
   y:number,
-  speed:number,
-  cx:number,
-  cy:number,
 };
-// const throttle = (function() {
-//   let timeout:any = undefined;
-//   return function throttle(callback:any) {
-//     if (timeout === undefined) {
-//       callback();
-//       timeout = setTimeout(() => {
-//         timeout = undefined;
-//       }, DURATION);
-//     }
-//   }
-// })();
+const throttle = (function() {
+  let timeout:any = undefined;
+  return function throttle(callback:any) {
+    if (timeout === undefined) {
+      callback();
+      timeout = setTimeout(() => {
+        timeout = undefined;
+      }, DURATION);
+    }
+  }
+})();
 
 
-// function throttlify(callback : any) {
-//   return function throttlified(event :any) {
-//     throttle(() => {
-//       callback(event);
-//     });
-//   }
-// }
+function throttlify(callback : any) {
+  return function throttlified(event :any) {
+    throttle(() => {
+      callback(event);
+    });
+  }
+}
 
 export const Game = () => {
     const gameState = useGameState();
+    const socketStore = useSocketStore();
     const user = useUserStore();    
+    const navigate = useNavigate()
     const [first , setFirest] = useState(false)
-    // const handleMove = throttlify((e :any) => {
+    const handleMove = throttlify((e :any) => {
 
-    //     const margin = (gameState.height / 6) / 2;
-    //     if (e.evt.layerY  <= (gameState.height - margin) &&  e.evt.layerY >= margin)
-    //     gameState.setLPaddle(e.evt.layerY - margin)
-    // })
-    // useEffect(() => {
+        const margin = (gameState.height / 6) / 2;
+        if (e.evt.layerY  <= (gameState.height - margin) &&  e.evt.layerY >= margin)
+        gameState.setLPaddle(e.evt.layerY - margin)
+    })
+    useEffect(() => {
+        socketStore.socket.on("ball", (cord:Cords) => {
+          gameState.setBall({x:cord.x,y:cord.y,size:cord.ballsize})
+          console.log(gameState.ball)
+        })
+        socketStore.socket.on("screen Error", () =>{
+          console.log("you lose")
+          // navigate("/home");
+        })
       
-      
-    // },[gameState.height, gameState.width])
+    },[])
     /* eslint-disable */
     useEffect(() => {
+      const divh = document.getElementById('Game')?.offsetHeight
+      const divw = document.getElementById('Game')?.offsetWidth
+      socketStore.socket.emit("screen",{h:divh,w:divw})
         window.addEventListener('resize', () => {
             const divh = document.getElementById('Game')?.offsetHeight
             const divw = document.getElementById('Game')?.offsetWidth
-            if (divh) gameState.setHeight(divh);
-            if (divw) gameState.setWidth(divw);
-            if (divh) gameState.setLPaddle(divh / 2)
+            socketStore.socket.emit("screen",{h:divh,w:divw})
+            // if (divh) gameState.setHeight(divh);
+            // if (divw) gameState.setWidth(divw);
+            // if (divh) gameState.setLPaddle(divh / 2)
         });
         if(gameState.p1Score === 0 && gameState.p2Score === 0) {
-          gameState.setBall({x:0.5 * gameState.width,y:0.5 * gameState.height,speed:0,cx:gameState.height /100,cy:gameState.height /100})
+          
         }
+       
         // disable
     },[])
 
     useEffect(() => {
         const divh = document.getElementById('Game')?.offsetHeight
         const divw = document.getElementById('Game')?.offsetWidth
+        console.log(divh)
+        console.log(divw)
         if (divh) gameState.setHeight(divh);
         if (divw) gameState.setWidth(divw);
         if (divh && divw){
-          if (first === false)
-          {
-            setFirest(true)
-            gameState.setBall({x:0.5 * divw,y:0.5 * divh,speed:0,cx:gameState.height /100,cy:gameState.height /100})
-          }
-          const newx:number = (divw * gameState.ball.x) / gameState.width; 
-          const newy:number =  (divh * gameState.ball.y) / gameState.height;
-            console.log(`${divw} ${gameState.ball.x} ${gameState.height}`)
-          const n :ball = { x:newx , y:newy , speed:0, cx:divw / 100,cy:divh / 100}
-          console.log(n)
-          if(n.x)
-            gameState.setBall(n)
-          divw <= 742 ? gameState.setMobile(true) : gameState.setMobile(false)
-          console.log("old game")
-          console.log(gameState)
-
-          const oldinter = setInterval(() => {
-            let newball = gameState.ball;
-            if (newball.x +gameState.width / 40 > divw || newball.x - gameState.width / 40 < 0)
-              newball.cx *= -1
-            if (newball.y +gameState.width / 40> divh || newball.y - gameState.width / 40< 0)
-              newball.cy *= -1
-            if (Math.hypot((newball.x + newball.cx ) - (gameState.lPaddle) , (newball.y + newball.cy) - gameState.lPaddle) < 0)
-              newball.cx *= -1
-            console.log(Math.hypot((newball.x + newball.cx ) - (gameState.lPaddle) , (newball.y + newball.cy) - gameState.lPaddle))
-            console.log(gameState.lPaddle)
-
-            newball.x += newball.cx;
-            newball.y += newball.cy;
-            gameState.setBall(newball)
-              // clearInterval(oldinter)
-          },20);
-          return () => clearInterval(oldinter)
+     
+        
       }
     },[gameState.width , gameState.height])
     console.log(gameState.lPaddle)
@@ -114,19 +103,22 @@ export const Game = () => {
             <div className="flex items-center justify-center w-1/4 gap-6">
                 <span className="font-lexend font-extrabold text-[4vw] xl:text-[2vw] text-current">5</span>
                 <img alt="" className="rounded-full w-auto h-auto max-w-[10vw] md:max-w-[20vw]" src={user.picture.medium} />
+                
             </div>
+            <button className="btn" onClick={() => socketStore.socket.emit("leave")}>Leave</button>
+
         </div>
         <div className="flex items-center justify-center min-h-16 max-h-[80%] max-w-[90%] min-w-16 w-[95%] rounded-xl aspect-video border-primary border-4" id="Game">
-            {/* <Stage onMouseMove={handleMove}  width={gameState.width - 12} height={gameState.height - 12}  >
+            <Stage onMouseMove={handleMove}  width={gameState.width - 12} height={gameState.height - 12}  >
                 <Layer >
                     <Rect height={gameState.height} width={gameState.width} fill="#151B26" x={0} y={0} />
                     <Line points={[0, gameState.height , 0 , 0]} dash={[gameState.height / 30 , 10]} strokeWidth={2} stroke={"white"} height={gameState.height} width={20} fill="white" x={gameState.width / 2} y={0}  />
                     <Rect cornerRadius={12} height={gameState.height / 6} width={gameState.width / 70} x={10} y={gameState.lPaddle} fill="white" />
                     <Rect cornerRadius={12} height={gameState.height / 6} width={gameState.width / 70} x={gameState.width - 20 - (gameState.width / 70)} y={gameState.height  / 3} fill="white" />
-                    <Circle fill="white" height={gameState.width / 40} width={gameState.width / 40} x={gameState.ball.x} y={gameState.ball.y} />
+                    <Circle fill="white" height={gameState.ball.size} width={gameState.ball.size} x={gameState.ball.x} y={gameState.ball.y} />
                 </Layer>
 
-            </Stage> */}
+            </Stage>
             
         </div>
         {gameState.mobile && (
