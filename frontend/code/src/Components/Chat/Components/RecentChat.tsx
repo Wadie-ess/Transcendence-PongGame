@@ -6,13 +6,14 @@ import users, {
   DmRoom,
   Explore,
   GroupChat,
+  RoomMember,
   RoomsIcon,
   check,
 } from "./tools/Assets";
 
 import { NullPlaceHolder, RoomChatPlaceHolder } from "./RoomChatHelpers";
 import { useModalStore } from "../Controllers/LayoutControllers";
-import { fetchDmsCall } from "../Services/ChatServices";
+import { fetchDmsCall, getFriendsCall } from "../Services/ChatServices";
 import { formatTime } from "./tools/utils";
 import { useSocketStore } from "../Services/SocketsServices";
 import { useUserStore } from "../../../Stores/stores";
@@ -128,10 +129,6 @@ export const ChatPlaceHolder = ({
     <div
       onClick={() => {
         if (selectedChatID !== id) {
-          // socketStore.socket.emit("joinRoom", {
-          //   memberId: currentUser.id,
-          //   roomId: id,
-          // });
           selectNewChat(id);
         }
         chatState.setCurrentDmUser({
@@ -187,10 +184,51 @@ export const ChatPlaceHolder = ({
 export const OnlineNowUsers = () => {
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const changeChatType = useChatStore((state) => state.changeChatType);
-  const [Users] = useState(users);
+  const chatState = useChatStore((state) => state);
+  const socketStore = useSocketStore();
+  const [Users, setUsers] = useState<RoomMember[]>([]);
   // take the first five users from the array
   const onlineUsers = Users.slice(0, 5);
   const setModalState = useModalStore((state) => state.setShowExploreModal);
+  const currentUser = useUserStore((state) => state);
+  const handleListOfOnline = (ids: string[]) => {
+    chatState.fillOnlineFriendsIds(ids);
+  };
+  useEffect(() => {
+    const fetchFriends = async () => {
+      await getFriendsCall(0, 20).then((res) => {
+        // setIsLoading(false);
+        if (res?.status === 200 || res?.status === 201) {
+          const friends: RoomMember[] = [];
+          res.data.forEach(
+            (friend: {
+              userId: string;
+              firstname: string;
+              lastname: string;
+              avatar: {
+                thumbnail: string;
+                medium: string;
+                large: string;
+              };
+            }) => {
+              friends.push({
+                id: friend.userId,
+                firstname: friend.firstname,
+                lastname: friend.lastname,
+                // to inject it with the real images later
+                avatar: friend.avatar,
+              } as RoomMember);
+            }
+          );
+
+          setUsers(friends);
+        } else {
+        }
+      });
+    };
+    socketStore.socket.on("onlineFriends", handleListOfOnline);
+    fetchFriends();
+  }, [chatState.onlineFriendsIds.length]);
 
   return (
     <>
@@ -241,25 +279,28 @@ export const OnlineNowUsers = () => {
             </div>
           </button>
         </div>
-        <div className="hidden md:block">
-          <div className="message-row flex flex-row pt-2 justify-between">
-            <p className="text-gray-400 font-poppins text-xs font-medium leading-normal ">
-              Online Now
-            </p>
+        {chatState.onlineFriendsIds.length > 0 && (
+          <div className="hidden md:block">
+            <div className="message-row flex flex-row pt-2 justify-between">
+              <p className="text-gray-400 font-poppins text-xs font-medium leading-normal ">
+                Online Now
+              </p>
+            </div>
+
+            <div className="users-images flex flex-row justify-between pt-3 pb-3  ">
+              {chatState.onlineFriendsIds.map((user) => (
+                <div key={user} className="relative inline-block">
+                  <img
+                    className="user-image h-10 w-10 rounded-full"
+                    src={Users.find((u) => u.id === user)?.avatar.medium}
+                    alt={`second's Profile`}
+                  />
+                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="users-images flex flex-row justify-between pt-3 pb-3  ">
-            {onlineUsers.map((user) => (
-              <div key={user.id} className="relative inline-block">
-                <img
-                  className="user-image h-10 w-10 rounded-full"
-                  src={user.image}
-                  alt={`second's Profile`}
-                />
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </>
   );

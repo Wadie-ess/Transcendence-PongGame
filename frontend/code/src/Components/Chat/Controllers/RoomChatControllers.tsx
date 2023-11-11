@@ -3,6 +3,7 @@ import users, {
   ChatRoom,
   DmRoom,
   Message,
+  RoomMember,
   RoomType,
   chatRooms,
 } from "../Components/tools/Assets";
@@ -21,8 +22,13 @@ export interface ChatState {
   isLoading: boolean;
   recentRooms: ChatRoom[];
   recentDms: DmRoom[];
+  onlineFriendsIds: string[];
 
   showChatRooms: boolean;
+
+  fillOnlineFriendsIds: (ids: string[]) => void;
+  addOnlineFriend: (id: string) => void;
+  removeOnlineFriend: (id: string) => void;
 
   setCurrentDmUser: (user: DmRoom) => void;
   setMessageAsFailed: (id: string) => void;
@@ -44,6 +50,7 @@ export const useChatStore = create<ChatState>()((set) => ({
   selectedChatID: "1",
   selectedChatType: ChatType.Chat,
   recentRooms: chatRooms,
+  onlineFriendsIds: [],
   recentDms: [],
   isLoading: false,
   showChatRooms: false,
@@ -62,6 +69,22 @@ export const useChatStore = create<ChatState>()((set) => ({
   currentMessages: users.find((user) => user.id === "1")?.messages as Message[],
   currentRoomMessages: chatRooms.find((room) => room.id === "1")
     ?.messages as Message[],
+  fillOnlineFriendsIds: (ids: string[]) =>
+    set((state) => {
+      state.onlineFriendsIds = [...ids];
+      return { ...state };
+    }),
+  addOnlineFriend: (id: string) =>
+    set((state) => {
+      state.onlineFriendsIds.push(id);
+      return { ...state };
+    }),
+  removeOnlineFriend: (id: string) =>
+    set((state) => {
+      const index = state.onlineFriendsIds.findIndex((item) => item === id);
+      if (index !== -1) state.onlineFriendsIds.splice(index, 1);
+      return { ...state };
+    }),
 
   fillRecentDms: (dms: DmRoom[]) => {
     set((state) => {
