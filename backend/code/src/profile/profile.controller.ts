@@ -111,6 +111,34 @@ export class ProfileController {
 	return this.profileService.readNotification(userId, notificationId);
   }
 
+	@Post('read-all-notifications')
+	@UseGuards(AtGuard)
+	readAllNotifications(
+		@GetCurrentUser('userId') userId: string,
+	) {
+		return this.profileService.readAllNotifications(userId);
+	}
+
+	// read a bunch of messages
+	
+	@Get('unread-messages')
+	@UseGuards(AtGuard)
+	getUnreadMessages(
+		@GetCurrentUser('userId') userId: string,
+	) {
+		return this.profileService.getUnreadMessages(userId);
+	}
+	
+	@Post('read-messages')
+	@UseGuards(AtGuard)
+	readMessages(
+		@GetCurrentUser('userId') userId: string,
+		@Body() { messagesIds }: { messagesIds: string[] },
+	) {
+		return this.profileService.readMessages(userId, messagesIds);
+	}
+
+
   @Get(':id')
   @ApiOkResponse({ type: ProfileDto })
   @ApiParam({

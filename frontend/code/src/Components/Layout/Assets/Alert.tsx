@@ -4,83 +4,69 @@ import { useNavigate } from "react-router-dom";
 import api from "../../../Api/base";
 import { classNames } from "../../../Utils/helpers";
 import toast from "react-hot-toast";
-
+import { useInView } from "react-intersection-observer";
 import { useSocketStore } from "../../Chat/Services/SocketsServices";
-
-const useActiveElement = () => {
-  const [active, setActive] = useState(document.activeElement as HTMLElement);
-
-  const handleFocusIn = () => {
-    setActive(document.activeElement as HTMLElement);
-  };
-
-  useEffect(() => {
-    document.addEventListener("focusin", handleFocusIn);
-    document.addEventListener("focusout", handleFocusIn);
-    return () => {
-      document.removeEventListener("focusin", handleFocusIn);
-      document.removeEventListener("focusout", handleFocusIn);
-    };
-  }, []);
-
-  return active;
-};
+import { MdOutlineReadMore } from "react-icons/md";
 
 export const Alert = () => {
   const user = useUserStore();
   const navigate = useNavigate();
-  const socket = useSocketStore();
+  const socketStore = useSocketStore();
+  const [ref, inView] = useInView();
+  const [notificationDone, setNotificationDone] = useState(false);
 
   const messages: Record<string, string> = useMemo(
     () => ({
       addFriend: "sent you a friend requst",
       acceptFriend: "accepted your friend request",
     }),
-    []
+    [],
   );
 
   const unread = useMemo(
     () =>
       user.notifications.filter((notification: any) => !notification.is_read)
         .length,
-    [user.notifications]
+    [user.notifications],
   );
 
-  const focusedElement = useActiveElement();
-
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const handleDropdownToggle = useCallback(() => {
-    if (!isDropdownOpen && focusedElement) focusedElement.blur();
-    setIsDropdownOpen(!isDropdownOpen);
-  }, [isDropdownOpen, focusedElement]);
-
   useEffect(() => {
-    if (dropdownRef.current) {
+    socketStore.socket.on("notification", (notification: any) => {
       if (
-        dropdownRef.current == focusedElement ||
-        dropdownRef.current.contains(focusedElement)
+        notification.actorId === user.id ||
+        notification.entity_type === "message"
       ) {
-        setIsDropdownOpen(true);
-      } else {
-        setIsDropdownOpen(false);
+        console.log("notification", notification);
+        return;
       }
-    }
-  }, [focusedElement]);
+      user.addNotification(notification);
+    });
+
+    return () => {
+      socketStore.socket.off("notification");
+    };
+  }, [socketStore]);
 
   useEffect(() => {
-    socket.on("notification", (notification: any) => {
-      if (notification.actor.userId === user.id) return;
-		
-        user.addNotification(notification);
-    });
-  }, [socket]);
+    if (inView && !notificationDone) {
+      const offset = user.notifications.length;
+      const limit = 10;
+      api
+        .get(`/profile/notifications?offset=${offset}&limit=${limit}`)
+        .then((res) => {
+          if (res.data.length) {
+            user.addNotifications(res.data);
+          } else {
+            setNotificationDone(true);
+          }
+        });
+    }
+  }, [inView]);
 
   return (
     <>
-      <div ref={dropdownRef} className="dropdown">
-        <label tabIndex={1} className="relative" onClick={handleDropdownToggle}>
+      <div className="dropdown">
+        <label tabIndex={1} className="relative">
           {unread > 0 && (
             <div className="absolute bg-red-500 bottom-0 -right-2 rounded-full w-5 h-5 flex items-center justify-center text-xs text-white font-light">
               {unread > 9 ? "9+" : unread}
@@ -106,22 +92,35 @@ export const Alert = () => {
           className="dropdown-content z-[60] card card-compact w-80 shadow bg-base-300 text-neutral relative right-0 top-16 overflow-hidden"
         >
           <div className="card-body !p-0 !gap-0">
-            <h3 className="text-neutral text-xl p-4">Notifications</h3>
-            <ul className="bg-base-100/50 border-t-2 border-violet-800">
+            <div className="flex flex-row justify-between items-center">
+              <h3 className="text-neutral text-xl p-4">Notifications</h3>
+              {unread > 0 && (
+                <div
+                  title="Mark all as read"
+                  onClick={() => {
+                    user.updateAllNotificationsRead();
+                    api.post("/profile/read-all-notifications");
+                  }}
+                  className="hover:cursor-pointer"
+                >
+                  <MdOutlineReadMore className="text-2xl mr-4" />{" "}
+                </div>
+              )}
+            </div>
+            <ul className="bg-base-100/50 border-t-2 border-violet-800  h-60  overflow-auto">
               {user.notifications.map((notification: any) => (
                 <li
                   key={notification.id}
                   className={classNames(
                     "flex flex-row justify-start text-xs gap-3 p-4 hover:cursor-pointer",
-                    notification.is_read && "opacity-50"
+                    notification.is_read && "opacity-50",
                   )}
                   onClick={async () => {
                     try {
-                      focusedElement.blur();
-                      navigate(`/profile/${notification.actor.userId}`);
+                      navigate(`/profile/${notification.actorId}`);
                       user.updateNotificationRead(notification.id);
                       await api.post(
-                        `/profile/read-notification/${notification.id}`
+                        `/profile/read-notification/${notification.id}`,
                       );
                     } catch (error) {
                       toast.error("Something went wrong");
@@ -145,28 +144,15 @@ export const Alert = () => {
                   </div>
                 </li>
               ))}
-              {user.notifications.map((notification: any) => (
-                <li
-                  key={notification.id}
-                  className="flex flex-row justify-start text-xs gap-3 p-4 opacity-50"
-                >
-                  <img
-                    src={`https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${notification.actor.avatar}`}
-                    alt=""
-                    className="rounded-full"
-                  />
-                  <div className="flex items-center flex-col  ">
-                    <div className="w-full">
-                      {`${notification.actor.firstName} ${
-                        notification.actor.lastName
-                      }  ${messages[notification.type]}`}
-                    </div>
-                    <div className="text-right w-full text-[10px] text-gray-400">
-                      {new Date(notification.createdAt).toDateString()}
-                    </div>
-                  </div>
-                </li>
-              ))}
+              <div
+                ref={ref}
+                className="flex justify-center items-center h-2 py-5 border-t border-gray-700
+								"
+              >
+                <span className="text-xs text-gray-400">
+                  {notificationDone ? "No more notifications" : "Loading..."}
+                </span>
+              </div>
             </ul>
           </div>
         </div>

@@ -28,7 +28,7 @@ export type State = {
           winnerId: string;
           loserId: string;
           score: number;
-        }
+        },
       ]
     | [];
   chatRoomsJoinedIds:
@@ -37,7 +37,7 @@ export type State = {
           id: number;
           isAdmin: boolean;
           isOwner: boolean;
-        }
+        },
       ]
     | [];
 
@@ -58,6 +58,8 @@ type Action = {
   setAvatar: (picture: State["picture"]) => void;
   updateNotificationRead: (notificationId: string) => void;
   addNotification: (notification: any) => void;
+  addNotifications: (notifications: any) => void;
+  updateAllNotificationsRead: () => void;
 };
 
 export const useUserStore = create<State & Action>()(
@@ -105,22 +107,35 @@ export const useUserStore = create<State & Action>()(
         set(() => ({
           email: email,
         })),
-		updateNotificationRead: (notificationId: string) => {
-			const state = get();
-			const notifications = state.notifications.map((notification: any) => {
-				if (notification.id === notificationId) {
-					notification.is_read = true;
-				}
-				return notification;
-			}
-			);
-			set({ notifications });
-		},
-		addNotification: (notification: any) => {
-			const state = get();
-			const notifications = [notification, ...state.notifications];
-			set({ notifications });
-		},
+      updateNotificationRead: (notificationId: string) => {
+        const state = get();
+        const notifications = state.notifications.map((notification: any) => {
+          if (notification.id === notificationId) {
+            notification.is_read = true;
+          }
+          return notification;
+        });
+        set({ notifications });
+      },
+      addNotification: (notification: any) => {
+        const state = get();
+        const notifications = [notification, ...state.notifications];
+        set({ notifications });
+      },
+      addNotifications: (notifications: any) => {
+        const state = get();
+        const newNotifications = [...state.notifications, ...notifications];
+        set({ notifications: newNotifications });
+      },
+      updateAllNotificationsRead: () => {
+        const state = get();
+        const notifications = state.notifications.map((notification: any) => {
+          notification.is_read = true;
+          return notification;
+        });
+        set({ notifications });
+      },
+
       updatePhone: (phone: State["phone"]) => set(() => ({ phone: phone })),
       updateBio: (bio: State["bio"]) => set(() => ({ bio: bio })),
       setAvatar: (picture: State["picture"]) =>
@@ -167,7 +182,7 @@ export const useUserStore = create<State & Action>()(
         // console.log(userInitialValue)
         const state = get();
         const notifications = await state.fetchNotifications(0, 20);
-        console.log("notifications:",  notifications);
+        console.log("notifications:", notifications);
         set({ ...userInitialValue, notifications });
         return userInitialValue.isLogged;
       },
@@ -178,15 +193,15 @@ export const useUserStore = create<State & Action>()(
       fetchNotifications: async (offset: number, limit: number) => {
         const response = await api.get(
           `/profile/notifications/?offset=${offset}&limit=${limit}`,
-          { params: { offset, limit } }
+          { params: { offset, limit } },
         );
-        
+
         return response.data;
       },
     }),
     {
       name: "userStore",
       storage: createJSONStorage(() => localStorage) as any,
-    }
-  )
+    },
+  ),
 );

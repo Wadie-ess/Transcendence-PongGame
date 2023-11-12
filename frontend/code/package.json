@@ -26,6 +26,7 @@
     "react-hot-toast": "^2.4.1",
     "react-icons": "^4.10.1",
     "react-infinite-scroll-component": "^6.1.0",
+    "react-intersection-observer": "^9.5.3",
     "react-konva": "^18.2.10",
     "react-qr-code": "^2.0.12",
     "react-scripts": "^5.0.1",
@@ -63,5 +64,8 @@
     "daisyui": "^3.2.1",
     "react-router-dom": "^6.14.2",
     "tailwindcss": "^3.3.3"
+  },
+  "volta": {
+    "node": "18.18.2"
   }
 }
