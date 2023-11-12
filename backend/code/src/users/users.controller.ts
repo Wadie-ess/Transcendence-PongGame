@@ -36,5 +36,4 @@ export class UsersController {
   ) {
     return this.usersService.twoFactorAuth(userId, dataDto);
   }
-
 }

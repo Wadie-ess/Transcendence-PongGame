@@ -13,7 +13,6 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Game } from 'src/game/game';
 import { $Enums, Notification } from '@prisma/client';
-import { Client } from 'socket.io/dist/client';
 
 @WebSocketGateway(3004, {
   cors: {
@@ -165,7 +164,10 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
         });
 
         roomMembers = roomMembers.filter(
-          (member) => member.userId !== message.authorId && member.userId !== notif.actorId && !member.is_banned,
+          (member) =>
+            member.userId !== message.authorId &&
+            member.userId !== notif.actorId &&
+            !member.is_banned,
         );
 
         const clientsSockets = await this.server
@@ -211,7 +213,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     clients.forEach((client: any) => {
       client.join(game_channel);
     });
-    const new_game = new Game(this.eventEmitter , this.server);
+    const new_game = new Game(this.eventEmitter, this.server);
     new_game.setplayerScokets(clients[0], clients[1]);
     new_game.start(game_channel);
     this.games_map.set(game_channel, new_game);
@@ -227,8 +229,8 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('joinRoom')
-  async handleJoinRoomEvent(client: Socket,  data: any) {
-    const userId = client.data.user.sub;    
+  async handleJoinRoomEvent(client: Socket, data: any) {
+    const userId = client.data.user.sub;
     const member = await this.prisma.roomMember.findFirst({
       where: {
         userId: data.memberId,
@@ -236,14 +238,12 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
       },
     });
     if (member && !member.is_banned && userId === data.memberId) {
-        client.join(`Room:${data.roomId}`);
+      client.join(`Room:${data.roomId}`);
     }
-
   }
 
   @SubscribeMessage('PingOnline')
   async handlePingOnlineEvent(client: Socket, data: any) {
-    const userId = client.data.user.sub;
     const friendId = data.friendId;
     if (this.server.sockets.adapter.rooms.get(`User:${friendId}`)?.size) {
       client.emit('friendOnline', friendId);
@@ -283,7 +283,9 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   async hundleDeparture(
     @MessageBody() data: { roomId: string; memberId: string; type: string },
   ) {
-    const clients = await this.server.in(`User:${data.memberId}`).fetchSockets();
+    const clients = await this.server
+      .in(`User:${data.memberId}`)
+      .fetchSockets();
     const clientsToBan = clients.filter(
       (client) => client.data.user.sub === data.memberId,
     );

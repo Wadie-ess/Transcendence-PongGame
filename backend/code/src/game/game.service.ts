@@ -19,13 +19,12 @@ export class GameService {
   handleGameStartEvent(client: Socket) {
     const index = this.waitingPlayers.find((player) => {
       return player.data.user.sub === client.data.user.sub;
-    }
-    );
+    });
     if (index) {
       console.log('client already in the queue');
       return;
     }
-    
+
     this.waitingPlayers.push(client);
     console.log('client subscribed to the queue');
   }
