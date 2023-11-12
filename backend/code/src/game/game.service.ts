@@ -29,10 +29,24 @@ export class GameService {
         const two_players = this.waitingPlayers.splice(0, 2);
         this.eventEmitter.emit('game.launched', two_players);
         console.log(two_players);
+        // const user = await this.getUser(two_players[0].data.user.sub)
+        // console.log(user)
       }
     }, 5027);
   }
-
+  async getUser(userId:string){
+    const user =  await this.prisma.user.findUnique({
+        where:{
+          userId:userId,
+        },
+        select:{
+          userId: true,
+          Username: true,
+          avatar: true,
+        }
+    })
+    return user;
+  }
   async getHistory(userId: string, offset: number, limit: number) {
     const matches = await this.prisma.match.findMany({
       skip: offset,

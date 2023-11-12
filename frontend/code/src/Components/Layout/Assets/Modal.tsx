@@ -1,13 +1,19 @@
 import { useSocketStore } from "../../Chat/Services/SocketsServices"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useGameState } from "../../Game/States/GameState";
 export const Modal = () => {
+    const gameState = useGameState();
     const [opacity , setOpacity] = useState("");
+    const [resOpacity , setResOpacity] = useState("");
+    const [result , setResutl] = useState<undefined | string>(undefined);
+    const [status , setStatus] = useState<undefined | string>(undefined);
     var gameId:string;
-    const [timer , setTimer] = useState<undefined | number>(undefined)
+    const [timer , setTimer] = useState<undefined | number>(undefined);
     const [gameid , setGameId] = useState<undefined | string>(undefined);
     const socketStore = useSocketStore();
     const navigate = useNavigate();
+
     if (socketStore.socket !== null){
         socketStore.socket.on("game.launched" , (GameId:any) => {
             setGameId(GameId.slice(5))
@@ -20,15 +26,65 @@ export const Modal = () => {
                 navigate(`/Game/${gameid}`)
                 }
         })
+        socketStore.socket.on("players", (players:any) => {
+            gameState.setP1(players[0]);
+            gameState.setP2(players[1]);
+            console.log(players)
+            console.log("sda")
+          })
+        socketStore.socket.on("win" , (msg:string) => {
+            setResutl(msg)
+            setStatus("win");
+            setResOpacity("opacity-100");
+            let count = 5;
+            const inter = setInterval(() => {
+                setTimer(count);
+                --count;
+                if (count === -1){
+                    setResOpacity("opacity-0")
+                    clearInterval(inter);
+                    navigate("/home")
+                }
+            },1000)
+          
+        })
+        socketStore.socket.on("lose" , (msg:string) => {
+            setResutl(msg)
+            setStatus("lose");
+            setResOpacity("opacity-100");
+            let count = 5;
+            const inter = setInterval(() => {
+                setTimer(count);
+                --count;
+                if (count === -1){
+                    setResOpacity("opacity-0")
+                    clearInterval(inter);
+                    navigate("/home")
+                }
+            },1000)
+          
+        })
     }
+
+
+        
     return (
 
-          
+          <>
             <div className={`modal ${opacity}`}>
             <div className="modal-box">
                 <h3 className="text-lg font-bold">Game Starting .... </h3>
                 <p className="py-4 flex items-center justify-center text-xl font-poppins font-bold">Game Start In {timer}</p>
             </div>
             </div>
+            <div className={`modal ${resOpacity}`}>
+            <div className="modal-box">
+                <h3 className="text-lg font-bold">You {status}</h3>
+                <p className="py-4 flex items-center justify-center text-xl font-poppins font-bold">{result} </p>
+                <p className="py-4 flex items-center justify-center text-xl font-poppins font-bold">this window will be dismiss in {timer} </p>
+
+            </div>
+            </div>
+          </>
         )
 }

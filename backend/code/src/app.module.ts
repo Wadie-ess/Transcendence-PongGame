@@ -14,6 +14,7 @@ import { GameModule } from './game/game.module';
 import { LeaderBoardModule } from './leaderboard/leaderboard.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { GameService } from './game/game.service';
 
 @Module({
   imports: [
@@ -37,6 +38,8 @@ import { APP_GUARD } from '@nestjs/core';
   ],
   controllers: [AppController],
   providers: [
+    GameService
+    ,
     Gateways,
     {
       provide: APP_GUARD,

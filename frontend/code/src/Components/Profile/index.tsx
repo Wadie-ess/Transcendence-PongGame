@@ -28,6 +28,7 @@ import { More } from "../Chat/Components/tools/Assets";
 import { useModalStore } from "../Chat/Controllers/LayoutControllers";
 import { BlockedUsersModal } from "../Chat/Components/RoomChatHelpers";
 import { blockUserCall } from "../Chat/Services/FriendsServices";
+import { AxiosError } from "axios";
 type FRIENDSHIP = "none" | "friend" | "sent" | "recive" | "blocked" | undefined;
 export const Profile = () => {
   const user = useUserStore();
@@ -57,10 +58,13 @@ export const Profile = () => {
           !res.data.friendship[0].accepted &&
           res.data.friendship[0].fromId !== user.id &&
           setStatus("recive");
-        console.log(res.data);
       } catch (error) {
-        navigate("/NotFound");
+        if (error instanceof AxiosError)
+        {
+          if (error?.response?.status !== 401)
+            navigate("/NotFound")
       }
+    }
     };
     if (params.id !== user.id || params.id !== "me") fetchUser();
     else setProfile(user);
@@ -99,7 +103,7 @@ export const Profile = () => {
     setDisabled("btn-disabled");
     const fetchFunc = async () => {
       await api.post("/friends/accept", { friendId: profile.id });
-      setStatus("none");
+      setStatus("friend");
       setDisabled("");
     };
     toast.promise(fetchFunc(), {

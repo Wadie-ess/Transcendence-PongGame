@@ -12,7 +12,7 @@ export class Game {
     let new_y = y * scale_y    
 
     let new_ball_size = ballsize * Math.min(scale_x, scale_y)
-    return {x:new_x, y:new_y, ballsize:new_ball_size }
+    return {x:new_x, y:new_y, ballsize:new_ball_size,p1Score:this.p1Score,p2Score:this.p2Score }
   }
   private async loop() {
     if (this.closeGame)
@@ -29,7 +29,7 @@ export class Game {
     console.log(this.p1Res)
     console.log(this.p2Res)
     console.log(parseFloat((this.p1Res.w / this.p1Res.h).toFixed(1)))
-    if (parseFloat((this.p1Res.w / this.p1Res.h).toFixed(1)) !== 1.8){
+    if (parseFloat((this.p1Res.w / this.p1Res.h).toFixed(1)) !== 1.8 && parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.9){
       this.p1socket.emit("screen Error")
       this.emitGameEnd("end")
       this.p1socket.emit("lose","trying cheat");
@@ -41,7 +41,7 @@ export class Game {
     }
     console.log(parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)))
     
-    if (parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.8){
+    if (parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.8 && parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.9){
       this.p1socket.emit("screen Error")
       this.emitGameEnd("end")
       this.p1socket.emit("win","you win other player try to cheat");
@@ -52,14 +52,9 @@ export class Game {
       this.p2socket.emit("ball",this.screenAdapter(this.p2Res,this.x,this.y,this.ballSize))
     }
     
-    this.p1socket.on("leave", () => {this.emitGameEnd("end");this.closeGame = true ;
-    this.p2socket.emit("win","you win other player leave the game");
-    })
-    this.p2socket.on("leave", () => {this.emitGameEnd("end");this.closeGame = true ;
-    this.p1socket.emit("win","you win other player leave the game");
-    })
+ 
 
-    await this.sleep(1000);
+    await this.sleep(30);
     this.loop();
   }
 
@@ -70,7 +65,7 @@ export class Game {
 
     for (let i = 0; i < 6; i++) {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      this.server.emit("timer", timer);
+      this.server.to(this.gameid).emit('timer', timer);
       timer -= 1000;
     }
   }
@@ -78,16 +73,22 @@ export class Game {
     console.log('game started', ngameid);
     this.gameid = ngameid;
     await this.sleepCounter()
-    await this.setplayerScokets(this.p1socket, this.p2socket)
+    // await this.setplayerScokets(this.p1socket, this.p2socket ,)
     this.loop();
   }
 
   mouseAdapter(h : number){
 
   }
-  setplayerScokets(p1socket: Socket, p2socket: Socket ) {
+  setplayerScokets(p1socket: Socket, p2socket: Socket , p1Data:any, p2Data:any) {
     this.p1socket = p1socket;
     this.p2socket = p2socket;
+    this.p1Data = p1Data;
+    this.p2Data = p2Data;
+    console.log(p1Data);
+    console.log(p2Data);
+    this.server.emit("players",[p1Data,p2Data])
+    console.log("newfunc")
     this.p1socket.on('up', (data) => {
       console.log('heh');
       console.log(data);
@@ -108,8 +109,16 @@ export class Game {
       console.log('p2 disconnected');
       this.emitGameEnd('p2 disconnected');
     });
-    this.p1socket.on("leave", () => {this.emitGameEnd("end")})
-    this.p2socket.on("leave", () => {this.emitGameEnd("end")})
+    this.p1socket.on("leave", () => {this.emitGameEnd("end");
+    this.p2socket.emit("win","you win other player leave the game");
+    this.p1socket.emit("lose","you win other player leave the game");
+    this.closeGame = true ;
+    })
+    this.p2socket.on("leave", () => {this.emitGameEnd("end");
+    this.p1socket.emit("win","you win other player leave the game");
+    this.p2socket.emit("lose","you win other player leave the game");
+    this.closeGame = true ;
+    })
 
   }
 
@@ -131,6 +140,8 @@ export class Game {
   private gameid: string;
   private p1socket: Socket;
   private p2socket: Socket;
+  private p1Data: any;
+  private p2Data: any;
   private w: number = 1067;
   private h: number = 600;
   private x: number = this.w / 2;
