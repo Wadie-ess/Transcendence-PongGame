@@ -56,6 +56,8 @@ type Action = {
   updatePhone: (phone: State["phone"]) => void;
   updateBio: (bio: State["bio"]) => void;
   setAvatar: (picture: State["picture"]) => void;
+  updateNotificationRead: (notificationId: string) => void;
+  addNotification: (notification: any) => void;
 };
 
 export const useUserStore = create<State & Action>()(
@@ -103,6 +105,22 @@ export const useUserStore = create<State & Action>()(
         set(() => ({
           email: email,
         })),
+		updateNotificationRead: (notificationId: string) => {
+			const state = get();
+			const notifications = state.notifications.map((notification: any) => {
+				if (notification.id === notificationId) {
+					notification.is_read = true;
+				}
+				return notification;
+			}
+			);
+			set({ notifications });
+		},
+		addNotification: (notification: any) => {
+			const state = get();
+			const notifications = [notification, ...state.notifications];
+			set({ notifications });
+		},
       updatePhone: (phone: State["phone"]) => set(() => ({ phone: phone })),
       updateBio: (bio: State["bio"]) => set(() => ({ bio: bio })),
       setAvatar: (picture: State["picture"]) =>

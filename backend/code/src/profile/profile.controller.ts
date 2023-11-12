@@ -102,6 +102,15 @@ export class ProfileController {
     return this.profileService.getNotifications(userId, offset, limit);
   }
 
+  @Post('read-notification/:id')
+  @UseGuards(AtGuard)
+  readNotification(
+	@GetCurrentUser('userId') userId: string,
+	@Param('id') notificationId: string,
+  ) {
+	return this.profileService.readNotification(userId, notificationId);
+  }
+
   @Get(':id')
   @ApiOkResponse({ type: ProfileDto })
   @ApiParam({
