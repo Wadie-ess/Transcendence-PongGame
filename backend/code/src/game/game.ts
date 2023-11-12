@@ -65,7 +65,7 @@ export class Game {
 
     for (let i = 0; i < 6; i++) {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      this.server.to(this.gameid).emit('timer', timer);
+      this.server.emit("timer", timer);
       timer -= 1000;
     }
   }
@@ -116,7 +116,7 @@ export class Game {
     })
     this.p2socket.on("leave", () => {this.emitGameEnd("end");
     this.p1socket.emit("win","you win other player leave the game");
-    this.p2socket.emit("lose","you win other player leave the game");
+    this.p2socket.emit("lose","you lost other player leave the game");
     this.closeGame = true ;
     })
 

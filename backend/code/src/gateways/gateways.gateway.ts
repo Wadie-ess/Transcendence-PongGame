@@ -13,7 +13,6 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Game } from 'src/game/game';
 import { $Enums, Notification } from '@prisma/client';
-import { GameService } from 'src/game/game.service';
 
 @WebSocketGateway(3004, {
   cors: {
@@ -25,7 +24,6 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly gameService: GameService
   ) {}
 
   @WebSocketServer() private server: Server;
@@ -205,16 +203,19 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   // }
   @OnEvent('game.launched')
   async handleGameLaunchedEvent(clients: any) {
-    const game_channel = `Game:${clients[0].id}:${clients[1].id}`;
+    const game_channel = `Game:${clients[0].socket.id}:${clients[1].socket.id}`;  
     console.log(game_channel);
     clients.forEach((client: any) => {
-      client.join(game_channel);
+      client.socket.join(game_channel);
     });
-    const new_game = new Game(this.eventEmitter , this.server);
-    const user1 =  await this.gameService.getUser(clients[0].data.user.sub);
-    const user2 =  await this.gameService.getUser(clients[1].data.user.sub);
+    const new_game = new Game(this.eventEmitter, this.server);
 
-    new_game.setplayerScokets(clients[0], clients[1], user1 , user2);
+    new_game.setplayerScokets(
+      clients[0].socket,
+      clients[1].socket,
+      clients[0].userData,
+      clients[1].userData,
+    );
     new_game.start(game_channel);
     this.games_map.set(game_channel, new_game);
     this.server.to(game_channel).emit('game.launched', game_channel);
@@ -225,9 +226,8 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     console.log('game ended');
     console.log(data);
     this.server.to(data.gameid).emit('game.end', data);
-   
+
     this.games_map.delete(data.gameid);
-    
   }
 
   @SubscribeMessage('joinRoom')

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { User } from '@prisma/client';
 import { Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PICTURE } from 'src/profile/dto/profile.dto';
@@ -13,11 +14,14 @@ export class GameService {
     this.launchGame();
   }
 
-  private waitingPlayers: Socket[] = [];
+  private waitingPlayers: { socket: Socket; userData: Partial<User> }[] = [];
 
   @OnEvent('game.start')
-  handleGameStartEvent(client: Socket) {
-    this.waitingPlayers.push(client);
+  async handleGameStartEvent(client: Socket) {
+    // get data
+    const userId = client.data.user.sub;
+    const userData = await this.getUser(userId);
+    this.waitingPlayers.push({ socket: client, userData: userData });
     console.log('client subscribed to the queue');
   }
 
@@ -34,17 +38,17 @@ export class GameService {
       }
     }, 5027);
   }
-  async getUser(userId:string){
-    const user =  await this.prisma.user.findUnique({
-        where:{
-          userId:userId,
-        },
-        select:{
-          userId: true,
-          Username: true,
-          avatar: true,
-        }
-    })
+  async getUser(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        userId: userId,
+      },
+      select: {
+        userId: true,
+        Username: true,
+        avatar: true,
+      },
+    });
     return user;
   }
   async getHistory(userId: string, offset: number, limit: number) {
