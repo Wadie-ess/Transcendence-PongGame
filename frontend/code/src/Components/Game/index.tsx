@@ -14,10 +14,7 @@ type Cords = {
   p1Score:number;
   p2Score:number;
 }
-type  ball ={
-  x:number,
-  y:number,
-};
+
 const throttle = (function() {
   let timeout:any = undefined;
   return function throttle(callback:any) {
@@ -49,15 +46,21 @@ export const Game = () => {
       socketStore.socket.emit("leave")
     },[])
     const handleMove = throttlify((e :any) => {
-
-        const margin = (gameState.height / 6) / 2;
-        if (e.evt.layerY  <= (gameState.height - margin) &&  e.evt.layerY >= margin)
-        gameState.setLPaddle(e.evt.layerY - margin)
+        socketStore.socket.emit("mouse",e.evt.layerY);
+        // const margin = (gameState.height / 6) / 2;
+        // if (e.evt.layerY  <= (gameState.height - margin) &&  e.evt.layerY >= margin)
+        //   gameState.setLPaddle(e.evt.layerY - margin)
     })
     useEffect(() => {
         socketStore.socket.on("ball", (cord:Cords) => {
           gameState.setBall({x:cord.x,y:cord.y,size:cord.ballsize,p1Score:cord.p1Score,p2Score:cord.p2Score})
           console.log(gameState.ball)
+        })
+        socketStore.socket.on("paddle", (paddles:any) => {
+          gameState.setLPaddle(paddles.p1PaddleY);
+          gameState.setRPaddle(paddles.p2PaddleY);
+          if (gameState?.side != paddles.side)
+            gameState.setSide(paddles.side);
         })
         socketStore.socket.on("screen Error", () =>{
           console.log("you lose")
@@ -86,12 +89,9 @@ export const Game = () => {
             if (divh) gameState.setHeight(newHeight);
             if (divw) gameState.setWidth(divw);
         });
-        // if(gameState.p1Score === 0 && gameState.p2Score === 0) {
-          
-        // }
-        
+
        
-        // disable
+        // disable eslit next line
     },[])
 
     useEffect(() => {
@@ -122,13 +122,13 @@ export const Game = () => {
             <button className="btn" onClick={leave}>Leave</button>
 
         </div>
-        <div className="flex items-center justify-center min-h-16 max-h-[80%] max-w-[90%] min-w-92 w-[95%] rounded-xl aspect-video border-primary border-4" id="Game">
+        <div className="flex items-center justify-center min-h-16 max-h-[80%] max-w-[1250px] min-w-92 w-[95%] rounded-xl aspect-video border-primary border-4" id="Game">
             <Stage onMouseMove={handleMove}  width={gameState.width - 12} height={gameState.height - 12}  >
                 <Layer >
                     <Rect height={gameState.height} width={gameState.width} fill="#151B26" x={0} y={0} />
                     <Line points={[0, gameState.height , 0 , 0]} dash={[gameState.height / 30 , 10]} strokeWidth={2} stroke={"white"} height={gameState.height} width={20} fill="white" x={gameState.width / 2} y={0}  />
                     <Rect cornerRadius={12} height={gameState.height / 6} width={gameState.width / 70} x={10} y={gameState.lPaddle} fill="white" />
-                    <Rect cornerRadius={12} height={gameState.height / 6} width={gameState.width / 70} x={gameState.width - 20 - (gameState.width / 70)} y={gameState.height  / 3} fill="white" />
+                    <Rect cornerRadius={12} height={gameState.height / 6} width={gameState.width / 70} x={gameState.width - 20 - (gameState.width / 70)} y={gameState.rPaddle} fill="white" />
                     <Circle fill="white" height={gameState.ball.size} width={gameState.ball.size} x={gameState.ball.x} y={gameState.ball.y} />
                 </Layer>
 
