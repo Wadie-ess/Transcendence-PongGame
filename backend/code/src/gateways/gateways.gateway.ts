@@ -13,7 +13,6 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Game } from 'src/game/game';
 import { $Enums, Notification } from '@prisma/client';
-import { Client } from 'socket.io/dist/client';
 
 @WebSocketGateway(3004, {
   cors: {
@@ -243,7 +242,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('PingOnline')
   async handlePingOnlineEvent(client: Socket, data: any) {
-    const userId = client.data.user.sub;
+    // const userId = client.data.user.sub;
     const friendId = data.friendId;
     if (this.server.sockets.adapter.rooms.get(`User:${friendId}`)?.size) {
       client.emit('friendOnline', friendId);

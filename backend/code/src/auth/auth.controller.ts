@@ -112,6 +112,7 @@ export class AuthController {
   @Get('validatToken/:token')
   async validatToken(
     @Param('token') token: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.authService.checkToken(token);

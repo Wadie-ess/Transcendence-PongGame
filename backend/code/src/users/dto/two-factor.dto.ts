@@ -1,4 +1,4 @@
-import {  IsBoolean, IsString, IsNotEmpty, IsEnum, IsOptional} from 'class-validator';
+import {  IsString, IsNotEmpty, IsEnum, IsOptional} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum TwoFactorAction {
