@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import {  Loading } from "../../Loading/";
+import { Loading } from "../../Loading/";
 import { Logo } from "../../Layout/Assets/Logo";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { NullPlaceHolder } from "../../Chat/Components/RoomChatHelpers";
@@ -50,7 +50,7 @@ export const Table = (props: any) => {
         hasMore={hasMore}
         loader={
           <div className="flex items-center w-full h-full justify-center">
-            <Logo x={"16"} y={"16"} />
+            <Logo className="sm:w-16 w-16" />
           </div>
         }
         dataLength={history.length}
@@ -115,14 +115,12 @@ export const Table = (props: any) => {
                           />{" "}
                         </Link>
                       ) : (
-                        
                         <Loading props={"lg"} />
                       )}
                       <div className="flex justify-center items-center text-xs font-poppins font-medium  w-20 md:w-28 text-neutral text-ellipsis overflow-hidden">
                         {x?.match?.Player2?.username ? (
                           x.match.Player2.username
                         ) : (
-                          
                           <Loading props={"sm"} />
                         )}{" "}
                       </div>

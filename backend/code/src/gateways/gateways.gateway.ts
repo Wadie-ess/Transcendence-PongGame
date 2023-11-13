@@ -87,7 +87,6 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
 
   @OnEvent('sendMessages')
   sendMessage(message: MessageFormatDto) {
-    console.log('recive msg !');
     const chanellname: string = `Room:${message.roomId}`;
     this.server.to(chanellname).emit('message', message);
   }
@@ -154,14 +153,23 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
             },
           },
         });
-        const roomMembers = await this.prisma.roomMember.findMany({
+        let roomMembers = await this.prisma.roomMember.findMany({
           where: {
             roomId: message.roomId,
           },
           select: {
             userId: true,
+            is_banned: true,
           },
         });
+
+        roomMembers = roomMembers.filter(
+          (member) =>
+            member.userId !== message.authorId &&
+            member.userId !== notif.actorId &&
+            !member.is_banned,
+        );
+
         const clientsSockets = await this.server
           .in(`Room:${message.roomId}`)
           .fetchSockets();
@@ -242,21 +250,27 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('joinRoom')
-  async handleJoinRoomEvent(data: any) {
+  async handleJoinRoomEvent(client: Socket, data: any) {
+    const userId = client.data.user.sub;
     const member = await this.prisma.roomMember.findFirst({
       where: {
         userId: data.memberId,
         roomId: data.roomId,
       },
     });
-    if (member && !member.is_banned) {
-      const banedClientSocket = await this.server
-        .in(`User:${data.memberId}`)
-        .fetchSockets();
-      if (banedClientSocket.length > 0) {
-        banedClientSocket[0].join(`Room:${data.roomId}`);
-      }
+    if (member && !member.is_banned && userId === data.memberId) {
+      client.join(`Room:${data.roomId}`);
     }
+  }
+
+  @SubscribeMessage('PingOnline')
+  async handlePingOnlineEvent(client: Socket, data: any) {
+    const friendId = data.friendId;
+    if (this.server.sockets.adapter.rooms.get(`User:${friendId}`)?.size) {
+      client.emit('friendOnline', friendId);
+      return true;
+    }
+    return false;
   }
 
   @SubscribeMessage('unban')
@@ -290,18 +304,21 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   async hundleDeparture(
     @MessageBody() data: { roomId: string; memberId: string; type: string },
   ) {
-    const clients = await this.server.in(`Room:${data.roomId}`).fetchSockets();
-    console.log(`Room:${data.roomId}`);
-    const clientToBan = clients.find(
+    const clients = await this.server
+      .in(`User:${data.memberId}`)
+      .fetchSockets();
+    const clientsToBan = clients.filter(
       (client) => client.data.user.sub === data.memberId,
     );
-    if (clientToBan) {
-      clientToBan.leave(`Room:${data.roomId}`);
-      if (data?.type === 'kick') {
-        clientToBan.emit('roomDeparture', {
-          roomId: data.roomId,
-          type: 'kick',
-        });
+    if (clientsToBan.length) {
+      for await (const client of clientsToBan) {
+        client.leave(`Room:${data.roomId}`);
+        if (data?.type === 'kick') {
+          client.emit('roomDeparture', {
+            roomId: data.roomId,
+            type: 'kick',
+          });
+        }
       }
     }
   }

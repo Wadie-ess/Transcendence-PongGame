@@ -75,6 +75,13 @@ const router = createBrowserRouter([
     ],
   },
   {
+    path: "2fa/validate/:token",
+    lazy: async () => {
+      let { Validate2Fa } = await import("../Components/Validate2Fa");
+      return { Component: Validate2Fa };
+    },
+  },
+  {
     path: "*",
     lazy: async () => {
       let { Error } = await import("../Components/Error");

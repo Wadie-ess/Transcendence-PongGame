@@ -4,7 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NAME, PICTURE } from '../profile/dto/profile.dto';
 import { authenticator } from 'otplib';
-import { toDataURL } from 'qrcode';
+import { TwoFactorDto, TwoFactorAction } from './dto/two-factor.dto';
 
 @Injectable()
 export class UsersService {
@@ -142,51 +142,57 @@ export class UsersService {
     });
   }
 
-  async twoFactorAuth(userId: string, tfaEnabled: boolean) {
-    const user = await this.getUserById(userId);
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    if (user.tfaEnabled === tfaEnabled) {
-      throw new HttpException(
-        `Two factor authentication is already ${
-          tfaEnabled ? 'activated' : 'deactivated'
-        }`,
-        400,
-      );
-    }
-
-    const secret = authenticator.generateSecret();
-    await this.prisma.user.update({
-      where: { userId },
-      data: {
-        tfaEnabled,
-        ...(tfaEnabled ? { tfaSecret: secret } : { tfaSecret: null }),
-      },
-    });
-
-    return {
-      message: `Two factor authentication has been ${
-        tfaEnabled ? 'activated' : 'deactivated'
-      }`,
-    };
-  }
-
-  async genertQrcode(userId: string) {
+  async twoFactorAuth(userId: string, dataDto: TwoFactorDto) {
     const user = await this.prisma.user.findUnique({
       where: { userId },
     });
 
     if (!user) {
-      return null;
+      throw new HttpException('User not found', 404);
     }
 
-    const otpauth = authenticator.keyuri(
-      user.Username,
-      'PongGame',
-      user.tfaSecret,
-    );
-    return toDataURL(otpauth);
+    if (dataDto.action === TwoFactorAction.ENABLE && !user.tfaEnabled) {
+      console.log(dataDto);
+      // generate a top with the same secret
+      console.log(authenticator.generate(dataDto.secret));
+      const isValid = authenticator.verify({
+        token: dataDto.otp,
+        secret: dataDto.secret,
+      });
+      console.log(authenticator.keyuri('test', 'test', dataDto.secret));
+
+      if (!isValid) {
+        throw new HttpException('Invalid OTP', 400);
+      }
+      await this.prisma.user.update({
+        where: { userId },
+        data: {
+          tfaEnabled: true,
+          tfaSecret: dataDto.secret,
+        },
+      });
+      return { message: 'Two factor authentication enabled' };
+    }
+
+    if (dataDto.action === TwoFactorAction.DISABLE && user.tfaEnabled) {
+      const isValid = authenticator.verify({
+        token: dataDto.otp,
+        secret: user.tfaSecret,
+      });
+
+      if (!isValid) {
+        throw new HttpException('Invalid OTP', 400);
+      }
+
+      await this.prisma.user.update({
+        where: { userId },
+        data: {
+          tfaEnabled: false,
+          tfaSecret: null,
+        },
+      });
+
+      return { message: 'Two factor authentication disabled' };
+    }
   }
 }

@@ -36,7 +36,7 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
       if (user.tfaEnabled) {
         const tfaToken = crypto.randomBytes(20).toString('hex');
         await this.usersService.updateUser(user.userId, { tfaToken });
-        res.redirect(process.env.FRONT_URL + '/tfa/' + tfaToken);
+        res.redirect(process.env.FRONT_URL + '/2fa/validate/' + tfaToken);
         return cb(null, profile);
       }
 

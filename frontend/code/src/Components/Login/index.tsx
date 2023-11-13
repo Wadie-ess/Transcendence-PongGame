@@ -28,7 +28,7 @@ export const Login =  () =>
                 console.log("hit")
               } else {
                 // Handle other errors
-                console.error(error);
+                // console.error(error);
               }
         }
     }

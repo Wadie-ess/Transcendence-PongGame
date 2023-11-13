@@ -27,12 +27,13 @@ import { useSocketStore } from "../Services/SocketsServices";
 export interface ChatPaceHolderProps {
   username: string;
   message: string;
-  time: string;
+  time?: string;
   isMe: boolean;
   isRead: boolean;
   userImage: string;
   id: string;
   secondUserId: string;
+  bio?: string;
 }
 
 export const CurrentUserMessage = ({
@@ -92,40 +93,39 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
   const LayoutState = useModalStore((state) => state);
   const ChatState = useChatStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
-  
+  const toggleChatRooms = useChatStore((state) => state.toggleChatRooms);
   const currentUser = useChatStore((state) => state.currentDmUser);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
+  const socketStore = useSocketStore();
 
   const currentRoom = chatRooms.find((room) => room.id === SelectedChat);
 
-  const toggleChatRooms = useChatStore((state) => state.toggleChatRooms);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOnline, SetOnline] = useState(false);
-  const sockerStore = useSocketStore();
+
+  const handleOnline = (userId: string) => {
+    currentUser.secondUserId === userId && SetOnline(true);
+    ChatState.addOnlineFriend(userId);
+
+    console.log("user online", userId);
+  };
+  const handleOffline = (userId: string) => {
+    currentUser.secondUserId === userId && SetOnline(false);
+    ChatState.removeOnlineFriend(userId);
+  };
   const handleConfirmation = () => {
     setIsModalOpen(false);
   };
 
   useEffect(() => {
     SetOnline(false);
-    const handleOnline = (userId: string) => {
-      currentUser.secondUserId === userId && SetOnline(true);
-      console.log(currentUser.id);
 
-      console.log("user online", userId);
-    };
-    const handleOffline = (userId: string) => {
-      currentUser.id === userId && SetOnline(false);
-      console.log("user offline", userId);
-    };
-
-    sockerStore.socket.on("friendOffline", handleOffline);
-    sockerStore.socket.on("friendOnline", handleOnline);
+    socketStore.socket.on("friendOffline", handleOffline);
+    socketStore.socket.on("friendOnline", handleOnline);
 
     return () => {
-      sockerStore.socket.off("friendOffline", handleOffline);
-      sockerStore.socket.off("friendOnline", handleOnline);
+      socketStore.socket.off("friendOffline", handleOffline);
+      socketStore.socket.off("friendOnline", handleOnline);
     };
     // eslint-disable-next-line
   }, [ChatState.selectedChatID]);
@@ -301,19 +301,54 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 export const Conversation: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
-  const chatState = useChatStore((state) => state);
+  const chatState = useChatStore();
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const socketStore = useSocketStore();
   const scrollToBottom = () => {
     if (messageContainerRef.current) {
       const container = messageContainerRef.current;
-      container.scrollTop = container.scrollHeight;
+      // container.scrollTop = container.scrollHeight;
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
     }
   };
 
   const [inputValue, setInputValue] = useState("");
   const [FailToSendMessage, setFail] = useState(false);
   const [IsLoading, setLoading] = useState(true);
+  const currentUser = useUserStore((state) => state);
+  const handleMessage = (message: {
+    id: string;
+    avatar: {
+      thumbnail: string;
+      medium: string;
+      large: string;
+    };
+    content: string;
+    time: string;
+    roomId: string;
+    authorId: string;
+  }) => {
+    console.log(message);
+    if (message.roomId === chatState.selectedChatID) {
+      const NewMessage: Message = {
+        avatar: message.avatar,
+        senderId: message.authorId,
+        message: message.content,
+        time: message.time,
+      };
+      chatState.pushMessage(NewMessage);
+      scrollToBottom();
+    }
+  };
+
+  const handleLeave = (event: { roomId: string; type: string }) => {
+    if (chatState.selectedChatID === event.roomId && event.type === "kick") {
+      chatState.deleteRoom(event.roomId);
+    }
+  };
 
   const handleInputChange = (e: {
     target: { value: React.SetStateAction<string> };
@@ -323,73 +358,70 @@ export const Conversation: React.FC<ConversationProps> = ({
   };
   useEffect(() => {
     scrollToBottom();
-  }, [chatState.currentMessages?.length]);
+  }, [chatState.currentMessages?.length, IsLoading]);
 
   useEffect(() => {
-    const handleMessage = (message: {
-      id: string;
-      avatar: {
-        thumbnail: string;
-        medium: string;
-        large: string;
-      };
-      content: string;
-      time: string;
-      roomId: string;
-      authorId: string;
-    }) => {
-      console.log(message);
-      if (message.roomId === chatState.selectedChatID) {
-        const NewMessage: Message = {
-          avatar: message.avatar,
-          senderId: message.authorId,
-          message: message.content,
-          time: message.time,
-        };
-        chatState.pushMessage(NewMessage);
-        scrollToBottom();
-      }
-    };
+    setLoading(true);
+
+    socketStore.socket.emit("joinRoom", {
+      memberId: currentUser.id,
+      roomId: chatState.selectedChatID,
+    });
+    socketStore.socket.emit("PingOnline", {
+      friendId: chatState.currentDmUser.secondUserId,
+    });
+
+    // const handle
+    socketStore.socket.on("roomDeparture", handleLeave);
     socketStore.socket.on("message", handleMessage);
 
     const fetch = async () => {
       setLoading(true);
-      getRoomMessagesCall(chatState.selectedChatID, 0, 30).then((res) => {
-        setLoading(false);
-        if (res?.status !== 200 && res?.status !== 201) {
-        } else {
-          const messages: Message[] = [];
-          res.data.forEach(
-            (message: {
-              id: string;
-              avatar: {
-                thumbnail: string;
-                medium: string;
-                large: string;
-              };
-              content: string;
-              time: string;
-              roomId: string;
-              authorId: string;
-            }) => {
-              messages.push({
-                avatar: message.avatar,
-                senderId: message.authorId,
-                message: message.content,
-                time: message.time,
-              });
+      chatState.selectedChatID !== "1" &&
+        getRoomMessagesCall(chatState.selectedChatID, 0, 20)
+          .then((res) => {
+            if (res?.status !== 200 && res?.status !== 201) {
+            } else {
+              const messages: Message[] = [];
+              res.data.forEach(
+                (message: {
+                  id: string;
+                  avatar: {
+                    thumbnail: string;
+                    medium: string;
+                    large: string;
+                  };
+                  content: string;
+                  time: string;
+                  roomId: string;
+                  authorId: string;
+                }) => {
+                  messages.push({
+                    id: message.id,
+                    avatar: message.avatar,
+                    senderId: message.authorId,
+                    message: message.content,
+                    time: message.time,
+                  });
+                }
+              );
+              chatState.fillCurrentMessages(messages.reverse());
             }
-          );
-          chatState.fillCurrentMessages(messages.reverse());
-        }
-      });
+          })
+          .finally(() => {
+            setLoading(false);
+          });
     };
 
-    fetch().then(() => {
-      scrollToBottom();
-    });
+    fetch();
+
     return () => {
       socketStore.socket.off("message", handleMessage);
+      socketStore.socket.emit("roomDeparture", {
+        roomId: chatState.selectedChatID,
+        memberId: currentUser.id,
+        type: "out",
+      });
     };
     // eslint-disable-next-line
   }, [chatState.selectedChatID]);
@@ -400,7 +432,9 @@ export const Conversation: React.FC<ConversationProps> = ({
       setInputValue("");
       if (res?.status !== 200 && res?.status !== 201) {
         setFail(true);
-        toast.error("you are not authorized to send messages in this room");
+        chatState.selectedChatType === ChatType.Room
+          ? toast.error("you are not authorized to send messages in this room")
+          : toast.error("you are blocked from sending messages to this user");
         chatState.setMessageAsFailed(res?.data.id);
       } else {
       }
@@ -424,7 +458,7 @@ export const Conversation: React.FC<ConversationProps> = ({
           (chatState.currentMessages?.length as number) > 0 ? (
             chatState.currentMessages?.map((message) => (
               <CurrentUserMessage
-                key={message.id}
+                key={message.id || Math.random().toString(36)}
                 isFailed={message.isFailed}
                 avatar={message.avatar}
                 message={message.message}

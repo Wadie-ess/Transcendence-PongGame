@@ -102,7 +102,7 @@ export class MessagesService {
     const responseMessage: MessageFormatDto = new MessageFormatDto(messageData);
     this.eventEmitter.emit('sendNotification', {
       actorId: userId,
-      type: $Enums.NotifType.addFriend,
+      type: $Enums.NotifType.message,
       entityId: messageData.id,
       entity_type: 'message',
     });

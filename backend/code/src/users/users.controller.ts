@@ -27,19 +27,13 @@ export class UsersController {
     return this.usersService.getUsers(query.q);
   }
 
-  @Post('twoFactorAuth')
+  @Post('enableTwoFactorAuth')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
   async twoFactorAuth(
     @Body() dataDto: TwoFactorDto,
     @GetCurrentUser('userId') userId: string,
   ) {
-    return this.usersService.twoFactorAuth(userId, dataDto.activate);
-  }
-
-  @Get('2faQrCode')
-  @UseGuards(AtGuard)
-  async get2faQrCode(@GetCurrentUser('userId') userId: string) {
-    return this.usersService.genertQrcode(userId);
+    return this.usersService.twoFactorAuth(userId, dataDto);
   }
 }
