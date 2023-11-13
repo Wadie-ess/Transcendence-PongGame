@@ -8,7 +8,7 @@ import {
   Res,
   HttpCode,
   HttpStatus,
-  Param
+  Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
@@ -110,12 +110,7 @@ export class AuthController {
   }
 
   @Get('validatToken/:token')
-  async validatToken(
-    @Param('token') token: string,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async validatToken(@Param('token') token: string) {
     return this.authService.checkToken(token);
   }
 }
-
-

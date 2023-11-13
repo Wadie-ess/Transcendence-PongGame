@@ -98,7 +98,7 @@ export const Profile = () => {
     setDisabled("btn-disabled");
     const fetchFunc = async () => {
       await api.post("/friends/accept", { friendId: profile.id });
-      setStatus("none");
+      setStatus("friend");
       setDisabled("");
     };
     toast.promise(fetchFunc(), {
