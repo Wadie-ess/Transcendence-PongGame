@@ -19,7 +19,7 @@ export type State = {
   tfa: boolean;
   friendListIds: string[];
   banListIds: string[];
-  achivments: number[];
+  achievement: number | null;
   dmsIds: string[];
   profileComplet: boolean;
   history:
@@ -82,7 +82,7 @@ export const useUserStore = create<State & Action>()(
       tfa: false,
       friendListIds: [],
       banListIds: [],
-      achivments: [],
+      achievement: null,
       dmsIds: [],
       history: [],
       chatRoomsJoinedIds: [],
@@ -172,7 +172,7 @@ export const useUserStore = create<State & Action>()(
           tfa: user_data.tfa,
           friendListIds: [],
           banListIds: [],
-          achivments: [],
+          achievement : user_data?.achievement ?? null,
           dmsIds: [],
           history: [],
           chatRoomsJoinedIds: [],

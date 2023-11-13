@@ -28,7 +28,7 @@ const routes = [
   { path: "Chat" },
   { path: "Play" },
   { path: "Pure" },
-  { path: "Game" },
+  { path: "Game/:id" },
 ];
 
 const useCurrentPath = () => {

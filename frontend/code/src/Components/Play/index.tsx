@@ -1,4 +1,5 @@
-import { VsBot } from './assets/VsBot'
+import  VsBot from './assets/VsBot.svg'
+import vsUser from './assets/VsUser.svg'
 import { useSocketStore } from '../Chat/Services/SocketsServices'
 import toast from 'react-hot-toast'
 export const Play = () => {
@@ -17,14 +18,10 @@ export const Play = () => {
     }
     return(
         <>
-            <div className="flex flex-col sm:flex-row justify-center items-center  sm:justify-center sm:items-start p-10 gap-x-20">
-            <div onClick={subscribeToGame} className='max-w-[55vw] max-h-[55vh]  w-[100%]'><VsBot/></div>
-            {/* <div className='max-w-[55vw] max-h-[55vh]  w-[100%]'><VsUser/></div> */}
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-8 sm:gap-2  sm:justify-center sm:items-start p-10 gap-x-20">
+            <div onClick={subscribeToGame} className='max-w-[55vw] max-h-[55vh]  w-[100%]'><img src={vsUser} alt="" /></div>
            
-            {/* </div>
-            <h1 className='text-3xl font-poppins font-bold text-neutral text-center '>OR</h1>
-            <div className="flex flex-col sm:flex-row justify-center items-center  sm:justify-center sm:items-start p-10 gap-x-20">
-                <div className='max-w-[55vw] max-h-[55vh] sm:max-w-[45vw] sm:max-h-[45vh]  w-[100%]'><Watch/></div> */}
+            <div onClick={subscribeToGame} className='max-w-[55vw] max-h-[55vh]  w-[100%]'><img src={VsBot} alt="" /></div>
            </div>
         </>
     )

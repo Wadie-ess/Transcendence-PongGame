@@ -12,7 +12,7 @@ import {} from '@nestjs/platform-socket.io';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Game } from 'src/game/game';
-import { $Enums, Notification } from '@prisma/client';
+import { $Enums, Notification , Match } from '@prisma/client';
 
 @WebSocketGateway(3004, {
   cors: {
@@ -205,26 +205,47 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(client.data.user);
     this.eventEmitter.emit('game.start', client);
   }
-
+  // @SubscribeMessage('getPlayers')
+  // getPlayers() {
+  //   this.server.emit("players",[this.p1Data ,this.p2Data])
+  // }
   @OnEvent('game.launched')
-  handleGameLaunchedEvent(clients: any) {
-    const game_channel = `Game:${clients[0].id}:${clients[1].id}`;
+  async handleGameLaunchedEvent(clients: any) {
+    const game_channel = `Game:${clients[0].socket.id}:${clients[1].socket.id}`;  
     console.log(game_channel);
     clients.forEach((client: any) => {
-      client.join(game_channel);
+      client.socket.join(game_channel);
     });
     const new_game = new Game(this.eventEmitter, this.server);
-    new_game.setplayerScokets(clients[0], clients[1]);
+
+    new_game.setplayerScokets(
+      clients[0].socket,
+      clients[1].socket,
+      clients[0].userData,
+      clients[1].userData,
+    );
     new_game.start(game_channel);
     this.games_map.set(game_channel, new_game);
     this.server.to(game_channel).emit('game.launched', game_channel);
   }
 
   @OnEvent('game.end')
-  handleGameEndEvent(data: any) {
+  async handleGameEndEvent(data: any) {
     console.log('game ended');
     console.log(data);
     this.server.to(data.gameid).emit('game.end', data);
+    console.log(data)
+   
+    await this.prisma.match.create({
+      data: {
+        participant1Id: data.p1Data.userId,
+        participant2Id: data.p2Data.userId,
+        winner_id: data.p1Score > data.p2Score ? data.p1Data.userId : data.p2Data.userId ,
+        score1: data.p1Score,
+        score2: data.p2Score,
+      },
+    });
+    
     this.games_map.delete(data.gameid);
   }
 

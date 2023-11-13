@@ -13,30 +13,12 @@ const getColor = (v1: number, v2: number) => {
   return "text-gray-400";
 };
 
-// const getTime = (value: string) => {
-//   const date = new Date(value);
-//   const today = new Date();
-//   console.log(date);
-//   if (
-//     date.getDate() === today.getDate() &&
-//     date.getFullYear() === today.getFullYear() &&
-//     date.getMonth() === today.getMonth()
-//   )
-//     return `Today ${date.getHours()}:${date.getMinutes()}`;
-//   else if (
-//     date.getDate() === today.getDate() - 1 &&
-//     date.getFullYear() === today.getFullYear() &&
-//     date.getMonth() === today.getMonth()
-//   )
-//     return `Yestrday ${date.getHours()}:${date.getMinutes()}`;
-//   return `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`;
-// };
+
 
 export const Table = (props: any) => {
   const [history, setHistory] = useState<any | undefined>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [hasMore, setHasMore] = useState(true);
-  // const [nextPage , setNextPage] = useState(`/game/history/${param.id}?offset=${0}&limit=20`)
   const offset = useRef(0);
 
   const fetchData = async () => {
@@ -52,10 +34,7 @@ export const Table = (props: any) => {
       toast.error("Error on loading match history");
     }
   };
-  // useEffect(() => {
-  //   fetchData();
-  //   offset.current += 20;
-  // },[])
+
   useEffect(() => {
     offset.current = 0;
     setHistory([]);
@@ -63,7 +42,6 @@ export const Table = (props: any) => {
     setHasMore(true);
     fetchData();
     offset.current += 20;
-    //eslint-disable-next-line
   }, [props.props.props]);
   console.log(props);
   return history.length > 0 || loading === true ? (
@@ -99,7 +77,7 @@ export const Table = (props: any) => {
                     </div>
                   </td>
                   <td className="px-1 flex justify-center items-center md:gap-x-2 grow gap-y-1 w-auto">
-                    <div className=" flex justify-start items-center gap-x-2 md:gap-x-10 w-full">
+                    <div className=" flex justify-start items-center gap-x-2 md:gap-x-10 w-full text-ellipsis overflow-hidden">
                       {x?.match?.Player1?.username ? (
                         <div className="flex justify-center items-center text-xs font-poppins font-medium w-20 md:w-28 text-neutral">
                           {x.match.Player1.username}
@@ -139,7 +117,7 @@ export const Table = (props: any) => {
                       ) : (
                         <Loading props={"lg"} />
                       )}
-                      <div className="flex justify-center items-center text-xs font-poppins font-medium  w-20 md:w-28 text-neutral">
+                      <div className="flex justify-center items-center text-xs font-poppins font-medium  w-20 md:w-28 text-neutral text-ellipsis overflow-hidden">
                         {x?.match?.Player2?.username ? (
                           x.match.Player2.username
                         ) : (
