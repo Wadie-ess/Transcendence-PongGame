@@ -1,5 +1,5 @@
 import { useUserStore } from "../../../Stores/stores";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../Api/base";
 import { classNames } from "../../../Utils/helpers";
@@ -20,14 +20,14 @@ export const Alert = () => {
       addFriend: "sent you a friend requst",
       acceptFriend: "accepted your friend request",
     }),
-    [],
+    []
   );
 
   const unread = useMemo(
     () =>
       user.notifications.filter((notification: any) => !notification.is_read)
         .length,
-    [user.notifications],
+    [user.notifications]
   );
 
   useEffect(() => {
@@ -45,6 +45,7 @@ export const Alert = () => {
     return () => {
       socketStore.socket.off("notification");
     };
+    //eslint-disable-next-line
   }, [socketStore]);
 
   useEffect(() => {
@@ -61,6 +62,7 @@ export const Alert = () => {
           }
         });
     }
+    // eslint-disable-next-line
   }, [inView]);
 
   return (
@@ -113,14 +115,14 @@ export const Alert = () => {
                   key={notification.id}
                   className={classNames(
                     "flex flex-row justify-start text-xs gap-3 p-4 hover:cursor-pointer",
-                    notification.is_read && "opacity-50",
+                    notification.is_read && "opacity-50"
                   )}
                   onClick={async () => {
                     try {
                       navigate(`/profile/${notification.actorId}`);
                       user.updateNotificationRead(notification.id);
                       await api.post(
-                        `/profile/read-notification/${notification.id}`,
+                        `/profile/read-notification/${notification.id}`
                       );
                     } catch (error) {
                       toast.error("Something went wrong");
