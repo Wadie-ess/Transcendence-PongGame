@@ -6,7 +6,7 @@ import { useGameState } from "./States/GameState";
 import { useSocketStore } from "../Chat/Services/SocketsServices";
 import { useNavigate } from "react-router-dom";
 
-const DURATION = 20;
+const DURATION = 25;
 type Cords = {
   x:number;
   y:number;
@@ -39,19 +39,26 @@ function throttlify(callback : any) {
 export const Game = () => {
     const gameState = useGameState();
     const socketStore = useSocketStore();
-    const user = useUserStore();    
     const navigate = useNavigate()
-    const [first , setFirest] = useState(false)
     const leave = useCallback(() => {
       socketStore.socket.emit("leave")
     },[])
     const handleMove = throttlify((e :any) => {
         socketStore.socket.emit("mouse",e.evt.layerY);
-        // const margin = (gameState.height / 6) / 2;
-        // if (e.evt.layerY  <= (gameState.height - margin) &&  e.evt.layerY >= margin)
-        //   gameState.setLPaddle(e.evt.layerY - margin)
     })
+    const ArrowUp = () => {
+      socketStore.socket.emit("up");
+    }
+    const ArrowDown = () => {
+      socketStore.socket.emit("down")
+    }
     useEffect(() => {
+      document.addEventListener('keydown', (event) =>{
+        if (event.key === "ArrowUp")
+          socketStore.socket.emit("up");
+        if (event.key === "ArrowDown")
+            socketStore.socket.emit("down")
+      })
         socketStore.socket.on("ball", (cord:Cords) => {
           gameState.setBall({x:cord.x,y:cord.y,size:cord.ballsize,p1Score:cord.p1Score,p2Score:cord.p2Score})
           console.log(gameState.ball)
@@ -69,17 +76,20 @@ export const Game = () => {
         socketStore.socket.on("players", (players:any) => {
           gameState.setP1(players[0]);
           gameState.setP2(players[1]);
-          console.log(players)
-          console.log("sda")
         })
-      
+        return () => {
+          socketStore.socket.off("ball");
+          socketStore.socket.off("mouse")
+         }
     },[])
     /* eslint-disable */
     useEffect(() => {
       const divh = document.getElementById('Game')?.offsetHeight
       const divw = document.getElementById('Game')?.offsetWidth
       socketStore.socket.emit("screen",{h:divh,w:divw})
+      if (divw) {divw <= 742 ? gameState.setMobile(true) : gameState.setMobile(false)}
         window.addEventListener('resize', () => {
+            
             const divh = document.getElementById('Game')?.offsetHeight
             const divw = document.getElementById('Game')?.offsetWidth
             const aspectRatio = 16 / 9;
@@ -87,10 +97,12 @@ export const Game = () => {
             const newHeight = newWidth / aspectRatio;
             socketStore.socket.emit("screen",{h:newHeight,w:newWidth})
             if (divh) gameState.setHeight(newHeight);
-            if (divw) gameState.setWidth(divw);
+            if (divw) {gameState.setWidth(divw);divw <= 742 ? gameState.setMobile(true) : gameState.setMobile(false);}
         });
 
-       
+       return () => {
+        socketStore.socket.off("screen");
+       }
         // disable eslit next line
     },[])
 
@@ -137,8 +149,8 @@ export const Game = () => {
         </div>
         {gameState.mobile && (
         <div className="flex justify-around items-center w-full gap-20">
-            <BsFillArrowLeftCircleFill className="w-14 h-14 hover:cursor-pointer hover:fill-secondary hover:transition-colors delay-100 "/>
-            <BsFillArrowRightCircleFill  className="w-14 h-14 hover:cursor-pointer hover:fill-secondary hover:transition-colors delay-100"/>
+            <BsFillArrowLeftCircleFill onClick={ArrowUp} className="w-14 h-14 hover:cursor-pointer hover:fill-secondary hover:transition-colors delay-100 "/>
+            <BsFillArrowRightCircleFill onClick={ArrowDown} className="w-14 h-14 hover:cursor-pointer hover:fill-secondary hover:transition-colors delay-100"/>
         </div>
     )
         

@@ -13,7 +13,7 @@ export const Modal = () => {
     const [gameid , setGameId] = useState<undefined | string>(undefined);
     const socketStore = useSocketStore();
     const navigate = useNavigate();
-
+    useEffect(() => {
     if (socketStore.socket !== null){
         socketStore.socket.on("game.launched" , (GameId:any) => {
             setGameId(GameId.slice(5))
@@ -65,8 +65,13 @@ export const Modal = () => {
           
         })
     }
+    return () => {
+        socketStore.socket.off("lose")
+        socketStore.socket.off("win")
+        socketStore.socket.off("timer")
+    }
 
-
+},[timer])
         
     return (
 

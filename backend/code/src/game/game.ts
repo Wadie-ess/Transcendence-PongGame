@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 export class Game {
 
   constructor(private readonly eventEmitter: EventEmitter2 , private readonly server: Server) {}
-  
+ 
   private screenAdapter(player,x:number , y:number , ballsize:number){
     let scale_x = player.w / this.w;
     let scale_y = player.h / this.h;
@@ -25,8 +25,8 @@ export class Game {
 
     let newPos = this.p1PaddleY * scale2;
     let scale_y = player2.h / this.h;
-    let center = this.paddleHeight * scale_y;
-    return {p1PaddleY:newPos,p2PaddleY:p2PaddleY-(center / 2),side:side};
+    // let center = this.paddleHeight * scale_y;
+    return {p1PaddleY:newPos,p2PaddleY:p2PaddleY,side:side};
   }
   private paddleAdapterP2toP1(player1, player2, p1PaddleY:number , p2PaddleY:number, side:boolean){
     let scale =  this.h / player2.h;
@@ -37,10 +37,43 @@ export class Game {
 
     let newPos = this.p2PaddleY * scale2;
     let scale_y = player1.h / this.h;
-    let center = this.paddleHeight * scale_y;
-    return {p1PaddleY:p1PaddleY - (center / 2),p2PaddleY:newPos,side:side};
+
+    // let center = this.paddleHeight * scale_y;
+    return {p1PaddleY:p1PaddleY,p2PaddleY:newPos,side:side};
 
   }
+  private up1(){
+    if (this.p1PaddleY - this.paddleHeight / 6 >= 0)
+    {
+      this.eventp1Paddle -=  this.paddleHeight / 6
+
+    }
+  }
+
+  private down1(){
+    if (this.p1PaddleY + this.paddleHeight  <= this.h)
+    {
+      this.eventp1Paddle +=  this.paddleHeight / 6
+
+      
+    }
+  }
+  private up2(){
+    if (this.p2PaddleY - this.paddleHeight / 6 >= 0)
+    {
+      this.eventp2Paddle -=  this.paddleHeight / 6
+    }
+
+  }
+
+  private down2(){
+    if (this.p2PaddleY+ this.paddleHeight <= this.h)
+    {
+      this.eventp2Paddle +=  this.paddleHeight / 6
+      
+    }
+  }
+
 
   private async loop() {
     if (this.closeGame)
@@ -51,43 +84,41 @@ export class Game {
     if (this.y + (this.ballSize / 2) + this.dy  >= this.h || this.y + this.dy <= 0) 
       this.dy *= -1;
 
-      // bx < paddleSize.x && 
-      // //AND ball is below top edge of paddle
-      // by > paddles[0].getPosition().y - (paddleSize.y * 0.5) &&
-      // //AND ball is above bottom edge of paddle
-      // by < paddles[0].getPosition().y + (paddleSize.y * 0.5)
     if (
       (this.y >= this.p1PaddleY  && this.y <= this.p1PaddleY  + this.paddleHeight
-      && (this.x + (this.ballSize )) <= this.paddleWidth + 40 )
+      && (this.x + (this.ballSize )) <= this.paddleWidth + 40)
       )
     {
 
       this.dx *= -1;
-      this.dy *= -1
+      this.dy *= Math.random() * 2.5
+      
     }
     if (
       (this.y >= this.p2PaddleY   && this.y <= this.p2PaddleY + this.paddleHeight
       && (this.x + (this.ballSize )) >= ( this.w - (this.paddleWidth + 20)) )
     ){
       this.dx *= -1;
-      this.dy *= -1
+      this.dy *= Math.random() * 2.5
     }
     if (
       ((this.y < this.p2PaddleY   || this.y > this.p2PaddleY + this.paddleHeight)
-      && (this.x + (this.ballSize )) >= ( this.w - (this.paddleWidth + 10)) )
+      && (this.x + (this.ballSize )) >= ( this.w - (this.paddleWidth + 5)) )
     ){
       this.p1Score += 1;
-        await new Promise(resolve => setTimeout(resolve, 1000));
       this.init()
+      this.checkForWinner();
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
     if (
       ((this.y < this.p1PaddleY  || this.y > this.p1PaddleY  + this.paddleHeight)
-      && (this.x ) <= this.paddleWidth + 20)
+      && (this.x ) <= this.paddleWidth + 5)
       )
       {
         this.p2Score += 1;
-          await new Promise(resolve => setTimeout(resolve, 1000));
         this.init();
+        this.checkForWinner();
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
  
     console.log(this.x)
@@ -101,7 +132,6 @@ export class Game {
       this.emitGameEnd("end")
       this.p1socket.emit("lose","trying cheat");
       this.p2socket.emit("win","you win other player try to cheat");
-      this.closeGame = true;
     }else{
       this.p1socket.emit("ball",this.screenAdapter(this.p1Res,this.x,this.y,this.ballSize))
       this.p2socket.emit("paddle",this.paddleAdapterP1toP2(this.p1Res, this.p2Res ,this.eventp1Paddle,this.eventp2Paddle,true))
@@ -113,7 +143,6 @@ export class Game {
       this.emitGameEnd("end")
       this.p1socket.emit("win","you win other player try to cheat");
       this.p2socket.emit("lose","trying cheat");
-      this.closeGame = true;
     }else{
 
       this.p2socket.emit("ball",this.screenAdapter(this.p2Res,this.x,this.y,this.ballSize))
@@ -122,7 +151,7 @@ export class Game {
     
  
 
-    await this.sleep(10);
+    await this.sleep(20);
 
     this.loop();
   }
@@ -146,9 +175,7 @@ export class Game {
     this.loop();
   }
 
-  mouseAdapter(h : number){
 
-  }
   setplayerScokets(p1socket: Socket, p2socket: Socket , p1Data:any, p2Data:any) {
     this.p1socket = p1socket;
     this.p2socket = p2socket;
@@ -158,19 +185,22 @@ export class Game {
     console.log(p2Data);
     this.server.emit("players",[p1Data,p2Data])
     console.log("newfunc")
-    this.p1socket.on('up', (data) => {
-      console.log('heh');
-      console.log(data);
+    this.p1socket.on('up', () => {
+      this.up1();
     });
-    this.p2socket.on('down', (data) => {
-      console.log('heh');
-      console.log(data);
+    this.p1socket.on('down', () => {
+      this.down1();
+    });
+    this.p2socket.on('up', () => {
+      this.up2();
+    });
+    this.p2socket.on('down', () => {
+      this.down2();
     });
     this.p1socket.on("mouse", (data) => {this.eventp1Paddle = data});
     this.p2socket.on("mouse", (data) => {this.eventp2Paddle = data});
     this.p1socket.on("screen", (data) =>{this.p1Res = data})
     this.p2socket.on("screen", (data) =>{this.p2Res = data})
-    this.p1socket.onAny(data => console.log(data))
     this.p1socket.on('disconnect', () => {
       console.log('p1 disconnected');
       this.emitGameEnd('p1 disconnected');
@@ -182,22 +212,41 @@ export class Game {
     this.p1socket.on("leave", () => {this.emitGameEnd("end");
     this.p2socket.emit("win","you win other player leave the game");
     this.p1socket.emit("lose","you win other player leave the game");
-    this.closeGame = true ;
+     this.emitGameEnd('leave');
     })
     this.p2socket.on("leave", () => {this.emitGameEnd("end");
     this.p1socket.emit("win","you win other player leave the game");
     this.p2socket.emit("lose","you lost other player leave the game");
-    this.closeGame = true ;
+     this.emitGameEnd('leave');
     })
 
   }
-
+  private checkForWinner(){
+    if (this.p1Score >= 5)
+    {
+      this.p1socket.emit("win","you win");
+      this.p2socket.emit("lose","you lose");
+      this.emitGameEnd("end")
+    }
+    if (this.p2Score >= 5)
+    {
+      this.p2socket.emit("win","you win");
+      this.p1socket.emit("lose","you lose");
+      this.emitGameEnd("end")
+    }
+   
+  }
   private emitGameEnd(message: string) {
     console.log('game end');
     this.eventEmitter.emit('game.end', {
       message: message,
       gameid: this.gameid,
+      p1Data: this.p1Data,
+      p2Data: this.p2Data,
+      p1Score: this.p1Score,
+      p2Score: this.p2Score,
     });
+    this.closeGame = true;
   }
 
   private sleep(ms: number) {

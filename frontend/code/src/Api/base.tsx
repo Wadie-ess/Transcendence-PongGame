@@ -15,19 +15,19 @@ const api = axios.create({
   },
 });
 
-  let refreshAttempted = false;
+  let refreshAttempted = 0;
   
   const errorHandler = async (error: any) => {
   
     if (error?.response?.status === 401) {
-      if (!refreshAttempted) {
+      if (refreshAttempted <= 2) {
         try {
-          refreshAttempted = true;
+          refreshAttempted++;
           await api.get("auth/refresh");
           return api.request(error.config);
         } catch (refreshError) {}
       } else {
-        refreshAttempted = false;
+        refreshAttempted--;
       }
     }
     return Promise.reject(error);
