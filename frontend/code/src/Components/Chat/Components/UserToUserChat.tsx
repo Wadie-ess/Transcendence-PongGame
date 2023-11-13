@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { UserPreviewCard } from "..";
 import { Conversation } from "./Conversation";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { useChatStore } from "../Controllers/RoomChatControllers";
+import { getDM } from "../Services/ChatServices";
 
 export const UserToUserChat = () => {
   const params = useParams();
+  const navigator = useNavigate();
   console.log(`params : ${params.id} type ${typeof params.id}`);
 
   const ChatState = useChatStore((state) => state);
@@ -15,21 +17,31 @@ export const UserToUserChat = () => {
   useEffect(() => {
     console.log("selected chat id ", ChatState.selectedChatID);
     const fetchUser = async () => {
-      // try {
-      //    await api.get(`profile/${params.id}`).then((res) => {
-      //     console.log(res.data);
-      //     ChatState.setCurrentDmUser({
-      //       secondUserId: res.data.id,
-      //       id: res.data.id,
-      //       name: `${res.data.firstName} `,
-      //       avatar: {
-      //         thumbnail: res.data.image,
-      //         medium: res.data.image,
-      //         large: res.data.image,
-      //       },
-      //     });
-      //   });
-      // } catch (error) {}
+      try {
+        await getDM(params.id as string).then((res) => {
+          console.log("res", res);
+          if (res?.status === 200 || res?.status === 201) {
+            const extractedData = res.data;
+            if (ChatState.selectedChatID !== extractedData.id) {
+              ChatState.selectNewChatID(extractedData.id);
+            }
+            ChatState.setCurrentDmUser({
+              id: extractedData.id,
+              secondUserId: extractedData.secondMemberId,
+              name: extractedData.name,
+              avatar: extractedData.avatar,
+              bio: extractedData.bio,
+            });
+
+            console.log("extractedData", extractedData);
+          } else {
+            // navigator("/chat");
+            // toast.error("Error getting room members");
+          }
+        });
+      } catch (error) {
+        navigator("/chat");
+      }
     };
     fetchUser();
     // eslint-disable-next-line

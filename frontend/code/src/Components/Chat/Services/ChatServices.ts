@@ -24,6 +24,8 @@ export const createNewRoomCall = async (
 };
 
 
+
+
 export const updateRoomCall = async (
   name: string,
   type: string,
@@ -88,6 +90,22 @@ export const fetchDmsCall = async (
 
 }
 
+
+export const getDM = async (
+  id: string
+) => {
+  try {
+    const response = await api.get(`/rooms/dm/${id}`,
+      );
+     console.log("dm :");
+    console.log(response.status);
+    console.log(response.data);
+    return response;
+  } catch (e: any) {
+    console.log(e.response.data.message);
+  }
+
+}
 
 
 export const getRoomMembersCall = async (
@@ -218,6 +236,7 @@ export const getFriendsCall = async (
   }
 
 }
+
 
 
 

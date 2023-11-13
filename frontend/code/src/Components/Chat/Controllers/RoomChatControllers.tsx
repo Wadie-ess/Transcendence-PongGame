@@ -21,8 +21,13 @@ export interface ChatState {
   isLoading: boolean;
   recentRooms: ChatRoom[];
   recentDms: DmRoom[];
+  onlineFriendsIds: string[];
 
   showChatRooms: boolean;
+
+  fillOnlineFriendsIds: (ids: string[]) => void;
+  addOnlineFriend: (id: string) => void;
+  removeOnlineFriend: (id: string) => void;
 
   setCurrentDmUser: (user: DmRoom) => void;
   setMessageAsFailed: (id: string) => void;
@@ -44,13 +49,14 @@ export const useChatStore = create<ChatState>()((set) => ({
   selectedChatID: "1",
   selectedChatType: ChatType.Chat,
   recentRooms: chatRooms,
+  onlineFriendsIds: [],
   recentDms: [],
   isLoading: false,
   showChatRooms: false,
   currentDmUser: {
     id: "1",
     secondUserId: "2",
-    name: "name",
+    name: "Loading...",
     avatar: {
       thumbnail: "",
       medium: "",
@@ -62,6 +68,28 @@ export const useChatStore = create<ChatState>()((set) => ({
   currentMessages: users.find((user) => user.id === "1")?.messages as Message[],
   currentRoomMessages: chatRooms.find((room) => room.id === "1")
     ?.messages as Message[],
+  fillOnlineFriendsIds: (ids: string[]) =>
+    set((state) => {
+      if (state.onlineFriendsIds.length === 5) return { ...state };
+      state.onlineFriendsIds = [...ids];
+      return { ...state };
+    }),
+  addOnlineFriend: (id: string) =>
+    set((state) => {
+      if (
+        state.onlineFriendsIds.includes(id) ||
+        state.onlineFriendsIds.length === 5
+      )
+        return { ...state };
+      state.onlineFriendsIds.push(id);
+      return { ...state };
+    }),
+  removeOnlineFriend: (id: string) =>
+    set((state) => {
+      const index = state.onlineFriendsIds.findIndex((item) => item === id);
+      if (index !== -1) state.onlineFriendsIds.splice(index, 1);
+      return { ...state };
+    }),
 
   fillRecentDms: (dms: DmRoom[]) => {
     set((state) => {
@@ -160,11 +188,13 @@ export const useChatStore = create<ChatState>()((set) => ({
   changeChatType: (type: ChatType) =>
     set((state) => {
       state.selectedChatType = type;
-      if (type === ChatType.Room ) {
+      if (type === ChatType.Room) {
         state.selectedChatID = chatRooms.length > 0 ? chatRooms[0].id : "1";
       } else if (type === ChatType.Chat) {
         state.selectedChatID =
           state.recentDms.length > 0 ? state.recentDms[0].id : "1";
+        state.recentDms.length > 0 &&
+          state.setCurrentDmUser(state.recentDms[0]);
       }
       return { ...state };
     }),

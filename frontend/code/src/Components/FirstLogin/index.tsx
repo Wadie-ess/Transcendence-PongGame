@@ -1,21 +1,13 @@
-
 import { UploadAvatar } from "./UploadAvatar";
 
-export const FirstLogin =  () => {
-    return (
-        <>
-        <div className="absolute h-full w-full bg-black opacity-20 z-20"></div>
-
-         <div className="z-30 absolute h-[70vh] opacity-90 rounded-xl w-[50vw] top-1/4 right-1/4 bg-base-100 s shadow-xl border-opacity-20 border-8 shadow-primary border-primary">
-           
-             <div className="flex flex-col p-10 gap-6 justify-center items-center content-center"> 
-               
-               <UploadAvatar/>
-               </div>
-              
-               
+export const FirstLogin = () => {
+  return (
+    <div className="w-full h-screen flex items-center justify-center">
+      <div className="rounded-xl p-8 md:py-12 md:px-16 bg-base-100 border-2 border-purple-500 max-w-lg w-full">
+        <div className="flex flex-col gap-6 justify-center items-center content-center w-full">
+          <UploadAvatar />
         </div>
-        </>
-       
-    );
-}
+      </div>
+    </div>
+  );
+};

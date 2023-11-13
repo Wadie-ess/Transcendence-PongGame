@@ -1,6 +1,5 @@
 import { Pong } from "./assets/Pong";
 
-
 import { History } from "./History";
 import Hero from "./assets/Hero.gif";
 import { useState, useEffect } from "react";
@@ -8,7 +7,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Load } from "../Loading/";
 import Newbie from "../Badges/Newbie.svg";
 import Master from "../Badges/Master.svg";
-import Ultimate from "../Badges/Ultimate.svg"
+import Ultimate from "../Badges/Ultimate.svg";
 import { useUserStore } from "../../Stores/stores";
 import {
   VscChromeClose,
@@ -171,25 +170,16 @@ export const Profile = () => {
               {/* <button
                 className={`btn btn-primary text-neutral ${disabled}`}
                 onClick={async () => {
-                  await createNewRoomCall("", "dm", undefined, params.id).then(
-                    (res) => {
-                      if (res?.status === 200 || res?.status === 201) {
-                        ChatState.changeChatType(ChatType.Chat);
-                        ChatState.selectNewChatID(res?.data?.id);
-                        ChatState.setCurrentDmUser({
-                          id: profile.id,
-                          name: `${profile.name.first} `,
-                          avatar: profile?.picture,
-                          bio: profile?.bio,
-                        });
-                        navigate(`/Dm/${params.id}`);
-                      } else {
-                        toast.error(
-                          "You Can't Send Message To this User For Now, try Again later"
-                        );
-                      }
+                  ChatState.setIsLoading(true);
+                  await blockUserCall(profile.id).then((res) => {
+                    ChatState.setIsLoading(false);
+                    if (res?.status === 200 || res?.status === 201) {
+                      toast.success("User Blocked");
+                      navigate("/home");
+                    } else {
+                      toast.error("Could Not Block User");
                     }
-                  );
+                  });
                 }}
               >
                 <VscComment />
@@ -248,23 +238,25 @@ export const Profile = () => {
                     <button
                       className={`btn btn-primary text-neutral ${disabled}`}
                       onClick={async () => {
+                        ChatState.setIsLoading(true);
                         await createNewRoomCall(
                           "",
                           "dm",
                           undefined,
                           params.id
                         ).then((res) => {
+                          ChatState.setIsLoading(false);
                           if (res?.status === 200 || res?.status === 201) {
                             ChatState.changeChatType(ChatType.Chat);
                             ChatState.selectNewChatID(res?.data?.id);
                             ChatState.setCurrentDmUser({
-                              secondUserId : profile.id,
+                              secondUserId: profile.id,
                               id: profile.id,
                               name: `${profile.name.first} `,
                               avatar: profile?.picture,
                               bio: profile?.bio,
                             });
-                            navigate(`/Dm/${params.id}`);
+                            navigate(`/Dm/${res?.data.id}`);
                           } else {
                             toast.error(
                               "You Can't Send Message To this User For Now, try Again later"
@@ -297,7 +289,7 @@ export const Profile = () => {
                                   res?.status === 201
                                 ) {
                                   toast.success("User Blocked");
-                                  navigate("/home/");
+                                  navigate("/home");
                                 } else {
                                   toast.error("Could Not Block User");
                                 }

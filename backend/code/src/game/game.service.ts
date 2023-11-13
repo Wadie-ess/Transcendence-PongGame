@@ -10,13 +10,22 @@ export class GameService {
     private readonly prisma: PrismaService,
     private eventEmitter: EventEmitter2,
   ) {
-    this.launchGame();
+    //this.launchGame();
   }
 
   private waitingPlayers: Socket[] = [];
 
   @OnEvent('game.start')
   handleGameStartEvent(client: Socket) {
+    const index = this.waitingPlayers.find((player) => {
+      return player.data.user.sub === client.data.user.sub;
+    }
+    );
+    if (index) {
+      console.log('client already in the queue');
+      return;
+    }
+    
     this.waitingPlayers.push(client);
     console.log('client subscribed to the queue');
   }

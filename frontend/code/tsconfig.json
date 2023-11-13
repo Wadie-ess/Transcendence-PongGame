@@ -19,7 +19,6 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
-    
   },
   "include": [
     "src"

@@ -25,8 +25,9 @@ import ChatGif from "../../assets/chatGif.gif";
 import NullUser from "../../assets/User_duotone.svg";
 import exploreIcon from "../../assets/explore_icon.svg";
 import Options from "../../assets/options.svg";
-import InitChat from "../../assets/Chat_big.svg"
-import Initblack from "../../assets/Chat_black.svg"
+import InitChat from "../../assets/Chat_big.svg";
+import Initblack from "../../assets/Chat_black.svg";
+import closeWhite from "../../assets/Closewhite.svg";
 export enum RoomType {
   private,
   public,
@@ -62,7 +63,8 @@ export {
   exploreIcon,
   Options,
   InitChat,
-  Initblack
+  Initblack,
+  closeWhite,
 };
 
 export interface Message {

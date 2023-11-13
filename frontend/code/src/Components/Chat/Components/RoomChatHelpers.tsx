@@ -1,5 +1,5 @@
 import { SetStateAction, useEffect, useState } from "react";
-import { useChatStore } from "../Controllers/RoomChatControllers";
+import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 import {
   ChatGif,
   ChatRoom,
@@ -31,6 +31,7 @@ import { useModalStore } from "../Controllers/LayoutControllers";
 import { useUserStore } from "../../../Stores/stores";
 import { formatTime } from "./tools/utils";
 import { getBlockedCall, unblockCall } from "../Services/FriendsServices";
+import { useSocketStore } from "../Services/SocketsServices";
 
 interface NullComponentProps {
   message: string;
@@ -45,7 +46,7 @@ export const RoomChatPlaceHolder = () => {
     const fetch = async () => {
       setIsLoading(true);
 
-      await fetchRoomsCall(0, 100, true).then((res) => {
+      await fetchRoomsCall(0, 20, true).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
         } else {
           const rooms: ChatRoom[] = [];
@@ -417,15 +418,15 @@ export const BlockedUsersModal = () => {
         try {
           setIsLoading(true);
 
-          await getBlockedCall(0, 100).then((res) => {
+          await getBlockedCall(0, 20).then((res) => {
             setIsLoading(false);
             if (res?.status === 200 || res?.status === 201) {
               const friends: RoomMember[] = [];
               res.data.forEach(
                 (friend: {
                   userId: string;
-                  firstName: string;
-                  lastName: string;
+                  firstname: string;
+                  lastname: string;
                   avatar?: {
                     thumbnail: string;
                     medium: string;
@@ -434,8 +435,8 @@ export const BlockedUsersModal = () => {
                 }) => {
                   friends.push({
                     id: friend.userId,
-                    firstname: friend.firstName,
-                    lastname: friend.lastName,
+                    firstname: friend.firstname,
+                    lastname: friend.lastname,
                     // to inject it with the real images later
                     avatar: friend.avatar,
                   } as RoomMember);
@@ -513,7 +514,7 @@ export const AddUsersModal = () => {
           await getRoomMembersCall(
             ChatState.selectedChatID as string,
             0,
-            100
+            20
           ).then((res) => {
             setIsLoading(false);
             if (res?.status === 200 || res?.status === 201) {
@@ -524,7 +525,7 @@ export const AddUsersModal = () => {
             }
           });
 
-          await getFriendsCall(0, 100).then((res) => {
+          await getFriendsCall(0, 20).then((res) => {
             setIsLoading(false);
             if (res?.status === 200 || res?.status === 201) {
               const friends: RoomMember[] = [];
@@ -619,6 +620,8 @@ export const RoomSettingsModal = () => {
   const currentRoom = chatRooms.find((room) => room.id === selectedChatID);
   const LayoutState = useModalStore((state) => state);
   const setIsLoading = useChatStore((state) => state.setIsLoading);
+  const socketStore = useSocketStore();
+  const chatState = useChatStore((state) => state);
 
   const [currentUsers, setUsers] = useState<RoomMember[]>([]);
   const [skipCount, setSkipCount] = useState(true);
@@ -638,19 +641,19 @@ export const RoomSettingsModal = () => {
     target: { value: SetStateAction<string> };
   }) => {
     setUpdate(true);
-    setName(event.target.value);
+    setName(event.target.value || "");
   };
   const [selectedOption, setSelectedOption] = useState(RoomType.public);
 
   useEffect(() => {
     setSelectedOption(currentRoom?.type as RoomType);
-    setName(currentRoom?.name as string);
+    setName((currentRoom?.name || "") as string);
     if (skipCount) setSkipCount(false);
     if (!skipCount) {
       const fetchData = async () => {
         try {
           setLOading(true);
-          await getRoomMembersCall(currentRoom?.id as string, 0, 30).then(
+          await getRoomMembersCall(currentRoom?.id as string, 0, 20).then(
             (res) => {
               setLOading(false);
               if (res?.status === 200 || res?.status === 201) {
@@ -674,7 +677,7 @@ export const RoomSettingsModal = () => {
     setUpdate(false);
     setPassword("");
     setSelectedOption(currentRoom?.type as RoomType);
-    setName(currentRoom?.name as string);
+    setName((currentRoom?.name || "") as string);
   };
 
   return (
@@ -813,6 +816,18 @@ export const RoomSettingsModal = () => {
                         >
                           <li
                             onClick={async () => {
+                              if (user.isBaned) {
+                                socketStore.socket.emit("unban", {
+                                  roomId: chatState.selectedChatID,
+                                  memberId: user.id,
+                                });
+                              } else {
+                                socketStore.socket.emit("roomDeparture", {
+                                  roomId: chatState.selectedChatID,
+                                  memberId: user.id,
+                                });
+                              }
+
                               setTakeAction(true);
                               await takeActionCall(
                                 selectedChatID as string,
@@ -883,6 +898,11 @@ export const RoomSettingsModal = () => {
                                   res?.status === 201
                                 ) {
                                   toast.success("User Kicked Successfully");
+                                  socketStore.socket.emit("roomDeparture", {
+                                    roomId: chatState.selectedChatID,
+                                    memberId: user.id,
+                                    type: "kick",
+                                  });
                                 }
                               });
                             }}
@@ -1013,7 +1033,7 @@ export const ExploreRoomsModal = () => {
   useEffect(() => {
     const fetch = async () => {
       setIsLoading(true);
-      await fetchRoomsCall(0, 100, false).then((res) => {
+      await fetchRoomsCall(0, 20, false).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
           // toast.error("something went wrong, try again");
           resetModalState();
@@ -1148,6 +1168,7 @@ export const ExploreRoomsModal = () => {
                     resetModalState();
                   } else {
                     toast.success("Room Joined Successfully");
+                    recentRooms.changeChatType(ChatType.Room);
                     recentRooms.selectNewChatID(SelectedRoomID);
 
                     resetModalState();
@@ -1258,7 +1279,7 @@ export const ShowLogoModal = () => {
       <div className="modal-box bg-[#2d2f3b] rounded-lg shadow-white  p-5 border-2 border-purple-500 text-center">
         <div>
           <div className="pl-48 p-4">
-            <Logo x={""} y={""} />
+            <Logo />
           </div>
 
           <p>Loading...</p>
