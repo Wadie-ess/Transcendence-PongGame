@@ -170,25 +170,16 @@ export const Profile = () => {
               {/* <button
                 className={`btn btn-primary text-neutral ${disabled}`}
                 onClick={async () => {
-                  await createNewRoomCall("", "dm", undefined, params.id).then(
-                    (res) => {
-                      if (res?.status === 200 || res?.status === 201) {
-                        ChatState.changeChatType(ChatType.Chat);
-                        ChatState.selectNewChatID(res?.data?.id);
-                        ChatState.setCurrentDmUser({
-                          id: profile.id,
-                          name: `${profile.name.first} `,
-                          avatar: profile?.picture,
-                          bio: profile?.bio,
-                        });
-                        navigate(`/Dm/${params.id}`);
-                      } else {
-                        toast.error(
-                          "You Can't Send Message To this User For Now, try Again later"
-                        );
-                      }
+                  ChatState.setIsLoading(true);
+                  await blockUserCall(profile.id).then((res) => {
+                    ChatState.setIsLoading(false);
+                    if (res?.status === 200 || res?.status === 201) {
+                      toast.success("User Blocked");
+                      navigate("/home");
+                    } else {
+                      toast.error("Could Not Block User");
                     }
-                  );
+                  });
                 }}
               >
                 <VscComment />
@@ -247,12 +238,14 @@ export const Profile = () => {
                     <button
                       className={`btn btn-primary text-neutral ${disabled}`}
                       onClick={async () => {
+                        ChatState.setIsLoading(true);
                         await createNewRoomCall(
                           "",
                           "dm",
                           undefined,
                           params.id
                         ).then((res) => {
+                          ChatState.setIsLoading(false);
                           if (res?.status === 200 || res?.status === 201) {
                             ChatState.changeChatType(ChatType.Chat);
                             ChatState.selectNewChatID(res?.data?.id);
@@ -296,7 +289,7 @@ export const Profile = () => {
                                   res?.status === 201
                                 ) {
                                   toast.success("User Blocked");
-                                  navigate("/home/");
+                                  navigate("/home");
                                 } else {
                                   toast.error("Could Not Block User");
                                 }

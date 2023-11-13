@@ -1,5 +1,5 @@
 import { SetStateAction, useEffect, useState } from "react";
-import { useChatStore } from "../Controllers/RoomChatControllers";
+import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 import {
   ChatGif,
   ChatRoom,
@@ -418,15 +418,15 @@ export const BlockedUsersModal = () => {
         try {
           setIsLoading(true);
 
-          await getBlockedCall(0, 100).then((res) => {
+          await getBlockedCall(0, 20).then((res) => {
             setIsLoading(false);
             if (res?.status === 200 || res?.status === 201) {
               const friends: RoomMember[] = [];
               res.data.forEach(
                 (friend: {
                   userId: string;
-                  firstName: string;
-                  lastName: string;
+                  firstname: string;
+                  lastname: string;
                   avatar?: {
                     thumbnail: string;
                     medium: string;
@@ -435,8 +435,8 @@ export const BlockedUsersModal = () => {
                 }) => {
                   friends.push({
                     id: friend.userId,
-                    firstname: friend.firstName,
-                    lastname: friend.lastName,
+                    firstname: friend.firstname,
+                    lastname: friend.lastname,
                     // to inject it with the real images later
                     avatar: friend.avatar,
                   } as RoomMember);
@@ -514,7 +514,7 @@ export const AddUsersModal = () => {
           await getRoomMembersCall(
             ChatState.selectedChatID as string,
             0,
-            100
+            20
           ).then((res) => {
             setIsLoading(false);
             if (res?.status === 200 || res?.status === 201) {
@@ -525,7 +525,7 @@ export const AddUsersModal = () => {
             }
           });
 
-          await getFriendsCall(0, 100).then((res) => {
+          await getFriendsCall(0, 20).then((res) => {
             setIsLoading(false);
             if (res?.status === 200 || res?.status === 201) {
               const friends: RoomMember[] = [];
@@ -641,13 +641,13 @@ export const RoomSettingsModal = () => {
     target: { value: SetStateAction<string> };
   }) => {
     setUpdate(true);
-    setName(event.target.value || '');
+    setName(event.target.value || "");
   };
   const [selectedOption, setSelectedOption] = useState(RoomType.public);
 
   useEffect(() => {
     setSelectedOption(currentRoom?.type as RoomType);
-    setName((currentRoom?.name || '') as string);
+    setName((currentRoom?.name || "") as string);
     if (skipCount) setSkipCount(false);
     if (!skipCount) {
       const fetchData = async () => {
@@ -677,7 +677,7 @@ export const RoomSettingsModal = () => {
     setUpdate(false);
     setPassword("");
     setSelectedOption(currentRoom?.type as RoomType);
-    setName((currentRoom?.name || '') as string);
+    setName((currentRoom?.name || "") as string);
   };
 
   return (
@@ -816,6 +816,18 @@ export const RoomSettingsModal = () => {
                         >
                           <li
                             onClick={async () => {
+                              if (user.isBaned) {
+                                socketStore.socket.emit("unban", {
+                                  roomId: chatState.selectedChatID,
+                                  memberId: user.id,
+                                });
+                              } else {
+                                socketStore.socket.emit("roomDeparture", {
+                                  roomId: chatState.selectedChatID,
+                                  memberId: user.id,
+                                });
+                              }
+
                               setTakeAction(true);
                               await takeActionCall(
                                 selectedChatID as string,
@@ -827,23 +839,6 @@ export const RoomSettingsModal = () => {
                                   res?.status === 200 ||
                                   res?.status === 201
                                 ) {
-                                  if(user.isBaned === true)
-                                  {
-                                    socketStore.socket.emit("roomDeparture", {
-                                      "roomId" : chatState.selectedChatID,
-                                      "memberId" : user.id,
-                                                               
-                                    }) 
-                                  }
-                                  else if(user.isBaned === false)
-                                  {
-                                    socketStore.socket.emit("unban", {
-                                      "roomId" : chatState.selectedChatID,
-                                      "memberId" : user.id                    
-                                    }) 
-
-                                  }
-                                  
                                   toast.success(res.data.message);
                                 }
                                 LayoutState.setShowSettingsModal(
@@ -904,11 +899,10 @@ export const RoomSettingsModal = () => {
                                 ) {
                                   toast.success("User Kicked Successfully");
                                   socketStore.socket.emit("roomDeparture", {
-                                    "roomId" : chatState.selectedChatID,
-                                    "memberId" : user.id,
-                                    "type" : "kick"
-                            
-                                  })
+                                    roomId: chatState.selectedChatID,
+                                    memberId: user.id,
+                                    type: "kick",
+                                  });
                                 }
                               });
                             }}
@@ -1174,6 +1168,7 @@ export const ExploreRoomsModal = () => {
                     resetModalState();
                   } else {
                     toast.success("Room Joined Successfully");
+                    recentRooms.changeChatType(ChatType.Room);
                     recentRooms.selectNewChatID(SelectedRoomID);
 
                     resetModalState();

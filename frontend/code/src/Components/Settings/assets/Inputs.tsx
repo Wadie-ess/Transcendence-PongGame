@@ -79,6 +79,7 @@ export const Inputs = (props: InputsProps) => {
     // Additional error for "email" field
     if (props.payload === "email" && errors[props.payload]?.type === "pattern")
       toast.error(`${errors[props.payload]?.message}`);
+    // eslint-disable-next-line
   }, []);
 
   const handleCancel = useCallback(() => {
@@ -87,6 +88,7 @@ export const Inputs = (props: InputsProps) => {
         "font-poppins font-bold relative top-[6vh] bg-base-100 text-white",
     });
     reset();
+    // eslint-disable-next-line
   }, []);
 
   const [input, setInput] = useState(false);

@@ -18,6 +18,7 @@ import { useSocketStore } from "../Chat/Services/SocketsServices";
 import { ShowLogoModal } from "../Chat/Components/RoomChatHelpers";
 import { Modal } from "./Assets/Modal";
 import toast from "react-hot-toast";
+import { closeWhite } from "../Chat/Components/tools/Assets";
 
 const routes = [
   { path: "Profile/:id" },
@@ -63,41 +64,45 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
     socketStore.socket.on("connect", onConnect);
 
     socketStore.socket.on("message", (msg: any) => {
-      toast.custom((t) => (
-        <div
-          className={`${
-            t.visible ? "animate-enter" : "animate-leave"
-          } max-w-md w-full transition-opacity ease-in  bg-indigo-900 shadow-lg rounded-lg pointer-events-auto flex ring-1 relative top-[6vh] ring-black ring-opacity-5`}
-        >
-          <div className="flex-1 w-0 p-4">
-            <div className="flex items-start">
-              <div className="flex-shrink-0 pt-0.5">
-                <img
-                  className="h-10 w-10 rounded-full"
-                  src={`${msg.avatar.medium}`}
-                  alt="avatar"
-                />
-              </div>
-              <div className="ml-3 flex-1">
-                <p className="font-bold font-poppins text-neutral">
-                  {msg.Username}
-                </p>
-                <p className="mt-1 font-medium font-poppins  text-black">
-                  {msg.content}
-                </p>
+      toast.custom(
+        (t) => (
+          // eslint-disable-next-line 
+          (t.duration = 450),
+          (
+            <div
+              className={`${
+                t.visible ? "animate-enter" : "animate-leave"
+              } max-w-sm w-full transition-opacity ease-in  bg-purple-500 rounded-xl  flex flex-col  relative top-[6vh] p-4`}
+            >
+              <div className="flex flex-row justify-between  ">
+                <div className="  flex flex-row ">
+                  <img
+                    alt="avatar"
+                    className="w-10 h-10 rounded-full"
+                    src={msg.avatar.medium}
+                  />
+                  <div className=" pl-3 flex flex-col items-baseline">
+                    <p className=" text-white  font-poppins text-base font-semibold leading-5 capitalize">
+                      message Received
+                    </p>
+                    <p className="text-[#2F3F53] font-poppins text-base font-normal text-center max-w-[150px] truncate">
+                      {msg.content}
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <img
+                    alt="avatar"
+                    className=" pb-1 w-6 h-6"
+                    src={closeWhite}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex border-l border-gray-200">
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-neutral hover:text-gray-600 focus:outline-none focus:ring-2 focus:[#8C67F6]"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      ));
+          )
+        )
+      );
     });
     log();
     return () => {

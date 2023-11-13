@@ -14,7 +14,7 @@ export const Avatar = (props: AvatarProps) => {
   return (
     <div className="avatar myonline dropdown hover:cursor-pointer">
       <div tabIndex={0} className="w-10 sm:w-12 rounded-full">
-        <img alt="profile picture" src={props.picture} />
+        <img alt="profile " src={props.picture} />
       </div>
       <ul
         tabIndex={0}
