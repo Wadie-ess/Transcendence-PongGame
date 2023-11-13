@@ -124,17 +124,20 @@ export const Setting = () => {
                             Install Google Auth
                           </span>
                           <img
+                            alt="no"
                             src={googleAuthenticatorIcon}
                             className="w-24 h-24"
                           />
                           <div className="w-full h-8 grid grid-cols-2 gap-1">
                             <img
+                              alt="no"
                               src={appStoreIcon}
                               className="w-auto h-8 object-contains"
                             />
                             <img
+                              alt="no"
                               src={playStoreIcon}
-                              className="w-auto h-8 object-contains"
+                              className="w-auto h-8 object-contains" 
                             />
                           </div>
                         </div>

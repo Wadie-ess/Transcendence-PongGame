@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 import { ChatPaceHolderProps } from "./Conversation";
-import users, {
+import {
   ChatIcon,
   DmRoom,
   Explore,
   GroupChat,
+  NullUser,
   RoomMember,
   RoomsIcon,
   check,
@@ -13,10 +14,16 @@ import users, {
 
 import { NullPlaceHolder, RoomChatPlaceHolder } from "./RoomChatHelpers";
 import { useModalStore } from "../Controllers/LayoutControllers";
-import { fetchDmsCall, getFriendsCall } from "../Services/ChatServices";
+import {
+  createNewRoomCall,
+  fetchDmsCall,
+  getFriendsCall,
+} from "../Services/ChatServices";
 import { formatTime } from "./tools/utils";
 import { useSocketStore } from "../Services/SocketsServices";
-import { useUserStore } from "../../../Stores/stores";
+
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export const RecentConversations = () => {
   const [isLoading, setLoading] = useState(false);
@@ -63,6 +70,7 @@ export const RecentConversations = () => {
           );
           // setIsLoading(false);
           ChatRoomsState.fillRecentDms(rooms);
+          // ChatRoomsState.changeChatType(ChatType.Room);
         }
       });
     };
@@ -78,11 +86,12 @@ export const RecentConversations = () => {
           {ChatRoomsState.recentDms.map((friend) => (
             <ChatPlaceHolder
               key={friend.id}
+              bio={friend?.bio}
               secondUserId={friend.secondUserId}
               id={friend.id}
               username={friend.name}
               message={friend.last_message?.content ?? "No Messages*"}
-              time={friend.last_message?.createdAt ?? ""}
+              time={friend.last_message?.createdAt}
               isMe={true}
               isRead={true}
               userImage={friend.avatar.medium}
@@ -119,12 +128,12 @@ export const ChatPlaceHolder = ({
   userImage,
   id,
   secondUserId,
+  bio,
 }: ChatPaceHolderProps) => {
   const selectNewChat = useChatStore((state) => state.selectNewChatID);
   const selectedChatID = useChatStore((state) => state.selectedChatID);
   const chatState = useChatStore((state) => state);
-  const socketStore = useSocketStore();
-  const currentUser = useUserStore((state) => state);
+
   return (
     <div
       onClick={() => {
@@ -132,6 +141,7 @@ export const ChatPlaceHolder = ({
           selectNewChat(id);
         }
         chatState.setCurrentDmUser({
+          bio: bio,
           secondUserId: secondUserId,
           id: id,
           name: username,
@@ -159,7 +169,7 @@ export const ChatPlaceHolder = ({
             {username}
           </p>
           <p className="text-gray-400 font-poppins text-xs font-light leading-normal">
-            {formatTime(time)}
+            {time ? formatTime(time!) : ""}
           </p>
         </div>
         <div className=" flex flex-row justify-between">
@@ -186,18 +196,18 @@ export const OnlineNowUsers = () => {
   const changeChatType = useChatStore((state) => state.changeChatType);
   const chatState = useChatStore((state) => state);
   const socketStore = useSocketStore();
+  const navigate = useNavigate();
   const [Users, setUsers] = useState<RoomMember[]>([]);
-  // take the first five users from the array
-  const onlineUsers = Users.slice(0, 5);
+
   const setModalState = useModalStore((state) => state.setShowExploreModal);
-  const currentUser = useUserStore((state) => state);
+
   const handleListOfOnline = (ids: string[]) => {
     chatState.fillOnlineFriendsIds(ids);
   };
+
   useEffect(() => {
     const fetchFriends = async () => {
       await getFriendsCall(0, 20).then((res) => {
-        // setIsLoading(false);
         if (res?.status === 200 || res?.status === 201) {
           const friends: RoomMember[] = [];
           res.data.forEach(
@@ -228,6 +238,7 @@ export const OnlineNowUsers = () => {
     };
     socketStore.socket.on("onlineFriends", handleListOfOnline);
     fetchFriends();
+    // eslint-disable-next-line
   }, [chatState.onlineFriendsIds.length]);
 
   return (
@@ -237,6 +248,7 @@ export const OnlineNowUsers = () => {
           <p className="text-purple-500 font-poppins text-sm md:text-lg font-medium leading-normal ">
             Messages
           </p>
+
           <div className="icons-row flex flex-row items-center  ">
             <a href="#my_modal_8" className="pr-2">
               <img className="w-[80%]" alt="" src={GroupChat} />
@@ -287,15 +299,68 @@ export const OnlineNowUsers = () => {
               </p>
             </div>
 
-            <div className="users-images flex flex-row justify-between pt-3 pb-3  ">
-              {chatState.onlineFriendsIds.map((user) => (
-                <div key={user} className="relative inline-block">
-                  <img
-                    className="user-image h-10 w-10 rounded-full"
-                    src={Users.find((u) => u.id === user)?.avatar.medium}
-                    alt={`second's Profile`}
-                  />
-                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+            <div className="users-images flex flex-row justify-between pt-3   ">
+              {chatState.onlineFriendsIds
+                .filter((user) => Users.find((u) => u.id === user))
+                .map((user) => (
+                  <div key={user} className="flex flex-col ">
+                    <button
+                      onClick={async () => {
+                        await createNewRoomCall("", "dm", undefined, user).then(
+                          (res) => {
+                            if (res?.status === 200 || res?.status === 201) {
+                              chatState.changeChatType(ChatType.Chat);
+
+                              chatState.setCurrentDmUser({
+                                secondUserId: user,
+                                id: res?.data?.id,
+                                name: ((Users.find((u) => u.id === user)
+                                  ?.firstname as string) +
+                                  " " +
+                                  Users.find((u) => u.id === user)
+                                    ?.lastname) as string,
+                                avatar: Users.find((u) => u.id === user)
+                                  ?.avatar as {
+                                  thumbnail: string;
+                                  medium: string;
+                                  large: string;
+                                },
+                                bio: Users.find((u) => u.id === user)
+                                  ?.bio as string,
+                              });
+                              chatState.selectNewChatID(res?.data?.id);
+                              navigate(`/Dm/${res?.data.id}`);
+                            } else {
+                              toast.error(
+                                "You Can't Send Message To this User For Now, try Again later"
+                              );
+                            }
+                          }
+                        );
+                      }}
+                    >
+                      <div className="relative inline-block">
+                        <img
+                          className="user-image h-11 w-11 rounded-full"
+                          src={
+                            Users.find((u) => u.id === user)?.avatar.medium ??
+                            NullUser
+                          }
+                          alt={`second's Profile`}
+                        />
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                      </div>
+                      <div className="text-center mt-1 font-poppins text-sm truncate max-w-[48px]">
+                        {Users.find((u) => u.id === user)?.firstname}
+                      </div>
+                    </button>
+                  </div>
+                ))}
+              {Array.from({
+                length: 5 - chatState.onlineFriendsIds.length,
+              }).map((_, index) => (
+                <div key={`skeleton-${index}`} className=" flex flex-col">
+                  {skeleton()}
                 </div>
               ))}
             </div>
@@ -303,5 +368,28 @@ export const OnlineNowUsers = () => {
         )}
       </div>
     </>
+  );
+};
+
+export const skeleton = () => {
+  return (
+    <div className="flex flex-col items-center">
+      <div className="flex animate-pulse">
+        <div className="flex-shrink-0">
+          <span className="w-12 h-12 block bg-gray-200 rounded-full dark:bg-gray-700"></span>
+        </div>
+
+        <div className=" mt-2 w-full">
+          {/* eslint-disable-next-line */}
+          <h3
+            className="h-4 bg-gray-200 rounded-full dark:bg-gray-700"
+            style={{ width: "40%" }}
+          ></h3>
+        </div>
+      </div>
+      <div className="flex animate-pulse">
+        <div className="h-2.5 mt-1.5 bg-gray-200 rounded-full dark:bg-gray-700 w-4  "></div>
+      </div>
+    </div>
   );
 };

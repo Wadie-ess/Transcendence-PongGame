@@ -27,12 +27,13 @@ import { useSocketStore } from "../Services/SocketsServices";
 export interface ChatPaceHolderProps {
   username: string;
   message: string;
-  time: string;
+  time?: string;
   isMe: boolean;
   isRead: boolean;
   userImage: string;
   id: string;
   secondUserId: string;
+  bio?: string;
 }
 
 export const CurrentUserMessage = ({
@@ -104,13 +105,13 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 
   const handleOnline = (userId: string) => {
     currentUser.secondUserId === userId && SetOnline(true);
-    console.log(currentUser.id);
+    ChatState.addOnlineFriend(userId);
 
     console.log("user online", userId);
   };
   const handleOffline = (userId: string) => {
     currentUser.secondUserId === userId && SetOnline(false);
-    console.log("user offline", userId);
+    ChatState.removeOnlineFriend(userId);
   };
   const handleConfirmation = () => {
     setIsModalOpen(false);
@@ -431,7 +432,9 @@ export const Conversation: React.FC<ConversationProps> = ({
       setInputValue("");
       if (res?.status !== 200 && res?.status !== 201) {
         setFail(true);
-        toast.error("you are not authorized to send messages in this room");
+        chatState.selectedChatType === ChatType.Room
+          ? toast.error("you are not authorized to send messages in this room")
+          : toast.error("you are blocked from sending messages to this user");
         chatState.setMessageAsFailed(res?.data.id);
       } else {
       }

@@ -144,10 +144,10 @@ export const useUserStore = create<State & Action>()(
           history: [],
           chatRoomsJoinedIds: [],
           profileComplet: user_data.profileFinished,
-        };
+        }; 
         // console.log(userInitialValue)
-        const state = get();
-        const notifs = await state.fetchNotifications(0, 20);
+        // const state = get();
+        // const notifs = await state.fetchNotifications(0, 20);
         set({ ...userInitialValue });
         return userInitialValue.isLogged;
       },

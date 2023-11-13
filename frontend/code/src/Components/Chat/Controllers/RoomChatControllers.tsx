@@ -3,7 +3,6 @@ import users, {
   ChatRoom,
   DmRoom,
   Message,
-  RoomMember,
   RoomType,
   chatRooms,
 } from "../Components/tools/Assets";
@@ -71,11 +70,17 @@ export const useChatStore = create<ChatState>()((set) => ({
     ?.messages as Message[],
   fillOnlineFriendsIds: (ids: string[]) =>
     set((state) => {
+      if (state.onlineFriendsIds.length === 5) return { ...state };
       state.onlineFriendsIds = [...ids];
       return { ...state };
     }),
   addOnlineFriend: (id: string) =>
     set((state) => {
+      if (
+        state.onlineFriendsIds.includes(id) ||
+        state.onlineFriendsIds.length === 5
+      )
+        return { ...state };
       state.onlineFriendsIds.push(id);
       return { ...state };
     }),

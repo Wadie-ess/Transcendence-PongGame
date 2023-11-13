@@ -1,5 +1,5 @@
 import { SetStateAction, useEffect, useState } from "react";
-import { useChatStore } from "../Controllers/RoomChatControllers";
+import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 import {
   ChatGif,
   ChatRoom,
@@ -418,15 +418,15 @@ export const BlockedUsersModal = () => {
         try {
           setIsLoading(true);
 
-          await getBlockedCall(0, 100).then((res) => {
+          await getBlockedCall(0, 20).then((res) => {
             setIsLoading(false);
             if (res?.status === 200 || res?.status === 201) {
               const friends: RoomMember[] = [];
               res.data.forEach(
                 (friend: {
                   userId: string;
-                  firstName: string;
-                  lastName: string;
+                  firstname: string;
+                  lastname: string;
                   avatar?: {
                     thumbnail: string;
                     medium: string;
@@ -435,8 +435,8 @@ export const BlockedUsersModal = () => {
                 }) => {
                   friends.push({
                     id: friend.userId,
-                    firstname: friend.firstName,
-                    lastname: friend.lastName,
+                    firstname: friend.firstname,
+                    lastname: friend.lastname,
                     // to inject it with the real images later
                     avatar: friend.avatar,
                   } as RoomMember);
@@ -1168,6 +1168,7 @@ export const ExploreRoomsModal = () => {
                     resetModalState();
                   } else {
                     toast.success("Room Joined Successfully");
+                    recentRooms.changeChatType(ChatType.Room);
                     recentRooms.selectNewChatID(SelectedRoomID);
 
                     resetModalState();

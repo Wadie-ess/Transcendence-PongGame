@@ -25,7 +25,6 @@ import {
 
 import { getRoomMembersCall } from "./Services/ChatServices";
 
-import toast from "react-hot-toast";
 import { classNames } from "../../Utils/helpers";
 import { useModalStore } from "./Controllers/LayoutControllers";
 
@@ -121,8 +120,6 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
                 const extractedData = res.data;
                 setIsLoading(false);
                 setUsers(extractedData);
-              } else {
-                toast.error("Error getting room members");
               }
             }
           );
@@ -199,7 +196,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
             {}
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
-          <div className="h-max[100px] overflow-scroll no-scrollbar ">
+          <div className="h-[400px] overflow-scroll no-scrollbar ">
             {isLoading === false ? (
               <>
                 {currentUsers.map((user) => (
