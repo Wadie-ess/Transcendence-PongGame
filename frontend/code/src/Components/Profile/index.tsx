@@ -2,7 +2,7 @@ import { Pong } from "./assets/Pong";
 
 import { History } from "./History";
 import Hero from "./assets/Hero.gif";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Load } from "../Loading/";
 import Newbie from "../Badges/Newbie.svg";
@@ -19,6 +19,7 @@ import {
 import api from "../../Api/base";
 import toast from "react-hot-toast";
 import { createNewRoomCall } from "../Chat/Services/ChatServices";
+import { useSocketStore } from "../Chat/Services/SocketsServices";
 import {
   ChatType,
   useChatStore,
@@ -28,6 +29,7 @@ import { useModalStore } from "../Chat/Controllers/LayoutControllers";
 import { BlockedUsersModal } from "../Chat/Components/RoomChatHelpers";
 import { blockUserCall } from "../Chat/Services/FriendsServices";
 import { AxiosError } from "axios";
+import { InvitationWaiting } from "../Layout/Assets/Invitationacceptance";
 type FRIENDSHIP = "none" | "friend" | "sent" | "recive" | "blocked" | undefined;
 export const Profile = () => {
   const user = useUserStore();
@@ -39,7 +41,9 @@ export const Profile = () => {
   const [profile, setProfile] = useState<null | any>(undefined);
   const ChatState = useChatStore();
   const LayoutState = useModalStore();
+  const socketStore = useSocketStore();
 
+  const inviteWaitingModalRef = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -58,12 +62,10 @@ export const Profile = () => {
           res.data.friendship[0].fromId !== user.id &&
           setStatus("recive");
       } catch (error) {
-        if (error instanceof AxiosError)
-        {
-          if (error?.response?.status !== 401)
-            navigate("/NotFound")
+        if (error instanceof AxiosError) {
+          if (error?.response?.status !== 401) navigate("/NotFound");
+        }
       }
-    }
     };
     if (params.id !== user.id || params.id !== "me") fetchUser();
     else setProfile(user);
@@ -154,7 +156,7 @@ export const Profile = () => {
         </div>
         <div className="relative flex flex-row gap-y-4 sm:gap-y-0 pl-4  text-neutral font-montserrat bg-base-200  justify-between  items-start h-[15%] xl:h-[30%] xl:min-h-[27%] min-h-[25%] rounded-b-3xl w-[85vw] ">
           <div className="flex flex-col pt-2">
-            <p className="sm:pt-12  pt-4 font-poppins font-bold text-xl ">
+            <div className="sm:pt-12  pt-4 font-poppins font-bold text-xl ">
               {profile?.name?.first ? (
                 <>
                   {profile?.name?.first} {"  "} {profile.name.last}
@@ -162,7 +164,7 @@ export const Profile = () => {
               ) : (
                 <Load />
               )}
-            </p>
+            </div>
 
             <div className="flex flex-row  items-center  pt-2 text-xs">
               {"@"}
@@ -247,7 +249,7 @@ export const Profile = () => {
                           "",
                           "dm",
                           undefined,
-                          params.id
+                          params.id,
                         ).then((res) => {
                           ChatState.setIsLoading(false);
                           if (res?.status === 200 || res?.status === 201) {
@@ -263,7 +265,7 @@ export const Profile = () => {
                             navigate(`/Dm/${res?.data.id}`);
                           } else {
                             toast.error(
-                              "You Can't Send Message To this User For Now, try Again later"
+                              "You Can't Send Message To this User For Now, try Again later",
                             );
                           }
                         });
@@ -280,8 +282,33 @@ export const Profile = () => {
                       </label>
                       <ul
                         tabIndex={0}
-                        className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute bottom-16  "
+                        className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute"
                       >
+                        <li
+                          className="hover:bg-[#7940CF] hover:rounded"
+                          onClick={() => {
+                            socketStore?.socket?.emit(
+                              "inviteToGame",
+                              {
+                                inviterId: user.id,
+                                opponentId: profile.id,
+                              },
+                              (data: {
+                                error: string | null;
+                                gameId: string;
+                              }) => {
+                                if (data.error) {
+                                  toast.error(data.error);
+                                  return;
+                                }
+                                user.setGameWaitingId(data.gameId)
+                                inviteWaitingModalRef.current?.showModal();
+                              },
+                            );
+                          }}
+                        >
+                          <span>Invite to game</span>
+                        </li>
                         <span className="hover:bg-[#7940CF] hover:rounded">
                           <li
                             onClick={async () => {
@@ -340,7 +367,7 @@ export const Profile = () => {
                       <li
                         onClick={() => {
                           LayoutState.setShowBlockedList(
-                            !LayoutState.showBlockedLIstModal
+                            !LayoutState.showBlockedLIstModal,
                           );
                         }}
                       >
@@ -359,17 +386,29 @@ export const Profile = () => {
 
           <div className="flex h-full w-full flex-row gap-x-4 justify-center sm:justify-start items-center  sm:w-auto sm:pr-4 sm:pt-0 pt-4">
             <img
-              className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] ${profile?.achievement !== null && profile?.achievement >= 0   ? "":"opacity-30"}`}
+              className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] ${
+                profile?.achievement !== null && profile?.achievement >= 0
+                  ? ""
+                  : "opacity-30"
+              }`}
               src={Newbie}
               alt="newbie badge"
             />
             <img
-              className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] ${profile?.achievement !== null && profile?.achievement >= 1 ? "":"opacity-30"}`}
+              className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] ${
+                profile?.achievement !== null && profile?.achievement >= 1
+                  ? ""
+                  : "opacity-30"
+              }`}
               src={Master}
               alt="Master badge"
             />
             <img
-              className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] ${profile?.achievement !== null && profile?.achievement >= 2 ? "":"opacity-30"}`}
+              className={`h-[9vh] sm:h-[11vh] md:h-[12vh] lg:h-[13vh] xl:h-[15vh] 2xl:h-[16vh] ${
+                profile?.achievement !== null && profile?.achievement >= 2
+                  ? ""
+                  : "opacity-30"
+              }`}
               src={Ultimate}
               alt="Ultimate badge"
             />
@@ -379,6 +418,11 @@ export const Profile = () => {
           <History props={params.id} />
         </div>
       </div>
+      <InvitationWaiting
+        ref={inviteWaitingModalRef}
+        oppenent={profile}
+        user={user}
+      />
     </>
   );
 };

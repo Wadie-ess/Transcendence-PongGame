@@ -12,7 +12,17 @@ import {} from '@nestjs/platform-socket.io';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Game } from 'src/game/game';
-import { $Enums, Notification , Match } from '@prisma/client';
+import { $Enums, Notification } from '@prisma/client';
+import * as crypto from 'crypto';
+import { UsersService } from 'src/users/users.service';
+
+interface GameInvite {
+  inviter: string;
+  opponentId: string;
+  gameMode: string;
+  client: Socket;
+  gameId: string;
+}
 
 @WebSocketGateway(3004, {
   cors: {
@@ -24,33 +34,15 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly usersService: UsersService,
   ) {}
 
   @WebSocketServer() private server: Server;
   private games_map = new Map<string, Game>();
+  private game_invites = new Set<GameInvite>();
   async handleConnection(client: Socket) {
     const userId = client.data.user.sub;
-    // const rooms = this.prisma.roomMember.findMany({
-    //   where: {
-    //     userId: userId,
-    //   },
-    //   select: {
-    //     room: {
-    //       select: {
-    //         id: true,
-    //         name: true,
-    //       },
-    //     },
-    //   },
-    // });
-    // rooms.then((rooms) => {
-    //   rooms.forEach((room) => {
-    //     client.join(`Room:${room.room.id}`);
-    //     console.log(`Room:${room.room.id}`);
-    //   });
-    // });
     client.join(`User:${userId}`);
-
     const frienduserIds = await this.prisma.friend.findMany({
       where: {
         OR: [
@@ -162,7 +154,6 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
             is_banned: true,
           },
         });
-
         roomMembers = roomMembers.filter(
           (member) =>
             member.userId !== message.authorId &&
@@ -209,12 +200,126 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   // getPlayers() {
   //   this.server.emit("players",[this.p1Data ,this.p2Data])
   // }
+  private async checkIfCanInvite(userId: string) {
+    const opententSockets = await this.server
+      .in(`User:${userId}`)
+      .fetchSockets();
+    if (opententSockets.length === 0) {
+      return { error: 'offline' };
+    }
+    for await (const socket of opententSockets) {
+      if (socket.data.user?.inGame) {
+        return { error: 'already in game' };
+      }
+    }
+    const invite = Array.from(this.game_invites).find(
+      (invite) => invite.opponentId === userId || invite.inviter === userId,
+    );
+    if (invite) {
+      return { error: 'already Invited or Inviting to a game' };
+    }
+    return { error: null };
+  }
+
+  @SubscribeMessage('inviteToGame')
+  async handleInviteToGameEvent(client: Socket, data: any) {
+    const [inviter, opponent] = await Promise.all([
+      this.checkIfCanInvite(client.data.user.sub),
+      this.checkIfCanInvite(data.opponentId),
+    ]);
+
+    if (inviter.error || opponent.error) {
+      return {
+        error: inviter.error ? `You are ${inviter.error}` : opponent.error,
+      };
+    }
+
+    const gameId = crypto.randomBytes(16).toString('hex');
+    this.server.to(`User:${data.opponentId}`).emit('invitedToGame', {
+      inviterId: client.data.user.sub,
+      gameId,
+    });
+    this.game_invites.add({
+      inviter: client.data.user.sub,
+      gameMode: data.gameMode,
+      client,
+      gameId,
+      opponentId: data.opponentId,
+    });
+    return { error: null, gameId };
+  }
+
+  @SubscribeMessage('acceptGame')
+  async handleAcceptGameEvent(client: Socket, data: any) {
+    const game_invite = Array.from(this.game_invites).find(
+      (invite) => invite.gameId === data.gameId,
+    );
+    //TODO: check if user is already in queue
+    // check if already has an active invite from anyone
+    // check if he is already on game || save if user is in game by saving it in the data of socket
+    // check if user is offline
+    if (!game_invite) {
+      client.emit('game.declined', {
+        gameId: data.gameId,
+      });
+      return;
+    }
+    this.game_invites.delete(game_invite);
+    this.server.to(`User:${data.inviterId}`).emit('game.accepted', {
+      accepter: client.data.user.sub,
+    });
+
+    const invterData = await this.usersService.getUserById(data.inviterId);
+    const opponentData = await this.usersService.getUserById(
+      client.data.user.sub,
+    );
+
+    // launch the game
+    this.eventEmitter.emit('game.launched', [
+      {
+        socket: game_invite.client,
+        userData: invterData,
+      },
+      {
+        socket: client,
+        userData: opponentData,
+      },
+    ]);
+  }
+
+  @SubscribeMessage('declineGame')
+  async handleDeclineGameEvent(client: Socket, data: any) {
+    const game_invite = Array.from(this.game_invites).find(
+      (invite) => invite.gameId === data.gameId,
+    );
+    if (!game_invite) {
+      return;
+    }
+
+    this.game_invites.delete(game_invite);
+
+    if (game_invite.inviter === client.data.user.sub) {
+      console.log('declined by inviter');
+      this.server.to(`User:${game_invite.opponentId}`).emit('game.declined', {
+        decliner: client.data.user.sub,
+        gameId: data.gameId,
+      });
+    } else {
+      console.log('decliner is the opponent');
+      this.server.to(`User:${game_invite.inviter}`).emit('game.declined', {
+        decliner: client.data.user.sub,
+        gameId: data.gameId,
+      });
+    }
+  }
+
   @OnEvent('game.launched')
   async handleGameLaunchedEvent(clients: any) {
-    const game_channel = `Game:${clients[0].socket.id}:${clients[1].socket.id}`;  
+    const game_channel = crypto.randomBytes(16).toString('hex');
     console.log(game_channel);
     clients.forEach((client: any) => {
       client.socket.join(game_channel);
+      client.socket.data.user.inGame = true;
     });
     const new_game = new Game(this.eventEmitter, this.server);
 
@@ -234,18 +339,25 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     console.log('game ended');
     console.log(data);
     this.server.to(data.gameid).emit('game.end', data);
-    console.log(data)
-   
+    console.log(data);
+
+    const sockets = await this.server.in(data.gameid).fetchSockets();
+
+    for await (const socket of sockets) {
+      socket.data.user.inGame = false;
+    }
+
     await this.prisma.match.create({
       data: {
         participant1Id: data.p1Data.userId,
         participant2Id: data.p2Data.userId,
-        winner_id: data.p1Score > data.p2Score ? data.p1Data.userId : data.p2Data.userId ,
+        winner_id:
+          data.p1Score > data.p2Score ? data.p1Data.userId : data.p2Data.userId,
         score1: data.p1Score,
         score2: data.p2Score,
       },
     });
-    
+
     this.games_map.delete(data.gameid);
   }
 
