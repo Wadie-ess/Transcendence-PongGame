@@ -44,6 +44,7 @@ export class Game {
     const newPos = this.p1PaddleY * scale2;
     // let scale_y = player2.h / this.h;
     // let center = this.paddleHeight * scale_y;
+
     if (p2PaddleY - player2.h / 6 / 6 < 0) {
       p2PaddleY = 0;
     } else if (p2PaddleY + player2.h / 6 > player2.h) {
@@ -71,6 +72,7 @@ export class Game {
     // let scale_y = player1.h / this.h;
 
     // let center = this.paddleHeight * scale_y;
+
     if (p1PaddleY - player1.h / 6 / 6 < 0) {
       p1PaddleY = 0;
     } else if (p1PaddleY + player1.h / 6 > player1.h) {
@@ -108,6 +110,7 @@ export class Game {
   private async loop() {
     if (this.closeGame) return;
     console.log('loop');
+
     if (
       this.x + this.dx + this.ballSize / 2 >= this.w ||
       this.x + this.dx - this.ballSize / 2 <= 0
@@ -161,6 +164,7 @@ export class Game {
 
     console.log(this.x);
     console.log(this.y);
+
     // const forwardx = this.x + this.dx;
     // const forwardy = this.y + this.dy
     // if (forwardx > this.) {
@@ -173,6 +177,7 @@ export class Game {
       parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.9
     ) {
       this.p1socket.emit('screen Error');
+
       this.emitGameEnd('p1Leave');
       this.p1socket.emit('lose', 'trying cheat');
       this.p2socket.emit('win', 'you win other player try to cheat');
@@ -198,6 +203,7 @@ export class Game {
       parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.9
     ) {
       this.p1socket.emit('screen Error');
+
       this.emitGameEnd('p2Leave');
       this.p1socket.emit('win', 'you win other player try to cheat');
       this.p2socket.emit('lose', 'trying cheat');
@@ -228,6 +234,7 @@ export class Game {
 
     for (let i = 0; i < 6; i++) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
+
       this.server.to(this.gameid).emit('timer', timer);
       timer -= 1000;
     }
@@ -254,6 +261,7 @@ export class Game {
     console.log(p2Data);
     this.server.emit('players', [p1Data, p2Data]);
     console.log('newfunc');
+
     setInterval(() => {
       this.frames -= 1;
     }, 2000);
@@ -358,6 +366,7 @@ export class Game {
     this.x = this.w / 2;
     this.y = this.h / 2;
     this.ballSize = this.w / 42;
+
     this.dx = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
     this.dy = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
     this.p1PaddleY = this.h / 2;
@@ -376,6 +385,7 @@ export class Game {
   private y: number = this.h / 2;
   private gap: number = this.w / 100;
   private ballSize: number = this.w / 42;
+
   private dx: number = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
   private dy: number = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
   private p1PaddleY: number = this.h / 2;

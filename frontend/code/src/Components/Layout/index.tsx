@@ -8,7 +8,7 @@ import { Message } from "./Assets/Message";
 import { Profile } from "./Assets/Profile";
 import { Settings } from "./Assets/Settings";
 import { Out } from "./Assets/Out";
-import { FC, PropsWithChildren, useLayoutEffect } from "react";
+import { FC, PropsWithChildren, useLayoutEffect, useRef } from "react";
 import { Outlet } from "react-router";
 import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
@@ -19,6 +19,7 @@ import { ShowLogoModal } from "../Chat/Components/RoomChatHelpers";
 import { Modal } from "./Assets/Modal";
 import toast from "react-hot-toast";
 import { closeWhite } from "../Chat/Components/tools/Assets";
+import { InvitationGame } from "./Assets/Invitationmodale";
 
 const routes = [
   { path: "Profile/:id" },
@@ -44,7 +45,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   const user = useUserStore();
   const navigate = useNavigate();
   const socketStore = useSocketStore();
-
+  const invitationGameRef = useRef<HTMLDialogElement>(null);
   useLayoutEffect(() => {
     const log = async () => {
       try {
@@ -65,48 +66,55 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
 
     socketStore.socket.on("message", (msg: any) => {
       toast.custom(
-        (t) => (
-          // eslint-disable-next-line 
-          (t.duration = 450),
+        (t) =>
           (
-            <div
-              className={`${
-                t.visible ? "animate-enter" : "animate-leave"
-              } max-w-sm w-full transition-opacity ease-in  bg-purple-500 rounded-xl  flex flex-col  relative top-[6vh] p-4`}
-            >
-              <div className="flex flex-row justify-between  ">
-                <div className="  flex flex-row ">
-                  <img
-                    alt="avatar"
-                    className="w-10 h-10 rounded-full"
-                    src={msg.avatar.medium}
-                  />
-                  <div className=" pl-3 flex flex-col items-baseline">
-                    <p className=" text-white  font-poppins text-base font-semibold leading-5 capitalize">
-                      message Received
-                    </p>
-                    <p className="text-[#2F3F53] font-poppins text-base font-normal text-center max-w-[150px] truncate">
-                      {msg.content}
-                    </p>
+            // eslint-disable-next-line
+            (t.duration = 450),
+            (
+              <div
+                className={`${
+                  t.visible ? "animate-enter" : "animate-leave"
+                } max-w-sm w-full transition-opacity ease-in  bg-purple-500 rounded-xl  flex flex-col  relative top-[6vh] p-4`}
+              >
+                <div className="flex flex-row justify-between  ">
+                  <div className="  flex flex-row ">
+                    <img
+                      alt="avatar"
+                      className="w-10 h-10 rounded-full"
+                      src={msg.avatar.medium}
+                    />
+                    <div className=" pl-3 flex flex-col items-baseline">
+                      <p className=" text-white  font-poppins text-base font-semibold leading-5 capitalize">
+                        message Received
+                      </p>
+                      <p className="text-[#2F3F53] font-poppins text-base font-normal text-center max-w-[150px] truncate">
+                        {msg.content}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <img
+                      alt="avatar"
+                      className=" pb-1 w-6 h-6"
+                      src={closeWhite}
+                    />
                   </div>
                 </div>
-
-                <div>
-                  <img
-                    alt="avatar"
-                    className=" pb-1 w-6 h-6"
-                    src={closeWhite}
-                  />
-                </div>
               </div>
-            </div>
-          )
-        )
+            )
+          ),
       );
     });
     log();
+    socketStore.socket.on("invitedToGame", (data: any) => {
+      console.log("invitedToGame", data);
+      user.setGameInvitation(data);
+      invitationGameRef.current?.showModal();
+    });
     return () => {
-      socketStore.socket.off("connect", onConnect);
+      socketStore.socket.off("connect");
+      socketStore.socket.off("invitedToGame");
     };
     //eslint-disable-next-line
   }, []);
@@ -176,6 +184,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
           </div>
         </div>
       )}
+      <InvitationGame ref={invitationGameRef} />
     </>
   );
 };
