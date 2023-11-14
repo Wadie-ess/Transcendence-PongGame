@@ -12,7 +12,7 @@ import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 
 import { ChatPlaceHolder, ConfirmationModal } from "./RoomChatHelpers";
 import { KeyboardEvent } from "react";
-import { leaveRoomCall } from "../Services/ChatServices";
+import { createNewRoomCall, leaveRoomCall } from "../Services/ChatServices";
 import toast from "react-hot-toast";
 import { useModalStore } from "../Controllers/LayoutControllers";
 import {
@@ -23,6 +23,7 @@ import {
 import { useUserStore } from "../../../Stores/stores";
 import { formatTime } from "./tools/utils";
 import { useSocketStore } from "../Services/SocketsServices";
+import { useNavigate } from "react-router-dom";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -90,6 +91,7 @@ export const CurrentUserMessage = ({
 export const ConversationHeader: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
+  const navigate = useNavigate();
   const LayoutState = useModalStore((state) => state);
   const ChatState = useChatStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
@@ -141,15 +143,23 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
           </div>
 
           <div className="pr-1">
-            <img
-              className="w-12 rounded-full "
-              alt=""
-              src={
-                selectedChatType === ChatType.Chat
-                  ? currentUser?.avatar.large
-                  : groupIcon
-              }
-            />
+            <button
+              onClick={async () => {
+                if (ChatState.selectedChatType === ChatType.Chat) {
+                  navigate(`/profile/${currentUser.secondUserId}`);
+                }
+              }}
+            >
+              <img
+                className="w-12 rounded-full "
+                alt=""
+                src={
+                  selectedChatType === ChatType.Chat
+                    ? currentUser?.avatar.large
+                    : groupIcon
+                }
+              />
+            </button>
           </div>
           <div className="flex flex-col pl-2 ">
             <p className="text-white font-poppins text-base font-medium leading-normal">

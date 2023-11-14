@@ -320,7 +320,7 @@ export const Profile = () => {
                                   res?.status === 201
                                 ) {
                                   toast.success("User Blocked");
-                                  navigate("/home");
+                                  navigate("/chat");
                                 } else {
                                   toast.error("Could Not Block User");
                                 }

@@ -70,8 +70,8 @@ export const useChatStore = create<ChatState>()((set) => ({
     ?.messages as Message[],
   fillOnlineFriendsIds: (ids: string[]) =>
     set((state) => {
-      if (state.onlineFriendsIds.length === 5) return { ...state };
-      state.onlineFriendsIds = [...ids];
+      if (state.onlineFriendsIds.length > 5) return { ...state };
+      state.onlineFriendsIds = [...ids.slice(0, 5)];
       return { ...state };
     }),
   addOnlineFriend: (id: string) =>

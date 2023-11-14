@@ -20,6 +20,7 @@ import { Modal } from "./Assets/Modal";
 import toast from "react-hot-toast";
 import { closeWhite } from "../Chat/Components/tools/Assets";
 import { InvitationGame } from "./Assets/Invitationmodale";
+import { useChatStore } from "../Chat/Controllers/RoomChatControllers";
 
 const routes = [
   { path: "Profile/:id" },
@@ -46,6 +47,8 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   const navigate = useNavigate();
   const socketStore = useSocketStore();
   const invitationGameRef = useRef<HTMLDialogElement>(null);
+  const chatState = useChatStore();
+
   useLayoutEffect(() => {
     const log = async () => {
       try {
@@ -64,48 +67,96 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
     socketStore.socket = socketStore.setSocket();
     socketStore.socket.on("connect", onConnect);
 
-    socketStore.socket.on("message", (msg: any) => {
-      toast.custom(
-        (t) =>
-          (
-            // eslint-disable-next-line
-            (t.duration = 450),
-            (
-              <div
-                className={`${
-                  t.visible ? "animate-enter" : "animate-leave"
-                } max-w-sm w-full transition-opacity ease-in  bg-purple-500 rounded-xl  flex flex-col  relative top-[6vh] p-4`}
-              >
-                <div className="flex flex-row justify-between  ">
-                  <div className="  flex flex-row ">
-                    <img
-                      alt="avatar"
-                      className="w-10 h-10 rounded-full"
-                      src={msg.avatar.medium}
-                    />
-                    <div className=" pl-3 flex flex-col items-baseline">
-                      <p className=" text-white  font-poppins text-base font-semibold leading-5 capitalize">
-                        message Received
-                      </p>
-                      <p className="text-[#2F3F53] font-poppins text-base font-normal text-center max-w-[150px] truncate">
-                        {msg.content}
-                      </p>
-                    </div>
-                  </div>
+    // socketStore.socket.on("message", (msg: any) => {
+    //   toast.custom(
+    //     (t) =>
+    //       (
+    //         // eslint-disable-next-line
+    //         (t.duration = 450),
+    //         (
+    //           <div
+    //             className={`${
+    //               t.visible ? "animate-enter" : "animate-leave"
+    //             } max-w-sm w-full transition-opacity ease-in  bg-purple-500 rounded-xl  flex flex-col  relative top-[6vh] p-4`}
+    //           >
+    //             <div className="flex flex-row justify-between  ">
+    //               <div className="  flex flex-row ">
+    //                 <img
+    //                   alt="avatar"
+    //                   className="w-10 h-10 rounded-full"
+    //                   src={msg.avatar.medium}
+    //                 />
+    //                 <div className=" pl-3 flex flex-col items-baseline">
+    //                   <p className=" text-white  font-poppins text-base font-semibold leading-5 capitalize">
+    //                     message Received
+    //                   </p>
+    //                   <p className="text-[#2F3F53] font-poppins text-base font-normal text-center max-w-[150px] truncate">
+    //                     {msg.content}
+    //                   </p>
+    //                 </div>
+    //               </div>
 
-                  <div>
-                    <img
-                      alt="avatar"
-                      className=" pb-1 w-6 h-6"
-                      src={closeWhite}
-                    />
-                  </div>
-                </div>
-              </div>
-            )
-          ),
-      );
-    });
+    //               <div>
+    //                 <img
+    //                   alt="avatar"
+    //                   className=" pb-1 w-6 h-6"
+    //                   src={closeWhite}
+    //                 />
+    //               </div>
+    //             </div>
+    //           </div>
+    //         )
+    //       ),
+    //   );
+    // });
+    // socketStore.socket.on("notification", (msg: any) => {
+    //   console.log("chat id", chatState.currentDmUser.id);
+    //   console.log("chat id", chatState.selectedChatID);
+
+    //   console.log("room id", msg.roomId);
+    //   if (msg.authorId !== user.id) {
+    //     toast.custom(
+    //       (t) => (
+    //         // eslint-disable-next-line
+    //         (t.duration = 450),
+    //         (
+    //           <div
+    //             className={`${
+    //               t.visible ? "animate-enter" : "animate-leave"
+    //             } max-w-sm w-full transition-opacity ease-in  bg-purple-500 rounded-xl  flex flex-col  relative top-[6vh] p-4`}
+    //           >
+    //             <div className="flex flex-row justify-between  ">
+    //               <div className="  flex flex-row ">
+    //                 <img
+    //                   alt="avatar"
+    //                   className="w-10 h-10 rounded-full"
+    //                   src={msg.avatar.medium}
+    //                 />
+    //                 <div className=" pl-3 flex flex-col items-baseline">
+    //                   <p className=" text-white  font-poppins text-base font-semibold leading-5 capitalize">
+    //                     message Received
+    //                   </p>
+    //                   <p className="text-[#2F3F53] font-poppins text-base font-normal text-center max-w-[150px] truncate">
+    //                     {msg.content}
+    //                   </p>
+    //                 </div>
+    //               </div>
+
+    //               <div>
+    //                 <img
+    //                   alt="avatar"
+    //                   className=" pb-1 w-6 h-6"
+    //                   src={closeWhite}
+    //                 />
+    //               </div>
+    //             </div>
+    //           </div>
+    //         )
+    //       )
+    //     );
+    //   }
+    // });
+
     log();
     socketStore.socket.on("invitedToGame", (data: any) => {
       console.log("invitedToGame", data);

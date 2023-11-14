@@ -85,7 +85,7 @@ export const fetchDmsCall = async (
     console.log(response.data);
     return response;
   } catch (e: any) {
-    console.log(e.response.data.message);
+    
   }
 
 }
