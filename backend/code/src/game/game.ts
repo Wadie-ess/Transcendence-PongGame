@@ -172,16 +172,16 @@ export class Game {
     this.x += this.dx;
     this.y += this.dy;
 
-    if (
-      parseFloat((this.p1Res.w / this.p1Res.h).toFixed(1)) !== 1.8 &&
-      parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.9
-    ) {
-      this.p1socket.emit('screen Error');
+    // if (
+    //   parseFloat((this.p1Res.w / this.p1Res.h).toFixed(1)) !== 1.8 &&
+    //   parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.9
+    // ) {
+    //   this.p1socket.emit('screen Error');
 
-      this.emitGameEnd('p1Leave');
-      this.p1socket.emit('lose', 'trying cheat');
-      this.p2socket.emit('win', 'you win other player try to cheat');
-    } else {
+    //   this.emitGameEnd('p1Leave');
+    //   this.p1socket.emit('lose', 'trying cheat');
+    //   this.p2socket.emit('win', 'you win other player try to cheat');
+    // } else {
       this.p1socket.emit(
         'ball',
         this.screenAdapter(this.p1Res, this.x, this.y, this.ballSize),
@@ -196,18 +196,18 @@ export class Game {
           true,
         ),
       );
-    }
+    // }
 
-    if (
-      parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.8 &&
-      parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.9
-    ) {
-      this.p1socket.emit('screen Error');
+    // if (
+    //   parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.8 &&
+    //   parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.9
+    // ) {
+    //   this.p1socket.emit('screen Error');
 
-      this.emitGameEnd('p2Leave');
-      this.p1socket.emit('win', 'you win other player try to cheat');
-      this.p2socket.emit('lose', 'trying cheat');
-    } else {
+    //   this.emitGameEnd('p2Leave');
+    //   this.p1socket.emit('win', 'you win other player try to cheat');
+    //   this.p2socket.emit('lose', 'trying cheat');
+    // } else {
       this.p2socket.emit(
         'ball',
         this.screenAdapter(this.p2Res, this.x, this.y, this.ballSize),
@@ -222,7 +222,7 @@ export class Game {
           true,
         ),
       );
-    }
+    // }
 
     await this.sleep(this.frames);
 
@@ -262,6 +262,7 @@ export class Game {
     this.server.emit('players', [p1Data, p2Data]);
     console.log('newfunc');
 
+
     setInterval(() => {
       this.frames -= 1;
     }, 2000);
@@ -290,12 +291,14 @@ export class Game {
       this.p2Res = data;
     });
     this.p1socket.on('disconnect', () => {
-      console.log('p1 disconnected');
-      this.emitGameEnd('p1 disconnected');
+      this.emitGameEnd('p1Leave');
+      this.p2socket.emit('win', 'you win other player leave the game');
+      this.p1socket.emit('lose', 'you win other player leave the game');
     });
     this.p2socket.on('disconnect', () => {
-      console.log('p2 disconnected');
-      this.emitGameEnd('p2 disconnected');
+      this.emitGameEnd('p2Leave');
+      this.p1socket.emit('win', 'you win other player leave the game');
+      this.p2socket.emit('lose', 'you lost other player leave the game');
     });
     this.p1socket.on('leave', () => {
       this.emitGameEnd('p1Leave');

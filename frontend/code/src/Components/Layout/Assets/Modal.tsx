@@ -35,7 +35,8 @@ export const Modal = () => {
             setResutl(msg)
             setStatus("win");
             setResOpacity("opacity-100");
-            let count = 5;
+            let count = 2;
+            setTimer(count);
             const inter = setInterval(() => {
                 setTimer(count);
                 --count;
@@ -51,7 +52,8 @@ export const Modal = () => {
             setResutl(msg)
             setStatus("lose");
             setResOpacity("opacity-100");
-            let count = 5;
+            let count = 2;
+            setTimer(count);
             const inter = setInterval(() => {
                 setTimer(count);
                 --count;

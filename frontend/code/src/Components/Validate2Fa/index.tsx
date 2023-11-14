@@ -67,8 +67,8 @@ export const Validate2Fa = () => {
                     otp: TOTPCode,
                     tfaToken: params.token,
                   });
-                  if (response.data) navigate("/Home");
-                  else toast.error("Invalid OTP");
+                  navigate("/Home");
+                  
                 } catch (e: any) {
                   toast.error(e.response.data.message);
                   console.log(e.response.data.message);

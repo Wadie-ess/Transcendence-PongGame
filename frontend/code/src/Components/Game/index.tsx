@@ -72,7 +72,7 @@ export const Game = () => {
         })
         socketStore.socket.on("screen Error", () =>{
           console.log("you lose")
-          navigate("/home");
+          navigate("/home", { replace: true })
         })
         socketStore.socket.on("players", (players:any) => {
           gameState.setP1(players[0]);
@@ -92,7 +92,7 @@ export const Game = () => {
     /* eslint-disable */
     useEffect(() => {
       if (!gameState.p1)
-        navigate("/home")
+        navigate("/home", { replace: true })
       const divh = document.getElementById('Game')?.offsetHeight
       const divw = document.getElementById('Game')?.offsetWidth
       socketStore.socket.emit("screen",{h:divh,w:divw})
@@ -146,7 +146,7 @@ export const Game = () => {
             <button className="btn" onClick={leave}>Leave</button>
 
         </div>
-        <div className="flex items-center justify-center min-h-16 max-h-[80%] max-w-[1250px] min-w-92 w-[95%] rounded-xl aspect-video border-primary border-4" id="Game">
+        <div className="flex items-center justify-center min-h-16 max-h-[80%] max-w-[800px] 3xl:max-w-[1150px] min-w-92 w-[95%] rounded-xl aspect-video border-primary border-4" id="Game">
             <Stage onMouseMove={handleMove}  width={gameState.width } height={gameState.height } style={{borderWidth:"4px",borderColor:"#7940CF",borderRadius:"4px"}} >
                 <Layer >
                     <Rect height={gameState.height} width={gameState.width} fill="#151B26" x={0} y={0} />

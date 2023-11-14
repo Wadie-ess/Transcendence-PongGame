@@ -24,16 +24,20 @@ import { useSocketStore } from "../Services/SocketsServices";
 
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useInView } from "react-intersection-observer";
 
 export const RecentConversations = () => {
   const [isLoading, setLoading] = useState(false);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const ChatRoomsState = useChatStore((state) => state);
 
+  const [ref, inView] = useInView();
+  const [EndOfFetching, setEndOfFetching] = useState(false);
   useEffect(() => {
     const fetch = async () => {
-      setLoading(true);
-      await fetchDmsCall(0, 20).then((res) => {
+      const offset = ChatRoomsState.recentDms.length;
+      offset === 0 && setLoading(true);
+      await fetchDmsCall(offset, 7).then((res) => {
         setLoading(false);
         if (res?.status !== 200 && res?.status !== 201) {
         } else {
@@ -68,15 +72,26 @@ export const RecentConversations = () => {
               });
             }
           );
-          // setIsLoading(false);
-          ChatRoomsState.fillRecentDms(rooms);
-          // ChatRoomsState.changeChatType(ChatType.Room);
+
+          if (res.data.length > 0) {
+            ChatRoomsState.fillRecentDms([
+              ...ChatRoomsState.recentDms,
+              ...rooms,
+            ]);
+          } else {
+            setEndOfFetching(true);
+          }
         }
       });
     };
-    fetch();
+    if (!EndOfFetching) {
+      fetch();
+    }
+    return () => {
+      setEndOfFetching(false);
+    };
     // eslint-disable-next-line
-  }, [ChatRoomsState.selectedChatID, ChatRoomsState.selectedChatType]);
+  }, [ChatRoomsState.selectedChatID, ChatRoomsState.selectedChatType, inView]);
 
   return selectedChatType === ChatType.Chat ? (
     <div className="h-full flex flex-col ">
@@ -97,6 +112,15 @@ export const RecentConversations = () => {
               userImage={friend.avatar.medium}
             />
           ))}
+          <div
+            ref={ref}
+            className="flex justify-center items-center h-2 py-5 
+								"
+          >
+            <span className="text-xs font-light font-poppins text-gray-400">
+              {EndOfFetching ? "No more Dms" : "Loading..."}
+            </span>
+          </div>
         </div>
       ) : (
         <>
@@ -202,7 +226,14 @@ export const OnlineNowUsers = () => {
   const setModalState = useModalStore((state) => state.setShowExploreModal);
 
   const handleListOfOnline = (ids: string[]) => {
-    chatState.fillOnlineFriendsIds(ids);
+    ids.forEach((id) => {
+      if (
+        !chatState.onlineFriendsIds.includes(id) &&
+        Users.find((u) => u.id === id)
+      ) {
+        chatState.addOnlineFriend(id);
+      }
+    });
   };
 
   useEffect(() => {

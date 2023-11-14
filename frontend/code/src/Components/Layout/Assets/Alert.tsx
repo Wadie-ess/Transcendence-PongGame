@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { useInView } from "react-intersection-observer";
 import { useSocketStore } from "../../Chat/Services/SocketsServices";
 import { MdOutlineReadMore } from "react-icons/md";
+import { closeWhite } from "../../Chat/Components/tools/Assets";
 
 export const Alert = () => {
   const user = useUserStore();
@@ -36,7 +37,50 @@ export const Alert = () => {
         notification.actorId === user.id ||
         notification.entity_type === "message"
       ) {
-        console.log("notification", notification);
+        console.log(notification);
+        if (notification.entity.authorId !== user.id) {
+          toast.custom(
+            (t) => (
+              // eslint-disable-next-line
+              (t.duration = 450),
+              (
+                <div
+                  className={`${
+                    t.visible ? "animate-enter" : "animate-leave"
+                  } max-w-sm w-full transition-opacity ease-in  bg-purple-500 rounded-xl  flex flex-col  relative top-[6vh] p-4`}
+                >
+                  <div className="flex flex-row justify-between  ">
+                    <div className="  flex flex-row ">
+                      <img
+                        alt="avatar"
+                        className="w-10 h-10 rounded-full"
+                        src={notification.entity.avatar.medium}
+                      />
+                      <div className=" pl-3 flex flex-col items-baseline">
+                        <p className=" text-white  font-poppins text-base font-semibold leading-5 capitalize">
+                          message Received
+                        </p>
+                        <p className="text-[#2F3F53] font-poppins text-base font-normal text-center max-w-[150px] truncate">
+                          {notification.entity.content}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <img
+                        alt="avatar"
+                        className=" pb-1 w-6 h-6"
+                        src={closeWhite}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            )
+          );
+        }
+        // }
+
         return;
       }
       user.addNotification(notification);
