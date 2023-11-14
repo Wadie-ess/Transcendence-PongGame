@@ -106,6 +106,12 @@ export class UsersService {
               mode: 'insensitive',
             },
           },
+          {
+            Username: {
+              contains: name,
+              mode: 'insensitive',
+            },
+          },
         ],
         NOT: {
           blocked_by: {
@@ -121,9 +127,15 @@ export class UsersService {
                   {
                     lastName: {
                       contains: name,
-                      mode: 'insensitive',
+						          mode: 'insensitive',
                     },
                   },
+                  {
+                    Username: {
+                      contains: name,
+                      mode: 'insensitive',
+                    },
+                  }
                 ],
               },
             },
