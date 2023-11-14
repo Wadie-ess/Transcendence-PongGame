@@ -12,7 +12,7 @@ import {} from '@nestjs/platform-socket.io';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Game } from 'src/game/game';
-import { $Enums, Notification , Match } from '@prisma/client';
+import { $Enums, Notification } from '@prisma/client';
 
 @WebSocketGateway(3004, {
   cors: {
@@ -211,7 +211,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   // }
   @OnEvent('game.launched')
   async handleGameLaunchedEvent(clients: any) {
-    const game_channel = `Game:${clients[0].socket.id}:${clients[1].socket.id}`;  
+    const game_channel = `Game:${clients[0].socket.id}:${clients[1].socket.id}`;
     console.log(game_channel);
     clients.forEach((client: any) => {
       client.socket.join(game_channel);
@@ -234,18 +234,42 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     console.log('game ended');
     console.log(data);
     this.server.to(data.gameid).emit('game.end', data);
-    console.log(data)
-   
-    await this.prisma.match.create({
-      data: {
-        participant1Id: data.p1Data.userId,
-        participant2Id: data.p2Data.userId,
-        winner_id: data.p1Score > data.p2Score ? data.p1Data.userId : data.p2Data.userId ,
-        score1: data.p1Score,
-        score2: data.p2Score,
-      },
-    });
-    
+    console.log(data);
+    if (data.resign === 0) {
+      await this.prisma.match.create({
+        data: {
+          participant1Id: data.p1Data.userId,
+          participant2Id: data.p2Data.userId,
+          winner_id:
+            data.p1Score > data.p2Score
+              ? data.p1Data.userId
+              : data.p2Data.userId,
+          score1: data.p1Score,
+          score2: data.p2Score,
+        },
+      });
+    } else if (data.resign === 1) {
+      await this.prisma.match.create({
+        data: {
+          participant1Id: data.p1Data.userId,
+          participant2Id: data.p2Data.userId,
+          winner_id: data.p2Data.userId,
+          score1: 0,
+          score2: 5,
+        },
+      });
+    } else if (data.resign === 2) {
+      await this.prisma.match.create({
+        data: {
+          participant1Id: data.p1Data.userId,
+          participant2Id: data.p2Data.userId,
+          winner_id: data.p1Data.userId,
+          score1: 5,
+          score2: 0,
+        },
+      });
+    }
+
     this.games_map.delete(data.gameid);
   }
 

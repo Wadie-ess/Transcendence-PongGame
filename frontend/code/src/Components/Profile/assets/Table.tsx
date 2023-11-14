@@ -42,6 +42,7 @@ export const Table = (props: any) => {
     setHasMore(true);
     fetchData();
     offset.current += 20;
+    // eslint-disable-next-line
   }, [props.props.props]);
   console.log(props);
   return history.length > 0 || loading === true ? (
