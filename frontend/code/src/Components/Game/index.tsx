@@ -5,7 +5,7 @@ import { useGameState } from "./States/GameState";
 import { useSocketStore } from "../Chat/Services/SocketsServices";
 import { useNavigate } from "react-router-dom";
 
-const DURATION = 25;
+const DURATION = 20;
 type Cords = {
   x:number;
   y:number;
@@ -151,8 +151,8 @@ export const Game = () => {
                 <Layer >
                     <Rect height={gameState.height} width={gameState.width} fill="#151B26" x={0} y={0} />
                     <Line points={[0, gameState.height , 0 , 0]} dash={[gameState.height / 30 , 10]} strokeWidth={2} stroke={"white"} height={gameState.height} width={20} fill="white" x={gameState.width / 2} y={0}  />
-                    <Rect cornerRadius={12} height={gameState.height / 6} width={gameState.width / 70} x={10} y={gameState.lPaddle} fill="white" />
-                    <Rect cornerRadius={12} height={gameState.height / 6} width={gameState.width / 70} x={gameState.width - 10 - (gameState.width / 70)} y={gameState.rPaddle}  fill="white" />
+                    <Rect cornerRadius={12} height={gameState.height / 6} width={gameState.width / 70} x={gameState.width / 100} y={gameState.lPaddle} fill="white" />
+                    <Rect cornerRadius={12} height={gameState.height / 6} width={gameState.width / 70} x={gameState.width - (gameState.width / 100) - (gameState.width / 70)} y={gameState.rPaddle}  fill="white" />
                     <Circle fill="white" height={gameState.ball.size} width={gameState.ball.size} x={gameState.ball.x} y={gameState.ball.y} />
                 </Layer>
 

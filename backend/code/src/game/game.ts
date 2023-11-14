@@ -99,7 +99,7 @@ export class Game {
   }
 
   private down2() {
-    this.eventp2Paddle -= this.p2Res.h / 6 / 6;
+    this.eventp2Paddle += this.p2Res.h / 6 / 6;
     if (this.eventp2Paddle - this.p2Res.h / 6 / 6 < 0) {
       this.eventp2Paddle = 0;
     }
@@ -108,32 +108,40 @@ export class Game {
   private async loop() {
     if (this.closeGame) return;
     console.log('loop');
-    if (this.x + this.ballSize / 2 + this.dx >= this.w || this.x + this.dx <= 0)
+    if (
+      this.x + this.dx + this.ballSize / 2 >= this.w ||
+      this.x + this.dx - this.ballSize / 2 <= 0
+    )
       this.dx *= -1;
-    if (this.y + this.ballSize / 2 + this.dy >= this.h || this.y + this.dy <= 0)
+    if (
+      this.y + this.dy + this.ballSize / 2 >= this.h ||
+      this.y + this.dy - this.ballSize / 2 <= 0
+    )
       this.dy *= -1;
 
     if (
       this.y > this.p1PaddleY &&
       this.y < this.p1PaddleY + this.paddleHeight &&
-      this.x - this.ballSize / 2 < this.paddleWidth + 10
+      this.x <= this.paddleWidth + this.gap + this.ballSize / 2
     ) {
       this.dx *= -1;
-      this.dy *= Math.random() * (1.5 - 2.5) + 1.5;
+      this.dy = Math.random() * (4 - 1.5) + 1.5;
     }
+
     if (
-      this.y > this.p2PaddleY &&
-      this.y < this.p2PaddleY + this.paddleHeight &&
-      this.x + this.ballSize / 2 > this.w - (this.paddleWidth + 10)
+      this.y > this.p1PaddleY &&
+      this.y < this.p1PaddleY + this.paddleHeight &&
+      this.x >= this.w - (this.paddleWidth + this.gap + this.ballSize / 2)
     ) {
       this.dx *= -1;
-      this.dy *= Math.random() * (1.5 - 2.5) + 1.5;
+      this.dy = Math.random() * (4 - 1.5) + 1.5;
     }
     if (
       (this.y < this.p2PaddleY ||
         this.y > this.p2PaddleY + this.paddleHeight) &&
-      this.x + this.ballSize >= this.w - (this.paddleWidth + 10)
+      this.x + this.ballSize / 2 >= this.w - (this.paddleWidth + this.gap)
     ) {
+      console.log(`${this.p1PaddleY} ${this.x} ${this.y} ${this.ballSize}`);
       this.p1Score += 1;
       this.init();
       this.checkForWinner();
@@ -142,8 +150,9 @@ export class Game {
     if (
       (this.y < this.p1PaddleY ||
         this.y > this.p1PaddleY + this.paddleHeight) &&
-      this.x <= this.paddleWidth + 10
+      this.x - this.ballSize / 2 <= this.paddleWidth + this.gap
     ) {
+      console.log(`${this.p1PaddleY} ${this.x} ${this.y} ${this.ballSize}`);
       this.p2Score += 1;
       this.init();
       this.checkForWinner();
@@ -152,6 +161,10 @@ export class Game {
 
     console.log(this.x);
     console.log(this.y);
+    // const forwardx = this.x + this.dx;
+    // const forwardy = this.y + this.dy
+    // if (forwardx > this.) {
+    // }
     this.x += this.dx;
     this.y += this.dy;
 
@@ -205,7 +218,7 @@ export class Game {
       );
     }
 
-    await this.sleep(25);
+    await this.sleep(this.frames);
 
     this.loop();
   }
@@ -241,6 +254,9 @@ export class Game {
     console.log(p2Data);
     this.server.emit('players', [p1Data, p2Data]);
     console.log('newfunc');
+    setInterval(() => {
+      this.frames -= 1;
+    }, 2000);
     this.p1socket.on('up', () => {
       this.up1();
     });
@@ -342,23 +358,26 @@ export class Game {
     this.x = this.w / 2;
     this.y = this.h / 2;
     this.ballSize = this.w / 42;
-    this.dx = Math.random() > 0.5 ? this.w / 200 : (this.w / 200) * -1;
-    this.dy = Math.random() > 0.5 ? this.w / 200 : (this.w / 200) * -1;
+    this.dx = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
+    this.dy = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
     this.p1PaddleY = this.h / 2;
     this.p2PaddleY = this.h / 2;
+    this.frames = 25;
   }
   private gameid: string;
   private p1socket: Socket;
   private p2socket: Socket;
   private p1Data: any;
   private p2Data: any;
+  private frames: number = 25;
   private w: number = 1067;
   private h: number = 600;
   private x: number = this.w / 2;
   private y: number = this.h / 2;
+  private gap: number = this.w / 100;
   private ballSize: number = this.w / 42;
-  private dx: number = Math.random() > 0.5 ? this.w / 200 : (this.w / 200) * -1;
-  private dy: number = Math.random() > 0.5 ? this.w / 200 : (this.w / 200) * -1;
+  private dx: number = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
+  private dy: number = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
   private p1PaddleY: number = this.h / 2;
   private p2PaddleY: number = this.h / 2;
   private eventp1Paddle: number = 0;
