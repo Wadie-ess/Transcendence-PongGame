@@ -8,7 +8,6 @@ export const Modal = () => {
     const [resOpacity , setResOpacity] = useState("");
     const [result , setResutl] = useState<undefined | string>(undefined);
     const [status , setStatus] = useState<undefined | string>(undefined);
-    var gameId:string;
     const [timer , setTimer] = useState<undefined | number>(undefined);
     const [gameid , setGameId] = useState<undefined | string>(undefined);
     const socketStore = useSocketStore();
@@ -69,8 +68,10 @@ export const Modal = () => {
         socketStore.socket.off("lose")
         socketStore.socket.off("win")
         socketStore.socket.off("timer")
+        socketStore.socket.off("game.launched")
+        socketStore.socket.off("players")
     }
-
+// eslint-disable-next-line
 },[timer])
         
     return (
