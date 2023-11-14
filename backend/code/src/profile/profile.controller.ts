@@ -99,8 +99,39 @@ export class ProfileController {
     @GetCurrentUser('userId') userId: string,
     @Query() { offset, limit }: QueryOffsetDto,
   ) {
-    console.log('getNotifications');
     return this.profileService.getNotifications(userId, offset, limit);
+  }
+
+  @Post('read-notification/:id')
+  @UseGuards(AtGuard)
+  readNotification(
+    @GetCurrentUser('userId') userId: string,
+    @Param('id') notificationId: string,
+  ) {
+    return this.profileService.readNotification(userId, notificationId);
+  }
+
+  @Post('read-all-notifications')
+  @UseGuards(AtGuard)
+  readAllNotifications(@GetCurrentUser('userId') userId: string) {
+    return this.profileService.readAllNotifications(userId);
+  }
+
+  // read a bunch of messages
+
+  @Get('unread-messages')
+  @UseGuards(AtGuard)
+  getUnreadMessages(@GetCurrentUser('userId') userId: string) {
+    return this.profileService.getUnreadMessages(userId);
+  }
+
+  @Post('read-messages')
+  @UseGuards(AtGuard)
+  readMessages(
+    @GetCurrentUser('userId') userId: string,
+    @Body() { messagesIds }: { messagesIds: string[] },
+  ) {
+    return this.profileService.readMessages(userId, messagesIds);
   }
 
   @Get(':id')

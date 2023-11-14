@@ -98,7 +98,7 @@ export const Profile = () => {
     setDisabled("btn-disabled");
     const fetchFunc = async () => {
       await api.post("/friends/accept", { friendId: profile.id });
-      setStatus("none");
+      setStatus("friend");
       setDisabled("");
     };
     toast.promise(fetchFunc(), {
@@ -289,7 +289,7 @@ export const Profile = () => {
                                   res?.status === 201
                                 ) {
                                   toast.success("User Blocked");
-                                  navigate("/home");
+                                  navigate("/chat");
                                 } else {
                                   toast.error("Could Not Block User");
                                 }

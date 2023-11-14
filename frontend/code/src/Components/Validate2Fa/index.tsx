@@ -12,19 +12,24 @@ export const Validate2Fa = () => {
 
   console.log(`params : ${params.token} type ${typeof params.token}`);
   useEffect(() => {
-    api.get(`/auth/validatToken/${params.token}`).then((res) => {
-      if (!res.data)
-      {
-           navigate("/")
-      }
-      else
-        setIsLoading(false);
-    }).catch((Err) => console.log(Err))
+    api
+      .get(`/auth/validatToken/${params.token}`)
+      .then((res) => {
+        if (!res.data) {
+          navigate("/");
+        } else setIsLoading(false);
+      })
+      .catch((Err) => console.log(Err));
 
     //eslint-disable-next-line
-  }, [])
+  }, []);
   return (
-    <div className={classNames("w-full h-screen flex items-center justify-center", isLoading && "!hidden")}>
+    <div
+      className={classNames(
+        "w-full h-screen flex items-center justify-center",
+        isLoading && "!hidden"
+      )}
+    >
       <div className="flex flex-col gap-6 justify-center items-center content-center w-full">
         <div className="flex justify-center items-center gap-x-6">
           <div className="flex flex-col justify-between items-center p-10 h-60 w-60 rounded-2xl border-2 border-violet-600">
@@ -52,23 +57,18 @@ export const Validate2Fa = () => {
                   const value = event.target.value;
                   setTOTPCode(value || "");
                 }}
-              />  
+              />
             </div>
             <button
               className="btn bg-gray-200 text-black text-sm hover:btn-primary hover:text-white !h-8 !min-h-0"
               onClick={async () => {
                 try {
-                  const response = await api.post(
-                    "/auth/validate2fa",
-                    {
-                      otp: TOTPCode,
-                      tfaToken: params.token,
-                    }
-                  );
-                  if(response.data)
-                    navigate("/Home");  
-                  else
-                    toast.error("Invalid OTP");
+                  const response = await api.post("/auth/validate2fa", {
+                    otp: TOTPCode,
+                    tfaToken: params.token,
+                  });
+                  if (response.data) navigate("/Home");
+                  else toast.error("Invalid OTP");
                 } catch (e: any) {
                   toast.error(e.response.data.message);
                   console.log(e.response.data.message);

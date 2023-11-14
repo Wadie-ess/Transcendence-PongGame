@@ -135,10 +135,19 @@ export class ProfileService {
       take: limit,
       where: {
         receiverId: userId,
+        entity_type: {
+          not: {
+            equals: 'message',
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
       include: {
         actor: {
           select: {
+            userId: true,
             firstName: true,
             lastName: true,
             avatar: true,
@@ -146,6 +155,104 @@ export class ProfileService {
         },
         receiver: {
           select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+    return notifications;
+  }
+
+  async readNotification(userId: string, notificationId: string) {
+    const notification = await this.prisma.notification.findUnique({
+      where: {
+        id: notificationId,
+      },
+    });
+    if (!notification) {
+      throw new HttpException('Notification not found', HttpStatus.NOT_FOUND);
+    }
+    if (notification.receiverId !== userId) {
+      throw new HttpException(
+        'You are not the receiver of this notification',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (notification.entity_type === 'message') {
+      await this.prisma.notification.delete({
+        where: {
+          id: notificationId,
+        },
+      });
+    } else {
+      await this.prisma.notification.update({
+        where: {
+          id: notificationId,
+        },
+        data: {
+          is_read: true,
+        },
+      });
+    }
+    return { message: 'notification read' };
+  }
+
+  async readAllNotifications(userId: string) {
+    await this.prisma.notification.updateMany({
+      where: {
+        receiverId: userId,
+        entity_type: {
+          not: {
+            equals: 'message',
+          },
+        },
+      },
+      data: {
+        is_read: true,
+      },
+    });
+    return { message: 'all notifications read' };
+  }
+
+  async readMessages(userId: string, messagesIds: string[]) {
+    await this.prisma.notification.deleteMany({
+      where: {
+        receiverId: userId,
+        entity_type: 'message',
+        entityId: {
+          in: messagesIds,
+        },
+      },
+    });
+    return { message: 'messages read' };
+  }
+
+  async getUnreadMessages(userId: string) {
+    const messageNotifications = await this.prisma.notification.findMany({
+      where: {
+        receiverId: userId,
+        entity_type: 'message',
+        is_read: false,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        actor: {
+          select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+        receiver: {
+          select: {
+            userId: true,
             firstName: true,
             lastName: true,
             avatar: true,
@@ -154,51 +261,26 @@ export class ProfileService {
       },
     });
 
-    const groupedNotifs = notifications.reduce((acc, notif) => {
-      if (!acc[notif.entity_type]) {
-        acc[notif.entity_type] = [];
-      }
-      acc[notif.entity_type].push(notif);
-      return acc;
-    }, {});
+    const messagesIds = messageNotifications.map(
+      (notification) => notification.entityId,
+    );
 
-    const data: any = [];
-    for (const key in groupedNotifs) {
-      if (key === 'message') {
-        const messages = await this.prisma.message.findMany({
-          where: {
-            id: {
-              in: groupedNotifs[key].map((notif: any) => notif.entityId),
-            },
-          },
+    const messages = await this.prisma.message.findMany({
+      where: {
+        id: {
+          in: messagesIds,
+        },
+      },
+    });
 
-          include: {
-            author: {
-              select: {
-                avatar: true,
-                Username: true,
-              },
-            },
-            room: {
-              select: {
-                type: true,
-              },
-            },
-          },
-        });
-        for (const notif of groupedNotifs[key]) {
-          const message = messages.find(
-            (message) => message.id === notif.entityId,
-          );
-          data.push({
-            ...notif,
-            entity: message,
-          });
-        }
-      } else {
-        data.push(...groupedNotifs[key]);
-      }
-    }
-    return data;
+    return messageNotifications.map((notification) => {
+      const message = messages.find(
+        (message) => message.id === notification.entityId,
+      );
+      return {
+        ...notification,
+        entity: message,
+      };
+    });
   }
 }

@@ -32,6 +32,7 @@ import { useUserStore } from "../../../Stores/stores";
 import { formatTime } from "./tools/utils";
 import { getBlockedCall, unblockCall } from "../Services/FriendsServices";
 import { useSocketStore } from "../Services/SocketsServices";
+import { useInView } from "react-intersection-observer";
 
 interface NullComponentProps {
   message: string;
@@ -42,11 +43,14 @@ export const RoomChatPlaceHolder = () => {
   const selectNewChat = useChatStore((state) => state.selectNewChatID);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [ref, inView] = useInView();
+  const [EndOfFetching, setEndOfFetching] = useState(false);
   useEffect(() => {
     const fetch = async () => {
-      setIsLoading(true);
+      const offset = ChatRoomsState.recentRooms.length;
+      offset === 0 && setIsLoading(true);
 
-      await fetchRoomsCall(0, 20, true).then((res) => {
+      await fetchRoomsCall(offset, 7, true).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
         } else {
           const rooms: ChatRoom[] = [];
@@ -77,14 +81,25 @@ export const RoomChatPlaceHolder = () => {
             }
           );
           setIsLoading(false);
-          ChatRoomsState.fillRecentRooms(rooms);
+          if (res.data.length > 0) {
+            ChatRoomsState.fillRecentRooms([
+              ...ChatRoomsState.recentRooms,
+              ...rooms,
+            ]);
+          } else {
+            setEndOfFetching(true);
+          }
         }
       });
     };
-
-    fetch();
+    if (!EndOfFetching) {
+      fetch();
+    }
+    return () => {
+      setEndOfFetching(false);
+    };
     // eslint-disable-next-line
-  }, [ChatRoomsState.selectedChatID, ChatRoomsState.selectedChatType]);
+  }, [ChatRoomsState.selectedChatID, ChatRoomsState.selectedChatType, inView]);
 
   return ChatRoomsState.recentRooms.length > 0 ? (
     <div className="bg-[#1A1C26] h-full">
@@ -134,6 +149,15 @@ export const RoomChatPlaceHolder = () => {
           </div>
         </div>
       ))}
+      <div
+        ref={ref}
+        className="flex justify-center items-center h-2 py-5 
+								"
+      >
+        <span className="text-xs font-light font-poppins text-gray-400">
+          {EndOfFetching ? "No more Rooms" : "Loading..."}
+        </span>
+      </div>
     </div>
   ) : (
     <div className="p-3 text-center bg-[#1A1C26] h-full">
@@ -1028,51 +1052,58 @@ export const ExploreRoomsModal = () => {
     setPassword("");
     setSelectedOption(RoomType.public);
     setSelectedRoomID("0");
+    setEndOfFetching(false);
+    SetChatRooms([]);
   };
 
+  const [ref, inView] = useInView();
+  const [EndOfFetching, setEndOfFetching] = useState(false);
   useEffect(() => {
     const fetch = async () => {
-      setIsLoading(true);
-      await fetchRoomsCall(0, 20, false).then((res) => {
-        if (res?.status !== 200 && res?.status !== 201) {
-          // toast.error("something went wrong, try again");
-          resetModalState();
-        } else {
-          const rooms: ChatRoom[] = [];
-          res.data.forEach(
-            (room: {
-              id: string;
-              is_admin: boolean;
-              is_owner: boolean;
-              name: string;
-              type: string;
-            }) => {
-              if (
-                recentRooms.recentRooms.find(
-                  (recentRoom) => recentRoom.id === room.id
-                ) === undefined
-              ) {
-                rooms.push({
-                  id: room.id,
-                  name: room.name,
-                  type: RoomType[room.type as keyof typeof RoomType],
-                  messages: [],
-                  usersId: [],
-                  isOwner: room.is_owner,
-                  isAdmin: room.is_admin,
-                });
+      if (!EndOfFetching) {
+        const offset = ChatRooms.length;
+        offset === 0 && setIsLoading(true);
+        await fetchRoomsCall(offset, 5, false).then((res) => {
+          if (res?.status !== 200 && res?.status !== 201) {
+            resetModalState();
+          } else {
+            const rooms: ChatRoom[] = [];
+            res.data.forEach(
+              (room: {
+                id: string;
+                is_admin: boolean;
+                is_owner: boolean;
+                name: string;
+                type: string;
+              }) => {
+                {
+                  rooms.push({
+                    id: room.id,
+                    name: room.name,
+                    type: RoomType[room.type as keyof typeof RoomType],
+                    messages: [],
+                    usersId: [],
+                    isOwner: room.is_owner,
+                    isAdmin: room.is_admin,
+                  });
+                }
               }
+            );
+            setIsLoading(false);
+            if (res.data.length > 0) {
+              SetChatRooms([...ChatRooms, ...rooms]);
+            } else {
+              setEndOfFetching(true);
             }
-          );
-          setIsLoading(false);
-          SetChatRooms(rooms);
-        }
-      });
+          }
+        });
+      }
     };
 
     fetch();
+
     // eslint-disable-next-line
-  }, [modalState]);
+  }, [modalState, inView]);
 
   return (
     <div className="modal w-screen " id="my_modal_5">
@@ -1091,7 +1122,12 @@ export const ExploreRoomsModal = () => {
             <div className="max-h-[320px] overflow-y-auto no-scrollbar">
               {ChatRooms.length > 0 ? (
                 <>
-                  {ChatRooms.map((room) => (
+                  {ChatRooms.filter(
+                    (room) =>
+                      recentRooms.recentRooms.find(
+                        (recentRoom) => recentRoom.id === room.id
+                      ) === undefined
+                  ).map((room) => (
                     <div
                       key={room.id}
                       className={
@@ -1123,6 +1159,15 @@ export const ExploreRoomsModal = () => {
                       </div>
                     </div>
                   ))}
+                  <div
+                    ref={ref}
+                    className="flex justify-center items-center h-2 py-2
+								"
+                  >
+                    <span className="text-xs font-light font-poppins text-gray-400">
+                      {EndOfFetching ? "No more Rooms" : "Loading..."}
+                    </span>
+                  </div>
                 </>
               ) : (
                 <NullPlaceHolder message="No Rooms For You Yet!" />
