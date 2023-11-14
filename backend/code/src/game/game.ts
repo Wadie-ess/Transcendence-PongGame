@@ -59,7 +59,6 @@ export class Game {
     p2PaddleY: number,
     side: boolean,
   ) {
-
     const scale = this.h / player2.h;
     if (
       p2PaddleY * scale - this.paddleHeight / 6 >= 0 &&
@@ -102,7 +101,6 @@ export class Game {
   }
 
   private down2() {
-
     this.eventp2Paddle += this.p2Res.h / 6 / 6;
     if (this.eventp2Paddle - this.p2Res.h / 6 / 6 < 0) {
       this.eventp2Paddle = 0;
@@ -134,7 +132,6 @@ export class Game {
     }
 
     if (
-
       this.y > this.p1PaddleY &&
       this.y < this.p1PaddleY + this.paddleHeight &&
       this.x >= this.w - (this.paddleWidth + this.gap + this.ballSize / 2)
@@ -145,7 +142,6 @@ export class Game {
     if (
       (this.y < this.p2PaddleY ||
         this.y > this.p2PaddleY + this.paddleHeight) &&
-
       this.x + this.ballSize / 2 >= this.w - (this.paddleWidth + this.gap)
     ) {
       console.log(`${this.p1PaddleY} ${this.x} ${this.y} ${this.ballSize}`);
@@ -157,7 +153,6 @@ export class Game {
     if (
       (this.y < this.p1PaddleY ||
         this.y > this.p1PaddleY + this.paddleHeight) &&
-
       this.x - this.ballSize / 2 <= this.paddleWidth + this.gap
     ) {
       console.log(`${this.p1PaddleY} ${this.x} ${this.y} ${this.ballSize}`);
@@ -303,7 +298,6 @@ export class Game {
       this.emitGameEnd('p2 disconnected');
     });
     this.p1socket.on('leave', () => {
-
       this.emitGameEnd('p1Leave');
       this.p2socket.emit('win', 'you win other player leave the game');
       this.p1socket.emit('lose', 'you win other player leave the game');
