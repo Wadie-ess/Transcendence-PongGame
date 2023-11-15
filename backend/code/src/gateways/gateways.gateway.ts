@@ -214,9 +214,22 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('startGame')
   handleGameStartEvent(client: Socket, data: { gameMode: string }) {
-    console.log(client.data.user);
-    this.eventEmitter.emit('game.start', { client, gameMode: data.gameMode });
+    this.eventEmitter.emit('game.start', {
+      client,
+      gameMode: data.gameMode,
+      mode: 'register',
+    });
   }
+
+  @SubscribeMessage('quitQueue')
+  async handleQuitQueueEvent(client: Socket, data: { gameMode: string }) {
+    this.eventEmitter.emit('game.start', {
+      client,
+      gameMode: data.gameMode,
+      mode: 'unregister',
+    });
+  }
+
   // @SubscribeMessage('getPlayers')
   // getPlayers() {
   //   this.server.emit("players",[this.p1Data ,this.p2Data])
@@ -299,16 +312,20 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     );
 
     // launch the game
-    this.eventEmitter.emit('game.launched', [
-      {
-        socket: game_invite.client,
-        userData: invterData,
-      },
-      {
-        socket: client,
-        userData: opponentData,
-      },
-    ]);
+    this.eventEmitter.emit(
+      'game.launched',
+      [
+        {
+          socket: game_invite.client,
+          userData: invterData,
+        },
+        {
+          socket: client,
+          userData: opponentData,
+        },
+      ],
+      game_invite.gameMode,
+    );
   }
 
   @SubscribeMessage('declineGame')
@@ -344,6 +361,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     clients.forEach((client: any) => {
       client.socket.join(game_channel);
       client.socket.data.user.inGame = true;
+      client.socket.data.user.inQueue = false;
     });
     const new_game = new Game(this.eventEmitter, this.server, mode);
 

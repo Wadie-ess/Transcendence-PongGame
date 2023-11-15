@@ -648,8 +648,15 @@ export class RoomsService {
           select: {
             content: true,
             createdAt: true,
+            authorId: true,
           },
         });
+        const blocked = await this.prisma.blockedUsers.findFirst({
+          where: {
+            id: [userId, last_message.authorId].sort().join('-'),
+          },
+        });
+
         const is_owner = room.ownerId === userId;
         return {
           id: room.id,
@@ -658,7 +665,7 @@ export class RoomsService {
           is_admin: room.members[0].is_admin,
           is_owner,
           countMembers,
-          last_message,
+          last_message: blocked ? null : last_message,
         };
       }),
     );
@@ -714,6 +721,12 @@ export class RoomsService {
             createdAt: true,
           },
         });
+        const blocked = await this.prisma.blockedUsers.findFirst({
+          where: {
+            id: [userId, secondMember.user.userId].sort().join('-'),
+          },
+        });
+
         const avatar: PICTURE = {
           thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${secondMember.user.avatar}`,
           medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${secondMember.user.avatar}`,
@@ -723,7 +736,7 @@ export class RoomsService {
           id: room.id,
           name: secondMember.user.firstName + ' ' + secondMember.user.lastName,
           secondMemberId: secondMember.user.userId,
-          last_message,
+          last_message: blocked ? null : last_message,
           avatar,
           bio: secondMember.user.discreption,
         };
@@ -763,6 +776,7 @@ export class RoomsService {
     const secondMember = room.members.find(
       (member) => member.user.userId !== userId,
     );
+
     const avatar: PICTURE = {
       thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${secondMember.user.avatar}`,
       medium: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_72,w_72/${secondMember.user.avatar}`,
