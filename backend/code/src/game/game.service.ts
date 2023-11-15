@@ -57,6 +57,7 @@ export class GameService {
   //NOTE: add game modes here
   private launchGame() {
     setInterval(() => {
+      // console.log('waitingPlayers', this.classicwaitingPlayers.length);
       console.log('waitingPlayers classic', this.classicwaitingPlayers.length);
       console.log('waitingPlayers extra', this.extraWaitingPlayers.length);
 

@@ -1,4 +1,4 @@
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useCallback, useEffect, useState } from "react";
 import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 import {
   ChatGif,
@@ -33,6 +33,7 @@ import { formatTime } from "./tools/utils";
 import { getBlockedCall, unblockCall } from "../Services/FriendsServices";
 import { useSocketStore } from "../Services/SocketsServices";
 import { useInView } from "react-intersection-observer";
+import { classNames } from "../../../Utils/helpers";
 
 interface NullComponentProps {
   message: string;
@@ -45,61 +46,76 @@ export const RoomChatPlaceHolder = () => {
 
   const [ref, inView] = useInView();
   const [EndOfFetching, setEndOfFetching] = useState(false);
-  useEffect(() => {
-    const fetch = async () => {
-      const offset = ChatRoomsState.recentRooms.length;
-      offset === 0 && setIsLoading(true);
+  const fetchRooms = useCallback(async () => {
+    const offset = ChatRoomsState.recentRooms.length;
+    offset === 0 && setIsLoading(true);
 
-      await fetchRoomsCall(offset, 7, true).then((res) => {
-        if (res?.status !== 200 && res?.status !== 201) {
-        } else {
-          const rooms: ChatRoom[] = [];
-          res.data.forEach(
-            (room: {
-              countMembers: number;
-              id: string;
-              is_admin: boolean;
-              is_owner: boolean;
-              last_message: {
-                content: string;
-                createdAt: string;
-              };
-              name: string;
-              type: string;
-            }) => {
-              rooms.push({
-                id: room.id,
-                name: room.name,
-                type: RoomType[room.type as keyof typeof RoomType],
-                messages: [],
-                usersId: [],
-                isOwner: room.is_owner,
-                isAdmin: room.is_admin,
-                membersCount: room.countMembers,
-                last_message: room.last_message,
-              });
-            }
-          );
-          setIsLoading(false);
-          if (res.data.length > 0) {
-            ChatRoomsState.fillRecentRooms([
-              ...ChatRoomsState.recentRooms,
-              ...rooms,
-            ]);
-          } else {
-            setEndOfFetching(true);
+    await fetchRoomsCall(offset, 7, true).then((res) => {
+      if (res?.status !== 200 && res?.status !== 201) {
+      } else {
+        const rooms: ChatRoom[] = [];
+        res.data.forEach(
+          (room: {
+            countMembers: number;
+            id: string;
+            is_admin: boolean;
+            is_owner: boolean;
+            last_message: {
+              content: string;
+              createdAt: string;
+            };
+            name: string;
+            type: string;
+          }) => {
+            rooms.push({
+              id: room.id,
+              name: room.name,
+              type: RoomType[room.type as keyof typeof RoomType],
+              messages: [],
+              usersId: [],
+              isOwner: room.is_owner,
+              isAdmin: room.is_admin,
+              membersCount: room.countMembers,
+              last_message: room.last_message,
+            });
           }
+        );
+        setIsLoading(false);
+        if (res.data.length > 0) {
+          ChatRoomsState.fillRecentRooms([
+            ...ChatRoomsState.recentRooms,
+            ...rooms,
+          ]);
+        } else {
+          setEndOfFetching(true);
         }
-      });
-    };
-    if (!EndOfFetching) {
-      fetch();
-    }
+      }
+    });
+    // eslint-disable-next-line
+  }, [
+    ChatRoomsState.recentRooms,
+    setIsLoading,
+    fetchRoomsCall,
+    ChatRoomsState.fillRecentRooms,
+    setEndOfFetching,
+  ]);
+
+  useEffect(() => {
+    fetchRooms();
     return () => {
       setEndOfFetching(false);
+      ChatRoomsState.fillRecentRooms([]);
     };
     // eslint-disable-next-line
-  }, [ChatRoomsState.selectedChatID, ChatRoomsState.selectedChatType, inView]);
+  }, [ChatRoomsState.selectedChatType, ChatRoomsState.recentRoomsOnchange]);
+
+  useEffect(() => {
+    if (inView && !EndOfFetching) {
+      fetchRooms();
+    }
+
+    // eslint-disable-next-line
+  }, [inView]);
 
   return ChatRoomsState.recentRooms.length > 0 ? (
     <div className="bg-[#1A1C26] h-full">
@@ -140,9 +156,9 @@ export const RoomChatPlaceHolder = () => {
               </p>
               {room.last_message !== null && (
                 <div className="">
-                  <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
+                  <p className="text-gray-400 font-poppins text-xs font-light leading-normal">
                     {formatTime(room.last_message?.createdAt ?? "")}
-                  </time>
+                  </p>
                 </div>
               )}
             </div>
@@ -185,11 +201,9 @@ export const CreateNewRoomModal = () => {
     setName(event.target.value);
   };
 
-  const createNewRoom = useChatStore((state) => state.createNewRoom);
-
   const [selectedOption, setSelectedOption] = useState(RoomType.public);
-
   const setIsLoading = useChatStore((state) => state.setIsLoading);
+  const chatState = useChatStore((state) => state);
 
   const resetModalState = () => {
     setPassword("");
@@ -306,7 +320,14 @@ export const CreateNewRoomModal = () => {
                       toast.error("something went wrong, try again");
                       resetModalState();
                     } else {
-                      createNewRoom(RoomName, selectedOption, res.data.id);
+                      toast.success("Room Created Successfully");
+                      // createNewRoom(RoomName, selectedOption, res.data.id);
+
+                      chatState.changeChatType(ChatType.Room);
+                      chatState.setOnRoomsChange(
+                        !chatState.recentRoomsOnchange
+                      );
+                      // chatState.fillRecentRooms([
                       resetModalState();
                     }
                     setIsLoading(false);
@@ -519,6 +540,155 @@ export const BlockedUsersModal = () => {
   );
 };
 
+export const FriendStatusTile = (props: { user: RoomMember }) => {
+  const user = props.user;
+  const [onlineStatus, setOnlineStatus] = useState<string>("offline");
+  const socketStore = useSocketStore((state) => state);
+
+  useEffect(() => {
+    socketStore?.socket?.emit(
+      "status",
+      { userId: user.id },
+      (data: { status: string; inGame: boolean }) => {
+        console.log(data);
+        if (data.status === "online" && !data.inGame) {
+          setOnlineStatus("online");
+        } else if (data.status === "online" && data.inGame) {
+          setOnlineStatus("inGame");
+        } else {
+          setOnlineStatus("offline");
+        }
+      }
+    );
+  }, [user.id, socketStore?.socket]);
+  return (
+    <div key={user.id}>
+      <div className="flex flex-row justify-between p-3">
+        <div className="flex flex-row items-center space-x-3">
+          <div className="pr-1">
+            <img
+              className="w-12 rounded-full "
+              alt=""
+              src={user?.avatar?.medium}
+            />
+          </div>
+
+          <p className="text-white font-poppins text-base font-medium leading-normal">
+            {user?.firstname ?? "user"}
+          </p>
+        </div>
+
+        <div>
+          <span
+            className={classNames(
+              "px-2 py-1 font-light ml-2 text-xs border rounded-full",
+              onlineStatus === "online"
+                ? "text-green-500 border-green-500"
+                : onlineStatus === "inGame"
+                ? "text-yellow-500 border-yellow-500"
+                : "text-red-500 border-red-500"
+            )}
+          >
+            {onlineStatus}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const FriendsListModal = () => {
+  const [currentFriends, setUsers] = useState<RoomMember[]>([]);
+
+  const LayoutState = useModalStore((state) => state);
+  const [IsLoading, setIsLoading] = useState(false);
+
+  const [skipCount, setSkipCount] = useState(true);
+
+  useEffect(() => {
+    if (skipCount) setSkipCount(false);
+    if (!skipCount) {
+      const fetchData = async () => {
+        try {
+          setIsLoading(true);
+
+          await getFriendsCall(0, 0).then((res) => {
+            setIsLoading(false);
+            if (res?.status === 200 || res?.status === 201) {
+              const friends: RoomMember[] = [];
+              res.data.forEach(
+                (friend: {
+                  userId: string;
+                  firstname: string;
+                  lastname: string;
+                  avatar: {
+                    thumbnail: string;
+                    medium: string;
+                    large: string;
+                  };
+                }) => {
+                  friends.push({
+                    id: friend.userId,
+                    firstname: friend.firstname,
+                    lastname: friend.lastname,
+                    // to inject it with the real images later
+                    avatar: friend.avatar,
+                  } as RoomMember);
+                }
+              );
+
+              setUsers(friends);
+            } else {
+            }
+          });
+        } catch (error) {
+          console.error("Error fetching data: ", error);
+        }
+      };
+
+      fetchData();
+    }
+    // eslint-disable-next-line
+  }, [LayoutState.showFriendsListModal]);
+  return (
+    <div className="modal w-screen " id="my_modal_1">
+      <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
+        <div className="flex flex-col">
+          <div className="flex flex-row justify-center">
+            <p className="text-purple-500 font-poppins text-lg font-medium leading-normal pb-2">
+              list of Friends
+            </p>
+          </div>
+
+          {IsLoading === true ? (
+            <div className="text-center p-2">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          ) : (
+            <div className="max-h-[300px] overflow-y-auto no-scrollbar">
+              {currentFriends.length < 1 && (
+                <NullPlaceHolder message="You have no Friends  Yet" />
+              )}
+              {currentFriends.map((user) => (
+                <FriendStatusTile key={user.id} user={user} />
+              ))}
+            </div>
+          )}
+
+          <div className="modal-action ">
+            <a href="#/" className="btn hover:bg-purple-500">
+              {"Close "}
+            </a>
+            <a href="#/" className="btn hover:bg-purple-500">
+              {"Done "}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const AddUsersModal = () => {
   const [currentFriends, setUsers] = useState<RoomMember[]>([]);
   const [currentRoomMembers, setRoomMembers] = useState<RoomMember[]>([]);
@@ -679,11 +849,12 @@ export const RoomSettingsModal = () => {
           setLOading(true);
           await getRoomMembersCall(currentRoom?.id as string, 0, 20).then(
             (res) => {
+              console.log("hna");
               setLOading(false);
               if (res?.status === 200 || res?.status === 201) {
                 const extractedData = res.data;
+
                 setUsers(extractedData);
-              } else {
               }
             }
           );
@@ -691,8 +862,9 @@ export const RoomSettingsModal = () => {
           console.error("Error fetching data: ", error);
         }
       };
-
-      fetchData();
+      if (chatState.selectedChatID !== "1") {
+        fetchData();
+      }
     }
     // eslint-disable-next-line
   }, [LayoutState.showSettingsModal]);
@@ -702,6 +874,7 @@ export const RoomSettingsModal = () => {
     setPassword("");
     setSelectedOption(currentRoom?.type as RoomType);
     setName((currentRoom?.name || "") as string);
+    setUsers([]);
   };
 
   return (
@@ -1101,7 +1274,9 @@ export const ExploreRoomsModal = () => {
       }
     };
 
-    fetch();
+    if (!EndOfFetching) {
+      fetch();
+    }
 
     // eslint-disable-next-line
   }, [modalState, inView]);
@@ -1214,8 +1389,11 @@ export const ExploreRoomsModal = () => {
                     resetModalState();
                   } else {
                     toast.success("Room Joined Successfully");
+                    recentRooms.selectNewChatID("1");
+                    // recentRooms.setOnRoomsChange(
+                    //   !recentRooms.recentRoomsOnchange
+                    // );
                     recentRooms.changeChatType(ChatType.Room);
-                    recentRooms.selectNewChatID(SelectedRoomID);
 
                     resetModalState();
                   }
