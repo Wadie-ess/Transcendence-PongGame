@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import { ConversationProps } from "..";
 import {
   Message,
@@ -24,6 +24,8 @@ import { useUserStore } from "../../../Stores/stores";
 import { formatTime } from "./tools/utils";
 import { useSocketStore } from "../Services/SocketsServices";
 import { useNavigate } from "react-router-dom";
+import { blockUserCall } from "../Services/FriendsServices";
+import { InvitationWaiting } from "../../Layout/Assets/Invitationacceptance";
 
 import { useInView } from "react-intersection-observer";
 import { classNames } from "../../../Utils/helpers";
@@ -99,6 +101,8 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
   const currentUser = useChatStore((state) => state.currentDmUser);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const socketStore = useSocketStore();
+  const inviteWaitingModalRef = useRef<HTMLDialogElement>(null);
+  const user = useUserStore();
 
   const currentRoom = chatRooms.find((room) => room.id === SelectedChat);
 
@@ -188,13 +192,44 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               tabIndex={0}
               className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute right-full"
             >
-              <li>
+              <li
+                onClick={async () => {
+                  ChatState.setIsLoading(true);
+                  await blockUserCall(currentUser?.secondUserId).then((res) => {
+                    ChatState.setIsLoading(false);
+                    if (res?.status === 200 || res?.status === 201) {
+                      toast.success("User Blocked");
+                      // ChatState.selectNewChatID("1");
+                    } else {
+                      toast.error("Could Not Block User");
+                    }
+                  });
+                }}
+              >
                 <span className="hover:bg-[#7940CF]">Block</span>
               </li>
-              <li>
-                <span className="hover:bg-[#7940CF]">
-                  invite for a Pong Game
-                </span>
+              <li
+                className="hover:bg-[#7940CF] hover:rounded"
+                onClick={() => {
+                  socketStore?.socket?.emit(
+                    "inviteToGame",
+                    {
+                      inviterId: user.id,
+                      opponentId: currentUser.secondUserId,
+                      gameMode: "classic",
+                    },
+                    (data: { error: string | null; gameId: string }) => {
+                      if (data.error) {
+                        toast.error(data.error);
+                        return;
+                      }
+                      user.setGameWaitingId(data.gameId);
+                      inviteWaitingModalRef.current?.showModal();
+                    }
+                  );
+                }}
+              >
+                <span>Invite to a game</span>
               </li>
               <li
                 onClick={() => {
@@ -269,26 +304,26 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                     : "hide Room Info"}
                 </span>
               </li>
-              {currentRoom?.isOwner === false && (
-                <div>
-                  <li
-                    onClick={async () => {
-                      ChatState.setIsLoading(true);
-                      await leaveRoomCall(currentRoom?.id as string).then(
-                        (res) => {
-                          ChatState.setIsLoading(false);
-                          if (res?.status === 200 || res?.status === 201) {
-                            toast.success("Room Left Successfully");
-                            ChatState.deleteRoom(currentRoom?.id as string);
-                          }
+              {/* {currentRoom?.isOwner === false && ( */}
+              <div>
+                <li
+                  onClick={async () => {
+                    ChatState.setIsLoading(true);
+                    await leaveRoomCall(currentRoom?.id as string).then(
+                      (res) => {
+                        ChatState.setIsLoading(false);
+                        if (res?.status === 200 || res?.status === 201) {
+                          toast.success("Room Left Successfully");
+                          // ChatState.changeChatType(ChatType.Chat);
+                          ChatState.deleteRoom(currentRoom?.id as string);
                         }
-                      );
-                    }}
-                  >
-                    <span className="hover:bg-[#7940CF]">leave The Room</span>
-                  </li>
-                </div>
-              )}
+                      }
+                    );
+                  }}
+                >
+                  <span className="hover:bg-[#7940CF]">leave The Room</span>
+                </li>
+              </div>
             </ul>
             <ConfirmationModal
               isOpen={isModalOpen}
@@ -297,6 +332,18 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
           </div>
         )}
       </div>
+      <InvitationWaiting
+        ref={inviteWaitingModalRef}
+        oppenent={{
+          picture: currentUser.avatar,
+          name: {
+            first: currentUser.name,
+            last: "",
+          },
+          username: "",
+        }}
+        user={user}
+      />
     </>
   );
 };
@@ -358,7 +405,8 @@ export const Conversation: React.FC<ConversationProps> = ({
   useEffect(() => {
     setShowLoadMore(true);
     chatState.fillCurrentMessages([]);
-  }, [chatState.selectedChatID])
+    // eslint-disable-next-line
+  }, [chatState.selectedChatID]);
 
   useEffect(() => {
     if (!socketStore.socket) return;

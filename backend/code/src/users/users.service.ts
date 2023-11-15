@@ -89,7 +89,7 @@ export class UsersService {
     });
   }
 
-  async getUsers(name: string) {
+  async getUsers(name: string, currentUserId: string) {
     const users = await this.prisma.user.findMany({
       take: 5,
       where: {
@@ -114,32 +114,22 @@ export class UsersService {
           },
         ],
         NOT: {
-          blocked_by: {
-            some: {
-              Blcoked_by: {
-                OR: [
-                  {
-                    firstName: {
-                      contains: name,
-                      mode: 'insensitive',
-                    },
-                  },
-                  {
-                    lastName: {
-                      contains: name,
-                      mode: 'insensitive',
-                    },
-                  },
-                  {
-                    Username: {
-                      contains: name,
-                      mode: 'insensitive',
-                    },
-                  },
-                ],
+          OR: [
+            {
+              blocked_by: {
+                some: {
+                  blocked_id: currentUserId,
+                },
               },
             },
-          },
+            {
+              blocked: {
+                some: {
+                  blocked_by_id: currentUserId,
+                },
+              },
+            },
+          ],
         },
       },
     });

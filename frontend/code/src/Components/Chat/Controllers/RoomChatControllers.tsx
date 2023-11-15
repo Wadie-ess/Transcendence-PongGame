@@ -22,12 +22,14 @@ export interface ChatState {
   recentRooms: ChatRoom[];
   recentDms: DmRoom[];
   onlineFriendsIds: string[];
+  recentRoomsOnchange: boolean;
 
   showChatRooms: boolean;
 
   fillOnlineFriendsIds: (ids: string[]) => void;
   addOnlineFriend: (id: string) => void;
   removeOnlineFriend: (id: string) => void;
+  setOnRoomsChange: (value: boolean) => void;
 
   setCurrentDmUser: (user: DmRoom) => void;
   setMessageAsFailed: (id: string) => void;
@@ -67,8 +69,11 @@ export const useChatStore = create<ChatState>()((set) => ({
     },
   },
 
+  recentRoomsOnchange: false,
+
   // to fix this
-  currentMessages: users.find((user) => user.id === "1")?.messages as Message[],
+  currentMessages:
+    (users.find((user) => user.id === "1")?.messages as Message[]) ?? [],
   currentRoomMessages: chatRooms.find((room) => room.id === "1")
     ?.messages as Message[],
   fillOnlineFriendsIds: (ids: string[]) =>
@@ -77,6 +82,12 @@ export const useChatStore = create<ChatState>()((set) => ({
       state.onlineFriendsIds = [...ids.slice(0, 5)];
       return { ...state };
     }),
+  setOnRoomsChange: (value: boolean) =>
+    set((state) => {
+      state.recentRoomsOnchange = value;
+      return { ...state };
+    }),
+
   addOnlineFriend: (id: string) =>
     set((state) => {
       if (
@@ -164,6 +175,10 @@ export const useChatStore = create<ChatState>()((set) => ({
       if (state.recentRooms.length > 0)
         state.selectedChatID = state.recentRooms[0].id;
       else state.selectedChatID = "1";
+      state.recentRoomsOnchange = !state.recentRoomsOnchange;
+      // state.selectedChatType = ChatType.Chat;
+      // state.selectNewChatID(state.recentDms[0].id ?? "1");
+      state.selectNewChatID("1");
 
       return { ...state };
     }),
@@ -193,6 +208,7 @@ export const useChatStore = create<ChatState>()((set) => ({
       }
       state.selectedChatID = id;
       state.recentRooms = [...chatRooms];
+      state.recentRoomsOnchange = !state.recentRoomsOnchange;
       return { ...state };
     }),
   createNewRoom: (name: string, roomType: RoomType, id: string) =>
@@ -206,7 +222,7 @@ export const useChatStore = create<ChatState>()((set) => ({
         isOwner: true,
         isAdmin: true,
       };
-      state.selectedChatID = id;
+      // state.selectedChatID = id;
 
       chatRooms.push(newRoom);
       state.recentRooms = [...chatRooms];

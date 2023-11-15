@@ -63,6 +63,7 @@ export const RecentConversations = () => {
             };
             bio: string;
           }) => {
+            // to check if not exist
             rooms.push({
               secondUserId: room.secondMemberId,
               id: room.id,
@@ -78,10 +79,7 @@ export const RecentConversations = () => {
         );
 
         if (res.data.length > 0) {
-          ChatRoomsState.fillRecentDms([
-            ...recentDms,
-            ...rooms,
-          ]);
+          ChatRoomsState.fillRecentDms([...ChatRoomsState.recentDms, ...rooms]);
         } else {
           setEndOfFetching(true);
         }
