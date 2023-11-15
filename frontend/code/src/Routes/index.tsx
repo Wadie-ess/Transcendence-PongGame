@@ -37,13 +37,7 @@ const router = createBrowserRouter([
           return { Component: Setting };
         },
       },
-      {
-        path: "FirstLogin",
-        lazy: async () => {
-          let { FirstLogin } = await import("../Components/FirstLogin");
-          return { Component: FirstLogin };
-        },
-      },
+      
       {
         path: "Profile/:id",
         lazy: async () => {
