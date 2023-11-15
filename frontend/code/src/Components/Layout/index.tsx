@@ -8,7 +8,7 @@ import { Message } from "./Assets/Message";
 import { Profile } from "./Assets/Profile";
 import { Settings } from "./Assets/Settings";
 import { Out } from "./Assets/Out";
-import { FC, PropsWithChildren, useLayoutEffect, useRef } from "react";
+import { FC, PropsWithChildren, useEffect, useLayoutEffect, useRef } from "react";
 import { Outlet } from "react-router";
 import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
@@ -23,7 +23,7 @@ import {
 import { Modal } from "./Assets/Modal";
 
 import { InvitationGame } from "./Assets/Invitationmodale";
-
+import { useGameState } from "../Game/States/GameState";
 const routes = [
   { path: "Profile/:id" },
   { path: "Dm/:id" },
@@ -45,11 +45,25 @@ function onConnect() {
   console.log("hello");
 }
 export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
+  const gameStore = useGameState();
   const user = useUserStore();
   const navigate = useNavigate();
   const socketStore = useSocketStore();
   const invitationGameRef = useRef<HTMLDialogElement>(null);
-
+  const path: string = useCurrentPath();
+  useEffect(() => {
+    console.log(gameStore)
+    console.log(`path is saads ${path}`)
+    if (gameStore.end === false && path !== "Game/:id")
+    {
+        socketStore.socket.emit("leave");
+        gameStore.setEnd(true)
+    }
+    return () => {
+      socketStore.socket.off("leave");
+    }
+     // eslint-disable-next-line
+  },[path])
   useLayoutEffect(() => {
     const log = async () => {
       try {
@@ -171,7 +185,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
     //eslint-disable-next-line
   }, []);
 
-  const path: string = useCurrentPath();
+ 
 
   return (
     <>

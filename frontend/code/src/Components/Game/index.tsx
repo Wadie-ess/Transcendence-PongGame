@@ -5,6 +5,10 @@ import { useGameState } from "./States/GameState";
 import { useSocketStore } from "../Chat/Services/SocketsServices";
 import { useNavigate } from "react-router-dom";
 
+
+
+
+
 const DURATION = 20;
 type Cords = {
   x:number;
@@ -41,10 +45,13 @@ export const Game = () => {
     const [level , setLevel] = useState(1);
     const [t , setT ] = useState(0);
     const navigate = useNavigate()
+
     const leave = useCallback(() => {
       socketStore.socket.emit("leave")
+      gameState.setEnd(true);
       // eslint-disable-next-line
     },[])
+  
     const handleMove = throttlify((e :any) => {
         socketStore.socket.emit("mouse",e.evt.layerY);
     })
@@ -59,7 +66,9 @@ export const Game = () => {
     useEffect(() => {
       socketStore.socket.on("level", (l:number) => {setLevel(l)})
       socketStore.socket.on("t", (t:number) => {setT(t)})
-
+      socketStore.socket.on("game.end", () =>{
+        gameState.setEnd(true)
+      })
       document.addEventListener('keydown', (event) =>{
         if (event.key === "ArrowUp")
           socketStore.socket.emit("up");
@@ -91,6 +100,7 @@ export const Game = () => {
           socketStore.socket.off("leave")
           socketStore.socket.off("level")
           socketStore.socket.off("t")
+          socketStore.socket.off("game.end")
 
           window.removeEventListener("keydown",()=>{});
 
@@ -103,10 +113,11 @@ export const Game = () => {
         navigate("/home")
       const divh = document.getElementById('Game')?.offsetHeight
       const divw = document.getElementById('Game')?.offsetWidth
-     socketStore.socket.emit("screen",{h:divh,w:divw})
+      socketStore.socket.emit("screen",{h:divh,w:divw})
+      gameState.setEnd(false);
       if (divw) {divw <= 742 ? gameState.setMobile(true) : gameState.setMobile(false)}
         window.addEventListener('resize', () => {
-            
+          gameState.setEnd(false);
             const divh = document.getElementById('Game')?.offsetHeight
             const divw = document.getElementById('Game')?.offsetWidth
             const aspectRatio = 16 / 9;

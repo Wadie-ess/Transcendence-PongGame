@@ -17,6 +17,7 @@ type GameStateType = {
   p1:any;
   p2:any;
   side:boolean;
+  end:boolean;
 }
 
 type GameActions = {
@@ -29,6 +30,7 @@ type GameActions = {
   setP1 : (p1 : GameStateType['p1']) => void;
   setP2 : (p2 : GameStateType['p2']) => void;
   setSide : (side : GameStateType['side']) => void;
+  setEnd : (end : GameStateType['end']) => void;
 }
 
 export const useGameState = create<GameStateType & GameActions>((set)=> ({
@@ -42,6 +44,7 @@ export const useGameState = create<GameStateType & GameActions>((set)=> ({
   p1:null,
   p2:null,
   side:false,
+  end:true,
   setHeight : (h) => set(() => ({height : h})),
   setWidth : (w) => set(() => ({width : w})),
   setLPaddle : (lp) => set(() => ({lPaddle : lp})),
@@ -51,6 +54,6 @@ export const useGameState = create<GameStateType & GameActions>((set)=> ({
   setP1 : (p1) => set(() => ({p1:p1})),
   setP2 : (p2) => set(() => ({p2:p2})),
   setSide : (side) => set(() => ({side:side})), 
-
+  setEnd : (end) => set(() => ({end:end})),
 
 }))

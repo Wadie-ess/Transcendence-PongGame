@@ -356,19 +356,20 @@ export class Game {
       this.emitGameEnd('end');
     }
   }
-  private removeLis(socket) {
-    socket.removeListener('disconnect', () => {});
-    socket.removeListener('leave', () => {});
-    socket.removeListener('screen', () => {});
-    socket.removeListener('mouse', () => {});
-    socket.removeListener('up', () => {});
-    socket.removeListener('down', () => {});
+
+  private removeListeners(socket: Socket) {
+    socket.removeAllListeners('disconnect');
+    socket.removeAllListeners('leave');
+    socket.removeAllListeners('screen');
+    socket.removeAllListeners('mouse');
+    socket.removeAllListeners('up');
+    socket.removeAllListeners('down');
   }
   private emitGameEnd(message: string) {
-    console.log('game end');
+    console.log`asdaqwe Game end`;
     this.closeGame = true;
-    this.removeLis(this.p1socket);
-    this.removeLis(this.p2socket);
+    this.removeListeners(this.p1socket);
+    this.removeListeners(this.p2socket);
 
     if (message === 'p1Leave') {
       this.eventEmitter.emit('game.end', {
