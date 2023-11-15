@@ -312,27 +312,26 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                     : "hide Room Info"}
                 </span>
               </li>
-              {currentRoom?.isOwner === false && (
-                <div>
-                  <li
-                    onClick={async () => {
-                      ChatState.setIsLoading(true);
-                      await leaveRoomCall(currentRoom?.id as string).then(
-                        (res) => {
-                          ChatState.setIsLoading(false);
-                          if (res?.status === 200 || res?.status === 201) {
-                            toast.success("Room Left Successfully");
-                            // ChatState.changeChatType(ChatType.Chat);
-                            ChatState.deleteRoom(currentRoom?.id as string);
-                          }
+              {/* {currentRoom?.isOwner === false && ( */}
+              <div>
+                <li
+                  onClick={async () => {
+                    ChatState.setIsLoading(true);
+                    await leaveRoomCall(currentRoom?.id as string).then(
+                      (res) => {
+                        ChatState.setIsLoading(false);
+                        if (res?.status === 200 || res?.status === 201) {
+                          toast.success("Room Left Successfully");
+                          // ChatState.changeChatType(ChatType.Chat);
+                          ChatState.deleteRoom(currentRoom?.id as string);
                         }
-                      );
-                    }}
-                  >
-                    <span className="hover:bg-[#7940CF]">leave The Room</span>
-                  </li>
-                </div>
-              )}
+                      }
+                    );
+                  }}
+                >
+                  <span className="hover:bg-[#7940CF]">leave The Room</span>
+                </li>
+              </div>
             </ul>
             <ConfirmationModal
               isOpen={isModalOpen}

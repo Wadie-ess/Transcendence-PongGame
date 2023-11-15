@@ -15,7 +15,11 @@ import { useUserStore } from "../../Stores/stores";
 import { useNavigate } from "react-router-dom";
 import { FirstLogin } from "../FirstLogin";
 import { useSocketStore } from "../Chat/Services/SocketsServices";
-import { ShowLogoModal } from "../Chat/Components/RoomChatHelpers";
+import {
+  BlockedUsersModal,
+  FriendsListModal,
+  ShowLogoModal,
+} from "../Chat/Components/RoomChatHelpers";
 import { Modal } from "./Assets/Modal";
 import toast from "react-hot-toast";
 import { closeWhite } from "../Chat/Components/tools/Assets";
@@ -184,6 +188,8 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
           <div className=" flex flex-row  w-screen h-[9vh]  bg-base-200">
             <div className="flex justify-start items-center z-50 h-full w-full">
               <ShowLogoModal />
+              <BlockedUsersModal />
+              <FriendsListModal />
               <Logo className="sm:w-30 w-20" />
             </div>
             <div className="flex items-center  justify-end pr-6 gap-6 h-full w-full">

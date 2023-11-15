@@ -28,6 +28,7 @@ import { getRoomMembersCall } from "./Services/ChatServices";
 import { classNames } from "../../Utils/helpers";
 import { useModalStore } from "./Controllers/LayoutControllers";
 import { useInView } from "react-intersection-observer";
+import { useNavigate } from "react-router-dom";
 
 export interface ConversationProps {
   onRemoveUserPreview: () => void;
@@ -102,6 +103,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
   const [currentUsers, setUsers] = useState<RoomMember[]>([]);
   const LayoutState = useModalStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
+  const navigate = useNavigate();
 
   const currentUser = useChatStore((state) => state.currentDmUser);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
@@ -206,10 +208,23 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
                     <div className="flex items-center justify-start space-x-2">
                       <div className="avatar">
                         <div className="mask mask-squircle w-11 h-11">
-                          <img
+                          <button
+                            onClick={async () => {
+                              {
+                                navigate(`/profile/${user.id}`);
+                              }
+                            }}
+                          >
+                            <img
+                              className="w-12 rounded-full "
+                              alt=""
+                              src={user?.avatar?.medium ?? NullUser}
+                            />
+                          </button>
+                          {/* <img
                             src={user?.avatar?.medium ?? NullUser}
                             alt="Avatar Tailwind CSS Component"
-                          />
+                          /> */}
                         </div>
                       </div>
                       <div>

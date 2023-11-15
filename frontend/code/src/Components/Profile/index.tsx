@@ -94,7 +94,7 @@ export const Profile = () => {
         } else {
           setOnlineStatus("offline");
         }
-      },
+      }
     );
   }, [params.id, socketStore?.socket, user.id]);
 
@@ -155,8 +155,6 @@ export const Profile = () => {
 
   return (
     <>
-      <BlockedUsersModal />
-      <FriendsListModal />
       <div className=" flex flex-col items-center h-full bg-accent">
         <div className="relative pt-12 h-auto max-h-[30vh] min-h-[16vh] md:min-h-[28vh] xl:min-h-[33vh] w-[85vw]">
           <div className="relative h-full w-full md:px-32 bg-[#2b3bfb] rounded-t-3xl">
@@ -202,7 +200,7 @@ export const Profile = () => {
                         ? "text-green-500 border-green-500"
                         : onlineStatus === "inGame"
                         ? "text-yellow-500 border-yellow-500"
-                        : "text-red-500 border-red-500",
+                        : "text-red-500 border-red-500"
                     )}
                   >
                     {onlineStatus}

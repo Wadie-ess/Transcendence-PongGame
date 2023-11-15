@@ -33,6 +33,7 @@ import { formatTime } from "./tools/utils";
 import { getBlockedCall, unblockCall } from "../Services/FriendsServices";
 import { useSocketStore } from "../Services/SocketsServices";
 import { useInView } from "react-intersection-observer";
+import { classNames } from "../../../Utils/helpers";
 
 interface NullComponentProps {
   message: string;
@@ -538,8 +539,69 @@ export const BlockedUsersModal = () => {
   );
 };
 
+export const FriendStatusTile = (props: { user: RoomMember }) => {
+  const [IsAdding, setIsAdding] = useState(false);
+  const selectedChatID = useChatStore((state) => state.selectedChatID);
+  const LayoutState = useModalStore((state) => state);
+  const user = props.user;
+  const [onlineStatus, setOnlineStatus] = useState<string>("offline");
+  const socketStore = useSocketStore((state) => state);
+
+  useEffect(() => {
+    socketStore?.socket?.emit(
+      "status",
+      { userId: user.id },
+      (data: { status: string; inGame: boolean }) => {
+        console.log(data);
+        if (data.status === "online" && !data.inGame) {
+          setOnlineStatus("online");
+        } else if (data.status === "online" && data.inGame) {
+          setOnlineStatus("inGame");
+        } else {
+          setOnlineStatus("offline");
+        }
+      }
+    );
+  }, [user.id, socketStore?.socket]);
+  return (
+    <div key={user.id}>
+      <div className="flex flex-row justify-between p-3">
+        <div className="flex flex-row items-center space-x-3">
+          <div className="pr-1">
+            <img
+              className="w-12 rounded-full "
+              alt=""
+              src={user?.avatar?.medium}
+            />
+          </div>
+
+          <p className="text-white font-poppins text-base font-medium leading-normal">
+            {user?.firstname ?? "user"}
+          </p>
+        </div>
+
+        <div>
+          <span
+            className={classNames(
+              "px-2 py-1 font-light ml-2 text-xs border rounded-full",
+              onlineStatus === "online"
+                ? "text-green-500 border-green-500"
+                : onlineStatus === "inGame"
+                ? "text-yellow-500 border-yellow-500"
+                : "text-red-500 border-red-500"
+            )}
+          >
+            {onlineStatus}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const FriendsListModal = () => {
   const [currentFriends, setUsers] = useState<RoomMember[]>([]);
+  const [onlineStatus, setOnlineStatus] = useState<string>("offline");
 
   const LayoutState = useModalStore((state) => state);
   const [IsLoading, setIsLoading] = useState(false);
@@ -611,7 +673,7 @@ export const FriendsListModal = () => {
                 <NullPlaceHolder message="You have no Friends  Yet" />
               )}
               {currentFriends.map((user) => (
-                <FriendTile key={user.id} user={user} />
+                <FriendStatusTile key={user.id} user={user} />
               ))}
             </div>
           )}

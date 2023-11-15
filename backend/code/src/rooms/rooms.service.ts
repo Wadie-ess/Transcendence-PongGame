@@ -39,6 +39,12 @@ export class RoomsService {
     delete roomData.secondMember;
 
     if (roomData.type === 'dm') {
+      if (roomOwnerId === secondMember) {
+        throw new HttpException(
+          'you cannot create a dm room with yourself',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
       const user = await this.prisma.user.findUnique({
         where: {
           userId: secondMember,
