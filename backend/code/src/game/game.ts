@@ -6,7 +6,6 @@ export class Game {
     private readonly eventEmitter: EventEmitter2,
     private readonly server: Server,
     private readonly mode: string,
-
   ) {}
 
   private screenAdapter(player, x: number, y: number, ballsize: number) {
@@ -47,12 +46,12 @@ export class Game {
     // let scale_y = player2.h / this.h;
     // let center = this.paddleHeight * scale_y;
 
-    if (p2PaddleY - ((player2.h / 6) / 6) < 0) {
+    if (p2PaddleY - player2.h / 6 / 6 < 0) {
       p2PaddleY = 0;
       this.p2PaddleY = 0;
-    } else if (p2PaddleY + (player2.h / 6) > player2.h) {
-      p2PaddleY = player2.h - (player2.h / 6);
-      this.p2PaddleY = this.h - (this.paddleHeight);
+    } else if (p2PaddleY + player2.h / 6 > player2.h) {
+      p2PaddleY = player2.h - player2.h / 6;
+      this.p2PaddleY = this.h - this.paddleHeight;
     }
     return { p1PaddleY: newPos, p2PaddleY: p2PaddleY, side: side };
   }
@@ -65,8 +64,8 @@ export class Game {
   ) {
     const scale = this.h / player2.h;
     if (
-      (p2PaddleY * scale) - (this.paddleHeight / 6) >= 0 &&
-     ( p2PaddleY * scale) + this.paddleHeight <= this.h
+      p2PaddleY * scale - this.paddleHeight / 6 >= 0 &&
+      p2PaddleY * scale + this.paddleHeight <= this.h
     )
       this.p2PaddleY = p2PaddleY * scale;
 
@@ -77,38 +76,38 @@ export class Game {
 
     // let center = this.paddleHeight * scale_y;
 
-    if (p1PaddleY - ((player1.h / 6) / 6) < 0) {
+    if (p1PaddleY - player1.h / 6 / 6 < 0) {
       p1PaddleY = 0;
       this.p1PaddleY = 0;
-    } else if (p1PaddleY + (player1.h / 6) > player1.h) {
-      p1PaddleY = player1.h - (player1.h / 6);
+    } else if (p1PaddleY + player1.h / 6 > player1.h) {
+      p1PaddleY = player1.h - player1.h / 6;
       this.p1PaddleY = this.h - this.paddleHeight;
     }
     return { p1PaddleY: p1PaddleY, p2PaddleY: newPos, side: side };
   }
   private up1() {
-    this.eventp1Paddle -=( (this.p1Res.h / 6) / 6);
-    if (this.eventp1Paddle - ((this.p1Res.h / 6) / 6) < 0) {
+    this.eventp1Paddle -= this.p1Res.h / 6 / 6;
+    if (this.eventp1Paddle - this.p1Res.h / 6 / 6 < 0) {
       this.eventp1Paddle = 0;
     }
   }
 
   private down1() {
-    this.eventp1Paddle += ((this.p1Res.h / 6 )/ 6);
+    this.eventp1Paddle += this.p1Res.h / 6 / 6;
     if (this.eventp1Paddle + this.p1Res.h / 6 > this.p1Res.h) {
-      this.eventp1Paddle = this.p1Res.h - (this.p1Res.h / 6);
+      this.eventp1Paddle = this.p1Res.h - this.p1Res.h / 6;
     }
   }
   private up2() {
-    this.eventp2Paddle -= ((this.p2Res.h / 6) / 6);
-    if (this.eventp2Paddle - ((this.p2Res.h / 6) / 6) < 0) {
+    this.eventp2Paddle -= this.p2Res.h / 6 / 6;
+    if (this.eventp2Paddle - this.p2Res.h / 6 / 6 < 0) {
       this.eventp2Paddle = 0;
     }
   }
 
   private down2() {
-    this.eventp2Paddle += (this.p2Res.h / 6) / 6;
-    if (this.eventp2Paddle - (this.p2Res.h / 6) / 6 < 0) {
+    this.eventp2Paddle += this.p2Res.h / 6 / 6;
+    if (this.eventp2Paddle - this.p2Res.h / 6 / 6 < 0) {
       this.eventp2Paddle = 0;
     }
   }
@@ -135,24 +134,22 @@ export class Game {
     ) {
       this.dx *= -1;
       this.dy = Math.random() * (4 - 1.5) + 1.5;
-      if (Math.random() >= .5)
-        this.dy *= -1;  
+      if (Math.random() >= 0.5) this.dy *= -1;
     }
 
     if (
       this.y > this.p2PaddleY &&
       this.y < this.p2PaddleY + this.paddleHeight &&
-      this.x >= this.w - (this.gap + (this.ballSize / 2) + this.paddleWidth)
+      this.x >= this.w - (this.gap + this.ballSize / 2 + this.paddleWidth)
     ) {
       this.dx *= -1;
       this.dy = Math.random() * (4 - 1.5) + 1.5;
-      if (Math.random() >= .5)
-        this.dy *= -1;        
+      if (Math.random() >= 0.5) this.dy *= -1;
     }
     if (
       (this.y < this.p2PaddleY ||
         this.y > this.p2PaddleY + this.paddleHeight) &&
-      this.x + this.ballSize / 2 >= this.w 
+      this.x + this.ballSize / 2 >= this.w
     ) {
       console.log(`${this.p1PaddleY} ${this.x} ${this.y} ${this.ballSize}`);
       this.p1Score += 1;
@@ -271,48 +268,37 @@ export class Game {
     console.log(p2Data);
     this.server.emit('players', [p1Data, p2Data]);
     console.log('newfunc');
-  
-    if (this.mode === "extra")
-    {
+
+    if (this.mode === 'extra') {
       let l = 1;
       const custom = setInterval(() => {
         let i = 0;
-        const inter = setInterval(() => {i++; if (i > 5) 
-        {
-          this.server.to(this.gameid).emit("t",(10 - i))
-          if (i === 10)
-            clearInterval(inter);
-          if (this.closeGame)
-            clearInterval(inter)
-        }
-      },1000)
-        this.server.to(this.gameid).emit("level",l)
+        const inter = setInterval(() => {
+          i++;
+          if (i > 5) {
+            this.server.to(this.gameid).emit('t', 10 - i);
+            if (i === 10) clearInterval(inter);
+            if (this.closeGame) clearInterval(inter);
+          }
+        }, 1000);
+        this.server.to(this.gameid).emit('level', l);
         l++;
-        if (this.closeGame)
-          clearInterval(custom)
-      },10000)
+        if (this.closeGame) clearInterval(custom);
+      }, 10000);
       const inter = setInterval(() => {
-        if (this.closeGame)
-          clearInterval(inter)
-        if (this.ballSize -1 > 3)
-          this.ballSize -= 2;
-        else
-          clearInterval(inter);
+        if (this.closeGame) clearInterval(inter);
+        if (this.ballSize - 1 > 3) this.ballSize -= 2;
+        else clearInterval(inter);
       }, 10000);
       const speed = setInterval(() => {
-        if (this.closeGame)
-          clearInterval(speed)
-        if (this.frames >= 6)
-          this.frames -= 2;
-        else
-          clearInterval(speed)
+        if (this.closeGame) clearInterval(speed);
+        if (this.frames >= 6) this.frames -= 2;
+        else clearInterval(speed);
       }, 10000);
-    }
-
-    else {
+    } else {
       this.frames = 16;
     }
- 
+
     this.p1socket.on('up', () => {
       this.up1();
     });
@@ -370,11 +356,19 @@ export class Game {
       this.emitGameEnd('end');
     }
   }
+  private removeLis(socket) {
+    socket.removeListener('disconnect', () => {});
+    socket.removeListener('leave', () => {});
+    socket.removeListener('screen', () => {});
+    socket.removeListener('mouse', () => {});
+    socket.removeListener('up', () => {});
+    socket.removeListener('down', () => {});
+  }
   private emitGameEnd(message: string) {
     console.log('game end');
     this.closeGame = true;
-    this.p1socket.removeAllListeners()
-    this.p2socket.removeAllListeners()
+    this.removeLis(this.p1socket);
+    this.removeLis(this.p2socket);
 
     if (message === 'p1Leave') {
       this.eventEmitter.emit('game.end', {
@@ -418,16 +412,15 @@ export class Game {
   private init() {
     this.x = this.w / 2;
     this.y = this.h / 2;
-    this.ballSize = this.w / 42;
 
     this.dx = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
     this.dy = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
     this.p1PaddleY = this.h / 2;
     this.p2PaddleY = this.h / 2;
-    if (this.m === "classic")
+    this.ballSize = this.w / 42;
+    if (this.m === 'classic') {
       this.frames = 16;
-    else
-      this.frames = 25;
+    }
   }
   private gameid: string;
   private p1socket: Socket;
@@ -441,7 +434,7 @@ export class Game {
   private y: number = this.h / 2;
   private gap: number = this.w / 100;
   private ballSize: number = this.w / 42;
-  private m: string = "classic"
+  private m: string = this.mode;
   private dx: number = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
   private dy: number = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
   private p1PaddleY: number = this.h / 2;

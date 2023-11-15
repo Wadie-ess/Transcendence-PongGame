@@ -43,7 +43,7 @@ export class GameService {
       if (this.classicwaitingPlayers.length >= 2) {
         console.log('Game launched!');
         const two_players = this.classicwaitingPlayers.splice(0, 2);
-        this.eventEmitter.emit('game.launched', two_players , "classic");
+        this.eventEmitter.emit('game.launched', two_players, 'classic');
         console.log(two_players);
         // const user = await this.getUser(two_players[0].data.user.sub)
         // console.log(user)
@@ -51,7 +51,7 @@ export class GameService {
       if (this.extraWaitingPlayers.length >= 2) {
         console.log('Game launched!');
         const two_players = this.extraWaitingPlayers.splice(0, 2);
-        this.eventEmitter.emit('game.launched', two_players , "extra");
+        this.eventEmitter.emit('game.launched', two_players, 'extra');
         console.log(two_players);
         // const user = await this.getUser(two_players[0].data.user.sub)
         // console.log(user)

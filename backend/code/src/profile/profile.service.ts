@@ -28,8 +28,8 @@ export class ProfileService {
       wonMatches === 0
         ? null
         : wonMatches >= 100
-        ? 2
-        : Math.floor(Math.log10(wonMatches));
+          ? 2
+          : Math.floor(Math.log10(wonMatches));
 
     return new ProfileDto({ ...user, achievement }, false);
   }
@@ -58,8 +58,8 @@ export class ProfileService {
       wonMatches === 0
         ? null
         : wonMatches >= 100
-        ? 2
-        : Math.floor(Math.log10(wonMatches));
+          ? 2
+          : Math.floor(Math.log10(wonMatches));
     return new ProfileDto({ ...user, achievement }, true);
   }
 
