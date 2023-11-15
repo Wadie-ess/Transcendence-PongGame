@@ -21,17 +21,37 @@ export class GameService {
     [];
 
   @OnEvent('game.start')
-  async handleGameStartEvent(data: { client: Socket; gameMode: string }) {
-    const client = data.client;
-    const gameMode = data.gameMode;
-    const userId = client.data.user.sub;
-    const userData = await this.getUser(userId);
-    client.data.inQueue = true;
-    if (gameMode === 'cassic')
-      this.classicwaitingPlayers.push({ socket: client, userData: userData });
-    else if (gameMode === 'extra')
-      this.extraWaitingPlayers.push({ socket: client, userData: userData });
-    console.log('client subscribed to the queue');
+  async handleGameStartEvent(data: {
+    client: Socket;
+    gameMode: string;
+    mode: string;
+  }) {
+    if (data.mode === 'register') {
+      const client = data.client;
+      if (client.data.user?.inQueue) return;
+      const gameMode = data.gameMode;
+      const userId = client.data.user.sub;
+      const userData = await this.getUser(userId);
+      client.data.user.inQueue = true;
+
+      if (gameMode === 'cassic')
+        this.classicwaitingPlayers.push({ socket: client, userData: userData });
+      else if (gameMode === 'extra')
+        this.extraWaitingPlayers.push({ socket: client, userData: userData });
+      console.log('client subscribed to the queue');
+    } else if (data.mode === 'unregister') {
+      const client = data.client;
+      const gameMode = data.gameMode;
+      client.data.user.inQueue = false;
+      if (gameMode === 'cassic')
+        this.classicwaitingPlayers = this.classicwaitingPlayers.filter(
+          (player) => player.socket.id !== client.id,
+        );
+      else if (gameMode === 'extra')
+        this.extraWaitingPlayers = this.extraWaitingPlayers.filter(
+          (player) => player.socket.id !== client.id,
+        );
+    }
   }
 
   //NOTE: add game modes here
@@ -43,7 +63,7 @@ export class GameService {
       if (this.classicwaitingPlayers.length >= 2) {
         console.log('Game launched!');
         const two_players = this.classicwaitingPlayers.splice(0, 2);
-        this.eventEmitter.emit('game.launched', two_players , "classic");
+        this.eventEmitter.emit('game.launched', two_players, 'classic');
         console.log(two_players);
         // const user = await this.getUser(two_players[0].data.user.sub)
         // console.log(user)
@@ -51,7 +71,7 @@ export class GameService {
       if (this.extraWaitingPlayers.length >= 2) {
         console.log('Game launched!');
         const two_players = this.extraWaitingPlayers.splice(0, 2);
-        this.eventEmitter.emit('game.launched', two_players , "extra");
+        this.eventEmitter.emit('game.launched', two_players, 'extra');
         console.log(two_players);
         // const user = await this.getUser(two_players[0].data.user.sub)
         // console.log(user)
