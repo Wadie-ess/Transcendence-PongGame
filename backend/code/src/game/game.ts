@@ -182,20 +182,20 @@ export class Game {
     //   this.p1socket.emit('lose', 'trying cheat');
     //   this.p2socket.emit('win', 'you win other player try to cheat');
     // } else {
-      this.p1socket.emit(
-        'ball',
-        this.screenAdapter(this.p1Res, this.x, this.y, this.ballSize),
-      );
-      this.p2socket.emit(
-        'paddle',
-        this.paddleAdapterP1toP2(
-          this.p1Res,
-          this.p2Res,
-          this.eventp1Paddle,
-          this.eventp2Paddle,
-          true,
-        ),
-      );
+    this.p1socket.emit(
+      'ball',
+      this.screenAdapter(this.p1Res, this.x, this.y, this.ballSize),
+    );
+    this.p2socket.emit(
+      'paddle',
+      this.paddleAdapterP1toP2(
+        this.p1Res,
+        this.p2Res,
+        this.eventp1Paddle,
+        this.eventp2Paddle,
+        true,
+      ),
+    );
     // }
 
     // if (
@@ -208,20 +208,20 @@ export class Game {
     //   this.p1socket.emit('win', 'you win other player try to cheat');
     //   this.p2socket.emit('lose', 'trying cheat');
     // } else {
-      this.p2socket.emit(
-        'ball',
-        this.screenAdapter(this.p2Res, this.x, this.y, this.ballSize),
-      );
-      this.p1socket.emit(
-        'paddle',
-        this.paddleAdapterP2toP1(
-          this.p1Res,
-          this.p2Res,
-          this.eventp1Paddle,
-          this.eventp2Paddle,
-          true,
-        ),
-      );
+    this.p2socket.emit(
+      'ball',
+      this.screenAdapter(this.p2Res, this.x, this.y, this.ballSize),
+    );
+    this.p1socket.emit(
+      'paddle',
+      this.paddleAdapterP2toP1(
+        this.p1Res,
+        this.p2Res,
+        this.eventp1Paddle,
+        this.eventp2Paddle,
+        true,
+      ),
+    );
     // }
 
     await this.sleep(this.frames);
@@ -261,7 +261,6 @@ export class Game {
     console.log(p2Data);
     this.server.emit('players', [p1Data, p2Data]);
     console.log('newfunc');
-
 
     setInterval(() => {
       this.frames -= 1;

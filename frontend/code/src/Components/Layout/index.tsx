@@ -17,10 +17,7 @@ import { FirstLogin } from "../FirstLogin";
 import { useSocketStore } from "../Chat/Services/SocketsServices";
 import { ShowLogoModal } from "../Chat/Components/RoomChatHelpers";
 import { Modal } from "./Assets/Modal";
-import toast from "react-hot-toast";
-import { closeWhite } from "../Chat/Components/tools/Assets";
 import { InvitationGame } from "./Assets/Invitationmodale";
-import { useChatStore } from "../Chat/Controllers/RoomChatControllers";
 
 const routes = [
   { path: "Profile/:id" },
@@ -47,7 +44,6 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   const navigate = useNavigate();
   const socketStore = useSocketStore();
   const invitationGameRef = useRef<HTMLDialogElement>(null);
-  const chatState = useChatStore();
 
   useLayoutEffect(() => {
     const log = async () => {

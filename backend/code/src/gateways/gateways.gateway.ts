@@ -191,10 +191,30 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('status')
+  async handleStatusEvent(@MessageBody() data: any) {
+    const userId = data.userId;
+    const status = this.server.sockets.adapter.rooms.get(`User:${userId}`)?.size
+      ? 'online'
+      : 'offline';
+    if (status === 'offline') {
+      return { status, inGame: false };
+    }
+    const userSockets = await this.server.in(`User:${userId}`).fetchSockets();
+    let inGame = false;
+    for await (const socket of userSockets) {
+      if (socket.data.user.inGame) {
+        inGame = true;
+        break;
+      }
+    }
+    return { status, inGame };
+  }
+
   @SubscribeMessage('startGame')
-  handleGameStartEvent(client: Socket) {
+  handleGameStartEvent(client: Socket, data: { gameMode: string }) {
     console.log(client.data.user);
-    this.eventEmitter.emit('game.start', client);
+    this.eventEmitter.emit('game.start', { client, gameMode: data.gameMode });
   }
   // @SubscribeMessage('getPlayers')
   // getPlayers() {
@@ -210,6 +230,9 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     for await (const socket of opententSockets) {
       if (socket.data.user?.inGame) {
         return { error: 'already in game' };
+      }
+      if (socket.data.user?.inQueue) {
+        return { error: 'already in queue' };
       }
     }
     const invite = Array.from(this.game_invites).find(

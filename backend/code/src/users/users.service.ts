@@ -127,7 +127,7 @@ export class UsersService {
                   {
                     lastName: {
                       contains: name,
-						          mode: 'insensitive',
+                      mode: 'insensitive',
                     },
                   },
                   {
@@ -135,7 +135,7 @@ export class UsersService {
                       contains: name,
                       mode: 'insensitive',
                     },
-                  }
+                  },
                 ],
               },
             },
