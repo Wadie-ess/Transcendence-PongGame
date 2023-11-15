@@ -5,6 +5,8 @@ export class Game {
   constructor(
     private readonly eventEmitter: EventEmitter2,
     private readonly server: Server,
+    private readonly mode: string,
+
   ) {}
 
   private screenAdapter(player, x: number, y: number, ballsize: number) {
@@ -45,10 +47,12 @@ export class Game {
     // let scale_y = player2.h / this.h;
     // let center = this.paddleHeight * scale_y;
 
-    if (p2PaddleY - player2.h / 6 / 6 < 0) {
+    if (p2PaddleY - ((player2.h / 6) / 6) < 0) {
       p2PaddleY = 0;
-    } else if (p2PaddleY + player2.h / 6 > player2.h) {
-      p2PaddleY = player2.h - player2.h / 6;
+      this.p2PaddleY = 0;
+    } else if (p2PaddleY + (player2.h / 6) > player2.h) {
+      p2PaddleY = player2.h - (player2.h / 6);
+      this.p2PaddleY = this.h - (this.paddleHeight);
     }
     return { p1PaddleY: newPos, p2PaddleY: p2PaddleY, side: side };
   }
@@ -75,8 +79,10 @@ export class Game {
 
     if (p1PaddleY - ((player1.h / 6) / 6) < 0) {
       p1PaddleY = 0;
+      this.p1PaddleY = 0;
     } else if (p1PaddleY + (player1.h / 6) > player1.h) {
       p1PaddleY = player1.h - (player1.h / 6);
+      this.p1PaddleY = this.h - this.paddleHeight;
     }
     return { p1PaddleY: p1PaddleY, p2PaddleY: newPos, side: side };
   }
@@ -129,15 +135,19 @@ export class Game {
     ) {
       this.dx *= -1;
       this.dy = Math.random() * (4 - 1.5) + 1.5;
+      if (Math.random() >= .5)
+        this.dy *= -1;  
     }
 
     if (
       this.y > this.p2PaddleY &&
       this.y < this.p2PaddleY + this.paddleHeight &&
       this.x >= this.w - (this.gap + (this.ballSize / 2) + this.paddleWidth)
-    ) {git
+    ) {
       this.dx *= -1;
       this.dy = Math.random() * (4 - 1.5) + 1.5;
+      if (Math.random() >= .5)
+        this.dy *= -1;        
     }
     if (
       (this.y < this.p2PaddleY ||
@@ -261,10 +271,48 @@ export class Game {
     console.log(p2Data);
     this.server.emit('players', [p1Data, p2Data]);
     console.log('newfunc');
+  
+    if (this.mode === "extra")
+    {
+      let l = 1;
+      const custom = setInterval(() => {
+        let i = 0;
+        const inter = setInterval(() => {i++; if (i > 5) 
+        {
+          this.server.to(this.gameid).emit("t",(10 - i))
+          if (i === 10)
+            clearInterval(inter);
+          if (this.closeGame)
+            clearInterval(inter)
+        }
+      },1000)
+        this.server.to(this.gameid).emit("level",l)
+        l++;
+        if (this.closeGame)
+          clearInterval(custom)
+      },10000)
+      const inter = setInterval(() => {
+        if (this.closeGame)
+          clearInterval(inter)
+        if (this.ballSize -1 > 3)
+          this.ballSize -= 2;
+        else
+          clearInterval(inter);
+      }, 10000);
+      const speed = setInterval(() => {
+        if (this.closeGame)
+          clearInterval(speed)
+        if (this.frames >= 6)
+          this.frames -= 2;
+        else
+          clearInterval(speed)
+      }, 10000);
+    }
 
-    setInterval(() => {
-      this.frames -= 1;
-    }, 2000);
+    else {
+      this.frames = 16;
+    }
+ 
     this.p1socket.on('up', () => {
       this.up1();
     });
@@ -376,7 +424,10 @@ export class Game {
     this.dy = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
     this.p1PaddleY = this.h / 2;
     this.p2PaddleY = this.h / 2;
-    this.frames = 25;
+    if (this.m === "classic")
+      this.frames = 16;
+    else
+      this.frames = 25;
   }
   private gameid: string;
   private p1socket: Socket;
@@ -390,7 +441,7 @@ export class Game {
   private y: number = this.h / 2;
   private gap: number = this.w / 100;
   private ballSize: number = this.w / 42;
-
+  private m: string = "classic"
   private dx: number = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
   private dy: number = Math.random() > 0.5 ? this.w / 220 : (this.w / 220) * -1;
   private p1PaddleY: number = this.h / 2;

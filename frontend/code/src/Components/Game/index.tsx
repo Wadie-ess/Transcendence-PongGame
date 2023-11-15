@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Rect, Stage , Layer , Circle, Line} from "react-konva"
 import { BsFillArrowRightCircleFill, BsFillArrowLeftCircleFill} from "react-icons/bs";
 import { useGameState } from "./States/GameState";
@@ -38,6 +38,8 @@ function throttlify(callback : any) {
 export const Game = () => {
     const gameState = useGameState();
     const socketStore = useSocketStore();
+    const [level , setLevel] = useState(1);
+    const [t , setT ] = useState(0);
     const navigate = useNavigate()
     const leave = useCallback(() => {
       socketStore.socket.emit("leave")
@@ -55,6 +57,9 @@ export const Game = () => {
       socketStore.socket.off("down");
     }
     useEffect(() => {
+      socketStore.socket.on("level", (l:number) => {setLevel(l)})
+      socketStore.socket.on("t", (t:number) => {setT(t)})
+
       document.addEventListener('keydown', (event) =>{
         if (event.key === "ArrowUp")
           socketStore.socket.emit("up");
@@ -84,6 +89,9 @@ export const Game = () => {
           socketStore.socket.off("down");
           socketStore.socket.off("up");
           socketStore.socket.off("leave")
+          socketStore.socket.off("level")
+          socketStore.socket.off("t")
+
           window.removeEventListener("keydown",()=>{});
 
          }
@@ -146,6 +154,10 @@ export const Game = () => {
             <button className="btn" onClick={leave}>Leave</button>
 
         </div>
+          <div className="flex justify-center items-center flex-col">
+              <div className="font-poppins text-neutral font-medium">{t > 0 ?  (`next level start after ${t}`) : (`level ${level}`)}</div>
+
+          </div>
         <div className="flex items-center justify-center min-h-16 max-h-[80%] max-w-[800px] 3xl:max-w-[1150px] min-w-92 w-[95%] rounded-xl aspect-video border-primary border-4" id="Game">
             <Stage onMouseMove={handleMove}  width={gameState.width } height={gameState.height } style={{borderWidth:"4px",borderColor:"#7940CF",borderRadius:"4px"}} >
                 <Layer >
