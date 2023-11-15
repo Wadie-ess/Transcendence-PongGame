@@ -1,8 +1,7 @@
-
-export const  formatTime = (backendDate: string) => {
-    const currentDate = new Date();
-    const date = new Date(backendDate);
-    const day = date.getDate();
+export const formatTime = (backendDate: string) => {
+  const currentDate = new Date();
+  const date = new Date(backendDate);
+  const day = date.getDate();
   const month = date.toLocaleString('en-US', { month: 'short' });
   const hours = date.getHours();
   const minutes = date.getMinutes();
@@ -15,9 +14,4 @@ export const  formatTime = (backendDate: string) => {
   } else {
     return `${day} ${month} ${formattedHours}:${formattedMinutes}${ampm}`;
   }
-
-  
-
 }
-
-

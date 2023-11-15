@@ -26,7 +26,7 @@ import {
 } from "../Chat/Controllers/RoomChatControllers";
 import { More } from "../Chat/Components/tools/Assets";
 import { useModalStore } from "../Chat/Controllers/LayoutControllers";
-import { BlockedUsersModal } from "../Chat/Components/RoomChatHelpers";
+
 import { blockUserCall } from "../Chat/Services/FriendsServices";
 import { AxiosError } from "axios";
 import { InvitationWaiting } from "../Layout/Assets/Invitationacceptance";
@@ -91,7 +91,7 @@ export const Profile = () => {
         } else {
           setOnlineStatus("offline");
         }
-      },
+      }
     );
   }, [params.id, socketStore?.socket, user.id]);
 
@@ -152,7 +152,6 @@ export const Profile = () => {
 
   return (
     <>
-      <BlockedUsersModal />
       <div className=" flex flex-col items-center h-full bg-accent">
         <div className="relative pt-12 h-auto max-h-[30vh] min-h-[16vh] md:min-h-[28vh] xl:min-h-[33vh] w-[85vw]">
           <div className="relative h-full w-full md:px-32 bg-[#2b3bfb] rounded-t-3xl">
@@ -198,7 +197,7 @@ export const Profile = () => {
                         ? "text-green-500 border-green-500"
                         : onlineStatus === "inGame"
                         ? "text-yellow-500 border-yellow-500"
-                        : "text-red-500 border-red-500",
+                        : "text-red-500 border-red-500"
                     )}
                   >
                     {onlineStatus}
@@ -213,24 +212,36 @@ export const Profile = () => {
 
             <div className="flex flex-col gap-y-0 items-center h-full sm:flex-row sm:gap-x-4 justify-center sm:justify-start sm:items-end pb-4 sm:w-[25vw]">
               {/* for debug */}
-              {/* <button
+              <button
                 className={`btn btn-primary text-neutral ${disabled}`}
                 onClick={async () => {
                   ChatState.setIsLoading(true);
-                  await blockUserCall(profile.id).then((res) => {
-                    ChatState.setIsLoading(false);
-                    if (res?.status === 200 || res?.status === 201) {
-                      toast.success("User Blocked");
-                      navigate("/home");
-                    } else {
-                      toast.error("Could Not Block User");
+                  await createNewRoomCall("", "dm", undefined, params.id).then(
+                    (res) => {
+                      ChatState.setIsLoading(false);
+                      if (res?.status === 200 || res?.status === 201) {
+                        ChatState.changeChatType(ChatType.Chat);
+                        ChatState.selectNewChatID(res?.data?.id);
+                        ChatState.setCurrentDmUser({
+                          secondUserId: profile.id,
+                          id: profile.id,
+                          name: `${profile.name.first} `,
+                          avatar: profile?.picture,
+                          bio: profile?.bio,
+                        });
+                        navigate(`/Dm/${res?.data.id}`);
+                      } else {
+                        toast.error(
+                          "You Can't Send Message To this User For Now, try Again later"
+                        );
+                      }
                     }
-                  });
+                  );
                 }}
               >
                 <VscComment />
                 Message
-              </button> */}
+              </button>
               {params.id !== "me" &&
                 params.id !== user.id &&
                 status === "none" && (
@@ -322,7 +333,7 @@ export const Profile = () => {
                           "",
                           "dm",
                           undefined,
-                          params.id,
+                          params.id
                         ).then((res) => {
                           ChatState.setIsLoading(false);
                           if (res?.status === 200 || res?.status === 201) {
@@ -338,7 +349,7 @@ export const Profile = () => {
                             navigate(`/Dm/${res?.data.id}`);
                           } else {
                             toast.error(
-                              "You Can't Send Message To this User For Now, try Again later",
+                              "You Can't Send Message To this User For Now, try Again later"
                             );
                           }
                         });
@@ -365,7 +376,7 @@ export const Profile = () => {
                               {
                                 inviterId: user.id,
                                 opponentId: profile.id,
-                                gameMode: "classic",
+                                gameMode: "cassic",
                               },
                               (data: {
                                 error: string | null;
@@ -377,11 +388,37 @@ export const Profile = () => {
                                 }
                                 user.setGameWaitingId(data.gameId);
                                 inviteWaitingModalRef.current?.showModal();
-                              },
+                              }
                             );
                           }}
                         >
                           <span>Invite to a classic game</span>
+                        </li>
+                        <li
+                          className="hover:bg-[#7940CF] hover:rounded"
+                          onClick={() => {
+                            socketStore?.socket?.emit(
+                              "inviteToGame",
+                              {
+                                inviterId: user.id,
+                                opponentId: profile.id,
+                                gameMode: "extra",
+                              },
+                              (data: {
+                                error: string | null;
+                                gameId: string;
+                              }) => {
+                                if (data.error) {
+                                  toast.error(data.error);
+                                  return;
+                                }
+                                user.setGameWaitingId(data.gameId);
+                                inviteWaitingModalRef.current?.showModal();
+                              }
+                            );
+                          }}
+                        >
+                          <span>Invite to a custom game</span>
                         </li>
                         <span className="hover:bg-[#7940CF] hover:rounded">
                           <li
@@ -440,8 +477,21 @@ export const Profile = () => {
                     >
                       <li
                         onClick={() => {
+                          LayoutState.setShowFriendsModal(
+                            !LayoutState.showFriendsListModal
+                          );
+                        }}
+                      >
+                        <span className="hover:bg-[#7940CF]">
+                          <a href="#my_modal_1" className="pr-2">
+                            <div>See Friends List</div>
+                          </a>
+                        </span>
+                      </li>
+                      <li
+                        onClick={() => {
                           LayoutState.setShowBlockedList(
-                            !LayoutState.showBlockedLIstModal,
+                            !LayoutState.showBlockedLIstModal
                           );
                         }}
                       >

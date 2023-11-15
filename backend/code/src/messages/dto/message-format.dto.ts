@@ -9,6 +9,7 @@ export class MessageFormatDto {
       author: Partial<User>;
       room?: { type: $Enums.RoomType };
     },
+    clientMessageId?: string
   ) {
     this.id = messageData.id;
     this.content = messageData.content;
@@ -17,6 +18,9 @@ export class MessageFormatDto {
     this.authorId = messageData.authorId;
     this.Username = messageData.author.Username;
     this.roomType = messageData.room.type;
+
+    // Optional field
+    this.clientMessageId = clientMessageId;
 
     this.avatar = {
       thumbnail: `https://res.cloudinary.com/trandandan/image/upload/c_thumb,h_48,w_48/${messageData.author.avatar}`,
@@ -41,4 +45,7 @@ export class MessageFormatDto {
 
   @ApiProperty({ example: 'public' })
   roomType: $Enums.RoomType;
+
+  @ApiProperty({ required: false, example: 'XXXXXXXXXXXX' })
+  clientMessageId?: string;
 }

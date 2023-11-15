@@ -28,6 +28,8 @@ import { getRoomMembersCall } from "./Services/ChatServices";
 import { classNames } from "../../Utils/helpers";
 import { useModalStore } from "./Controllers/LayoutControllers";
 
+import { useNavigate } from "react-router-dom";
+
 export interface ConversationProps {
   onRemoveUserPreview: () => void;
 }
@@ -39,7 +41,6 @@ export const Chat = () => {
   const showChatRooms = useChatStore((state) => state.showChatRooms);
   const toggleChatRooms = useChatStore((state) => state.toggleChatRooms);
 
-  const chatRooms = useChatStore((state) => state.recentRooms);
   const handleRemoveUserPreview = () => {
     setShowUserPreview(!showUserPreview);
   };
@@ -58,7 +59,7 @@ export const Chat = () => {
             showUserPreview === true
               ? "w-4/5 lg:w-4/12 max-w-lg "
               : "w-4/5 lg:w-4/12  max-w-lg  ",
-            "absolute lg:relative h-full min-w-[360px] lg:border-r-2 border-black",
+            "absolute lg:relative h-full min-w-[360px] lg:border-r-2 border-base-200",
             "z-20 transition-transform transform data-[mobile-show=true]:translate-x-0 data-[mobile-show=false]:-translate-x-[1000px] lg:!transform-none lg:!transition-none duration-300"
           )}
           data-mobile-show={showChatRooms}
@@ -72,7 +73,7 @@ export const Chat = () => {
           />
         )}
         <div className={` ${"w-auto flex-1"} overflow-hidden bg-gray-900`}>
-          {chatRooms.length < 1 && ChatState.selectedChatID === "1" ? (
+          {ChatState.selectedChatID === "1" ? (
             <InitChatPlaceholder />
           ) : (
             <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
@@ -101,6 +102,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
   const [currentUsers, setUsers] = useState<RoomMember[]>([]);
   const LayoutState = useModalStore((state) => state);
   const SelectedChat = useChatStore((state) => state.selectedChatID);
+  const navigate = useNavigate();
 
   const currentUser = useChatStore((state) => state.currentDmUser);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
@@ -114,11 +116,12 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           onRemoveUserPreview();
         } else {
           setIsLoading(true);
-          await getRoomMembersCall(SelectedChat as string, 0, 10).then(
+          await getRoomMembersCall(SelectedChat as string, 0, 20).then(
             (res) => {
               if (res?.status === 200 || res?.status === 201) {
                 const extractedData = res.data;
                 setIsLoading(false);
+
                 setUsers(extractedData);
               }
             }
@@ -196,7 +199,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
             {}
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
-          <div className="h-[400px] overflow-scroll no-scrollbar ">
+          <div className="h-[350px] overflow-scroll no-scrollbar ">
             {isLoading === false ? (
               <>
                 {currentUsers.map((user) => (
@@ -204,10 +207,21 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
                     <div className="flex items-center justify-start space-x-2">
                       <div className="avatar">
                         <div className="mask mask-squircle w-11 h-11">
-                          <img
+                          <button
+                            onClick={async () => {
+                              navigate(`/profile/${user.id}`);
+                            }}
+                          >
+                            <img
+                              className="w-12 rounded-full "
+                              alt=""
+                              src={user?.avatar?.medium ?? NullUser}
+                            />
+                          </button>
+                          {/* <img
                             src={user?.avatar?.medium ?? NullUser}
                             alt="Avatar Tailwind CSS Component"
-                          />
+                          /> */}
                         </div>
                       </div>
                       <div>

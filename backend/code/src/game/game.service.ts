@@ -21,22 +21,43 @@ export class GameService {
     [];
 
   @OnEvent('game.start')
-  async handleGameStartEvent(data: { client: Socket; gameMode: string }) {
-    const client = data.client;
-    const gameMode = data.gameMode;
-    const userId = client.data.user.sub;
-    const userData = await this.getUser(userId);
-    client.data.inQueue = true;
-    if (gameMode === 'cassic')
-      this.classicwaitingPlayers.push({ socket: client, userData: userData });
-    else if (gameMode === 'extra')
-      this.extraWaitingPlayers.push({ socket: client, userData: userData });
-    console.log('client subscribed to the queue');
+  async handleGameStartEvent(data: {
+    client: Socket;
+    gameMode: string;
+    mode: string;
+  }) {
+    if (data.mode === 'register') {
+      const client = data.client;
+      if (client.data.user?.inQueue) return;
+      const gameMode = data.gameMode;
+      const userId = client.data.user.sub;
+      const userData = await this.getUser(userId);
+      client.data.user.inQueue = true;
+
+      if (gameMode === 'cassic')
+        this.classicwaitingPlayers.push({ socket: client, userData: userData });
+      else if (gameMode === 'extra')
+        this.extraWaitingPlayers.push({ socket: client, userData: userData });
+      console.log('client subscribed to the queue');
+    } else if (data.mode === 'unregister') {
+      const client = data.client;
+      const gameMode = data.gameMode;
+      client.data.user.inQueue = false;
+      if (gameMode === 'cassic')
+        this.classicwaitingPlayers = this.classicwaitingPlayers.filter(
+          (player) => player.socket.id !== client.id,
+        );
+      else if (gameMode === 'extra')
+        this.extraWaitingPlayers = this.extraWaitingPlayers.filter(
+          (player) => player.socket.id !== client.id,
+        );
+    }
   }
 
   //NOTE: add game modes here
   private launchGame() {
     setInterval(() => {
+      // console.log('waitingPlayers', this.classicwaitingPlayers.length);
       console.log('waitingPlayers classic', this.classicwaitingPlayers.length);
       console.log('waitingPlayers extra', this.extraWaitingPlayers.length);
 

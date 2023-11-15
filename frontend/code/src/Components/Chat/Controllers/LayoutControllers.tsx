@@ -5,13 +5,15 @@ export interface ModalState {
   showPreviewCard: boolean;
   showAddUsersModal: boolean;
   showSettingsModal: boolean;
-  showBlockedLIstModal : boolean;
+  showBlockedLIstModal: boolean;
+  showFriendsListModal: boolean;
 
   setShowExploreModal: (showExploreModal: boolean) => void;
+  setShowFriendsModal: (showFriendsModal: boolean) => void;
   setShowPreviewCard: (showPreviewCard: boolean) => void;
   setShowAddUsersModal: (showAddUsersModal: boolean) => void;
   setShowSettingsModal: (showSettingsModal: boolean) => void;
-  setShowBlockedList : (showBlockedLIstModal : boolean) => void;
+  setShowBlockedList: (showBlockedLIstModal: boolean) => void;
 }
 
 export const useModalStore = create<ModalState>((set) => ({
@@ -19,13 +21,19 @@ export const useModalStore = create<ModalState>((set) => ({
   showPreviewCard: false,
   showAddUsersModal: false,
   showSettingsModal: false,
-  showBlockedLIstModal : false,
+  showBlockedLIstModal: false,
+  showFriendsListModal: false,
 
-  setShowBlockedList : (showBlockedLIstModal : boolean) =>  set((state) => {
-    state.showBlockedLIstModal = showBlockedLIstModal;
-    return { ...state };
-  }),
-
+  setShowFriendsModal: (showFriendsModal: boolean) =>
+    set((state) => {
+      state.showFriendsListModal = showFriendsModal;
+      return { ...state };
+    }),
+  setShowBlockedList: (showBlockedLIstModal: boolean) =>
+    set((state) => {
+      state.showBlockedLIstModal = showBlockedLIstModal;
+      return { ...state };
+    }),
 
   setShowSettingsModal: (showSettingsModal: boolean) =>
     set((state) => {
