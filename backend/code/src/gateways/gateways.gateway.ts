@@ -338,14 +338,14 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @OnEvent('game.launched')
-  async handleGameLaunchedEvent(clients: any , mode:string) {
+  async handleGameLaunchedEvent(clients: any, mode: string) {
     const game_channel = crypto.randomBytes(16).toString('hex');
     // console.log(game_channel);
     clients.forEach((client: any) => {
       client.socket.join(game_channel);
       client.socket.data.user.inGame = true;
     });
-    const new_game = new Game(this.eventEmitter, this.server , mode);
+    const new_game = new Game(this.eventEmitter, this.server, mode);
 
     new_game.setplayerScokets(
       clients[0].socket,
@@ -366,7 +366,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     const sockets = await this.server.in(data.gameid).fetchSockets();
     this.server.to(data.gameid).emit('game.end', data);
     console.log(data);
-    
+
     for await (const socket of sockets) {
       socket.data.user.inGame = false;
     }
@@ -404,7 +404,6 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
         },
       });
     }
-
   }
 
   @SubscribeMessage('joinRoom')
