@@ -292,6 +292,7 @@ export const Profile = () => {
                               {
                                 inviterId: user.id,
                                 opponentId: profile.id,
+                                gameMode: "classic",
                               },
                               (data: {
                                 error: string | null;
@@ -301,13 +302,13 @@ export const Profile = () => {
                                   toast.error(data.error);
                                   return;
                                 }
-                                user.setGameWaitingId(data.gameId)
+                                user.setGameWaitingId(data.gameId);
                                 inviteWaitingModalRef.current?.showModal();
                               },
                             );
                           }}
                         >
-                          <span>Invite to game</span>
+                          <span>Invite to a classic game</span>
                         </li>
                         <span className="hover:bg-[#7940CF] hover:rounded">
                           <li

@@ -196,10 +196,8 @@ export class FriendsService {
     return { message: 'User unblocked' };
   }
 
-  async getFriendsList(userId: string, offset: number, limit: number) {
+  async getFriendsList(userId: string) {
     const friends = await this.prisma.friend.findMany({
-      skip: offset,
-      take: limit,
       where: {
         OR: [
           {
@@ -263,10 +261,8 @@ export class FriendsService {
     return friends.map((friend) => new FriendProfileDto(friend.from));
   }
 
-  async getBlockList(userId: string, offset: number, limit: number) {
+  async getBlockList(userId: string) {
     const blocked = await this.prisma.blockedUsers.findMany({
-      skip: offset,
-      take: limit,
       where: {
         blocked_by_id: userId,
       },
