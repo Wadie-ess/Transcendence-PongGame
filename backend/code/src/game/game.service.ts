@@ -14,23 +14,33 @@ export class GameService {
     this.launchGame();
   }
 
-  private waitingPlayers: { socket: Socket; userData: Partial<User> }[] = [];
+  private classicwaitingPlayers: { socket: Socket; userData: Partial<User> }[] =
+    [];
+
+  private extraWaitingPlayers: { socket: Socket; userData: Partial<User> }[] =
+    [];
 
   @OnEvent('game.start')
-  async handleGameStartEvent(client: Socket) {
-    // get data
+  async handleGameStartEvent(data: { client: Socket; gameMode: string }) {
+    const client = data.client;
+    const gameMode = data.gameMode;
     const userId = client.data.user.sub;
     const userData = await this.getUser(userId);
-    this.waitingPlayers.push({ socket: client, userData: userData });
+    client.data.inQueue = true;
+    if (gameMode === 'cassic')
+      this.classicwaitingPlayers.push({ socket: client, userData: userData });
+    else if (gameMode === 'extra')
+      this.extraWaitingPlayers.push({ socket: client, userData: userData });
     console.log('client subscribed to the queue');
   }
 
+  //NOTE: add game modes here
   private launchGame() {
     setInterval(() => {
-      console.log('waitingPlayers', this.waitingPlayers.length);
-      if (this.waitingPlayers.length >= 2) {
+      console.log('waitingPlayers', this.classicwaitingPlayers.length);
+      if (this.classicwaitingPlayers.length >= 2) {
         console.log('Game launched!');
-        const two_players = this.waitingPlayers.splice(0, 2);
+        const two_players = this.classicwaitingPlayers.splice(0, 2);
         this.eventEmitter.emit('game.launched', two_players);
         console.log(two_players);
         // const user = await this.getUser(two_players[0].data.user.sub)

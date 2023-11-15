@@ -12,7 +12,7 @@ import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 
 import { ChatPlaceHolder, ConfirmationModal } from "./RoomChatHelpers";
 import { KeyboardEvent } from "react";
-import { createNewRoomCall, leaveRoomCall } from "../Services/ChatServices";
+import { leaveRoomCall } from "../Services/ChatServices";
 import toast from "react-hot-toast";
 import { useModalStore } from "../Controllers/LayoutControllers";
 import {
