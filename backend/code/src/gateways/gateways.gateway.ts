@@ -247,9 +247,9 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     const friendId = data.friendId;
     if (this.server.sockets.adapter.rooms.get(`User:${friendId}`)?.size) {
       client.emit('friendOnline', friendId);
-      return true;
+    } else {
+      client.emit('friendOffline', friendId);
     }
-    return false;
   }
 
   @SubscribeMessage('unban')

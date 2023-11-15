@@ -1,4 +1,4 @@
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useCallback, useEffect, useState } from "react";
 import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 import {
   ChatGif,
@@ -45,61 +45,74 @@ export const RoomChatPlaceHolder = () => {
 
   const [ref, inView] = useInView();
   const [EndOfFetching, setEndOfFetching] = useState(false);
-  useEffect(() => {
-    const fetch = async () => {
-      const offset = ChatRoomsState.recentRooms.length;
-      offset === 0 && setIsLoading(true);
+  const fetchRooms = useCallback(async () => {
+    const offset = ChatRoomsState.recentRooms.length;
+    offset === 0 && setIsLoading(true);
 
-      await fetchRoomsCall(offset, 7, true).then((res) => {
-        if (res?.status !== 200 && res?.status !== 201) {
-        } else {
-          const rooms: ChatRoom[] = [];
-          res.data.forEach(
-            (room: {
-              countMembers: number;
-              id: string;
-              is_admin: boolean;
-              is_owner: boolean;
-              last_message: {
-                content: string;
-                createdAt: string;
-              };
-              name: string;
-              type: string;
-            }) => {
-              rooms.push({
-                id: room.id,
-                name: room.name,
-                type: RoomType[room.type as keyof typeof RoomType],
-                messages: [],
-                usersId: [],
-                isOwner: room.is_owner,
-                isAdmin: room.is_admin,
-                membersCount: room.countMembers,
-                last_message: room.last_message,
-              });
-            }
-          );
-          setIsLoading(false);
-          if (res.data.length > 0) {
-            ChatRoomsState.fillRecentRooms([
-              ...ChatRoomsState.recentRooms,
-              ...rooms,
-            ]);
-          } else {
-            setEndOfFetching(true);
+    await fetchRoomsCall(offset, 7, true).then((res) => {
+      if (res?.status !== 200 && res?.status !== 201) {
+      } else {
+        const rooms: ChatRoom[] = [];
+        res.data.forEach(
+          (room: {
+            countMembers: number;
+            id: string;
+            is_admin: boolean;
+            is_owner: boolean;
+            last_message: {
+              content: string;
+              createdAt: string;
+            };
+            name: string;
+            type: string;
+          }) => {
+            rooms.push({
+              id: room.id,
+              name: room.name,
+              type: RoomType[room.type as keyof typeof RoomType],
+              messages: [],
+              usersId: [],
+              isOwner: room.is_owner,
+              isAdmin: room.is_admin,
+              membersCount: room.countMembers,
+              last_message: room.last_message,
+            });
           }
+        );
+        setIsLoading(false);
+        if (res.data.length > 0) {
+          ChatRoomsState.fillRecentRooms([
+            ...ChatRoomsState.recentRooms,
+            ...rooms,
+          ]);
+        } else {
+          setEndOfFetching(true);
         }
-      });
-    };
-    if (!EndOfFetching) {
-      fetch();
-    }
+      }
+    });
+  }, [
+    ChatRoomsState.recentRooms,
+    setIsLoading,
+    fetchRoomsCall,
+    ChatRoomsState.fillRecentRooms,
+    setEndOfFetching,
+  ]);
+
+  useEffect(() => {
+    fetchRooms();
     return () => {
       setEndOfFetching(false);
+      ChatRoomsState.fillRecentRooms([]);
     };
+  }, [ChatRoomsState.selectedChatType, ChatRoomsState.recentRoomsOnchange]);
+
+  useEffect(() => {
+    if (inView && !EndOfFetching) {
+      fetchRooms();
+    }
+
     // eslint-disable-next-line
-  }, [ChatRoomsState.selectedChatID, ChatRoomsState.selectedChatType, inView]);
+  }, [inView]);
 
   return ChatRoomsState.recentRooms.length > 0 ? (
     <div className="bg-[#1A1C26] h-full">
@@ -140,9 +153,9 @@ export const RoomChatPlaceHolder = () => {
               </p>
               {room.last_message !== null && (
                 <div className="">
-                  <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
+                  <p className="text-gray-400 font-poppins text-xs font-light leading-normal">
                     {formatTime(room.last_message?.createdAt ?? "")}
-                  </time>
+                  </p>
                 </div>
               )}
             </div>
@@ -186,10 +199,9 @@ export const CreateNewRoomModal = () => {
   };
 
   const createNewRoom = useChatStore((state) => state.createNewRoom);
-
   const [selectedOption, setSelectedOption] = useState(RoomType.public);
-
   const setIsLoading = useChatStore((state) => state.setIsLoading);
+  const chatState = useChatStore((state) => state);
 
   const resetModalState = () => {
     setPassword("");
@@ -306,7 +318,14 @@ export const CreateNewRoomModal = () => {
                       toast.error("something went wrong, try again");
                       resetModalState();
                     } else {
-                      createNewRoom(RoomName, selectedOption, res.data.id);
+                      toast.success("Room Created Successfully");
+                      // createNewRoom(RoomName, selectedOption, res.data.id);
+
+                      chatState.changeChatType(ChatType.Room);
+                      chatState.setOnRoomsChange(
+                        !chatState.recentRoomsOnchange
+                      );
+                      // chatState.fillRecentRooms([
                       resetModalState();
                     }
                     setIsLoading(false);
@@ -528,10 +547,15 @@ export const AddUsersModal = () => {
   const [skipCount, setSkipCount] = useState(true);
   const ChatState = useChatStore((state) => state);
 
+  const [ref, inView] = useInView();
+  const [EndOfFetching, setEndOfFetching] = useState(false);
+
   useEffect(() => {
     if (skipCount) setSkipCount(false);
     if (!skipCount) {
       const fetchData = async () => {
+        const offset = currentFriends.length;
+
         try {
           setIsLoading(true);
 
@@ -582,8 +606,9 @@ export const AddUsersModal = () => {
           console.error("Error fetching data: ", error);
         }
       };
-
-      fetchData();
+      if (!EndOfFetching) {
+        fetchData();
+      }
     }
     // eslint-disable-next-line
   }, [LayoutState.showAddUsersModal]);
@@ -679,11 +704,12 @@ export const RoomSettingsModal = () => {
           setLOading(true);
           await getRoomMembersCall(currentRoom?.id as string, 0, 20).then(
             (res) => {
+              console.log("hna");
               setLOading(false);
               if (res?.status === 200 || res?.status === 201) {
                 const extractedData = res.data;
+
                 setUsers(extractedData);
-              } else {
               }
             }
           );
@@ -691,8 +717,9 @@ export const RoomSettingsModal = () => {
           console.error("Error fetching data: ", error);
         }
       };
-
-      fetchData();
+      if (chatState.selectedChatID !== "1") {
+        fetchData();
+      }
     }
     // eslint-disable-next-line
   }, [LayoutState.showSettingsModal]);
@@ -702,6 +729,7 @@ export const RoomSettingsModal = () => {
     setPassword("");
     setSelectedOption(currentRoom?.type as RoomType);
     setName((currentRoom?.name || "") as string);
+    setUsers([]);
   };
 
   return (
@@ -1100,7 +1128,9 @@ export const ExploreRoomsModal = () => {
       }
     };
 
-    fetch();
+    if (!EndOfFetching) {
+      fetch();
+    }
 
     // eslint-disable-next-line
   }, [modalState, inView]);
@@ -1213,8 +1243,11 @@ export const ExploreRoomsModal = () => {
                     resetModalState();
                   } else {
                     toast.success("Room Joined Successfully");
+                    // recentRooms.selectNewChatID("1");
+                    recentRooms.setOnRoomsChange(
+                      !recentRooms.recentRoomsOnchange
+                    );
                     recentRooms.changeChatType(ChatType.Room);
-                    recentRooms.selectNewChatID(SelectedRoomID);
 
                     resetModalState();
                   }

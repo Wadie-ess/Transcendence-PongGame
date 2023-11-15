@@ -167,24 +167,36 @@ export const Profile = () => {
 
             <div className="flex flex-col gap-y-0 items-center h-full sm:flex-row sm:gap-x-4 justify-center sm:justify-start sm:items-end pb-4 sm:w-[25vw]">
               {/* for debug */}
-              {/* <button
+              <button
                 className={`btn btn-primary text-neutral ${disabled}`}
                 onClick={async () => {
                   ChatState.setIsLoading(true);
-                  await blockUserCall(profile.id).then((res) => {
-                    ChatState.setIsLoading(false);
-                    if (res?.status === 200 || res?.status === 201) {
-                      toast.success("User Blocked");
-                      navigate("/home");
-                    } else {
-                      toast.error("Could Not Block User");
+                  await createNewRoomCall("", "dm", undefined, params.id).then(
+                    (res) => {
+                      ChatState.setIsLoading(false);
+                      if (res?.status === 200 || res?.status === 201) {
+                        ChatState.changeChatType(ChatType.Chat);
+                        ChatState.selectNewChatID(res?.data?.id);
+                        ChatState.setCurrentDmUser({
+                          secondUserId: profile.id,
+                          id: profile.id,
+                          name: `${profile.name.first} `,
+                          avatar: profile?.picture,
+                          bio: profile?.bio,
+                        });
+                        navigate(`/Dm/${res?.data.id}`);
+                      } else {
+                        toast.error(
+                          "You Can't Send Message To this User For Now, try Again later"
+                        );
+                      }
                     }
-                  });
+                  );
                 }}
               >
                 <VscComment />
                 Message
-              </button> */}
+              </button>
               {params.id !== "me" &&
                 params.id !== user.id &&
                 status === "none" && (

@@ -27,6 +27,7 @@ import { getRoomMembersCall } from "./Services/ChatServices";
 
 import { classNames } from "../../Utils/helpers";
 import { useModalStore } from "./Controllers/LayoutControllers";
+import { useInView } from "react-intersection-observer";
 
 export interface ConversationProps {
   onRemoveUserPreview: () => void;
@@ -72,7 +73,7 @@ export const Chat = () => {
           />
         )}
         <div className={` ${"w-auto flex-1"} overflow-hidden bg-gray-900`}>
-          {chatRooms.length < 1 && ChatState.selectedChatID === "1" ? (
+          {ChatState.selectedChatID === "1" ? (
             <InitChatPlaceholder />
           ) : (
             <Conversation onRemoveUserPreview={handleRemoveUserPreview} />
@@ -114,11 +115,12 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           onRemoveUserPreview();
         } else {
           setIsLoading(true);
-          await getRoomMembersCall(SelectedChat as string, 0, 10).then(
+          await getRoomMembersCall(SelectedChat as string, 0, 20).then(
             (res) => {
               if (res?.status === 200 || res?.status === 201) {
                 const extractedData = res.data;
                 setIsLoading(false);
+
                 setUsers(extractedData);
               }
             }
@@ -196,7 +198,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
             {}
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
-          <div className="h-[400px] overflow-scroll no-scrollbar ">
+          <div className="h-[350px] overflow-scroll no-scrollbar ">
             {isLoading === false ? (
               <>
                 {currentUsers.map((user) => (

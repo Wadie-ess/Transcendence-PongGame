@@ -24,6 +24,7 @@ import { useUserStore } from "../../../Stores/stores";
 import { formatTime } from "./tools/utils";
 import { useSocketStore } from "../Services/SocketsServices";
 import { useNavigate } from "react-router-dom";
+import { useInView } from "react-intersection-observer";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -286,6 +287,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                           ChatState.setIsLoading(false);
                           if (res?.status === 200 || res?.status === 201) {
                             toast.success("Room Left Successfully");
+                            // ChatState.changeChatType(ChatType.Chat);
                             ChatState.deleteRoom(currentRoom?.id as string);
                           }
                         }
@@ -308,26 +310,23 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
   );
 };
 
-export const Conversation: React.FC<ConversationProps> = ({
-  onRemoveUserPreview,
-}) => {
+export const Conversation = ({ onRemoveUserPreview }: ConversationProps) => {
   const chatState = useChatStore();
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const socketStore = useSocketStore();
   const scrollToBottom = () => {
-    if (messageContainerRef.current) {
-      const container = messageContainerRef.current;
-      // container.scrollTop = container.scrollHeight;
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: "smooth",
-      });
-    }
+    // if (messageContainerRef.current) {
+    //   const container = messageContainerRef.current;
+    //   container.scrollTo({
+    //     top: container.scrollHeight,
+    //     behavior: "smooth",
+    //   });
+    // }
   };
 
   const [inputValue, setInputValue] = useState("");
   const [FailToSendMessage, setFail] = useState(false);
-  const [IsLoading, setLoading] = useState(true);
+  const [IsLoading, setLoading] = useState(false);
   const currentUser = useUserStore((state) => state);
   const handleMessage = (message: {
     id: string;
@@ -350,6 +349,26 @@ export const Conversation: React.FC<ConversationProps> = ({
         time: message.time,
       };
       chatState.pushMessage(NewMessage);
+      // Update latest message in rooms
+      for (const room of chatState.recentRooms) {
+        if (room.id !== message.roomId) continue;
+        // Update latest message
+        room.last_message = {
+          content: message.content,
+          createdAt: message.time,
+        };
+      }
+      chatState.fillRecentRooms(chatState.recentRooms);
+      // Update latest message in dms
+      for (const dm of chatState.recentDms) {
+        if (dm.id !== message.roomId) continue;
+        // Update latest message
+        dm.last_message = {
+          content: message.content,
+          createdAt: message.time,
+        };
+      }
+      chatState.fillRecentDms(chatState.recentDms);
       scrollToBottom();
     }
   };
@@ -366,17 +385,21 @@ export const Conversation: React.FC<ConversationProps> = ({
     setFail(false);
     setInputValue(e.target.value);
   };
+
+  const [ref, inView] = useInView();
+  const [EndOfFetching, setEndOfFetching] = useState(false);
   useEffect(() => {
     scrollToBottom();
   }, [chatState.currentMessages?.length, IsLoading]);
 
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
 
     socketStore.socket.emit("joinRoom", {
       memberId: currentUser.id,
       roomId: chatState.selectedChatID,
     });
+    //
     socketStore.socket.emit("PingOnline", {
       friendId: chatState.currentDmUser.secondUserId,
     });
@@ -386,9 +409,10 @@ export const Conversation: React.FC<ConversationProps> = ({
     socketStore.socket.on("message", handleMessage);
 
     const fetch = async () => {
-      setLoading(true);
+      const offset = chatState.currentMessages?.length ?? 0;
+      // setLoading(true);
       chatState.selectedChatID !== "1" &&
-        getRoomMessagesCall(chatState.selectedChatID, 0, 20)
+        getRoomMessagesCall(chatState.selectedChatID, offset, 7)
           .then((res) => {
             if (res?.status !== 200 && res?.status !== 201) {
             } else {
@@ -415,7 +439,14 @@ export const Conversation: React.FC<ConversationProps> = ({
                   });
                 }
               );
-              chatState.fillCurrentMessages(messages.reverse());
+              if (res.data.length > 0) {
+                chatState.fillCurrentMessages([
+                  ...messages.reverse(),
+                  ...(chatState.currentMessages?.reverse() ?? []),
+                ]);
+              } else {
+                setEndOfFetching(true);
+              }
             }
           })
           .finally(() => {
@@ -423,7 +454,9 @@ export const Conversation: React.FC<ConversationProps> = ({
           });
     };
 
-    fetch();
+    if (!EndOfFetching && inView) {
+      fetch();
+    }
 
     return () => {
       socketStore.socket.off("message", handleMessage);
@@ -434,7 +467,7 @@ export const Conversation: React.FC<ConversationProps> = ({
       });
     };
     // eslint-disable-next-line
-  }, [chatState.selectedChatID]);
+  }, [chatState.selectedChatID, inView]);
 
   const sendMessage = async () => {
     if (inputValue.length === 0) return;
@@ -464,6 +497,15 @@ export const Conversation: React.FC<ConversationProps> = ({
         className="flex-grow overflow-y-auto no-scrollbar "
         ref={messageContainerRef}
       >
+        <div
+          ref={ref}
+          className="flex justify-center items-center h-2 py-2
+                                "
+        >
+          <span className="text-xs font-light font-poppins text-gray-400">
+            {EndOfFetching ? "No more Rooms" : "Loading..."}
+          </span>
+        </div>
         {IsLoading === false ? (
           (chatState.currentMessages?.length as number) > 0 ? (
             chatState.currentMessages?.map((message) => (

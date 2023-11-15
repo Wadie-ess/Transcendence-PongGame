@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 import { ChatPaceHolderProps } from "./Conversation";
 import {
@@ -33,65 +33,69 @@ export const RecentConversations = () => {
 
   const [ref, inView] = useInView();
   const [EndOfFetching, setEndOfFetching] = useState(false);
-  useEffect(() => {
-    const fetch = async () => {
-      const offset = ChatRoomsState.recentDms.length;
-      offset === 0 && setLoading(true);
-      await fetchDmsCall(offset, 7).then((res) => {
-        setLoading(false);
-        if (res?.status !== 200 && res?.status !== 201) {
-        } else {
-          const rooms: DmRoom[] = [];
-          res.data.forEach(
-            (room: {
-              secondMemberId: string;
-              id: string;
-              last_message?: {
-                content?: string;
-                createdAt?: string;
-              };
-              name: string;
 
-              avatar: {
-                thumbnail: string;
-                medium: string;
-                large: string;
-              };
-              bio: string;
-            }) => {
-              rooms.push({
-                secondUserId: room.secondMemberId,
-                id: room.id,
-                name: room.name,
-                avatar: room.avatar,
-                last_message: {
-                  content: room.last_message?.content,
-                  createdAt: room.last_message?.createdAt,
-                },
-                bio: room.bio,
-              });
-            }
-          );
+  const fetchRecentDms = useCallback(async () => {
+    const offset = ChatRoomsState.recentDms.length;
+    offset === 0 && setLoading(true);
+    await fetchDmsCall(offset, 7).then((res) => {
+      setLoading(false);
+      if (res?.status !== 200 && res?.status !== 201) {
+      } else {
+        const rooms: DmRoom[] = [];
+        res.data.forEach(
+          (room: {
+            secondMemberId: string;
+            id: string;
+            last_message?: {
+              content?: string;
+              createdAt?: string;
+            };
+            name: string;
 
-          if (res.data.length > 0) {
-            ChatRoomsState.fillRecentDms([
-              ...ChatRoomsState.recentDms,
-              ...rooms,
-            ]);
-          } else {
-            setEndOfFetching(true);
+            avatar: {
+              thumbnail: string;
+              medium: string;
+              large: string;
+            };
+            bio: string;
+          }) => {
+            // to check if not exist
+            rooms.push({
+              secondUserId: room.secondMemberId,
+              id: room.id,
+              name: room.name,
+              avatar: room.avatar,
+              last_message: {
+                content: room.last_message?.content,
+                createdAt: room.last_message?.createdAt,
+              },
+              bio: room.bio,
+            });
           }
+        );
+
+        if (res.data.length > 0) {
+          ChatRoomsState.fillRecentDms([...ChatRoomsState.recentDms, ...rooms]);
+        } else {
+          setEndOfFetching(true);
         }
-      });
-    };
-    if (!EndOfFetching) {
-      fetch();
-    }
+      }
+    });
+  }, [ChatRoomsState.recentDms]);
+
+  useEffect(() => {
+    fetchRecentDms();
     return () => {
       setEndOfFetching(false);
     };
+  }, []);
+
+  useEffect(() => {
+    if (inView && !EndOfFetching) {
+      fetchRecentDms();
+    }
     // eslint-disable-next-line
-  }, [ChatRoomsState.selectedChatID, ChatRoomsState.selectedChatType, inView]);
+  }, [inView]);
 
   return selectedChatType === ChatType.Chat ? (
     <div className="h-full flex flex-col ">
