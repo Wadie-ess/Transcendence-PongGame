@@ -1258,6 +1258,7 @@ export const ExploreRoomsModal = () => {
                 name: string;
                 type: string;
               }) => {
+                //eslint-disable-next-line
                 {
                   rooms.push({
                     id: room.id,

@@ -7,20 +7,43 @@ import { NullPlaceHolder } from "../../Chat/Components/RoomChatHelpers";
 import api from "../../../Api/base";
 import toast from "react-hot-toast";
 import { formatTime } from "../../Chat/Components/tools/utils";
-const getColor = (v1: number, v2: number) => {
-  if (v1 > v2) return "text-lime-400";
-  if (v1 < v2) return "text-red-400";
+import { useParams } from "react-router-dom";
+const getColor = (v1: any, v2: any , id:string ) => {
+  if (v1.score > v2.score && id === v1.id) return "text-lime-400";
+  if (v1.score < v2.score && id === v2.id) return "text-lime-400";
+  if (v1.score > v2.score && id !== v1.id) return "text-red-400";
+  if (v1.score < v2.score && id !== v2.id) return "text-red-400";
   return "text-gray-400";
 };
 
-
+const scoreHandler = (x:any, id:string) => {
+  if(x.match.Player1.score > x.match.Player2.score && x.match.Player1.id === id) 
+  {
+    return " +1 "
+  }
+  else if (x.match.Player2.score > x.match.Player1.score && x.match.Player2.id === id)
+  {
+    return " +1 "
+  }
+  else if(x.match.Player1.score > x.match.Player2.score && x.match.Player1.id !== id) 
+  {
+    return " -1 "
+  }
+  else if (x.match.Player2.score > x.match.Player1.score && x.match.Player2.id !== id)
+  {
+    return " -1 "
+  }
+  else {
+    return " 0 "
+  }
+}
 
 export const Table = (props: any) => {
   const [history, setHistory] = useState<any | undefined>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [hasMore, setHasMore] = useState(true);
   const offset = useRef(0);
-
+  const {id} :any = useParams();
   const fetchData = async () => {
     try {
       const history: any = await api.get(`/game/history/${props.props.props}`, {
@@ -130,15 +153,13 @@ export const Table = (props: any) => {
                   <td className="flex px-1 grow-0 justify-end items-center gap-x-1  w-auto pr-1">
                     <div
                       className={`w-18 ${getColor(
-                        x.match.Player1.score,
-                        x.match.Player2.score
+                        x.match.Player1,
+                        x.match.Player2,
+                        id
                       )}`}
                     >
                       {" "}
-                      {x.match.Player1.score > x.match.Player2.score &&
-                        "+ 1"}{" "}
-                      {x.match.Player1.score < x.match.Player2.score && "- 1"}
-                      {x.match.Player1.score === x.match.Player2.score && "0"}
+                      {scoreHandler(x,id)}
                     </div>
                   </td>
                 </tr>
