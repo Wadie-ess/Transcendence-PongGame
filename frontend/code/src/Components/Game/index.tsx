@@ -103,7 +103,7 @@ export const Game = () => {
         navigate("/home")
       const divh = document.getElementById('Game')?.offsetHeight
       const divw = document.getElementById('Game')?.offsetWidth
-      socketStore.socket.emit("screen",{h:divh,w:divw})
+     socketStore.socket.emit("screen",{h:divh,w:divw})
       if (divw) {divw <= 742 ? gameState.setMobile(true) : gameState.setMobile(false)}
         window.addEventListener('resize', () => {
             

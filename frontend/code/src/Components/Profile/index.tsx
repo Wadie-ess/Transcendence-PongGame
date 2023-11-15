@@ -379,7 +379,7 @@ export const Profile = () => {
                               {
                                 inviterId: user.id,
                                 opponentId: profile.id,
-                                gameMode: "classic",
+                                gameMode: "cassic",
                               },
                               (data: {
                                 error: string | null;
@@ -396,6 +396,32 @@ export const Profile = () => {
                           }}
                         >
                           <span>Invite to a classic game</span>
+                        </li>
+                        <li
+                          className="hover:bg-[#7940CF] hover:rounded"
+                          onClick={() => {
+                            socketStore?.socket?.emit(
+                              "inviteToGame",
+                              {
+                                inviterId: user.id,
+                                opponentId: profile.id,
+                                gameMode: "extra",
+                              },
+                              (data: {
+                                error: string | null;
+                                gameId: string;
+                              }) => {
+                                if (data.error) {
+                                  toast.error(data.error);
+                                  return;
+                                }
+                                user.setGameWaitingId(data.gameId);
+                                inviteWaitingModalRef.current?.showModal();
+                              },
+                            );
+                          }}
+                        >
+                          <span>Invite to a custom game</span>
                         </li>
                         <span className="hover:bg-[#7940CF] hover:rounded">
                           <li

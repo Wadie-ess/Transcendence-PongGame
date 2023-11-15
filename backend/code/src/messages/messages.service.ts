@@ -129,7 +129,6 @@ export class MessagesService {
         HttpStatus.UNAUTHORIZED,
       );
     }
-    //TESTING: for later testing
     const messages = await this.prisma.message.findMany({
       where: {
         roomId: channelId,
@@ -157,6 +156,54 @@ export class MessagesService {
       take: limit,
     });
 
+    // get rppm type of room
+    const room = await this.prisma.room.findUnique({
+      where: {
+        id: channelId,
+      },
+      select: {
+        type: true,
+      },
+    });
+
+    if (room.type === 'dm') {
+      const blocked = await this.prisma.blockedUsers.findFirst({
+        where: {
+          dmRoomId: channelId,
+        },
+      });
+      if (blocked) {
+        messages.forEach((message) => {
+          if (message.authorId !== userId) {
+            message.content = '[REDUCTED]';
+          }
+        });
+      }
+    } else {
+      // get authors ids without duplicats
+      const authorsIds = messages.reduce((acc, message) => {
+        if (!acc.includes(message.authorId)) {
+          acc.push(message.authorId);
+        }
+        return acc;
+      }, []);
+
+      const usersblocked = await this.prisma.blockedUsers.findMany({
+        where: {
+          id: {
+            in: authorsIds.map((id) => [id, userId].sort().join('-')),
+          },
+        },
+      });
+      const blockedUsersIds = usersblocked.map((user) =>
+        user.id.split('-').find((id) => id !== userId),
+      );
+      messages.forEach((message) => {
+        if (blockedUsersIds.includes(message.authorId)) {
+          message.content = '[REDUCTED]';
+        }
+      });
+    }
     return messages.map((message) => new MessageFormatDto(message));
   }
 }
