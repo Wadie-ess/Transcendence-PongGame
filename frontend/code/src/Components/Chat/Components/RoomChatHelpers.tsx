@@ -538,6 +538,98 @@ export const BlockedUsersModal = () => {
   );
 };
 
+export const FriendsListModal = () => {
+  const [currentFriends, setUsers] = useState<RoomMember[]>([]);
+
+  const LayoutState = useModalStore((state) => state);
+  const [IsLoading, setIsLoading] = useState(false);
+
+  const [skipCount, setSkipCount] = useState(true);
+
+  useEffect(() => {
+    if (skipCount) setSkipCount(false);
+    if (!skipCount) {
+      const fetchData = async () => {
+        try {
+          setIsLoading(true);
+
+          await getFriendsCall(0, 0).then((res) => {
+            setIsLoading(false);
+            if (res?.status === 200 || res?.status === 201) {
+              const friends: RoomMember[] = [];
+              res.data.forEach(
+                (friend: {
+                  userId: string;
+                  firstname: string;
+                  lastname: string;
+                  avatar: {
+                    thumbnail: string;
+                    medium: string;
+                    large: string;
+                  };
+                }) => {
+                  friends.push({
+                    id: friend.userId,
+                    firstname: friend.firstname,
+                    lastname: friend.lastname,
+                    // to inject it with the real images later
+                    avatar: friend.avatar,
+                  } as RoomMember);
+                }
+              );
+
+              setUsers(friends);
+            } else {
+            }
+          });
+        } catch (error) {
+          console.error("Error fetching data: ", error);
+        }
+      };
+
+      fetchData();
+    }
+    // eslint-disable-next-line
+  }, [LayoutState.showFriendsListModal]);
+  return (
+    <div className="modal w-screen " id="my_modal_1">
+      <div className="modal-box bg-[#1A1C26]  no-scrollbar  w-[85%] md:w-[50%] ">
+        <div className="flex flex-col">
+          <div className="flex flex-row justify-center">
+            <p className="text-purple-500 font-poppins text-lg font-medium leading-normal pb-2">
+              list of Friends
+            </p>
+          </div>
+
+          {IsLoading === true ? (
+            <div className="text-center p-2">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          ) : (
+            <div className="max-h-[300px] overflow-y-auto no-scrollbar">
+              {currentFriends.length < 1 && (
+                <NullPlaceHolder message="You have no Friends  Yet" />
+              )}
+              {currentFriends.map((user) => (
+                <FriendTile key={user.id} user={user} />
+              ))}
+            </div>
+          )}
+
+          <div className="modal-action ">
+            <a href="#/" className="btn hover:bg-purple-500">
+              {"Close "}
+            </a>
+            <a href="#/" className="btn hover:bg-purple-500">
+              {"Done "}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const AddUsersModal = () => {
   const [currentFriends, setUsers] = useState<RoomMember[]>([]);
   const [currentRoomMembers, setRoomMembers] = useState<RoomMember[]>([]);
@@ -1243,10 +1335,10 @@ export const ExploreRoomsModal = () => {
                     resetModalState();
                   } else {
                     toast.success("Room Joined Successfully");
-                    // recentRooms.selectNewChatID("1");
-                    recentRooms.setOnRoomsChange(
-                      !recentRooms.recentRoomsOnchange
-                    );
+                    recentRooms.selectNewChatID("1");
+                    // recentRooms.setOnRoomsChange(
+                    //   !recentRooms.recentRoomsOnchange
+                    // );
                     recentRooms.changeChatType(ChatType.Room);
 
                     resetModalState();

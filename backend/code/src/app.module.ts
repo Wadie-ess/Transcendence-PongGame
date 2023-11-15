@@ -14,6 +14,7 @@ import { GameModule } from './game/game.module';
 import { LeaderBoardModule } from './leaderboard/leaderboard.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { GatewaysModule } from './gateways/gateways.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { APP_GUARD } from '@nestjs/core';
         limit: 1000000,
       },
     ]),
+    GatewaysModule,
   ],
   controllers: [AppController],
   providers: [

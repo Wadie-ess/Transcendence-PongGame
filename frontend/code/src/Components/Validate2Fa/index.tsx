@@ -27,7 +27,7 @@ export const Validate2Fa = () => {
     <div
       className={classNames(
         "w-full h-screen flex items-center justify-center",
-        isLoading && "!hidden"
+        isLoading && "!hidden",
       )}
     >
       <div className="flex flex-col gap-6 justify-center items-center content-center w-full">
@@ -63,12 +63,11 @@ export const Validate2Fa = () => {
               className="btn bg-gray-200 text-black text-sm hover:btn-primary hover:text-white !h-8 !min-h-0"
               onClick={async () => {
                 try {
-                  const response = await api.post("/auth/validate2fa", {
+                  await api.post("/auth/validate2fa", {
                     otp: TOTPCode,
                     tfaToken: params.token,
                   });
-                  if (response.data) navigate("/Home");
-                  else toast.error("Invalid OTP");
+                  navigate("/Home");
                 } catch (e: any) {
                   toast.error(e.response.data.message);
                   console.log(e.response.data.message);

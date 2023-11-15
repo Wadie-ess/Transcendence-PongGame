@@ -1,4 +1,5 @@
-import { create } from "zustand";
+import { shallow } from "zustand/shallow";
+import { createWithEqualityFn } from "zustand/traditional";
 import { persist, createJSONStorage } from "zustand/middleware";
 import api from "../Api/base";
 export type State = {
@@ -19,7 +20,7 @@ export type State = {
   tfa: boolean;
   friendListIds: string[];
   banListIds: string[];
-  achivments: number[];
+  achievement: number | null;
   dmsIds: string[];
   profileComplet: boolean;
   history:
@@ -42,6 +43,13 @@ export type State = {
     | [];
 
   notifications: any;
+  gameInvitation: {
+    gameId: string;
+    inviterId: string;
+  };
+  gameWaiting: {
+    gameId: string;
+  };
 };
 
 type Action = {
@@ -60,9 +68,12 @@ type Action = {
   addNotification: (notification: any) => void;
   addNotifications: (notifications: any) => void;
   updateAllNotificationsRead: () => void;
+  updateGameInvitationId: (gameId: string) => void;
+  setGameInvitation: (gameInvitation: any) => void;
+  setGameWaitingId: (gameId: string) => void;
 };
 
-export const useUserStore = create<State & Action>()(
+export const useUserStore = createWithEqualityFn<State & Action>()(
   persist(
     (set, get) => ({
       isLogged: false,
@@ -82,12 +93,19 @@ export const useUserStore = create<State & Action>()(
       tfa: false,
       friendListIds: [],
       banListIds: [],
-      achivments: [],
+      achievement: null,
       dmsIds: [],
       history: [],
       chatRoomsJoinedIds: [],
       profileComplet: false,
       notifications: [],
+      gameInvitation: {
+        gameId: "",
+        inviterId: "",
+      },
+      gameWaiting: {
+        gameId: "",
+      },
       toggleTfa: () => set(({ tfa }) => ({ tfa: !tfa })),
       updateFirstName: (firstName) =>
         set((state) => ({
@@ -135,7 +153,23 @@ export const useUserStore = create<State & Action>()(
         });
         set({ notifications });
       },
-
+      updateGameInvitationId: (gameId: string) => {
+        const state = get();
+        const gameInvitation = {
+          gameId: gameId,
+          inviterId: state.gameInvitation.inviterId,
+        };
+        set({ gameInvitation });
+      },
+      setGameInvitation: (gameInvitation: any) => {
+        set({ gameInvitation });
+      },
+      setGameWaitingId: (gameId: string) => {
+        const gameWaiting = {
+          gameId: gameId,
+        };
+        set({ gameWaiting });
+      },
       updatePhone: (phone: State["phone"]) => set(() => ({ phone: phone })),
       updateBio: (bio: State["bio"]) => set(() => ({ bio: bio })),
       setAvatar: (picture: State["picture"]) =>
@@ -172,12 +206,19 @@ export const useUserStore = create<State & Action>()(
           tfa: user_data.tfa,
           friendListIds: [],
           banListIds: [],
-          achivments: [],
+          achievement: user_data?.achievement ?? null,
           dmsIds: [],
           history: [],
           chatRoomsJoinedIds: [],
           profileComplet: user_data.profileFinished,
           notifications: [],
+          gameInvitation: {
+            gameId: "",
+            inviterId: "",
+          },
+          gameWaiting: {
+            gameId: "",
+          },
         };
         // console.log(userInitialValue)
         const state = get();
@@ -187,14 +228,46 @@ export const useUserStore = create<State & Action>()(
         return userInitialValue.isLogged;
       },
       logout: () => {
-        set({}, true);
+        set(
+          {
+            isLogged: false,
+            id: "",
+            bio: "",
+            phone: "",
+            name: {
+              first: "",
+              last: "",
+            },
+            picture: {
+              thumbnail: "",
+              medium: "",
+              large: "",
+            },
+            email: "",
+            tfa: false,
+            friendListIds: [],
+            banListIds: [],
+            achievement: null,
+            dmsIds: [],
+            history: [],
+            chatRoomsJoinedIds: [],
+            profileComplet: false,
+            notifications: [],
+            gameInvitation: {
+              gameId: "",
+              inviterId: "",
+            },
+          },
+          true,
+        );
       },
 
       fetchNotifications: async (offset: number, limit: number) => {
-        const response = await api.get(
-          `/profile/notifications/?offset=${offset}&limit=${limit}`,
-          { params: { offset, limit } },
-        );
+        const response = await api
+          .get(`/profile/notifications/?offset=${offset}&limit=${limit}`, {
+            params: { offset, limit },
+          })
+          .catch(() => ({ data: [] }));
 
         return response.data;
       },
@@ -204,4 +277,5 @@ export const useUserStore = create<State & Action>()(
       storage: createJSONStorage(() => localStorage) as any,
     },
   ),
+  shallow,
 );

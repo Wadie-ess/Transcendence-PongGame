@@ -96,11 +96,8 @@ export class FriendsController {
   @Get('list')
   @UseGuards(AtGuard)
   @ApiResponse({ type: FriendProfileDto })
-  async getFriendsList(
-    @GetCurrentUser('userId') userId: string,
-    @Query() { offset, limit }: QueryOffsetDto,
-  ) {
-    return this.friendsService.getFriendsList(userId, offset, limit);
+  async getFriendsList(@GetCurrentUser('userId') userId: string) {
+    return this.friendsService.getFriendsList(userId);
   }
 
   @Get('requests')
@@ -116,11 +113,8 @@ export class FriendsController {
   @Get('blocklist')
   @UseGuards(AtGuard)
   @ApiResponse({ type: FriendProfileDto })
-  async getBlockList(
-    @GetCurrentUser('userId') userId: string,
-    @Query() { offset, limit }: QueryOffsetDto,
-  ) {
-    return this.friendsService.getBlockList(userId, offset, limit);
+  async getBlockList(@GetCurrentUser('userId') userId: string) {
+    return this.friendsService.getBlockList(userId);
   }
 
   @Get('pending')

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { User } from '@prisma/client';
 import { Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PICTURE } from 'src/profile/dto/profile.dto';
@@ -10,37 +11,56 @@ export class GameService {
     private readonly prisma: PrismaService,
     private eventEmitter: EventEmitter2,
   ) {
-    //this.launchGame();
+    this.launchGame();
   }
 
-  private waitingPlayers: Socket[] = [];
+  private classicwaitingPlayers: { socket: Socket; userData: Partial<User> }[] =
+    [];
+
+  private extraWaitingPlayers: { socket: Socket; userData: Partial<User> }[] =
+    [];
 
   @OnEvent('game.start')
-  handleGameStartEvent(client: Socket) {
-    const index = this.waitingPlayers.find((player) => {
-      return player.data.user.sub === client.data.user.sub;
-    });
-    if (index) {
-      console.log('client already in the queue');
-      return;
-    }
-
-    this.waitingPlayers.push(client);
+  async handleGameStartEvent(data: { client: Socket; gameMode: string }) {
+    const client = data.client;
+    const gameMode = data.gameMode;
+    const userId = client.data.user.sub;
+    const userData = await this.getUser(userId);
+    client.data.inQueue = true;
+    if (gameMode === 'cassic')
+      this.classicwaitingPlayers.push({ socket: client, userData: userData });
+    else if (gameMode === 'extra')
+      this.extraWaitingPlayers.push({ socket: client, userData: userData });
     console.log('client subscribed to the queue');
   }
 
+  //NOTE: add game modes here
   private launchGame() {
     setInterval(() => {
-      console.log('waitingPlayers', this.waitingPlayers.length);
-      if (this.waitingPlayers.length >= 2) {
+      // console.log('waitingPlayers', this.classicwaitingPlayers.length);
+      if (this.classicwaitingPlayers.length >= 2) {
         console.log('Game launched!');
-        const two_players = this.waitingPlayers.splice(0, 2);
+        const two_players = this.classicwaitingPlayers.splice(0, 2);
         this.eventEmitter.emit('game.launched', two_players);
         console.log(two_players);
+        // const user = await this.getUser(two_players[0].data.user.sub)
+        // console.log(user)
       }
     }, 5027);
   }
-
+  async getUser(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        userId: userId,
+      },
+      select: {
+        userId: true,
+        Username: true,
+        avatar: true,
+      },
+    });
+    return user;
+  }
   async getHistory(userId: string, offset: number, limit: number) {
     const matches = await this.prisma.match.findMany({
       skip: offset,

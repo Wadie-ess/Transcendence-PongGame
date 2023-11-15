@@ -23,6 +23,7 @@ services :
     networks:
       - pongnet
   backend:
+    container_name: backend
     build:
       context: ./backend
       dockerfile: Dockerfile.dev

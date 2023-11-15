@@ -39,6 +39,14 @@ export class RoomsService {
     delete roomData.secondMember;
 
     if (roomData.type === 'dm') {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          userId: secondMember,
+        },
+      });
+      if (!user) {
+        throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+      }
       const friendshipId = [roomOwnerId, secondMember].sort().join('-');
       const blocked = await this.prisma.blockedUsers.findUnique({
         where: {
@@ -112,6 +120,18 @@ export class RoomsService {
       where: { id: roomData.roomId },
       select: { type: true, password: true },
     });
+
+    const count = await this.prisma.roomMember.aggregate({
+      where: {
+        roomId: roomData.roomId,
+      },
+      _count: {
+        userId: true,
+      },
+    });
+
+    if (count._count.userId > 20)
+      throw new HttpException('Room is full', HttpStatus.BAD_REQUEST);
     if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
     if (room.type === 'protected' && !('password' in roomData))
       throw new HttpException(
@@ -146,8 +166,29 @@ export class RoomsService {
       where: { id: memberData.roomId },
       select: { ownerId: true },
     });
-    if (ownerId === userId)
-      throw new UnauthorizedException('You are the owner of this room');
+    const newOwner = await this.prisma.roomMember.findFirst({
+      where: {
+        roomId: memberData.roomId,
+        is_admin: true,
+        NOT: {
+          userId: ownerId,
+        },
+      },
+      select: {
+        userId: true,
+      },
+    });
+    if (ownerId === userId && !newOwner)
+      throw new UnauthorizedException(
+        'You cannot leave this room because you are the only admin in it',
+      );
+
+    if (ownerId === userId && newOwner) {
+      await this.prisma.room.update({
+        where: { id: memberData.roomId },
+        data: { owner: { connect: { userId: newOwner.userId } } },
+      });
+    }
     await this.prisma.roomMember.delete({
       where: {
         unique_user_room: {
@@ -530,6 +571,17 @@ export class RoomsService {
       },
     });
 
+    const count = await this.prisma.roomMember.aggregate({
+      where: {
+        roomId: memberData.roomId,
+      },
+      _count: {
+        userId: true,
+      },
+    });
+
+    if (count._count.userId >= 20)
+      throw new HttpException('Room is full', HttpStatus.BAD_REQUEST);
     if (!user || !user.is_admin || user.is_banned)
       throw new UnauthorizedException('You are not the admin of this Room');
     if (member) throw new UnauthorizedException('User already Exist');
@@ -652,7 +704,7 @@ export class RoomsService {
         },
       },
     });
-
+ 
     const dmsData: DMsData[] = await Promise.all(
       rooms.map(async (room) => {
         const secondMember = room.members.find(

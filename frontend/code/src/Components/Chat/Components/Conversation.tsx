@@ -25,6 +25,8 @@ import { formatTime } from "./tools/utils";
 import { useSocketStore } from "../Services/SocketsServices";
 import { useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
+import { blockUserCall } from "../Services/FriendsServices";
+import { InvitationWaiting } from "../../Layout/Assets/Invitationacceptance";
 
 export interface ChatPaceHolderProps {
   username: string;
@@ -100,6 +102,8 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
   const currentUser = useChatStore((state) => state.currentDmUser);
   const selectedChatType = useChatStore((state) => state.selectedChatType);
   const socketStore = useSocketStore();
+  const inviteWaitingModalRef = useRef<HTMLDialogElement>(null);
+  const user = useUserStore();
 
   const currentRoom = chatRooms.find((room) => room.id === SelectedChat);
 
@@ -196,13 +200,44 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               tabIndex={0}
               className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute  right-full  "
             >
-              <li>
+              <li
+                onClick={async () => {
+                  ChatState.setIsLoading(true);
+                  await blockUserCall(currentUser?.secondUserId).then((res) => {
+                    ChatState.setIsLoading(false);
+                    if (res?.status === 200 || res?.status === 201) {
+                      toast.success("User Blocked");
+                      // ChatState.selectNewChatID("1");
+                    } else {
+                      toast.error("Could Not Block User");
+                    }
+                  });
+                }}
+              >
                 <span className="hover:bg-[#7940CF]">Block</span>
               </li>
-              <li>
-                <span className="hover:bg-[#7940CF]">
-                  invite for a Pong Game
-                </span>
+              <li
+                className="hover:bg-[#7940CF] hover:rounded"
+                onClick={() => {
+                  socketStore?.socket?.emit(
+                    "inviteToGame",
+                    {
+                      inviterId: user.id,
+                      opponentId: currentUser.secondUserId,
+                      gameMode: "classic",
+                    },
+                    (data: { error: string | null; gameId: string }) => {
+                      if (data.error) {
+                        toast.error(data.error);
+                        return;
+                      }
+                      user.setGameWaitingId(data.gameId);
+                      inviteWaitingModalRef.current?.showModal();
+                    }
+                  );
+                }}
+              >
+                <span>Invite to a game</span>
               </li>
               <li
                 onClick={() => {
@@ -306,27 +341,45 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
           </div>
         )}
       </div>
+      <InvitationWaiting
+        ref={inviteWaitingModalRef}
+        oppenent={{
+          picture: currentUser.avatar,
+          name: {
+            first: currentUser.name,
+            last: "",
+          },
+          username: "",
+        }}
+        user={user}
+      />
     </>
   );
 };
 
-export const Conversation = ({ onRemoveUserPreview }: ConversationProps) => {
+export const Conversation: React.FC<ConversationProps> = ({
+  onRemoveUserPreview,
+}) => {
+  const [ref, inView] = useInView();
+  const [EndOfFetching, setEndOfFetching] = useState(false);
+
   const chatState = useChatStore();
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const socketStore = useSocketStore();
   const scrollToBottom = () => {
-    // if (messageContainerRef.current) {
-    //   const container = messageContainerRef.current;
-    //   container.scrollTo({
-    //     top: container.scrollHeight,
-    //     behavior: "smooth",
-    //   });
-    // }
+    if (messageContainerRef.current) {
+      const container = messageContainerRef.current;
+      // container.scrollTop = container.scrollHeight;
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   };
 
   const [inputValue, setInputValue] = useState("");
   const [FailToSendMessage, setFail] = useState(false);
-  const [IsLoading, setLoading] = useState(false);
+  const [IsLoading, setLoading] = useState(true);
   const currentUser = useUserStore((state) => state);
   const handleMessage = (message: {
     id: string;
@@ -349,26 +402,6 @@ export const Conversation = ({ onRemoveUserPreview }: ConversationProps) => {
         time: message.time,
       };
       chatState.pushMessage(NewMessage);
-      // Update latest message in rooms
-      for (const room of chatState.recentRooms) {
-        if (room.id !== message.roomId) continue;
-        // Update latest message
-        room.last_message = {
-          content: message.content,
-          createdAt: message.time,
-        };
-      }
-      chatState.fillRecentRooms(chatState.recentRooms);
-      // Update latest message in dms
-      for (const dm of chatState.recentDms) {
-        if (dm.id !== message.roomId) continue;
-        // Update latest message
-        dm.last_message = {
-          content: message.content,
-          createdAt: message.time,
-        };
-      }
-      chatState.fillRecentDms(chatState.recentDms);
       scrollToBottom();
     }
   };
@@ -385,21 +418,17 @@ export const Conversation = ({ onRemoveUserPreview }: ConversationProps) => {
     setFail(false);
     setInputValue(e.target.value);
   };
-
-  const [ref, inView] = useInView();
-  const [EndOfFetching, setEndOfFetching] = useState(false);
   useEffect(() => {
     scrollToBottom();
   }, [chatState.currentMessages?.length, IsLoading]);
 
   useEffect(() => {
-    // setLoading(true);
+    setLoading(true);
 
     socketStore.socket.emit("joinRoom", {
       memberId: currentUser.id,
       roomId: chatState.selectedChatID,
     });
-    //
     socketStore.socket.emit("PingOnline", {
       friendId: chatState.currentDmUser.secondUserId,
     });
@@ -409,10 +438,10 @@ export const Conversation = ({ onRemoveUserPreview }: ConversationProps) => {
     socketStore.socket.on("message", handleMessage);
 
     const fetch = async () => {
-      const offset = chatState.currentMessages?.length ?? 0;
-      // setLoading(true);
+      // const offset = chatState.currentMessages.length;
+      setLoading(true);
       chatState.selectedChatID !== "1" &&
-        getRoomMessagesCall(chatState.selectedChatID, offset, 7)
+        getRoomMessagesCall(chatState.selectedChatID, 0, 20)
           .then((res) => {
             if (res?.status !== 200 && res?.status !== 201) {
             } else {
@@ -439,14 +468,7 @@ export const Conversation = ({ onRemoveUserPreview }: ConversationProps) => {
                   });
                 }
               );
-              if (res.data.length > 0) {
-                chatState.fillCurrentMessages([
-                  ...messages.reverse(),
-                  ...(chatState.currentMessages?.reverse() ?? []),
-                ]);
-              } else {
-                setEndOfFetching(true);
-              }
+              chatState.fillCurrentMessages(messages);
             }
           })
           .finally(() => {
@@ -454,9 +476,7 @@ export const Conversation = ({ onRemoveUserPreview }: ConversationProps) => {
           });
     };
 
-    if (!EndOfFetching && inView) {
-      fetch();
-    }
+    fetch();
 
     return () => {
       socketStore.socket.off("message", handleMessage);
@@ -467,12 +487,12 @@ export const Conversation = ({ onRemoveUserPreview }: ConversationProps) => {
       });
     };
     // eslint-disable-next-line
-  }, [chatState.selectedChatID, inView]);
+  }, [chatState.selectedChatID]);
 
   const sendMessage = async () => {
     if (inputValue.length === 0) return;
+    setInputValue("");
     await sendMessageCall(chatState.selectedChatID, inputValue).then((res) => {
-      setInputValue("");
       if (res?.status !== 200 && res?.status !== 201) {
         setFail(true);
         chatState.selectedChatType === ChatType.Room
@@ -497,15 +517,6 @@ export const Conversation = ({ onRemoveUserPreview }: ConversationProps) => {
         className="flex-grow overflow-y-auto no-scrollbar "
         ref={messageContainerRef}
       >
-        <div
-          ref={ref}
-          className="flex justify-center items-center h-2 py-2
-                                "
-        >
-          <span className="text-xs font-light font-poppins text-gray-400">
-            {EndOfFetching ? "No more Rooms" : "Loading..."}
-          </span>
-        </div>
         {IsLoading === false ? (
           (chatState.currentMessages?.length as number) > 0 ? (
             chatState.currentMessages?.map((message) => (

@@ -23,8 +23,8 @@ export class UsersController {
   @Get('search')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
-  async getUsers(@Query() query: usersSearchDto) {
-    return this.usersService.getUsers(query.q);
+  async getUsers(@Query() query: usersSearchDto, @GetCurrentUser('userId') userId: string) {
+    return this.usersService.getUsers(query.q, userId);
   }
 
   @Post('enableTwoFactorAuth')

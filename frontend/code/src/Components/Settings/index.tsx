@@ -71,17 +71,17 @@ export const Setting = () => {
                   }}
                 ></div>
                 <img
-                  className={`h-[9vh] md:h-[12vh] xl:h-[14vh] `}
+                  className={`h-[9vh] md:h-[12vh] xl:h-[14vh] ${myuser?.achievement !== null && myuser?.achievement >= 0   ? "":"opacity-30"}`}
                   src={Newbie}
                   alt="newbie badge"
                 />
                 <img
-                  className={`h-[9vh] md:h-[12vh] xl:h-[14vh] opacity-30`}
+                  className={`h-[9vh] md:h-[12vh] xl:h-[14vh] ${myuser?.achievement !== null && myuser?.achievement >= 1   ? "":"opacity-30"}`}
                   src={Master}
                   alt="Master badge"
                 />
                 <img
-                  className={`h-[9vh] md:h-[12vh] xl:h-[14vh] `}
+                  className={`h-[9vh] md:h-[12vh] xl:h-[14vh] ${myuser?.achievement !== null && myuser?.achievement >= 2   ? "":"opacity-30"}`}
                   src={Ultimate}
                   alt="Ultimate badge"
                 />
