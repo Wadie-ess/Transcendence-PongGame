@@ -27,7 +27,7 @@ import { getRoomMembersCall } from "./Services/ChatServices";
 
 import { classNames } from "../../Utils/helpers";
 import { useModalStore } from "./Controllers/LayoutControllers";
-import { useInView } from "react-intersection-observer";
+
 import { useNavigate } from "react-router-dom";
 
 export interface ConversationProps {
@@ -41,7 +41,6 @@ export const Chat = () => {
   const showChatRooms = useChatStore((state) => state.showChatRooms);
   const toggleChatRooms = useChatStore((state) => state.toggleChatRooms);
 
-  const chatRooms = useChatStore((state) => state.recentRooms);
   const handleRemoveUserPreview = () => {
     setShowUserPreview(!showUserPreview);
   };
@@ -210,9 +209,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
                         <div className="mask mask-squircle w-11 h-11">
                           <button
                             onClick={async () => {
-                              {
-                                navigate(`/profile/${user.id}`);
-                              }
+                              navigate(`/profile/${user.id}`);
                             }}
                           >
                             <img

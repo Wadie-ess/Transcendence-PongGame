@@ -91,6 +91,7 @@ export const RoomChatPlaceHolder = () => {
         }
       }
     });
+    // eslint-disable-next-line
   }, [
     ChatRoomsState.recentRooms,
     setIsLoading,
@@ -105,6 +106,7 @@ export const RoomChatPlaceHolder = () => {
       setEndOfFetching(false);
       ChatRoomsState.fillRecentRooms([]);
     };
+    // eslint-disable-next-line
   }, [ChatRoomsState.selectedChatType, ChatRoomsState.recentRoomsOnchange]);
 
   useEffect(() => {
@@ -199,7 +201,6 @@ export const CreateNewRoomModal = () => {
     setName(event.target.value);
   };
 
-  const createNewRoom = useChatStore((state) => state.createNewRoom);
   const [selectedOption, setSelectedOption] = useState(RoomType.public);
   const setIsLoading = useChatStore((state) => state.setIsLoading);
   const chatState = useChatStore((state) => state);
@@ -540,9 +541,6 @@ export const BlockedUsersModal = () => {
 };
 
 export const FriendStatusTile = (props: { user: RoomMember }) => {
-  const [IsAdding, setIsAdding] = useState(false);
-  const selectedChatID = useChatStore((state) => state.selectedChatID);
-  const LayoutState = useModalStore((state) => state);
   const user = props.user;
   const [onlineStatus, setOnlineStatus] = useState<string>("offline");
   const socketStore = useSocketStore((state) => state);
@@ -601,7 +599,6 @@ export const FriendStatusTile = (props: { user: RoomMember }) => {
 
 export const FriendsListModal = () => {
   const [currentFriends, setUsers] = useState<RoomMember[]>([]);
-  const [onlineStatus, setOnlineStatus] = useState<string>("offline");
 
   const LayoutState = useModalStore((state) => state);
   const [IsLoading, setIsLoading] = useState(false);
@@ -701,15 +698,10 @@ export const AddUsersModal = () => {
   const [skipCount, setSkipCount] = useState(true);
   const ChatState = useChatStore((state) => state);
 
-  const [ref, inView] = useInView();
-  const [EndOfFetching, setEndOfFetching] = useState(false);
-
   useEffect(() => {
     if (skipCount) setSkipCount(false);
     if (!skipCount) {
       const fetchData = async () => {
-        const offset = currentFriends.length;
-
         try {
           setIsLoading(true);
 
@@ -760,9 +752,8 @@ export const AddUsersModal = () => {
           console.error("Error fetching data: ", error);
         }
       };
-      if (!EndOfFetching) {
-        fetchData();
-      }
+
+      fetchData();
     }
     // eslint-disable-next-line
   }, [LayoutState.showAddUsersModal]);

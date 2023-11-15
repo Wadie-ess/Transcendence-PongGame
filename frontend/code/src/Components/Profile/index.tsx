@@ -26,10 +26,7 @@ import {
 } from "../Chat/Controllers/RoomChatControllers";
 import { More } from "../Chat/Components/tools/Assets";
 import { useModalStore } from "../Chat/Controllers/LayoutControllers";
-import {
-  BlockedUsersModal,
-  FriendsListModal,
-} from "../Chat/Components/RoomChatHelpers";
+
 import { blockUserCall } from "../Chat/Services/FriendsServices";
 import { AxiosError } from "axios";
 import { InvitationWaiting } from "../Layout/Assets/Invitationacceptance";
@@ -417,7 +414,7 @@ export const Profile = () => {
                                 }
                                 user.setGameWaitingId(data.gameId);
                                 inviteWaitingModalRef.current?.showModal();
-                              },
+                              }
                             );
                           }}
                         >

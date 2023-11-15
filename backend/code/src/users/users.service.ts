@@ -128,8 +128,8 @@ export class UsersService {
                   blocked_by_id: currentUserId,
                 },
               },
-            }
-          ]
+            },
+          ],
         },
       },
     });

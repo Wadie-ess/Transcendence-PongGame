@@ -81,6 +81,7 @@ export const RecentConversations = () => {
         }
       }
     });
+    // eslint-disable-next-line
   }, [ChatRoomsState.recentDms]);
 
   useEffect(() => {
@@ -88,6 +89,7 @@ export const RecentConversations = () => {
     return () => {
       setEndOfFetching(false);
     };
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {

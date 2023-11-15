@@ -717,7 +717,7 @@ export class RoomsService {
         },
       },
     });
- 
+
     const dmsData: DMsData[] = await Promise.all(
       rooms.map(async (room) => {
         const secondMember = room.members.find(

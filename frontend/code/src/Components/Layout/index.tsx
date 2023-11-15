@@ -21,9 +21,7 @@ import {
   ShowLogoModal,
 } from "../Chat/Components/RoomChatHelpers";
 import { Modal } from "./Assets/Modal";
-import toast from "react-hot-toast";
-import { closeWhite } from "../Chat/Components/tools/Assets";
-import { useChatStore } from "../Chat/Controllers/RoomChatControllers";
+
 import { InvitationGame } from "./Assets/Invitationmodale";
 
 const routes = [

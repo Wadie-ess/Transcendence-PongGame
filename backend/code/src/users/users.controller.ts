@@ -23,7 +23,10 @@ export class UsersController {
   @Get('search')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AtGuard)
-  async getUsers(@Query() query: usersSearchDto, @GetCurrentUser('userId') userId: string) {
+  async getUsers(
+    @Query() query: usersSearchDto,
+    @GetCurrentUser('userId') userId: string,
+  ) {
     return this.usersService.getUsers(query.q, userId);
   }
 

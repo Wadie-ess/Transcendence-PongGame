@@ -12,7 +12,7 @@ import { ChatType, useChatStore } from "../Controllers/RoomChatControllers";
 
 import { ChatPlaceHolder, ConfirmationModal } from "./RoomChatHelpers";
 import { KeyboardEvent } from "react";
-import { createNewRoomCall, leaveRoomCall } from "../Services/ChatServices";
+import { leaveRoomCall } from "../Services/ChatServices";
 import toast from "react-hot-toast";
 import { useModalStore } from "../Controllers/LayoutControllers";
 import {
@@ -24,7 +24,6 @@ import { useUserStore } from "../../../Stores/stores";
 import { formatTime } from "./tools/utils";
 import { useSocketStore } from "../Services/SocketsServices";
 import { useNavigate } from "react-router-dom";
-import { useInView } from "react-intersection-observer";
 import { blockUserCall } from "../Services/FriendsServices";
 import { InvitationWaiting } from "../../Layout/Assets/Invitationacceptance";
 
@@ -359,9 +358,6 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
 export const Conversation: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
-  const [ref, inView] = useInView();
-  const [EndOfFetching, setEndOfFetching] = useState(false);
-
   const chatState = useChatStore();
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const socketStore = useSocketStore();
