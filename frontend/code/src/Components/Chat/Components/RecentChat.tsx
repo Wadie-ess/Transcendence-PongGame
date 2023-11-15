@@ -33,65 +33,67 @@ export const RecentConversations = () => {
 
   const [ref, inView] = useInView();
   const [EndOfFetching, setEndOfFetching] = useState(false);
-  useEffect(() => {
-    const fetch = async () => {
-      const offset = ChatRoomsState.recentDms.length;
-      offset === 0 && setLoading(true);
-      await fetchDmsCall(offset, 7).then((res) => {
-        setLoading(false);
-        if (res?.status !== 200 && res?.status !== 201) {
-        } else {
-          const rooms: DmRoom[] = [];
-          res.data.forEach(
-            (room: {
-              secondMemberId: string;
-              id: string;
-              last_message?: {
-                content?: string;
-                createdAt?: string;
-              };
-              name: string;
 
-              avatar: {
-                thumbnail: string;
-                medium: string;
-                large: string;
-              };
-              bio: string;
-            }) => {
-              rooms.push({
-                secondUserId: room.secondMemberId,
-                id: room.id,
-                name: room.name,
-                avatar: room.avatar,
-                last_message: {
-                  content: room.last_message?.content,
-                  createdAt: room.last_message?.createdAt,
-                },
-                bio: room.bio,
-              });
-            }
-          );
+  const fetchDms = (force?: boolean) => {
+    if (!force && EndOfFetching) return;
 
-          if (res.data.length > 0) {
-            ChatRoomsState.fillRecentDms([
-              ...ChatRoomsState.recentDms,
-              ...rooms,
-            ]);
-          } else {
-            setEndOfFetching(true);
+    const recentDms = force ? [] : ChatRoomsState.recentDms;
+    const offset = recentDms.length;
+
+    offset === 0 && setLoading(true);
+
+    fetchDmsCall(offset, 7).then((res) => {
+      if (res?.status !== 200 && res?.status !== 201) {
+      } else {
+        const rooms: DmRoom[] = [];
+        res.data.forEach(
+          (room: {
+            secondMemberId: string;
+            id: string;
+            last_message?: {
+              content?: string;
+              createdAt?: string;
+            };
+            name: string;
+
+            avatar: {
+              thumbnail: string;
+              medium: string;
+              large: string;
+            };
+            bio: string;
+          }) => {
+            rooms.push({
+              secondUserId: room.secondMemberId,
+              id: room.id,
+              name: room.name,
+              avatar: room.avatar,
+              last_message: {
+                content: room.last_message?.content,
+                createdAt: room.last_message?.createdAt,
+              },
+              bio: room.bio,
+            });
           }
+        );
+
+        if (res.data.length > 0) {
+          ChatRoomsState.fillRecentDms([
+            ...recentDms,
+            ...rooms,
+          ]);
+        } else {
+          setEndOfFetching(true);
         }
-      });
-    };
-    if (!EndOfFetching) {
-      fetch();
-    }
-    return () => {
-      setEndOfFetching(false);
-    };
+      }
+    })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchDms();
     // eslint-disable-next-line
-  }, [ChatRoomsState.selectedChatID, ChatRoomsState.selectedChatType, inView]);
+  }, [inView]);
 
   return selectedChatType === ChatType.Chat ? (
     <div className="h-full flex flex-col ">
@@ -112,15 +114,20 @@ export const RecentConversations = () => {
               userImage={friend.avatar.medium}
             />
           ))}
-          <div
-            ref={ref}
-            className="flex justify-center items-center h-2 py-5 
-								"
-          >
+          {!EndOfFetching && <div ref={ref} className="flex justify-center items-center h-2 py-5">
             <span className="text-xs font-light font-poppins text-gray-400">
-              {EndOfFetching ? "No more Dms" : "Loading..."}
+              Loading...
             </span>
-          </div>
+          </div>}
+          {EndOfFetching && <div ref={ref} className="flex justify-center items-center h-2 py-5">
+            <span className="text-xs font-light font-poppins text-gray-400">
+              No more dm... <span className="underline decoration-dashed cursor-pointer" onClick={() => {
+                setEndOfFetching(false); // Reset
+                ChatRoomsState.fillRecentDms([]); // Reset
+                setTimeout(() => fetchDms(true), 100);
+              }}>Refresh!</span>
+            </span>
+          </div>}
         </div>
       ) : (
         <>
@@ -176,9 +183,8 @@ export const ChatPlaceHolder = ({
           },
         });
       }}
-      className={`message-container flex   px-4 py-5  hover:bg-[#272932] items-center  ${
-        selectedChatID === id ? "bg-[#272932]" : "bg-[#1A1C26]"
-      }`}
+      className={`message-container flex   px-4 py-5  hover:bg-[#272932] items-center  ${selectedChatID === id ? "bg-[#272932]" : "bg-[#1A1C26]"
+        }`}
     >
       <div className="user-image flex-shrink-0 mr-2">
         <img
@@ -189,10 +195,10 @@ export const ChatPlaceHolder = ({
       </div>
       <div className="message-colum align-middle flex flex-col flex-grow">
         <div className="message-row flex flex-row justify-between">
-          <p className="text-white font-poppins text-sm md:text-base font-normal leading-normal ">
+          <p className="text-white font-poppins text-sm md:text-base font-normal leading-normal line-clamp-1">
             {username}
           </p>
-          <p className="text-gray-400 font-poppins text-xs font-light leading-normal">
+          <p className="text-gray-400 font-poppins text-xs font-light leading-normal whitespace-nowrap">
             {time ? formatTime(time!) : ""}
           </p>
         </div>
@@ -297,9 +303,8 @@ export const OnlineNowUsers = () => {
         <div className="Message-Type-Buttons flex flex-row pt-2 pb-2 justify-between ">
           <button
             onClick={() => changeChatType(ChatType.Chat)}
-            className={`${
-              selectedChatType === ChatType.Chat ? "bg-[#272932]" : ""
-            } flex-1 p-2 rounded ] `}
+            className={`${selectedChatType === ChatType.Chat ? "bg-[#272932]" : ""
+              } flex-1 p-2 rounded ] `}
           >
             <div className=" flex flex-row justify-center ">
               <p className="text-gray-300 font-poppins text-base font-medium leading-normal pr-3 hidden md:block ">
@@ -310,9 +315,8 @@ export const OnlineNowUsers = () => {
           </button>
           <button
             onClick={() => changeChatType(ChatType.Room)}
-            className={`${
-              selectedChatType === ChatType.Room ? "bg-[#272932]" : ""
-            } flex-1 p-2 rounded  `}
+            className={`${selectedChatType === ChatType.Room ? "bg-[#272932]" : ""
+              } flex-1 p-2 rounded  `}
           >
             <div className="flex flex-row justify-center">
               <p className="text-gray-300 font-poppins text-base font-medium leading-normal pr-3 hidden md:block">
@@ -352,10 +356,10 @@ export const OnlineNowUsers = () => {
                                     ?.lastname) as string,
                                 avatar: Users.find((u) => u.id === user)
                                   ?.avatar as {
-                                  thumbnail: string;
-                                  medium: string;
-                                  large: string;
-                                },
+                                    thumbnail: string;
+                                    medium: string;
+                                    large: string;
+                                  },
                                 bio: Users.find((u) => u.id === user)
                                   ?.bio as string,
                               });

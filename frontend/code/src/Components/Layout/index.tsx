@@ -175,10 +175,10 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
       ) : (
         <div
           data-theme="mytheme"
-          className={`h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
+          className={`h-screen max-h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
         >
           <Modal />
-          <div className=" flex flex-row  w-screen h-[9vh]  bg-base-200">
+          <div className="flex flex-row w-full h-16 min-h-16 bg-base-200">
             <div className="flex justify-start items-center z-50 h-full w-full">
               <ShowLogoModal />
               <Logo className="sm:w-30 w-20" />
@@ -189,8 +189,8 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
               <Avatar picture={`${user?.picture?.medium}`} />
             </div>
           </div>
-          <div className="flex bg-base-200">
-            <div className="sm:flex flex-col hidden justify-around items-stretch h-[91vh] bg-base-200 md:pt-20 w-20 min-w-[5.5rem] max-w-[6rem]">
+          <div className="flex bg-base-200 h-[calc(100vh-4rem)]">
+            <div className="sm:flex flex-col hidden justify-around items-stretch h-full bg-base-200 md:pt-20 w-20 min-w-[5.5rem] max-w-[6rem]">
               <div className="flex flex-col justify-evenly content-start gap-y-10 pb-44">
                 <Dash selected={path === "Home"} className="mx-auto" />
                 <Game selected={path === "Play"} className="mx-auto" />
@@ -223,7 +223,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
               </button>
             </div>
             <div
-              className="sm:w-[92vw] xl:w-[95.5vw]  md:w-[93.5vw] w-screen right-0 z-10 h-[84vh] sm:h-[91vh]  bg-accent sm:rounded-tl-2xl overflow-auto no-scrollbar"
+              className="sm:w-[92vw] xl:w-[95.5vw]  md:w-[93.5vw] w-screen right-0 z-10 h-full bg-accent sm:rounded-tl-2xl overflow-auto no-scrollbar"
               id="scrollTarget"
             >
               <Outlet />

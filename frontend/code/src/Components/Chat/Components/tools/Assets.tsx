@@ -80,6 +80,9 @@ export interface Message {
   };
   isRead?: boolean;
   isFailed?: boolean;
+
+  isPending?: boolean;
+  clientMessageId?: string;
 }
 
 export interface RoomMember {

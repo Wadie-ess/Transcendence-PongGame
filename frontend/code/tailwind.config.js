@@ -4,7 +4,7 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
     "./src/**/**/*.{js,jsx,ts,tsx}",
     "./src/**/**/**/*.{js,jsx,ts,tsx}",
-    
+
   ],
   theme: {
     extend: {
@@ -23,73 +23,73 @@ module.exports = {
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],
         lexend: ['Lexend Peta', 'sans-serif'],
-        montserrat : ['Montserrat', 'sans-serif']
-        
+        montserrat: ['Montserrat', 'sans-serif']
+
       },
-      
+
       backgroundImage: {
         'login': "url('./Components/Login/Assets/bg.gif')",
         'gif-error': "url('./Components/Error/Assets/Error.gif')",
-        
+
       },
 
     },
   },
- 
+
   plugins: [
     require("daisyui"),
     require('preline/plugin'),
-],
+  ],
   daisyui: {
     themes: [
       {
-         mytheme: {
-            "base-100":"#000000",
+        mytheme: {
+          "base-100": "#000000",
 
-            "base-200":"#272932",
-            
-            "primary": "#7940CF",
+          "base-200": "#272932",
 
-            "primary-content" :"#5921CB",
-                      
-            "secondary": "#6A4CFC",
-            
-            "secondary-content": "#1A1C26",
-                      
-            "accent": "#1A1C26",
-                      
-            "neutral": "#FFFFFF",
-                                       
-            "info": "#3e9cea",
-                      
-            "success": "#1ba177",
-                      
-            "warning": "#99670f",
-                      
-            "error": "#e93f6f",
-          },
-          secondtheme:{
-            
-          
-              "base-100": "#2b2d50",
-                       
-              "base-200": "#1d252f",
-                       
-              "primary": "#fcecb3",
-                       
-              "primary-content": "#be8f04",
-                       
-              "secondary":  "#4c95c9",
-                       
-              "secondary-content": "#79f289",
-                       
-              "accent": "#66ebd9",
-                       
-              "neutral": "#FFFFFF",
-                       
-              "error": "#e93535",
-            },
-          
+          "primary": "#7940CF",
+
+          "primary-content": "#5921CB",
+
+          "secondary": "#6A4CFC",
+
+          "secondary-content": "#1A1C26",
+
+          "accent": "#1A1C26",
+
+          "neutral": "#FFFFFF",
+
+          "info": "#3e9cea",
+
+          "success": "#1ba177",
+
+          "warning": "#99670f",
+
+          "error": "#e93f6f",
+        },
+        secondtheme: {
+
+
+          "base-100": "#2b2d50",
+
+          "base-200": "#1d252f",
+
+          "primary": "#fcecb3",
+
+          "primary-content": "#be8f04",
+
+          "secondary": "#4c95c9",
+
+          "secondary-content": "#79f289",
+
+          "accent": "#66ebd9",
+
+          "neutral": "#FFFFFF",
+
+          "error": "#e93535",
+        },
+
       },
       "light",
       "dark",

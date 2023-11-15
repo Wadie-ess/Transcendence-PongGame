@@ -33,7 +33,10 @@ export interface ChatState {
   setMessageAsFailed: (id: string) => void;
   pushMessage: (message: Message) => void;
   deleteRoom: (id: string) => void;
+  unshiftMessage: (message: Message) => void;
+  removeMessageFromCurrentMessages: (cb: (message: Message) => boolean) => void;
   fillCurrentMessages: (messages: Message[]) => void;
+  updateTransientMessage: (message: Message, clientMessageId: string) => void;
   fillRecentRooms: (rooms: ChatRoom[]) => void;
   fillRecentDms: (dms: DmRoom[]) => void;
   setIsLoading: (isLoading: boolean) => void;
@@ -120,6 +123,30 @@ export const useChatStore = create<ChatState>()((set) => ({
 
       return { ...state };
     }),
+
+  unshiftMessage: (message: Message) =>
+    set((state) => {
+      state.currentMessages = [message, ...state.currentMessages];
+
+      return { ...state };
+    }),
+
+  updateTransientMessage: (message: Message, clientMessageId: string) =>
+    set((state) => {
+      const newCurrentMessages = state.currentMessages.filter((e) => e.clientMessageId !== clientMessageId);
+      state.currentMessages = [message, ...newCurrentMessages];
+
+      return { ...state };
+    }),
+
+  removeMessageFromCurrentMessages: (cb: (message: Message) => boolean) => {
+    set((state) => {
+      state.currentMessages = state.currentMessages.filter(cb);
+
+      return { ...state };
+    })
+  },
+
   fillCurrentMessages: (messages: Message[]) =>
     set((state) => {
       state.currentMessages = [...messages];
