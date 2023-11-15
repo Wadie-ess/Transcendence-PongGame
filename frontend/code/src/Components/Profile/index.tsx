@@ -33,6 +33,7 @@ import {
 import { blockUserCall } from "../Chat/Services/FriendsServices";
 import { AxiosError } from "axios";
 import { InvitationWaiting } from "../Layout/Assets/Invitationacceptance";
+import { classNames } from "../../Utils/helpers";
 type FRIENDSHIP = "none" | "friend" | "sent" | "recive" | "blocked" | undefined;
 export const Profile = () => {
   const user = useUserStore();
@@ -45,6 +46,7 @@ export const Profile = () => {
   const ChatState = useChatStore();
   const LayoutState = useModalStore();
   const socketStore = useSocketStore();
+  const [onlineStatus, setOnlineStatus] = useState<string>("offline");
 
   const inviteWaitingModalRef = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -75,6 +77,27 @@ export const Profile = () => {
 
     //eslint-disable-next-line
   }, [params, user]);
+
+  useEffect(() => {
+    if (params.id === "me" || params.id === user.id) {
+      return;
+    }
+    socketStore?.socket?.emit(
+      "status",
+      { userId: params.id },
+      (data: { status: string; inGame: boolean }) => {
+        console.log(data);
+        if (data.status === "online" && !data.inGame) {
+          setOnlineStatus("online");
+        } else if (data.status === "online" && data.inGame) {
+          setOnlineStatus("inGame");
+        } else {
+          setOnlineStatus("offline");
+        }
+      },
+    );
+  }, [params.id, socketStore?.socket, user.id]);
+
   console.log(status);
   const sendRequest = async () => {
     setDisabled("btn-disabled");
@@ -168,6 +191,23 @@ export const Profile = () => {
               ) : (
                 <Load />
               )}
+
+              {params.id !== "me" &&
+                params.id !== user.id &&
+                status === "friend" && (
+                  <span
+                    className={classNames(
+                      "px-2 py-1 font-light ml-2 text-xs border rounded-full",
+                      onlineStatus === "online"
+                        ? "text-green-500 border-green-500"
+                        : onlineStatus === "inGame"
+                        ? "text-yellow-500 border-yellow-500"
+                        : "text-red-500 border-red-500",
+                    )}
+                  >
+                    {onlineStatus}
+                  </span>
+                )}
             </div>
 
             <div className="flex flex-row  items-center  pt-2 text-xs">
@@ -218,6 +258,39 @@ export const Profile = () => {
                       <VscAdd />
                       Send request
                     </button>
+                    <div className="dropdown">
+                      <label tabIndex={0} className="">
+                        <summary className="list-none p-3 cursor-pointer ">
+                          <img src={More} alt="More" />
+                        </summary>
+                      </label>
+                      <ul
+                        tabIndex={0}
+                        className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute"
+                      >
+                        <span className="hover:bg-[#7940CF] hover:rounded">
+                          <li
+                            onClick={async () => {
+                              ChatState.setIsLoading(true);
+                              await blockUserCall(profile.id).then((res) => {
+                                ChatState.setIsLoading(false);
+                                if (
+                                  res?.status === 200 ||
+                                  res?.status === 201
+                                ) {
+                                  toast.success("User Blocked");
+                                  navigate("/chat");
+                                } else {
+                                  toast.error("Could Not Block User");
+                                }
+                              });
+                            }}
+                          >
+                            <div>Block</div>
+                          </li>
+                        </span>
+                      </ul>
+                    </div>
                   </div>
                 )}
               {params.id !== "me" &&

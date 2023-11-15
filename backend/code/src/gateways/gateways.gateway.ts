@@ -193,6 +193,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('status')
   async handleStatusEvent(@MessageBody() data: any) {
+    console.log('status event', data);
     const userId = data.userId;
     const status = this.server.sockets.adapter.rooms.get(`User:${userId}`)?.size
       ? 'online'

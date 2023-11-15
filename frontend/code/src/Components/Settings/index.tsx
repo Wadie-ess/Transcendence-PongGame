@@ -44,7 +44,6 @@ export const Setting = () => {
           Profile Settings
         </h1>
         <div className="flex flex-col bg-base-200 rounded-tl-2xl">
-          <h2 className="pt-6 px-6 text-neutral">change preview</h2>
           <div className="flex justify-center h-1/3 w-full pt-6 px-6">
             <div className="flex flex-col sm:flex-row w-full items-center gap-4 p-8 sm:justify-between justify-center overflow-hidden no-scrollbar max-h-[30vh] h-[25vh] bg-base-100 border-solid border-gray-400 border-2 rounded-3xl">
               <div className="flex justify-between items-center  gap-x-10 px-2 sm:px-0">
@@ -89,7 +88,6 @@ export const Setting = () => {
             </div>
           </div>
 
-          <h2 className="pt-6 px-6 text-neutral">change preview</h2>
           <div className="flex justify-center w-full pt-6 px-6">
             <div className="flex flex-col sm:flex-row justify-between w-full bg-base-100 border-solid border-gray-400 border-2 rounded-3xl">
               <div className="h-full p-8 grid md:grid-cols-2 grid-cols-1 w-full gap-4">
@@ -108,7 +106,6 @@ export const Setting = () => {
             </div>
           </div>
 
-          <h2 className="pt-6 px-6 text-neutral">change preview</h2>
           <div className="flex justify-center w-full pt-6 px-6">
             <div className="flex flex-col sm:flex-row justify-between w-full bg-base-100 border-solid border-gray-400 border-2 rounded-3xl">
               <div className="h-full p-8 grid grid-cols-1 w-full">
