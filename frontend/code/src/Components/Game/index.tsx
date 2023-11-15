@@ -4,19 +4,11 @@ import { BsFillArrowRightCircleFill, BsFillArrowLeftCircleFill} from "react-icon
 import { useGameState } from "./States/GameState";
 import { useSocketStore } from "../Chat/Services/SocketsServices";
 import { useNavigate } from "react-router-dom";
-import { matchRoutes, useLocation } from "react-router-dom";
 
 
 
-const routes = [
-  { path: "Game/:id" },
-];
 
-const useCurrentPath = () => {
-  const location = useLocation();
-  const [{ route }]: any = matchRoutes(routes, location);
-  return route.path;
-};
+
 const DURATION = 20;
 type Cords = {
   x:number;

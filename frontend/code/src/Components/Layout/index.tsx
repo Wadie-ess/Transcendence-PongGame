@@ -57,6 +57,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
     return () => {
       socketStore.socket.off("leave");
     }
+     // eslint-disable-next-line
   },[path])
   useLayoutEffect(() => {
     const log = async () => {
