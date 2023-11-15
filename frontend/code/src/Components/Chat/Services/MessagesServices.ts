@@ -26,11 +26,12 @@ export const getRoomMessagesCall = async (
 
 export const sendMessageCall = async (
     id: string,
-    content: string
+    content: string,
+    clientMessageId?: string
 ) => {
     try {
         const response = await api.post(`messages/room/${id}`,
-            { content: content }, { params: { id: id } }
+            { content, clientMessageId }, { params: { id: id } }
         );
         console.log("send messages :");
         console.log(response.status);

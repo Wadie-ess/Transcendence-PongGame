@@ -123,11 +123,10 @@ export const RoomChatPlaceHolder = () => {
         <div
           key={room.id}
           onClick={() => selectNewChat(room.id)}
-          className={`message-container flex   px-4 py-5  hover:bg-[#272932] items-center  ${
-            ChatRoomsState.selectedChatID === room.id
+          className={`message-container flex   px-4 py-5  hover:bg-[#272932] items-center  ${ChatRoomsState.selectedChatID === room.id
               ? "bg-[#272932]"
               : "bg-[#1A1C26]"
-          }
+            }
               
                 `}
         >
@@ -777,8 +776,8 @@ export const AddUsersModal = () => {
                 (friend) =>
                   !currentRoomMembers.some((member) => member.id === friend.id)
               ).length < 1 && (
-                <NullPlaceHolder message="No Friends To Add Yet" />
-              )}
+                  <NullPlaceHolder message="No Friends To Add Yet" />
+                )}
               {currentFriends
                 .filter(
                   (friend) =>

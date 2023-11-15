@@ -59,7 +59,7 @@ export const Chat = () => {
             showUserPreview === true
               ? "w-4/5 lg:w-4/12 max-w-lg "
               : "w-4/5 lg:w-4/12  max-w-lg  ",
-            "absolute lg:relative h-full min-w-[360px] lg:border-r-2 border-black",
+            "absolute lg:relative h-full min-w-[360px] lg:border-r-2 border-base-200",
             "z-20 transition-transform transform data-[mobile-show=true]:translate-x-0 data-[mobile-show=false]:-translate-x-[1000px] lg:!transform-none lg:!transition-none duration-300"
           )}
           data-mobile-show={showChatRooms}

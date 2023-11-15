@@ -99,7 +99,7 @@ export class MessagesService {
       },
     });
 
-    const responseMessage: MessageFormatDto = new MessageFormatDto(messageData);
+    const responseMessage: MessageFormatDto = new MessageFormatDto(messageData, messageDto.clientMessageId);
     this.eventEmitter.emit('sendNotification', {
       actorId: userId,
       type: $Enums.NotifType.message,
