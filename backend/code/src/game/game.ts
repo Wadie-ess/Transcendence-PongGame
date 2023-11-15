@@ -61,8 +61,8 @@ export class Game {
   ) {
     const scale = this.h / player2.h;
     if (
-      p2PaddleY * scale - this.paddleHeight / 6 >= 0 &&
-      p2PaddleY * scale + this.paddleHeight <= this.h
+      (p2PaddleY * scale) - (this.paddleHeight / 6) >= 0 &&
+     ( p2PaddleY * scale) + this.paddleHeight <= this.h
     )
       this.p2PaddleY = p2PaddleY * scale;
 
@@ -73,36 +73,36 @@ export class Game {
 
     // let center = this.paddleHeight * scale_y;
 
-    if (p1PaddleY - player1.h / 6 / 6 < 0) {
+    if (p1PaddleY - ((player1.h / 6) / 6) < 0) {
       p1PaddleY = 0;
-    } else if (p1PaddleY + player1.h / 6 > player1.h) {
-      p1PaddleY = player1.h - player1.h / 6;
+    } else if (p1PaddleY + (player1.h / 6) > player1.h) {
+      p1PaddleY = player1.h - (player1.h / 6);
     }
     return { p1PaddleY: p1PaddleY, p2PaddleY: newPos, side: side };
   }
   private up1() {
-    this.eventp1Paddle -= this.p1Res.h / 6 / 6;
-    if (this.eventp1Paddle - this.p1Res.h / 6 / 6 < 0) {
+    this.eventp1Paddle -=( (this.p1Res.h / 6) / 6);
+    if (this.eventp1Paddle - ((this.p1Res.h / 6) / 6) < 0) {
       this.eventp1Paddle = 0;
     }
   }
 
   private down1() {
-    this.eventp1Paddle += this.p1Res.h / 6 / 6;
+    this.eventp1Paddle += ((this.p1Res.h / 6 )/ 6);
     if (this.eventp1Paddle + this.p1Res.h / 6 > this.p1Res.h) {
-      this.eventp1Paddle = this.p1Res.h - this.p1Res.h / 6;
+      this.eventp1Paddle = this.p1Res.h - (this.p1Res.h / 6);
     }
   }
   private up2() {
-    this.eventp2Paddle -= this.p2Res.h / 6 / 6;
-    if (this.eventp2Paddle - this.p2Res.h / 6 / 6 < 0) {
+    this.eventp2Paddle -= ((this.p2Res.h / 6) / 6);
+    if (this.eventp2Paddle - ((this.p2Res.h / 6) / 6) < 0) {
       this.eventp2Paddle = 0;
     }
   }
 
   private down2() {
-    this.eventp2Paddle += this.p2Res.h / 6 / 6;
-    if (this.eventp2Paddle - this.p2Res.h / 6 / 6 < 0) {
+    this.eventp2Paddle += (this.p2Res.h / 6) / 6;
+    if (this.eventp2Paddle - (this.p2Res.h / 6) / 6 < 0) {
       this.eventp2Paddle = 0;
     }
   }
@@ -111,11 +111,11 @@ export class Game {
     if (this.closeGame) return;
     console.log('loop');
 
-    if (
-      this.x + this.dx + this.ballSize / 2 >= this.w ||
-      this.x + this.dx - this.ballSize / 2 <= 0
-    )
-      this.dx *= -1;
+    // if (
+    //   this.x + this.dx + this.ballSize / 2 >= this.w ||
+    //   this.x + this.dx - this.ballSize / 2 <= 0
+    // )
+    //   this.dx *= -1;
     if (
       this.y + this.dy + this.ballSize / 2 >= this.h ||
       this.y + this.dy - this.ballSize / 2 <= 0
@@ -132,17 +132,17 @@ export class Game {
     }
 
     if (
-      this.y > this.p1PaddleY &&
-      this.y < this.p1PaddleY + this.paddleHeight &&
-      this.x >= this.w - (this.paddleWidth + this.gap + this.ballSize / 2)
-    ) {
+      this.y > this.p2PaddleY &&
+      this.y < this.p2PaddleY + this.paddleHeight &&
+      this.x >= this.w - (this.gap + (this.ballSize / 2) + this.paddleWidth)
+    ) {git
       this.dx *= -1;
       this.dy = Math.random() * (4 - 1.5) + 1.5;
     }
     if (
       (this.y < this.p2PaddleY ||
         this.y > this.p2PaddleY + this.paddleHeight) &&
-      this.x + this.ballSize / 2 >= this.w - (this.paddleWidth + this.gap)
+      this.x + this.ballSize / 2 >= this.w 
     ) {
       console.log(`${this.p1PaddleY} ${this.x} ${this.y} ${this.ballSize}`);
       this.p1Score += 1;
@@ -153,7 +153,7 @@ export class Game {
     if (
       (this.y < this.p1PaddleY ||
         this.y > this.p1PaddleY + this.paddleHeight) &&
-      this.x - this.ballSize / 2 <= this.paddleWidth + this.gap
+      this.x - this.ballSize / 2 <= 0
     ) {
       console.log(`${this.p1PaddleY} ${this.x} ${this.y} ${this.ballSize}`);
       this.p2Score += 1;
@@ -326,6 +326,9 @@ export class Game {
   private emitGameEnd(message: string) {
     console.log('game end');
     this.closeGame = true;
+    this.p1socket.removeAllListeners()
+    this.p2socket.removeAllListeners()
+
     if (message === 'p1Leave') {
       this.eventEmitter.emit('game.end', {
         resign: 1,

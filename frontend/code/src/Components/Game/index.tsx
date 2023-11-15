@@ -72,7 +72,7 @@ export const Game = () => {
         })
         socketStore.socket.on("screen Error", () =>{
           console.log("you lose")
-          navigate("/home", { replace: true })
+          navigate("/home")
         })
         socketStore.socket.on("players", (players:any) => {
           gameState.setP1(players[0]);
@@ -92,7 +92,7 @@ export const Game = () => {
     /* eslint-disable */
     useEffect(() => {
       if (!gameState.p1)
-        navigate("/home", { replace: true })
+        navigate("/home")
       const divh = document.getElementById('Game')?.offsetHeight
       const divw = document.getElementById('Game')?.offsetWidth
       socketStore.socket.emit("screen",{h:divh,w:divw})

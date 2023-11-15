@@ -336,12 +336,13 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
 
   @OnEvent('game.end')
   async handleGameEndEvent(data: any) {
+    this.games_map.delete(data.gameid);
     console.log('game ended');
     console.log(data);
+    const sockets = await this.server.in(data.gameid).fetchSockets();
     this.server.to(data.gameid).emit('game.end', data);
     console.log(data);
-    const sockets = await this.server.in(data.gameid).fetchSockets();
-
+    
     for await (const socket of sockets) {
       socket.data.user.inGame = false;
     }
@@ -380,7 +381,6 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
       });
     }
 
-    this.games_map.delete(data.gameid);
   }
 
   @SubscribeMessage('joinRoom')
