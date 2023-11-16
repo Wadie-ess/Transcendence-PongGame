@@ -23,20 +23,4 @@ describe('AppController (e2e)', () => {
   });
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //kslsl

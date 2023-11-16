@@ -20,7 +20,7 @@ import { roomsData } from './types/room-types';
 
 @Injectable()
 export class RoomsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async createRoom(roomData: CreateRoomDto, roomOwnerId: string) {
     if (roomData.type == 'protected' && !roomData.password) {
@@ -612,8 +612,14 @@ export class RoomsService {
       skip: offset,
       take: limit,
       where: {
-        ...(joined && { members: { some: { userId: userId } }, NOT: { type: 'dm' } }),
-        ...(!joined && { NOT: { members: { some: { userId } } }, OR: [{ type: 'public' }, { type: 'protected' }] }),
+        ...(joined && {
+          members: { some: { userId: userId } },
+          NOT: { type: 'dm' },
+        }),
+        ...(!joined && {
+          NOT: { members: { some: { userId } } },
+          OR: [{ type: 'public' }, { type: 'protected' }],
+        }),
       },
       select: {
         id: true,
@@ -662,10 +668,10 @@ export class RoomsService {
         });
         const blocked = last_message
           ? await this.prisma.blockedUsers.findFirst({
-            where: {
-              id: [userId, last_message.authorId].sort().join('-'),
-            },
-          })
+              where: {
+                id: [userId, last_message.authorId].sort().join('-'),
+              },
+            })
           : null;
 
         const is_owner = room.ownerId === userId;

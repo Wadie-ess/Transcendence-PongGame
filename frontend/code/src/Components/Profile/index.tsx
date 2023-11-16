@@ -3,7 +3,7 @@ import { Pong } from "./assets/Pong";
 import { History } from "./History";
 import Hero from "./assets/Hero.gif";
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate, useParams, } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Load } from "../Loading/";
 import Newbie from "../Badges/Newbie.svg";
 import Master from "../Badges/Master.svg";
@@ -74,7 +74,7 @@ export const Profile = () => {
     if (params.id !== user.id || params.id !== "me") fetchUser();
     else setProfile(user);
 
-    //eslint-disable-next-line
+    // eslint-disable-next-line
   }, [params, user]);
 
   useEffect(() => {
@@ -92,7 +92,7 @@ export const Profile = () => {
         } else {
           setOnlineStatus("offline");
         }
-      }
+      },
     );
   }, [params.id, socketStore?.socket, user.id]);
 
@@ -108,7 +108,6 @@ export const Profile = () => {
       success: `request sent to ${profile.name.first}`,
       error: "could not send friend request",
     });
-    // setDisbaled("")
   };
   const cancelRequest = async () => {
     setDisabled("btn-disabled");
@@ -196,8 +195,8 @@ export const Profile = () => {
                       onlineStatus === "online"
                         ? "text-green-500 border-green-500"
                         : onlineStatus === "inGame"
-                        ? "text-yellow-500 border-yellow-500"
-                        : "text-red-500 border-red-500"
+                          ? "text-yellow-500 border-yellow-500"
+                          : "text-red-500 border-red-500",
                     )}
                   >
                     {onlineStatus}
@@ -211,37 +210,6 @@ export const Profile = () => {
             </div>
 
             <div className="flex flex-col gap-y-0 items-center h-full sm:flex-row sm:gap-x-4 justify-center sm:justify-start sm:items-end pb-4 sm:w-[25vw]">
-              {/* for debug */}
-              {/* <button
-                className={`btn btn-primary text-neutral ${disabled}`}
-                onClick={async () => {
-                  ChatState.setIsLoading(true);
-                  await createNewRoomCall("", "dm", undefined, params.id).then(
-                    (res) => {
-                      ChatState.setIsLoading(false);
-                      if (res?.status === 200 || res?.status === 201) {
-                        ChatState.changeChatType(ChatType.Chat);
-                        ChatState.selectNewChatID(res?.data?.id);
-                        ChatState.setCurrentDmUser({
-                          secondUserId: profile.id,
-                          id: profile.id,
-                          name: `${profile.name.first} `,
-                          avatar: profile?.picture,
-                          bio: profile?.bio,
-                        });
-                        navigate(`/Dm/${res?.data.id}`);
-                      } else {
-                        toast.error(
-                          "You Can't Send Message To this User For Now, try Again later"
-                        );
-                      }
-                    }
-                  );
-                }}
-              >
-                <VscComment />
-                Message
-              </button> */}
               {params.id !== "me" &&
                 params.id !== user.id &&
                 status === "none" && (
@@ -333,7 +301,7 @@ export const Profile = () => {
                           "",
                           "dm",
                           undefined,
-                          params.id
+                          params.id,
                         ).then((res) => {
                           ChatState.setIsLoading(false);
                           if (res?.status === 200 || res?.status === 201) {
@@ -349,7 +317,7 @@ export const Profile = () => {
                             navigate(`/Dm/${res?.data.id}`);
                           } else {
                             toast.error(
-                              "You Can't Send Message To this User For Now, try Again later"
+                              "You Can't Send Message To this User For Now, try Again later",
                             );
                           }
                         });
@@ -388,7 +356,7 @@ export const Profile = () => {
                                 }
                                 user.setGameWaitingId(data.gameId);
                                 inviteWaitingModalRef.current?.showModal();
-                              }
+                              },
                             );
                           }}
                         >
@@ -414,7 +382,7 @@ export const Profile = () => {
                                 }
                                 user.setGameWaitingId(data.gameId);
                                 inviteWaitingModalRef.current?.showModal();
-                              }
+                              },
                             );
                           }}
                         >

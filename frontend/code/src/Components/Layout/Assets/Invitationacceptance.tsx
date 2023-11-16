@@ -31,7 +31,7 @@ export const InvitationWaiting = forwardRef<HTMLDialogElement, any>(
         socketStore.socket?.off("game.declined");
         socketStore.socket?.off("game.accepted");
       };
-	//eslint-disable-next-line
+      // eslint-disable-next-line
     }, [userStore.gameId, socketStore.socket, ref]);
 
     return (

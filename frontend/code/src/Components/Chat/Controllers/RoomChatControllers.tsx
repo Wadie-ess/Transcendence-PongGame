@@ -120,7 +120,7 @@ export const useChatStore = create<ChatState>()((set) => ({
   setMessageAsFailed: (id: string) =>
     set((state) => {
       const messageIndex = state.currentMessages.findIndex(
-        (message) => message.id === id
+        (message) => message.id === id,
       );
       if (messageIndex !== -1) {
         state.currentMessages[messageIndex].isFailed = true;
@@ -144,7 +144,9 @@ export const useChatStore = create<ChatState>()((set) => ({
 
   updateTransientMessage: (message: Message, clientMessageId: string) =>
     set((state) => {
-      const newCurrentMessages = state.currentMessages.filter((e) => e.clientMessageId !== clientMessageId);
+      const newCurrentMessages = state.currentMessages.filter(
+        (e) => e.clientMessageId !== clientMessageId,
+      );
       state.currentMessages = [message, ...newCurrentMessages];
 
       return { ...state };
@@ -155,7 +157,7 @@ export const useChatStore = create<ChatState>()((set) => ({
       state.currentMessages = state.currentMessages.filter(cb);
 
       return { ...state };
-    })
+    });
   },
 
   fillCurrentMessages: (messages: Message[]) =>
@@ -172,12 +174,12 @@ export const useChatStore = create<ChatState>()((set) => ({
       }
 
       state.recentRooms = [...chatRooms];
-      if (state.recentRooms.length > 0)
+      if (state.recentRooms.length > 0) {
         state.selectedChatID = state.recentRooms[0].id;
-      else state.selectedChatID = "1";
+      } else {
+        state.selectedChatID = "1";
+      }
       state.recentRoomsOnchange = !state.recentRoomsOnchange;
-      // state.selectedChatType = ChatType.Chat;
-      // state.selectNewChatID(state.recentDms[0].id ?? "1");
       state.selectNewChatID("1");
 
       return { ...state };
@@ -222,7 +224,6 @@ export const useChatStore = create<ChatState>()((set) => ({
         isOwner: true,
         isAdmin: true,
       };
-      // state.selectedChatID = id;
 
       chatRooms.push(newRoom);
       state.recentRooms = [...chatRooms];

@@ -154,14 +154,11 @@ export class UsersService {
     }
 
     if (dataDto.action === TwoFactorAction.ENABLE && !user.tfaEnabled) {
-      console.log(dataDto);
       // generate a top with the same secret
-      console.log(authenticator.generate(dataDto.secret));
       const isValid = authenticator.verify({
         token: dataDto.otp,
         secret: dataDto.secret,
       });
-      console.log(authenticator.keyuri('test', 'test', dataDto.secret));
 
       if (!isValid) {
         throw new HttpException('Invalid OTP', 400);

@@ -48,7 +48,7 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
         user.userId,
         tokens.refresh_token,
       );
-      console.log(tokens);
+
       res.cookie('X-Access-Token', tokens.access_token, { httpOnly: true });
       res.cookie('X-Refresh-Token', tokens.refresh_token, {
         httpOnly: true,

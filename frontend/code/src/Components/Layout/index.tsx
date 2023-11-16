@@ -8,7 +8,13 @@ import { Message } from "./Assets/Message";
 import { Profile } from "./Assets/Profile";
 import { Settings } from "./Assets/Settings";
 import { Out } from "./Assets/Out";
-import { FC, PropsWithChildren, useEffect, useLayoutEffect, useRef } from "react";
+import {
+  FC,
+  PropsWithChildren,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import { Outlet } from "react-router";
 import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
@@ -55,13 +61,13 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   useEffect(() => {
     if (gameStore.end === false && path !== "Game/:id") {
       socketStore.socket?.emit("leave");
-      gameStore.setEnd(true)
+      gameStore.setEnd(true);
     }
     return () => {
       socketStore.socket?.off("leave");
-    }
+    };
     // eslint-disable-next-line
-  }, [path])
+  }, [path]);
   useLayoutEffect(() => {
     const log = async () => {
       try {
@@ -87,7 +93,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
     return () => {
       socketStore.socket?.off("invitedToGame");
     };
-    //eslint-disable-next-line
+    // eslint-disable-next-line
   }, []);
 
   return (
@@ -97,7 +103,9 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
       ) : (
         <div
           data-theme="mytheme"
-          className={`h-screen max-h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
+          className={`h-screen max-h-screen ${
+            !user.profileComplet ? "blur-lg" : ""
+          }`}
         >
           <Modal />
           <div className="flex flex-row w-full h-16 min-h-16 bg-base-200">

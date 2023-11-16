@@ -25,7 +25,14 @@ const payload_objects = [
   "phone",
   "discreption",
 ];
-const data_names = ["First name", "Last name", "Email", "Username", "Phone", "Bio"];
+const data_names = [
+  "First name",
+  "Last name",
+  "Email",
+  "Username",
+  "Phone",
+  "Bio",
+];
 export const UploadAvatar = () => {
   const userStore = useUserStore();
   const navigate = useNavigate();
@@ -42,7 +49,7 @@ export const UploadAvatar = () => {
     } catch (e) {}
   };
   const handleError = (errors: any) => {
-    //eslint-disable-next-line
+    // eslint-disable-next-line
     payload_objects.map((item: any, index: number) => {
       if (errors[`${item}`]?.type === "required")
         toast.error(`${data_names[index]} ${ERROR_MESSAGES[0]} `);

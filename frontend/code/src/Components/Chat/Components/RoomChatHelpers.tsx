@@ -81,7 +81,7 @@ export const RoomChatPlaceHolder = () => {
               membersCount: room.countMembers,
               last_message: room.last_message,
             });
-          }
+          },
         );
         setIsLoading(false);
         if (res.data.length > 0) {
@@ -222,7 +222,7 @@ export const CreateNewRoomModal = () => {
     window.history.pushState(
       "",
       document.title,
-      window.location.pathname + window.location.search
+      window.location.pathname + window.location.search,
     );
     modalState.setShowCreateChatRoomModal(false);
   };
@@ -245,7 +245,7 @@ export const CreateNewRoomModal = () => {
       createNewRoomCall(
         RoomName,
         RoomType[selectedOption],
-        selectedOption === RoomType.protected ? RoomPassword : undefined
+        selectedOption === RoomType.protected ? RoomPassword : undefined,
       ).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
           toast.error("something went wrong, try again");
@@ -462,7 +462,7 @@ export const BlockedUsersModal = () => {
     window.history.pushState(
       "",
       document.title,
-      window.location.pathname + window.location.search
+      window.location.pathname + window.location.search,
     );
     LayoutState.setShowBlockedListModal(false);
   };
@@ -496,7 +496,7 @@ export const BlockedUsersModal = () => {
                   // to inject it with the real images later
                   avatar: friend.avatar,
                 } as RoomMember);
-              }
+              },
             );
 
             setUsers(friends);
@@ -572,7 +572,7 @@ export const FriendStatusTile = (props: { user: RoomMember }) => {
         } else {
           setOnlineStatus("offline");
         }
-      }
+      },
     );
   }, [user.id, socketStore?.socket]);
   return (
@@ -599,8 +599,8 @@ export const FriendStatusTile = (props: { user: RoomMember }) => {
               onlineStatus === "online"
                 ? "text-green-500 border-green-500"
                 : onlineStatus === "inGame"
-                ? "text-yellow-500 border-yellow-500"
-                : "text-red-500 border-red-500"
+                  ? "text-yellow-500 border-yellow-500"
+                  : "text-red-500 border-red-500",
             )}
           >
             {onlineStatus}
@@ -621,7 +621,7 @@ export const FriendsListModal = () => {
     window.history.pushState(
       "",
       document.title,
-      window.location.pathname + window.location.search
+      window.location.pathname + window.location.search,
     );
     LayoutState.setShowFriendsListModal(false);
   };
@@ -655,7 +655,7 @@ export const FriendsListModal = () => {
                   // to inject it with the real images later
                   avatar: friend.avatar,
                 } as RoomMember);
-              }
+              },
             );
 
             setUsers(friends);
@@ -726,7 +726,7 @@ export const AddUsersModal = () => {
     window.history.pushState(
       "",
       document.title,
-      window.location.pathname + window.location.search
+      window.location.pathname + window.location.search,
     );
     LayoutState.setShowAddUsersModal(false);
   };
@@ -741,7 +741,7 @@ export const AddUsersModal = () => {
         await getRoomMembersCall(
           ChatState.selectedChatID as string,
           0,
-          20
+          20,
         ).then((res) => {
           setIsLoading(false);
           if (res?.status === 200 || res?.status === 201) {
@@ -774,7 +774,7 @@ export const AddUsersModal = () => {
                   // to inject it with the real images later
                   avatar: friend.avatar,
                 } as RoomMember);
-              }
+              },
             );
 
             setUsers(friends);
@@ -807,7 +807,7 @@ export const AddUsersModal = () => {
             <div className="max-h-[300px] overflow-y-auto no-scrollbar">
               {currentFriends.filter(
                 (friend) =>
-                  !currentRoomMembers.some((member) => member.id === friend.id)
+                  !currentRoomMembers.some((member) => member.id === friend.id),
               ).length < 1 && (
                 <NullPlaceHolder message="No Friends To Add Yet" />
               )}
@@ -815,8 +815,8 @@ export const AddUsersModal = () => {
                 .filter(
                   (friend) =>
                     !currentRoomMembers.some(
-                      (member) => member.id === friend.id
-                    )
+                      (member) => member.id === friend.id,
+                    ),
                 )
                 .map((user) => (
                   <FriendTile key={user.id} user={user} />
@@ -911,7 +911,7 @@ export const RoomSettingsModal = () => {
     window.history.pushState(
       "",
       document.title,
-      window.location.pathname + window.location.search
+      window.location.pathname + window.location.search,
     );
     LayoutState.setShowSettingsModal(false);
   };
@@ -1068,7 +1068,7 @@ export const RoomSettingsModal = () => {
                               takeActionCall(
                                 selectedChatID as string,
                                 user.id,
-                                user.isBaned ? "unban" : "ban"
+                                user.isBaned ? "unban" : "ban",
                               ).then((res) => {
                                 setTakeAction(false);
                                 if (
@@ -1094,7 +1094,7 @@ export const RoomSettingsModal = () => {
                                 await takeActionCall(
                                   selectedChatID as string,
                                   user.id,
-                                  "mute"
+                                  "mute",
                                 ).then((res) => {
                                   setTakeAction(false);
                                   if (
@@ -1102,7 +1102,7 @@ export const RoomSettingsModal = () => {
                                     res?.status === 201
                                   ) {
                                     toast.success(
-                                      "User Muted For a 5 minutes Successfully"
+                                      "User Muted For a 5 minutes Successfully",
                                     );
                                   }
 
@@ -1120,7 +1120,7 @@ export const RoomSettingsModal = () => {
                               await takeActionCall(
                                 selectedChatID as string,
                                 user.id,
-                                "kick"
+                                "kick",
                               ).then((res) => {
                                 setTakeAction(false);
                                 if (
@@ -1146,7 +1146,7 @@ export const RoomSettingsModal = () => {
                               await takeActionCall(
                                 selectedChatID as string,
                                 user.id,
-                                "setAdmin"
+                                "setAdmin",
                               ).then((res) => {
                                 setTakeAction(false);
                                 if (
@@ -1154,7 +1154,7 @@ export const RoomSettingsModal = () => {
                                   res?.status === 201
                                 ) {
                                   toast.success(
-                                    "User have been set as Admin Successfully"
+                                    "User have been set as Admin Successfully",
                                   );
                                 }
                               });
@@ -1221,7 +1221,7 @@ export const RoomSettingsModal = () => {
                         currentRoom?.id!,
                         selectedOption === RoomType.protected
                           ? RoomPassword
-                          : undefined
+                          : undefined,
                       ).then((res) => {
                         if (res?.status !== 200 && res?.status !== 201) {
                           resetModalState();
@@ -1269,7 +1269,7 @@ export const ExploreRoomsModal = () => {
     window.history.pushState(
       "",
       document.title,
-      window.location.pathname + window.location.search
+      window.location.pathname + window.location.search,
     );
     modalState.setShowExploreModal(false);
   };
@@ -1297,19 +1297,16 @@ export const ExploreRoomsModal = () => {
                 name: string;
                 type: string;
               }) => {
-                //eslint-disable-next-line
-                {
-                  rooms.push({
-                    id: room.id,
-                    name: room.name,
-                    type: RoomType[room.type as keyof typeof RoomType],
-                    messages: [],
-                    usersId: [],
-                    isOwner: room.is_owner,
-                    isAdmin: room.is_admin,
-                  });
-                }
-              }
+                rooms.push({
+                  id: room.id,
+                  name: room.name,
+                  type: RoomType[room.type as keyof typeof RoomType],
+                  messages: [],
+                  usersId: [],
+                  isOwner: room.is_owner,
+                  isAdmin: room.is_admin,
+                });
+              },
             );
             setIsLoading(false);
             if (res.data.length > 0) {
@@ -1349,8 +1346,8 @@ export const ExploreRoomsModal = () => {
                   {ChatRooms.filter(
                     (room) =>
                       recentRooms.recentRooms.find(
-                        (recentRoom) => recentRoom.id === room.id
-                      ) === undefined
+                        (recentRoom) => recentRoom.id === room.id,
+                      ) === undefined,
                   ).map((room) => (
                     <div
                       key={room.id}
@@ -1426,7 +1423,7 @@ export const ExploreRoomsModal = () => {
                   SelectedRoomID,
                   selectedOption === RoomType.protected
                     ? RoomPassword
-                    : undefined
+                    : undefined,
                 ).then((res) => {
                   recentRooms.setIsLoading(false);
                   if (res?.status !== 200 && res?.status !== 201) {
@@ -1437,7 +1434,7 @@ export const ExploreRoomsModal = () => {
                     recentRooms.selectNewChatID("1");
                     recentRooms.changeChatType(ChatType.Room);
                     recentRooms.setOnRoomsChange(
-                      !recentRooms.recentRoomsOnchange
+                      !recentRooms.recentRoomsOnchange,
                     );
 
                     resetModalState();

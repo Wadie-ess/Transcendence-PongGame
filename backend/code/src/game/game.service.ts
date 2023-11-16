@@ -38,7 +38,6 @@ export class GameService {
         this.classicwaitingPlayers.push({ socket: client, userData: userData });
       else if (gameMode === 'extra')
         this.extraWaitingPlayers.push({ socket: client, userData: userData });
-      console.log('client subscribed to the queue');
     } else if (data.mode === 'unregister') {
       const client = data.client;
       const gameMode = data.gameMode;
@@ -57,25 +56,13 @@ export class GameService {
   //NOTE: add game modes here
   private launchGame() {
     setInterval(() => {
-      // console.log('waitingPlayers', this.classicwaitingPlayers.length);
-      console.log('waitingPlayers classic', this.classicwaitingPlayers.length);
-      console.log('waitingPlayers extra', this.extraWaitingPlayers.length);
-
       if (this.classicwaitingPlayers.length >= 2) {
-        console.log('Game launched!');
         const two_players = this.classicwaitingPlayers.splice(0, 2);
         this.eventEmitter.emit('game.launched', two_players, 'classic');
-        console.log(two_players);
-        // const user = await this.getUser(two_players[0].data.user.sub)
-        // console.log(user)
       }
       if (this.extraWaitingPlayers.length >= 2) {
-        console.log('Game launched!');
         const two_players = this.extraWaitingPlayers.splice(0, 2);
         this.eventEmitter.emit('game.launched', two_players, 'extra');
-        console.log(two_players);
-        // const user = await this.getUser(two_players[0].data.user.sub)
-        // console.log(user)
       }
     }, 5027);
   }

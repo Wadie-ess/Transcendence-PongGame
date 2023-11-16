@@ -38,7 +38,6 @@ export class FriendsService {
       },
       update: {},
     });
-    // this.evenEmitter.emit('addFriendNotif', notifData);  TODO: emit an event with the correct data
     this.evenEmitter.emit('sendNotification', {
       receiverId: friendId,
       actorId: userId,

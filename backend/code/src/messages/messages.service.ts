@@ -9,11 +9,13 @@ export class MessagesService {
   constructor(
     private prisma: PrismaService,
     private eventEmitter: EventEmitter2,
-  ) { }
+  ) {}
 
   async sendMessages(userId: string, channelId: string, messageDto: any) {
     if (messageDto.content.length > 1000) {
       throw new HttpException('Message is too long', HttpStatus.BAD_REQUEST);
+    } else if (messageDto.content === '[REDACTED]') {
+      throw new HttpException('Message is not allowed', HttpStatus.BAD_REQUEST);
     }
 
     const room = await this.prisma.room.findUnique({
@@ -64,7 +66,12 @@ export class MessagesService {
     if (roomMember.is_mueted) {
       const now = new Date();
       if (now < roomMember.mute_expires) {
-        throw new HttpException(`You are muted for ${Math.round((roomMember.mute_expires.valueOf() - now.valueOf()) / 1000)} seconds`, HttpStatus.FORBIDDEN);
+        throw new HttpException(
+          `You are muted for ${Math.round(
+            (roomMember.mute_expires.valueOf() - now.valueOf()) / 1000,
+          )} seconds`,
+          HttpStatus.FORBIDDEN,
+        );
       }
       await this.prisma.roomMember.update({
         where: {
@@ -100,27 +107,43 @@ export class MessagesService {
 
     const roomMembersIds = await this.prisma.roomMember.findMany({
       where: { roomId: channelId, NOT: { userId } },
-      select: { userId: true }
+      select: { userId: true },
     });
     const blockedUsersIds = await this.prisma.blockedUsers.findMany({
       where: { OR: [{ blocked_by_id: userId }, { blocked_id: userId }] },
-      select: { blocked_by_id: true, blocked_id: true }
+      select: { blocked_by_id: true, blocked_id: true },
     });
 
-    const blockedRoomMembersIds = roomMembersIds.filter((member) => {
-      return blockedUsersIds.some((blocked) => {
-        return blocked.blocked_by_id === member.userId || blocked.blocked_id === member.userId;
-      });
-    }).map((member) => member.userId);
+    const blockedRoomMembersIds = roomMembersIds
+      .filter((member) => {
+        return blockedUsersIds.some((blocked) => {
+          return (
+            blocked.blocked_by_id === member.userId ||
+            blocked.blocked_id === member.userId
+          );
+        });
+      })
+      .map((member) => member.userId);
 
-    const responseMessage: MessageFormatDto = new MessageFormatDto(messageData, messageDto.clientMessageId);
-    this.eventEmitter.emit('sendNotification', {
-      actorId: userId,
-      type: $Enums.NotifType.message,
-      entityId: messageData.id,
-      entity_type: 'message',
-    }, blockedRoomMembersIds.length ? blockedRoomMembersIds : undefined);
-    this.eventEmitter.emit('sendMessages', responseMessage, blockedRoomMembersIds.length ? blockedRoomMembersIds : undefined);
+    const responseMessage: MessageFormatDto = new MessageFormatDto(
+      messageData,
+      messageDto.clientMessageId,
+    );
+    this.eventEmitter.emit(
+      'sendNotification',
+      {
+        actorId: userId,
+        type: $Enums.NotifType.message,
+        entityId: messageData.id,
+        entity_type: 'message',
+      },
+      blockedRoomMembersIds.length ? blockedRoomMembersIds : undefined,
+    );
+    this.eventEmitter.emit(
+      'sendMessages',
+      responseMessage,
+      blockedRoomMembersIds.length ? blockedRoomMembersIds : undefined,
+    );
     return responseMessage;
   }
 
@@ -170,7 +193,7 @@ export class MessagesService {
       take: limit,
     });
 
-    // get rppm type of room
+    // get room type of room
     const room = await this.prisma.room.findUnique({
       where: {
         id: channelId,

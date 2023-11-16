@@ -21,13 +21,13 @@ export const Alert = () => {
       addFriend: "sent you a friend requst",
       acceptFriend: "accepted your friend request",
     }),
-    []
+    [],
   );
 
   const unread = useMemo(() => {
     if (!user?.notifications) return 0;
     return user.notifications.filter(
-      (notification: any) => !notification.is_read
+      (notification: any) => !notification.is_read,
     ).length;
   }, [user?.notifications]);
 
@@ -39,46 +39,46 @@ export const Alert = () => {
       ) {
         if (notification.entity.authorId !== user.id) {
           toast.custom(
-            (t) => (
-              // eslint-disable-next-line
-              (t.duration = 450),
+            (t) =>
               (
-                <div
-                  className={`${
-                    t.visible ? "animate-enter" : "animate-leave"
-                  } max-w-sm w-full transition-opacity ease-in  bg-purple-500 rounded-xl  flex flex-col  relative top-[6vh] p-4`}
-                >
-                  <div className="flex flex-row justify-between  ">
-                    <div className="  flex flex-row ">
-                      <img
-                        alt="avatar"
-                        className="w-10 h-10 rounded-full"
-                        src={notification.entity.avatar.medium}
-                      />
-                      <div className=" pl-3 flex flex-col items-baseline">
-                        <p className=" text-white  font-poppins text-base font-semibold leading-5 capitalize">
-                          message Received
-                        </p>
-                        <p className="text-[#2F3F53] font-poppins text-base font-normal text-center max-w-[150px] truncate">
-                          {notification.entity.content}
-                        </p>
+                // eslint-disable-next-line
+                (t.duration = 450),
+                (
+                  <div
+                    className={`${
+                      t.visible ? "animate-enter" : "animate-leave"
+                    } max-w-sm w-full transition-opacity ease-in  bg-purple-500 rounded-xl  flex flex-col  relative top-[6vh] p-4`}
+                  >
+                    <div className="flex flex-row justify-between  ">
+                      <div className="  flex flex-row ">
+                        <img
+                          alt="avatar"
+                          className="w-10 h-10 rounded-full"
+                          src={notification.entity.avatar.medium}
+                        />
+                        <div className=" pl-3 flex flex-col items-baseline">
+                          <p className=" text-white  font-poppins text-base font-semibold leading-5 capitalize">
+                            message Received
+                          </p>
+                          <p className="text-[#2F3F53] font-poppins text-base font-normal text-center max-w-[150px] truncate">
+                            {notification.entity.content}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <img
+                          alt="avatar"
+                          className=" pb-1 w-6 h-6"
+                          src={closeWhite}
+                        />
                       </div>
                     </div>
-
-                    <div>
-                      <img
-                        alt="avatar"
-                        className=" pb-1 w-6 h-6"
-                        src={closeWhite}
-                      />
-                    </div>
                   </div>
-                </div>
-              )
-            )
+                )
+              ),
           );
         }
-        // }
 
         return;
       }
@@ -88,7 +88,7 @@ export const Alert = () => {
     return () => {
       socketStore.socket?.off("notification");
     };
-    //eslint-disable-next-line
+    // eslint-disable-next-line
   }, [socketStore]);
 
   useEffect(() => {
@@ -160,14 +160,14 @@ export const Alert = () => {
                     key={notification.id}
                     className={classNames(
                       "flex flex-row justify-start text-xs gap-3 p-4 hover:cursor-pointer",
-                      notification.is_read && "opacity-50"
+                      notification.is_read && "opacity-50",
                     )}
                     onClick={async () => {
                       try {
                         navigate(`/profile/${notification.actorId}`);
                         user.updateNotificationRead(notification.id);
                         await api.post(
-                          `/profile/read-notification/${notification.id}`
+                          `/profile/read-notification/${notification.id}`,
                         );
                       } catch (error) {
                         toast.error("Something went wrong");

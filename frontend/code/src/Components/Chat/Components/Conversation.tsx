@@ -50,7 +50,7 @@ export const CurrentUserMessage = forwardRef<any, Message>((props, ref) => {
       ref={ref}
       className={classNames(
         "chat chat-end p-2 pl-5",
-        props.isPending && "opacity-50"
+        props.isPending && "opacity-50",
       )}
     >
       <div className="chat-header p-1">
@@ -61,7 +61,7 @@ export const CurrentUserMessage = forwardRef<any, Message>((props, ref) => {
       <div
         className={classNames(
           "max-w-max chat-bubble text-white whitespace-normal break-words text-sm md:text-base w-[60%] inline-block",
-          props.isFailed === true ? "bg-red-500" : "bg-purple-500"
+          props.isFailed === true ? "bg-red-500" : "bg-purple-500",
         )}
       >
         {props.message}
@@ -69,14 +69,14 @@ export const CurrentUserMessage = forwardRef<any, Message>((props, ref) => {
       <div
         className={classNames(
           "chat-footer p-1 font-poppins text-xs font-light leading-normal",
-          props.isFailed ? "text-red-500" : "text-gray-400"
+          props.isFailed ? "text-red-500" : "text-gray-400",
         )}
       >
         {props.isPending
           ? "Sending..."
           : props.isFailed
-          ? "Failed"
-          : "Delivered"}
+            ? "Failed"
+            : "Delivered"}
       </div>
     </div>
   ) : (
@@ -181,8 +181,8 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               {selectedChatType === ChatType.Chat
                 ? currentUser?.name
                 : currentRoom?.isOwner
-                ? currentRoom.name + " ♚"
-                : currentRoom?.name}
+                  ? currentRoom.name + " ♚"
+                  : currentRoom?.name}
             </p>
             {selectedChatType === ChatType.Chat ? (
               <p
@@ -242,7 +242,7 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                       }
                       user.setGameWaitingId(data.gameId);
                       inviteWaitingModalRef.current?.showModal();
-                    }
+                    },
                   );
                 }}
               >
@@ -315,7 +315,6 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                     : "hide Room Info"}
                 </span>
               </li>
-              {/* {currentRoom?.isOwner === false && ( */}
               <div>
                 <li
                   onClick={() => {
@@ -324,7 +323,6 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
                       ChatState.setIsLoading(false);
                       if (res?.status === 200 || res?.status === 201) {
                         toast.success("Room Left Successfully");
-                        // ChatState.changeChatType(ChatType.Chat);
                         ChatState.deleteRoom(currentRoom?.id as string);
                       }
                     });
@@ -420,7 +418,6 @@ export const Conversation: React.FC<ConversationProps> = ({
       friendId: chatState.currentDmUser.secondUserId,
     });
 
-    // const handle
     socketStore.socket?.on("roomDeparture", handleLeave);
     socketStore.socket?.on("message", handleMessage);
 
@@ -456,7 +453,7 @@ export const Conversation: React.FC<ConversationProps> = ({
                 senderId: message.authorId,
                 message: message.content,
                 time: message.time,
-              })
+              }),
             );
             chatState.fillCurrentMessages([...currentMessages, ...messages]);
           }
@@ -554,10 +551,10 @@ const ConversationInput = (props: ConversationInputProps) => {
           chatState.setMessageAsFailed(res?.data.id);
           // Remove failed message
           chatState.removeMessageFromCurrentMessages(
-            (e) => e.clientMessageId !== clientMessageId
+            (e) => e.clientMessageId !== clientMessageId,
           );
         }
-      }
+      },
     );
   };
 

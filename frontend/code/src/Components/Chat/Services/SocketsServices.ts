@@ -1,5 +1,5 @@
-import {  io } from 'socket.io-client';
-import { create } from 'zustand'
+import { io } from "socket.io-client";
+import { create } from "zustand";
 
 interface SocketStore {
   socket: any;
@@ -17,28 +17,30 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     set((state) => {
       if (state.socket === null) {
         newSocket = io("http://test.reversablecode.com:3004", {
-          transports: ['websocket'],
-          'reconnection': true,
-          'reconnectionDelay': 1000,
-          'reconnectionDelayMax': 1000,
-          'reconnectionAttempts': 5
+          transports: ["websocket"],
+          reconnection: true,
+          reconnectionDelay: 1000,
+          reconnectionDelayMax: 1000,
+          reconnectionAttempts: 5,
         });
 
         // Set socket
         set({ ...state, socket: newSocket });
 
-        newSocket.on('connect', () => {
+        newSocket.on("connect", () => {
           // Set connected state
           set({ ...state, connected: true });
         });
 
-        newSocket.on('connect_error', async () => {
-          await new Promise((resolve) => setTimeout(() => {
-            // Set connected state
-            set({ ...state, connected: false });
-            newSocket.connect();
-            resolve(newSocket);
-          }, 1000))
+        newSocket.on("connect_error", async () => {
+          await new Promise((resolve) =>
+            setTimeout(() => {
+              // Set connected state
+              set({ ...state, connected: false });
+              newSocket.connect();
+              resolve(newSocket);
+            }, 1000),
+          );
         });
 
         return { ...state, socket: newSocket };
@@ -48,6 +50,5 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     return newSocket;
-  }
-}))
-
+  },
+}));

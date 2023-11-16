@@ -175,13 +175,14 @@ export const useUserStore = createWithEqualityFn<State & Action>()(
       },
       updatePhone: (phone: State["phone"]) => set(() => ({ phone: phone })),
       updateBio: (bio: State["bio"]) => set(() => ({ bio: bio })),
-      updateUsername: (username: State["username"]) => set(() => ({ username: username })),
+      updateUsername: (username: State["username"]) =>
+        set(() => ({ username: username })),
       setAvatar: (picture: State["picture"]) =>
         set(() => ({ picture: picture })),
       login: async () => {
         const res = await api.get("/profile/me");
         var user_data = res.data;
-        // user_data.picture= null
+
         const check = user_data.picture.large.split`/`;
         if (check[check.length - 1] === "null") user_data.picture = null;
         const userInitialValue: State = {

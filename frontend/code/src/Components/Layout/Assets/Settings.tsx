@@ -11,7 +11,7 @@ export const Settings = ({ selected, className, ...props }: SettingsProps) => {
         className={classNames(
           "h-10 w-10 hover:bg-secondary rounded-xl flex justify-center text-center items-center hover:cursor-pointer",
           selected && "bg-secondary",
-          className
+          className,
         )}
         {...props}
       >

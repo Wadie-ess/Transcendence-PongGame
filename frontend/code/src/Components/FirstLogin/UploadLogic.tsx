@@ -45,7 +45,7 @@ export const UploadLogic = () => {
               success: "New Avatar Saved",
               error: "Error On Uploading image",
             },
-            { position: "top-center", className: "h-20", duration: 2000 }
+            { position: "top-center", className: "h-20", duration: 2000 },
           );
         }}
         ref={inputRef}

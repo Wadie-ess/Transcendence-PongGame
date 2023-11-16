@@ -45,37 +45,39 @@ export const Inputs = (props: InputsProps) => {
       {
         className:
           "font-poppins font-bold relative top-[6vh] bg-base-100 text-white",
-      }
+      },
     );
     // Update field locally after a successful request
-    toastPromise.then(() => {
-      switch (props.name) {
-        case "First name":
-          user.updateFirstName(data[`${props.payload}`]);
-          break;
-        case "Last name":
-          user.updateLastName(data[`${props.payload}`]);
-          break;
-        case "Email":
-          user.updateEmail(data[`${props.payload}`]);
-          break;
-        case "Phone":
-          user.updatePhone(data[`${props.payload}`]);
-          break;
-        case "Bio":
-          user.updateBio(data[`${props.payload}`]);
-          break;
-        case "Username":
-          user.updateUsername(data[`${props.payload}`]);
-          break;
-      }
-    }).catch((error) => {
-      if ((error as any)?.response.data.message) {
-        toast.error((error as any)?.response.data.message);
-      } else {
-        toast.error('Invalid field');
-      }
-    })
+    toastPromise
+      .then(() => {
+        switch (props.name) {
+          case "First name":
+            user.updateFirstName(data[`${props.payload}`]);
+            break;
+          case "Last name":
+            user.updateLastName(data[`${props.payload}`]);
+            break;
+          case "Email":
+            user.updateEmail(data[`${props.payload}`]);
+            break;
+          case "Phone":
+            user.updatePhone(data[`${props.payload}`]);
+            break;
+          case "Bio":
+            user.updateBio(data[`${props.payload}`]);
+            break;
+          case "Username":
+            user.updateUsername(data[`${props.payload}`]);
+            break;
+        }
+      })
+      .catch((error) => {
+        if ((error as any)?.response.data.message) {
+          toast.error((error as any)?.response.data.message);
+        } else {
+          toast.error("Invalid field");
+        }
+      });
   };
 
   const handleError = useCallback((errors: FieldErrors<FieldValues>) => {
@@ -122,7 +124,7 @@ export const Inputs = (props: InputsProps) => {
         <form
           className={classNames(
             "gap-y-2 p-2 flex justify-center items-center w-full",
-            props.className
+            props.className,
           )}
         >
           <div className="flex gap-x-2 w-full">
@@ -131,7 +133,7 @@ export const Inputs = (props: InputsProps) => {
                 type="email"
                 className={classNames(
                   "h-12 w-full rounded-3xl text-center",
-                  props.className
+                  props.className,
                 )}
                 defaultValue={props.data}
                 placeholder={props.payload}
@@ -151,7 +153,7 @@ export const Inputs = (props: InputsProps) => {
                 type="text"
                 className={classNames(
                   "h-12 w-full rounded-3xl text-center",
-                  props.className
+                  props.className,
                 )}
                 defaultValue={props.data}
                 placeholder={props.payload}

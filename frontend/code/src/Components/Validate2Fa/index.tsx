@@ -20,8 +20,9 @@ export const Validate2Fa = () => {
       })
       .catch(() => {});
 
-    //eslint-disable-next-line
+    // eslint-disable-next-line
   }, []);
+
   return (
     <div
       className={classNames(

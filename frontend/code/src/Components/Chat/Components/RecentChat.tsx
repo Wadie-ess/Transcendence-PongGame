@@ -75,7 +75,7 @@ export const RecentConversations = () => {
                 },
                 bio: room.bio,
               });
-            }
+            },
           );
 
           if (res.data.length > 0) {
@@ -276,7 +276,7 @@ export const OnlineNowUsers = () => {
                 // to inject it with the real images later
                 avatar: friend.avatar,
               } as RoomMember);
-            }
+            },
           );
 
           setUsers(friends);
@@ -381,10 +381,10 @@ export const OnlineNowUsers = () => {
                               navigate(`/Dm/${res?.data.id}`);
                             } else {
                               toast.error(
-                                "You Can't Send Message To this User For Now, try Again later"
+                                "You Can't Send Message To this User For Now, try Again later",
                               );
                             }
-                          }
+                          },
                         );
                       }}
                     >

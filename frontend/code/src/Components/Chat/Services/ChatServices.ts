@@ -8,7 +8,6 @@ export const createNewRoomCall = async (
   secondMember?: string,
 ) => {
   try {
-
     const response = await api.post("/rooms/create", {
       name: name,
       type: type,
@@ -21,18 +20,13 @@ export const createNewRoomCall = async (
   }
 };
 
-
-
-
 export const updateRoomCall = async (
   name: string,
   type: string,
   roomId: string,
   password?: string,
-
 ) => {
   try {
-
     const response = await api.post("/rooms/update", {
       name: name,
       type: type,
@@ -43,56 +37,42 @@ export const updateRoomCall = async (
   } catch (e: any) {
     toast.error(e.response.data.message);
   }
-
 };
-
 
 export const fetchRoomsCall = async (
   offset: number,
   limit: number,
   joined: boolean,
-
 ) => {
-
   try {
-    const response = await api.get(`/rooms`,
-      { params: { offset: offset, limit: limit, joined: joined } });
+    const response = await api.get(`/rooms`, {
+      params: { offset: offset, limit: limit, joined: joined },
+    });
     return response;
   } catch (e: any) {
     // Do nothing
   }
+};
 
-}
-
-export const fetchDmsCall = async (
-  offset: number,
-  limit: number,
-
-) => {
+export const fetchDmsCall = async (offset: number, limit: number) => {
   try {
-    const response = await api.get(`/rooms/dms`,
-      { params: { offset: offset, limit: limit } });
+    const response = await api.get(`/rooms/dms`, {
+      params: { offset: offset, limit: limit },
+    });
     return response;
   } catch (e: any) {
     // Do nothing
   }
+};
 
-}
-
-
-export const getDM = async (
-  id: string
-) => {
+export const getDM = async (id: string) => {
   try {
-    const response = await api.get(`/rooms/dm/${id}`,
-    );
+    const response = await api.get(`/rooms/dm/${id}`);
     return response;
   } catch (e: any) {
     // Do nothing
   }
-
-}
-
+};
 
 export const getRoomMembersCall = async (
   id: string,
@@ -100,23 +80,17 @@ export const getRoomMembersCall = async (
   limit: number,
 ) => {
   try {
-    const response = await api.get(`/rooms/${id}/members`,
-      { params: { offset: offset, limit: limit } });
+    const response = await api.get(`/rooms/${id}/members`, {
+      params: { offset: offset, limit: limit },
+    });
     return response;
   } catch (e: any) {
     // Do nothing
   }
+};
 
-}
-
-
-export const joinRoomCall = async (
-  roomId: string,
-  password?: string,
-
-) => {
+export const joinRoomCall = async (roomId: string, password?: string) => {
   try {
-
     const response = await api.post("/rooms/join", {
       roomId: roomId,
       password: password,
@@ -125,15 +99,10 @@ export const joinRoomCall = async (
   } catch (e: any) {
     toast.error(e.response.data.message);
   }
-}
+};
 
-
-export const leaveRoomCall = async (
-  roomId: string,
-
-) => {
+export const leaveRoomCall = async (roomId: string) => {
   try {
-
     const response = await api.post("/rooms/leave", {
       roomId: roomId,
     });
@@ -141,8 +110,7 @@ export const leaveRoomCall = async (
   } catch (e: any) {
     toast.error(e.response.data.message);
   }
-
-}
+};
 
 export const takeActionCall = async (
   roomId: string,
@@ -158,43 +126,26 @@ export const takeActionCall = async (
   } catch (e: any) {
     toast.error(e.response.data.message);
   }
+};
 
-}
-
-export const DeleteRoomCall = async (
-  roomId: string,
-
-) => {
+export const DeleteRoomCall = async (roomId: string) => {
   try {
-
     const response = await api.post("/rooms/delete", {
       roomId: roomId,
-
     });
     return response;
   } catch (e: any) {
     toast.error(e.response.data.message);
   }
-}
+};
 
-// unused
-export const getFriendsCall = async (
-  offset: number,
-  limit: number,
-
-
-) => {
-
+export const getFriendsCall = async (offset: number, limit: number) => {
   try {
-    const response = await api.get(`/friends/list`,
-      { params: { offset: offset, limit: limit } });
+    const response = await api.get(`/friends/list`, {
+      params: { offset: offset, limit: limit },
+    });
     return response;
   } catch (e: any) {
     // Do nothing
   }
-
-}
-
-
-
-
+};

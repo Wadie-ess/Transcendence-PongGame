@@ -151,9 +151,9 @@ class dataSeeder extends PrismaClient {
       },
     });
 
-		console.log("roomid: ", room.id)
-		console.log("ownerid: ", owner.userId)
-		console.log("randomUsers: ", randomUsers)
+    console.log('roomid: ', room.id);
+    console.log('ownerid: ', owner.userId);
+    console.log('randomUsers: ', randomUsers);
   }
 }
 
