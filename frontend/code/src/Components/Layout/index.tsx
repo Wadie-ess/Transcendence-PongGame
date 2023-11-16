@@ -69,6 +69,16 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
     // eslint-disable-next-line
   }, [path]);
   useLayoutEffect(() => {
+    // Prevent ESC key
+    const preventEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+    document.addEventListener("keydown", preventEsc, false);
+
     const log = async () => {
       try {
         await user.login();
@@ -91,6 +101,7 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
       invitationGameRef.current?.showModal();
     });
     return () => {
+      document.removeEventListener("keydown", preventEsc, false);
       socketStore.socket?.off("invitedToGame");
     };
     // eslint-disable-next-line

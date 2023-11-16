@@ -283,26 +283,26 @@ export class Game {
   }
   private checkForWinner() {
     if (this.p1Score >= 5) {
-      this.p1socket.emit('win', 'you win');
-      this.p2socket.emit('lose', 'you lose');
+      this.p1socket.emit('win', 'you won');
+      this.p2socket.emit('lose', 'you lost');
       this.emitGameEnd('end');
     }
     if (this.p2Score >= 5) {
-      this.p2socket.emit('win', 'you win');
-      this.p1socket.emit('lose', 'you lose');
+      this.p2socket.emit('win', 'you won');
+      this.p1socket.emit('lose', 'you lost');
       this.emitGameEnd('end');
     }
   }
 
   private handleP1Disconnect = () => {
-    this.p2socket.emit('win', 'you win other player leave the game');
-    this.p1socket.emit('lose', 'you win other player leave the game');
+    this.p2socket.emit('win', 'you won, the other player left the game');
+    this.p1socket.emit('lose', 'you lost');
     this.emitGameEnd('p1Leave');
   };
 
   private handleP2Disconnect = () => {
-    this.p1socket.emit('win', 'you win other player leave the game');
-    this.p2socket.emit('lose', 'you lost other player leave the game');
+    this.p1socket.emit('win', 'you won, the other player left the game');
+    this.p2socket.emit('lose', 'you lost');
     this.emitGameEnd('p2Leave');
   };
 

@@ -26,7 +26,7 @@ interface GameInvite {
 
 @WebSocketGateway(3004, {
   cors: {
-    origin: ['http://test.reversablecode.com:3001'],
+    origin: process.env.WS_CORS_ORIGIN?.split(',') || ['http://localhost:3001'],
   },
   transports: ['websocket'],
 })

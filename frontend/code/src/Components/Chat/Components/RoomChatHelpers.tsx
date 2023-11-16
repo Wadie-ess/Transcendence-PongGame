@@ -248,7 +248,7 @@ export const CreateNewRoomModal = () => {
         selectedOption === RoomType.protected ? RoomPassword : undefined,
       ).then((res) => {
         if (res?.status !== 200 && res?.status !== 201) {
-          toast.error("something went wrong, try again");
+          toast.error(res?.data?.message || "something went wrong, try again");
           resetModalState();
         } else {
           toast.success("Room Created Successfully");
@@ -580,11 +580,13 @@ export const FriendStatusTile = (props: { user: RoomMember }) => {
       <div className="flex flex-row justify-between p-3">
         <div className="flex flex-row items-center space-x-3">
           <div className="pr-1">
-            <img
-              className="w-12 rounded-full "
-              alt=""
-              src={user?.avatar?.medium}
-            />
+            <a href={`/profile/${user?.id}`}>
+              <img
+                className="w-12 rounded-full "
+                alt=""
+                src={user?.avatar?.medium}
+              />
+            </a>
           </div>
 
           <p className="text-white font-poppins text-base font-medium leading-normal">

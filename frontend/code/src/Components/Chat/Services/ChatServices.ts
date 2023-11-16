@@ -16,7 +16,7 @@ export const createNewRoomCall = async (
     });
     return response;
   } catch (e: any) {
-    // Do nothing
+    return e?.response;
   }
 };
 

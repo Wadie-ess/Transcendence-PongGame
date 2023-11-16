@@ -57,6 +57,8 @@ export const UploadAvatar = () => {
         toast.error(`${data_names[index]} ${ERROR_MESSAGES[1]} 4`);
       if (errors[`${item}`]?.type === "maxLength")
         toast.error(`${data_names[index]} ${ERROR_MESSAGES[2]} 50 `);
+      if (errors[`${item}`]?.type === "pattern")
+        toast.error(`${errors[`${item}`]?.message}`);
     });
   };
 

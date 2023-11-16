@@ -16,7 +16,13 @@ import googleAuthenticatorIcon from "../images/google-authenticator.svg";
 
 export const Setting = () => {
   const TOTPSecretKey = useMemo(
-    () => btoa(Math.random().toString(36)).substring(0, 16),
+    () =>
+      btoa(Math.random().toString(36) + Math.random().toString(36))
+        .toUpperCase()
+        .replace(/\+/g, "")
+        .replace(/\//g, "")
+        .replace(/=/g, "")
+        .substring(0, 16),
     [],
   );
 
