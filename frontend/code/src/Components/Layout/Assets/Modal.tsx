@@ -14,10 +14,10 @@ export const Modal = () => {
     const navigate = useNavigate();
     useEffect(() => {
     if (socketStore.socket !== null){
-        socketStore.socket.on("game.launched" , (GameId:any) => {
+        socketStore.socket?.on("game.launched" , (GameId:any) => {
             setGameId(GameId.slice(5))
         })
-        socketStore.socket.on("timer",(msg:any) => {
+        socketStore.socket?.on("timer",(msg:any) => {
             msg !== 0 && setOpacity("opacity-100")
             msg === 0 && setOpacity("opacity-0")
             setTimer(msg / 1000)
@@ -25,13 +25,11 @@ export const Modal = () => {
                 navigate(`/Game/${gameid}`)
                 }
         })
-        socketStore.socket.on("players", (players:any) => {
+        socketStore.socket?.on("players", (players:any) => {
             gameState.setP1(players[0]);
             gameState.setP2(players[1]);
-            console.log(players)
-            console.log("sda")
           })
-        socketStore.socket.on("win" , (msg:string) => {
+        socketStore.socket?.on("win" , (msg:string) => {
             setResutl(msg)
             setStatus("win");
             setResOpacity("opacity-100");
@@ -48,7 +46,7 @@ export const Modal = () => {
             },1000)
           
         })
-        socketStore.socket.on("lose" , (msg:string) => {
+        socketStore.socket?.on("lose" , (msg:string) => {
             setResutl(msg)
             setStatus("lose");
             setResOpacity("opacity-100");
@@ -67,11 +65,11 @@ export const Modal = () => {
         })
     }
     return () => {
-        socketStore.socket.off("lose")
-        socketStore.socket.off("win")
-        socketStore.socket.off("timer")
-        socketStore.socket.off("game.launched")
-        socketStore.socket.off("players")
+        socketStore.socket?.off("lose")
+        socketStore.socket?.off("win")
+        socketStore.socket?.off("timer")
+        socketStore.socket?.off("game.launched")
+        socketStore.socket?.off("players")
     }
 // eslint-disable-next-line
 },[timer])

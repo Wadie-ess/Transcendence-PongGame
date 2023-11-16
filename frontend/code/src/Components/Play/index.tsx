@@ -9,9 +9,9 @@ export const Play = () => {
   const [gameMode, setGameMode] = useState("");
   const queueModalRef = useRef<HTMLDialogElement>(null);
   const subscribeToGame = async () => {
-    // socketStore.socket.emit
+    // socketStore.socket?.emit
     try {
-      socketStore.socket.emit("startGame", { gameMode: "cassic" });
+      socketStore.socket?.emit("startGame", { gameMode: "cassic" });
       setGameMode("cassic");
       queueModalRef.current?.showModal();
       toast.success(
@@ -25,9 +25,9 @@ export const Play = () => {
     }
   };
   const subscribeToGameExtra = async () => {
-    // socketStore.socket.emit
+    // socketStore.socket?.emit
     try {
-      socketStore.socket.emit("startGame", { gameMode: "extra" });
+      socketStore.socket?.emit("startGame", { gameMode: "extra" });
       setGameMode("extra");
       queueModalRef.current?.showModal();
       toast.success(

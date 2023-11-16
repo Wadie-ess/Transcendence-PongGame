@@ -12,7 +12,7 @@ import {
   check,
 } from "./tools/Assets";
 
-import { NullPlaceHolder, RoomChatPlaceHolder } from "./RoomChatHelpers";
+import { NullPlaceHolder } from "./RoomChatHelpers";
 import { useModalStore } from "../Controllers/LayoutControllers";
 import {
   createNewRoomCall,
@@ -28,7 +28,6 @@ import { useInView } from "react-intersection-observer";
 
 export const RecentConversations = () => {
   const [isLoading, setLoading] = useState(false);
-  const selectedChatType = useChatStore((state) => state.selectedChatType);
   const ChatRoomsState = useChatStore((state) => state);
 
   const [ref, inView] = useInView();
@@ -42,49 +41,53 @@ export const RecentConversations = () => {
 
     offset === 0 && setLoading(true);
 
-    fetchDmsCall(offset, 7).then((res) => {
-      if (res?.status !== 200 && res?.status !== 201) {
-      } else {
-        const rooms: DmRoom[] = [];
-        res.data.forEach(
-          (room: {
-            secondMemberId: string;
-            id: string;
-            last_message?: {
-              content?: string;
-              createdAt?: string;
-            };
-            name: string;
-
-            avatar: {
-              thumbnail: string;
-              medium: string;
-              large: string;
-            };
-            bio: string;
-          }) => {
-            // to check if not exist
-            rooms.push({
-              secondUserId: room.secondMemberId,
-              id: room.id,
-              name: room.name,
-              avatar: room.avatar,
-              last_message: {
-                content: room.last_message?.content,
-                createdAt: room.last_message?.createdAt,
-              },
-              bio: room.bio,
-            });
-          }
-        );
-
-        if (res.data.length > 0) {
-          ChatRoomsState.fillRecentDms([...ChatRoomsState.recentDms, ...rooms]);
+    fetchDmsCall(offset, 7)
+      .then((res) => {
+        if (res?.status !== 200 && res?.status !== 201) {
         } else {
-          setEndOfFetching(true);
+          const rooms: DmRoom[] = [];
+          res.data.forEach(
+            (room: {
+              secondMemberId: string;
+              id: string;
+              last_message?: {
+                content?: string;
+                createdAt?: string;
+              };
+              name: string;
+
+              avatar: {
+                thumbnail: string;
+                medium: string;
+                large: string;
+              };
+              bio: string;
+            }) => {
+              // to check if not exist
+              rooms.push({
+                secondUserId: room.secondMemberId,
+                id: room.id,
+                name: room.name,
+                avatar: room.avatar,
+                last_message: {
+                  content: room.last_message?.content,
+                  createdAt: room.last_message?.createdAt,
+                },
+                bio: room.bio,
+              });
+            }
+          );
+
+          if (res.data.length > 0) {
+            ChatRoomsState.fillRecentDms([
+              ...ChatRoomsState.recentDms,
+              ...rooms,
+            ]);
+          } else {
+            setEndOfFetching(true);
+          }
         }
-      }
-    })
+      })
       .finally(() => setLoading(false));
   };
 
@@ -93,7 +96,7 @@ export const RecentConversations = () => {
     // eslint-disable-next-line
   }, [inView]);
 
-  return selectedChatType === ChatType.Chat ? (
+  return (
     <div className="h-full flex flex-col ">
       <OnlineNowUsers />
       {ChatRoomsState.recentDms.length > 0 ? (
@@ -112,20 +115,36 @@ export const RecentConversations = () => {
               userImage={friend.avatar.medium}
             />
           ))}
-          {!EndOfFetching && <div ref={ref} className="flex justify-center items-center h-2 py-5">
-            <span className="text-xs font-light font-poppins text-gray-400">
-              Loading...
-            </span>
-          </div>}
-          {EndOfFetching && <div ref={ref} className="flex justify-center items-center h-2 py-5">
-            <span className="text-xs font-light font-poppins text-gray-400">
-              No more dm... <span className="underline decoration-dashed cursor-pointer" onClick={() => {
-                setEndOfFetching(false); // Reset
-                ChatRoomsState.fillRecentDms([]); // Reset
-                setTimeout(() => fetchDms(true), 100);
-              }}>Refresh!</span>
-            </span>
-          </div>}
+          {!EndOfFetching && (
+            <div
+              ref={ref}
+              className="flex justify-center items-center h-2 py-5"
+            >
+              <span className="text-xs font-light font-poppins text-gray-400">
+                Loading...
+              </span>
+            </div>
+          )}
+          {EndOfFetching && (
+            <div
+              ref={ref}
+              className="flex justify-center items-center h-2 py-5"
+            >
+              <span className="text-xs font-light font-poppins text-gray-400">
+                No more dm...{" "}
+                <span
+                  className="underline decoration-dashed cursor-pointer"
+                  onClick={() => {
+                    setEndOfFetching(false); // Reset
+                    ChatRoomsState.fillRecentDms([]); // Reset
+                    setTimeout(() => fetchDms(true), 100);
+                  }}
+                >
+                  Refresh!
+                </span>
+              </span>
+            </div>
+          )}
         </div>
       ) : (
         <>
@@ -138,13 +157,6 @@ export const RecentConversations = () => {
           )}
         </>
       )}
-    </div>
-  ) : (
-    <div className="h-full flex flex-col">
-      <OnlineNowUsers />
-      <div className="flex-grow overflow-y-auto no-scrollbar">
-        <RoomChatPlaceHolder />
-      </div>
     </div>
   );
 };
@@ -181,8 +193,9 @@ export const ChatPlaceHolder = ({
           },
         });
       }}
-      className={`message-container flex   px-4 py-5  hover:bg-[#272932] items-center  ${selectedChatID === id ? "bg-[#272932]" : "bg-[#1A1C26]"
-        }`}
+      className={`message-container flex   px-4 py-5  hover:bg-[#272932] items-center  ${
+        selectedChatID === id ? "bg-[#272932]" : "bg-[#1A1C26]"
+      }`}
     >
       <div className="user-image flex-shrink-0 mr-2">
         <img
@@ -227,7 +240,7 @@ export const OnlineNowUsers = () => {
   const navigate = useNavigate();
   const [Users, setUsers] = useState<RoomMember[]>([]);
 
-  const setModalState = useModalStore((state) => state.setShowExploreModal);
+  const modalState = useModalStore();
 
   const handleListOfOnline = (ids: string[]) => {
     ids.forEach((id) => {
@@ -271,7 +284,7 @@ export const OnlineNowUsers = () => {
         }
       });
     };
-    socketStore.socket.on("onlineFriends", handleListOfOnline);
+    socketStore.socket?.on("onlineFriends", handleListOfOnline);
     fetchFriends();
     // eslint-disable-next-line
   }, [chatState.onlineFriendsIds.length]);
@@ -284,25 +297,27 @@ export const OnlineNowUsers = () => {
             Messages
           </p>
 
-          <div className="icons-row flex flex-row items-center  ">
-            <a href="#my_modal_8" className="pr-2">
+          <div className="icons-row flex flex-row items-center gap-2">
+            <a
+              href="#create-room-modal"
+              onClick={() => modalState.setShowCreateChatRoomModal(true)}
+            >
               <img className="w-[80%]" alt="" src={GroupChat} />
             </a>
-            <a href="#my_modal_5" className="">
-              <img
-                className="w-[100%]"
-                alt=""
-                onClick={() => setModalState(true)}
-                src={Explore}
-              />
+            <a
+              href="#explorer-modal"
+              onClick={() => modalState.setShowExploreModal(true)}
+            >
+              <img className="w-[100%]" alt="" src={Explore} />
             </a>
           </div>
         </div>
         <div className="Message-Type-Buttons flex flex-row pt-2 pb-2 justify-between ">
           <button
             onClick={() => changeChatType(ChatType.Chat)}
-            className={`${selectedChatType === ChatType.Chat ? "bg-[#272932]" : ""
-              } flex-1 p-2 rounded ] `}
+            className={`${
+              selectedChatType === ChatType.Chat ? "bg-[#272932]" : ""
+            } flex-1 p-2 rounded`}
           >
             <div className=" flex flex-row justify-center ">
               <p className="text-gray-300 font-poppins text-base font-medium leading-normal pr-3 hidden md:block ">
@@ -313,8 +328,9 @@ export const OnlineNowUsers = () => {
           </button>
           <button
             onClick={() => changeChatType(ChatType.Room)}
-            className={`${selectedChatType === ChatType.Room ? "bg-[#272932]" : ""
-              } flex-1 p-2 rounded  `}
+            className={`${
+              selectedChatType === ChatType.Room ? "bg-[#272932]" : ""
+            } flex-1 p-2 rounded  `}
           >
             <div className="flex flex-row justify-center">
               <p className="text-gray-300 font-poppins text-base font-medium leading-normal pr-3 hidden md:block">
@@ -354,10 +370,10 @@ export const OnlineNowUsers = () => {
                                     ?.lastname) as string,
                                 avatar: Users.find((u) => u.id === user)
                                   ?.avatar as {
-                                    thumbnail: string;
-                                    medium: string;
-                                    large: string;
-                                  },
+                                  thumbnail: string;
+                                  medium: string;
+                                  large: string;
+                                },
                                 bio: Users.find((u) => u.id === user)
                                   ?.bio as string,
                               });

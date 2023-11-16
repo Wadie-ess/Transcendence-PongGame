@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MessageFormatDto } from 'src/messages/dto/message-format.dto';
-import {} from '@nestjs/platform-socket.io';
+import { } from '@nestjs/platform-socket.io';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Game } from 'src/game/game';
@@ -26,7 +26,7 @@ interface GameInvite {
 
 @WebSocketGateway(3004, {
   cors: {
-    origin: ['http://localhost:3001'],
+    origin: ['http://test.reversablecode.com:3001'],
   },
   transports: ['websocket'],
 })
@@ -35,7 +35,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
     private prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   @WebSocketServer() private server: Server;
   private games_map = new Map<string, Game>();
@@ -78,9 +78,23 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @OnEvent('sendMessages')
-  sendMessage(message: MessageFormatDto) {
+  async sendMessage(message: MessageFormatDto, blockedRoomMembersIds?: string[]) {
     const chanellname: string = `Room:${message.roomId}`;
-    this.server.to(chanellname).emit('message', message);
+    if (!blockedRoomMembersIds) {
+      this.server.to(chanellname).emit('message', message);
+    } else {
+      const sockets = await this.server.in(chanellname).fetchSockets();
+      for await (const socket of sockets) {
+        if (!blockedRoomMembersIds.includes(socket.data.user.sub)) {
+          socket.emit('message', message);
+        } else {
+          socket.emit('message', {
+            ...message,
+            content: '[REDACTED]',
+          });
+        }
+      }
+    }
   }
 
   private async createNotification(notif: Partial<Notification>) {
@@ -113,7 +127,7 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @OnEvent('sendNotification')
-  async sendNotification(notif: Partial<Notification>) {
+  async sendNotification(notif: Partial<Notification>, blockedRoomMembersIds?: string[]) {
     // create the notification on the database
     switch (notif.type) {
       case $Enums.NotifType.acceptFriend:
@@ -165,6 +179,10 @@ export class Gateways implements OnGatewayConnection, OnGatewayDisconnect {
           .in(`Room:${message.roomId}`)
           .fetchSockets();
         for await (const member of roomMembers) {
+          if (blockedRoomMembersIds?.includes(member.userId)) {
+            continue;
+          }
+
           let found = false;
           for await (const clientSocket of clientsSockets) {
             if (clientSocket.data.user.sub === member.userId) {

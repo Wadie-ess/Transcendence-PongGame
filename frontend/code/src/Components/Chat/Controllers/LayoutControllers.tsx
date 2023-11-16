@@ -5,15 +5,17 @@ export interface ModalState {
   showPreviewCard: boolean;
   showAddUsersModal: boolean;
   showSettingsModal: boolean;
-  showBlockedLIstModal: boolean;
+  showBlockedListModal: boolean;
   showFriendsListModal: boolean;
+  showCreateChatRoomModal: boolean;
 
   setShowExploreModal: (showExploreModal: boolean) => void;
-  setShowFriendsModal: (showFriendsModal: boolean) => void;
+  setShowFriendsListModal: (showFriendsListModal: boolean) => void;
   setShowPreviewCard: (showPreviewCard: boolean) => void;
   setShowAddUsersModal: (showAddUsersModal: boolean) => void;
   setShowSettingsModal: (showSettingsModal: boolean) => void;
-  setShowBlockedList: (showBlockedLIstModal: boolean) => void;
+  setShowBlockedListModal: (showBlockedListModal: boolean) => void;
+  setShowCreateChatRoomModal: (showCreateChatRoomModal: boolean) => void;
 }
 
 export const useModalStore = create<ModalState>((set) => ({
@@ -21,17 +23,13 @@ export const useModalStore = create<ModalState>((set) => ({
   showPreviewCard: false,
   showAddUsersModal: false,
   showSettingsModal: false,
-  showBlockedLIstModal: false,
+  showBlockedListModal: false,
   showFriendsListModal: false,
+  showCreateChatRoomModal: false,
 
-  setShowFriendsModal: (showFriendsModal: boolean) =>
+  setShowFriendsListModal: (showFriendsListModal: boolean) =>
     set((state) => {
-      state.showFriendsListModal = showFriendsModal;
-      return { ...state };
-    }),
-  setShowBlockedList: (showBlockedLIstModal: boolean) =>
-    set((state) => {
-      state.showBlockedLIstModal = showBlockedLIstModal;
+      state.showFriendsListModal = showFriendsListModal;
       return { ...state };
     }),
 
@@ -40,6 +38,7 @@ export const useModalStore = create<ModalState>((set) => ({
       state.showSettingsModal = showSettingsModal;
       return { ...state };
     }),
+
   setShowExploreModal: (showExploreModal: boolean) =>
     set((state) => {
       state.showExploreModal = showExploreModal;
@@ -55,6 +54,18 @@ export const useModalStore = create<ModalState>((set) => ({
   setShowAddUsersModal: (showAddUsersModal: boolean) =>
     set((state) => {
       state.showAddUsersModal = showAddUsersModal;
+      return { ...state };
+    }),
+
+  setShowBlockedListModal: (showBlockedListModal: boolean) =>
+    set((state) => {
+      state.showBlockedListModal = showBlockedListModal;
+      return { ...state };
+    }),
+
+  setShowCreateChatRoomModal: (showCreateChatRoomModal: boolean) =>
+    set((state) => {
+      state.showCreateChatRoomModal = showCreateChatRoomModal;
       return { ...state };
     }),
 }));

@@ -40,7 +40,7 @@ export const Inputs = (props: InputsProps) => {
       {
         loading: "Saving...",
         success: <b>{props.name} saved</b>,
-        error: <b>could not save {this}</b>,
+        error: <b>could not save field</b>,
       },
       {
         className:
@@ -65,8 +65,17 @@ export const Inputs = (props: InputsProps) => {
         case "Bio":
           user.updateBio(data[`${props.payload}`]);
           break;
+        case "Username":
+          user.updateUsername(data[`${props.payload}`]);
+          break;
       }
-    });
+    }).catch((error) => {
+      if ((error as any)?.response.data.message) {
+        toast.error((error as any)?.response.data.message);
+      } else {
+        toast.error('Invalid field');
+      }
+    })
   };
 
   const handleError = useCallback((errors: FieldErrors<FieldValues>) => {

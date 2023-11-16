@@ -67,7 +67,7 @@ export const Table = (props: any) => {
     offset.current += 20;
     // eslint-disable-next-line
   }, [props.props.props]);
-  console.log(props);
+
   return history.length > 0 || loading === true ? (
     <div className="w-full h-full overflow-auto">
       <InfiniteScroll

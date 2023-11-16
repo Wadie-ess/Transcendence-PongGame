@@ -16,7 +16,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
     set((state) => {
       if (state.socket === null) {
-        newSocket = io("http://localhost:3004", {
+        newSocket = io("http://test.reversablecode.com:3004", {
           transports: ['websocket'],
           'reconnection': true,
           'reconnectionDelay': 1000,
@@ -28,7 +28,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
         set({ ...state, socket: newSocket });
 
         newSocket.on('connect', () => {
-          console.log('Connected!');
           // Set connected state
           set({ ...state, connected: true });
         });

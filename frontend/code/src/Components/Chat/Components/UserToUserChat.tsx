@@ -9,17 +9,14 @@ import { getDM } from "../Services/ChatServices";
 export const UserToUserChat = () => {
   const params = useParams();
   const navigator = useNavigate();
-  console.log(`params : ${params.id} type ${typeof params.id}`);
 
   const ChatState = useChatStore((state) => state);
   const [showUserPreview, setShowUserPreview] = useState(true);
 
   useEffect(() => {
-    console.log("selected chat id ", ChatState.selectedChatID);
     const fetchUser = async () => {
       try {
         await getDM(params.id as string).then((res) => {
-          console.log("res", res);
           if (res?.status === 200 || res?.status === 201) {
             const extractedData = res.data;
             if (ChatState.selectedChatID !== extractedData.id) {
@@ -32,8 +29,6 @@ export const UserToUserChat = () => {
               avatar: extractedData.avatar,
               bio: extractedData.bio,
             });
-
-            console.log("extractedData", extractedData);
           } else {
             // navigator("/chat");
             // toast.error("Error getting room members");

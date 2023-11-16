@@ -3,7 +3,7 @@ import { Pong } from "./assets/Pong";
 import { History } from "./History";
 import Hero from "./assets/Hero.gif";
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, } from "react-router-dom";
 import { Load } from "../Loading/";
 import Newbie from "../Badges/Newbie.svg";
 import Master from "../Badges/Master.svg";
@@ -38,7 +38,6 @@ export const Profile = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState<FRIENDSHIP>(undefined);
   const [disabled, setDisabled] = useState("");
-  console.log(`params : ${params.id} type ${typeof params.id}`);
   const [profile, setProfile] = useState<null | any>(undefined);
   const ChatState = useChatStore();
   const LayoutState = useModalStore();
@@ -65,7 +64,10 @@ export const Profile = () => {
           setStatus("recive");
       } catch (error) {
         if (error instanceof AxiosError) {
-          if (error?.response?.status !== 401) navigate("/NotFound");
+          if (error?.response?.status !== 401) {
+            toast.error("The user does not exist or has blocked you");
+            navigate("/home", { replace: true });
+          }
         }
       }
     };
@@ -83,7 +85,6 @@ export const Profile = () => {
       "status",
       { userId: params.id },
       (data: { status: string; inGame: boolean }) => {
-        console.log(data);
         if (data.status === "online" && !data.inGame) {
           setOnlineStatus("online");
         } else if (data.status === "online" && data.inGame) {
@@ -95,7 +96,6 @@ export const Profile = () => {
     );
   }, [params.id, socketStore?.socket, user.id]);
 
-  console.log(status);
   const sendRequest = async () => {
     setDisabled("btn-disabled");
     const fetchFunc = async () => {
@@ -212,7 +212,7 @@ export const Profile = () => {
 
             <div className="flex flex-col gap-y-0 items-center h-full sm:flex-row sm:gap-x-4 justify-center sm:justify-start sm:items-end pb-4 sm:w-[25vw]">
               {/* for debug */}
-              <button
+              {/* <button
                 className={`btn btn-primary text-neutral ${disabled}`}
                 onClick={async () => {
                   ChatState.setIsLoading(true);
@@ -241,7 +241,7 @@ export const Profile = () => {
               >
                 <VscComment />
                 Message
-              </button>
+              </button> */}
               {params.id !== "me" &&
                 params.id !== user.id &&
                 status === "none" && (
@@ -265,16 +265,16 @@ export const Profile = () => {
                       >
                         <span className="hover:bg-[#7940CF] hover:rounded">
                           <li
-                            onClick={async () => {
+                            onClick={() => {
                               ChatState.setIsLoading(true);
-                              await blockUserCall(profile.id).then((res) => {
+                              blockUserCall(profile.id).then((res) => {
                                 ChatState.setIsLoading(false);
                                 if (
                                   res?.status === 200 ||
                                   res?.status === 201
                                 ) {
                                   toast.success("User Blocked");
-                                  navigate("/chat");
+                                  navigate("/chat", { replace: true });
                                 } else {
                                   toast.error("Could Not Block User");
                                 }
@@ -431,7 +431,7 @@ export const Profile = () => {
                                   res?.status === 201
                                 ) {
                                   toast.success("User Blocked");
-                                  navigate("/chat");
+                                  navigate("/chat", { replace: true });
                                 } else {
                                   toast.error("Could Not Block User");
                                 }
@@ -458,8 +458,7 @@ export const Profile = () => {
                 <div className=" flex items-center w-[60%] gap-x-5 h-20">
                   <Link to={"/Settings"}>
                     <button
-                      className={`btn btn-primary text-neutral ${disabled}`}
-                      //  onClick={cancelRequest}
+                      className={`btn btn-primary text-neutral ${disabled} flex-row flex-nowrap whitespace-nowrap`}
                     >
                       <VscEdit />
                       Edit Profile
@@ -476,27 +475,23 @@ export const Profile = () => {
                       className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute bottom-16  "
                     >
                       <li
-                        onClick={() => {
-                          LayoutState.setShowFriendsModal(
-                            !LayoutState.showFriendsListModal
-                          );
-                        }}
+                        onClick={() =>
+                          LayoutState.setShowFriendsListModal(true)
+                        }
                       >
                         <span className="hover:bg-[#7940CF]">
-                          <a href="#my_modal_1" className="pr-2">
+                          <a href="#friends-list-modal" className="pr-2">
                             <div>See Friends List</div>
                           </a>
                         </span>
                       </li>
                       <li
-                        onClick={() => {
-                          LayoutState.setShowBlockedList(
-                            !LayoutState.showBlockedLIstModal
-                          );
-                        }}
+                        onClick={() =>
+                          LayoutState.setShowBlockedListModal(true)
+                        }
                       >
                         <span className="hover:bg-[#7940CF]">
-                          <a href="#my_modal_3" className="pr-2">
+                          <a href="#blocked-users-modal" className="pr-2">
                             <div>See Blocked List</div>
                           </a>
                         </span>

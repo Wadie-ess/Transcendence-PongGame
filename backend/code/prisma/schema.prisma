@@ -71,11 +71,12 @@ model BlockedUsers {
 
   id            String  @id
   Blcoked_by    User    @relation("blocked_by", fields: [blocked_by_id], references: [userId], onDelete: Cascade)
-  blocked_by_id String  @unique
+  blocked_by_id String
   Blocked       User    @relation("blocked", fields: [blocked_id], references: [userId], onDelete: Cascade)
-  blocked_id    String  @unique
+  blocked_id    String
   dmRoomId      String?
 
+  @@unique([blocked_by_id, blocked_id], name: "unique_block")
   @@map("blocked_friends")
 }
 

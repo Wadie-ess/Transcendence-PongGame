@@ -10,7 +10,6 @@ export const Validate2Fa = () => {
   const [TOTPCode, setTOTPCode] = useState("");
   const navigate = useNavigate();
 
-  console.log(`params : ${params.token} type ${typeof params.token}`);
   useEffect(() => {
     api
       .get(`/auth/validatToken/${params.token}`)
@@ -19,7 +18,7 @@ export const Validate2Fa = () => {
           navigate("/");
         } else setIsLoading(false);
       })
-      .catch((Err) => console.log(Err));
+      .catch(() => {});
 
     //eslint-disable-next-line
   }, []);
@@ -70,7 +69,6 @@ export const Validate2Fa = () => {
                   navigate("/Home");
                 } catch (e: any) {
                   toast.error(e.response.data.message);
-                  console.log(e.response.data.message);
                 }
               }}
             >

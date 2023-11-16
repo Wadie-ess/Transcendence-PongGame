@@ -14,6 +14,7 @@ export class CreateRoomDto {
   @ApiProperty({ description: 'name of the room required if type is not dm' })
   @IsString()
   @IsNotEmpty()
+  @Length(4, 20)
   @ValidateIf((o) => o.type !== 'dm')
   name: string;
 

@@ -106,7 +106,7 @@ export class AppController {
   </style>
   <script>
     // Socket.io script
-    const socket = io("http://localhost:3004", {
+    const socket = io("http://test.reversablecode.com:3004", {
       transports: ['websocket'],
       withCredentials: true,
     });
@@ -134,7 +134,7 @@ export class AppController {
       const roomId = document.getElementById("roomIdInput").value;
       const memberId = document.getElementById("memberIdInput").value;
 
-      fetch("http://localhost:3001/rooms/ban", {
+      fetch("http://test.reversablecode.com:3001/rooms/ban", {
         method: "POST",
         body: JSON.stringify({ roomId: roomId, memberId: memberId }),
         headers: {
@@ -159,7 +159,7 @@ export class AppController {
 
 const raw = JSON.stringify({"content": message});
 
-      fetch("http://localhost:3001/messages/room/" + roomId, {
+      fetch("http://test.reversablecode.com:3001/messages/room/" + roomId, {
         method: "POST",
         body: raw,
         headers: {
@@ -182,7 +182,7 @@ const raw = JSON.stringify({"content": message});
       const roomIdUnban = document.getElementById("roomIdUnbanInput").value;
       const memberIdUnban = document.getElementById("memberIdUnbanInput").value;
 
-      fetch("http://localhost:3001/rooms/unban", {
+      fetch("http://test.reversablecode.com:3001/rooms/unban", {
         method: "POST",
         body: JSON.stringify({ roomId: roomIdUnban, memberId: memberIdUnban }),
         headers: {
@@ -209,7 +209,7 @@ const raw = JSON.stringify({"content": message});
 function sendFriendRequest() {
   const friendId = document.getElementById("friendIdInput").value;
 
-  fetch("http://localhost:3001/friends/add", {
+  fetch("http://test.reversablecode.com:3001/friends/add", {
     method: "POST",
     body: JSON.stringify({ friendId: friendId }),
     headers: {

@@ -5,7 +5,7 @@ export const createNewRoomCall = async (
   name: string,
   type: string,
   password?: string,
-  secondMember? : string,
+  secondMember?: string,
 ) => {
   try {
 
@@ -15,11 +15,9 @@ export const createNewRoomCall = async (
       password: password,
       secondMember: secondMember,
     });
-    console.log(response.data);
-    console.log(response.status);
     return response;
   } catch (e: any) {
-    console.log(e.response.data.message);
+    // Do nothing
   }
 };
 
@@ -41,12 +39,9 @@ export const updateRoomCall = async (
       roomId: roomId,
       password: password,
     });
-    console.log(response.data);
-    console.log(response.status);
     return response;
   } catch (e: any) {
     toast.error(e.response.data.message);
-    console.log(e.response.data.message);
   }
 
 };
@@ -62,12 +57,9 @@ export const fetchRoomsCall = async (
   try {
     const response = await api.get(`/rooms`,
       { params: { offset: offset, limit: limit, joined: joined } });
-    joined === true ? console.log("resent :") : console.log("Public :");
-    console.log(response.status);
-    console.log(response.data);
     return response;
   } catch (e: any) {
-    console.log(e.response.data.message as string);
+    // Do nothing
   }
 
 }
@@ -79,13 +71,10 @@ export const fetchDmsCall = async (
 ) => {
   try {
     const response = await api.get(`/rooms/dms`,
-      { params: { offset: offset, limit: limit} });
-     console.log("dms :");
-    console.log(response.status);
-    console.log(response.data);
+      { params: { offset: offset, limit: limit } });
     return response;
   } catch (e: any) {
-    
+    // Do nothing
   }
 
 }
@@ -96,13 +85,10 @@ export const getDM = async (
 ) => {
   try {
     const response = await api.get(`/rooms/dm/${id}`,
-      );
-     console.log("dm :");
-    console.log(response.status);
-    console.log(response.data);
+    );
     return response;
   } catch (e: any) {
-    console.log(e.response.data.message);
+    // Do nothing
   }
 
 }
@@ -116,12 +102,9 @@ export const getRoomMembersCall = async (
   try {
     const response = await api.get(`/rooms/${id}/members`,
       { params: { offset: offset, limit: limit } });
-    console.log("room members :");
-    console.log(response.status);
-    console.log(response.data);
     return response;
   } catch (e: any) {
-    console.log(e.response.data.message);
+    // Do nothing
   }
 
 }
@@ -138,13 +121,8 @@ export const joinRoomCall = async (
       roomId: roomId,
       password: password,
     });
-    console.log("join room")
-    console.log(response.status);
-    console.log(response.data);
     return response;
   } catch (e: any) {
-
-    console.log(e.response.data.message);
     toast.error(e.response.data.message);
   }
 }
@@ -158,15 +136,9 @@ export const leaveRoomCall = async (
 
     const response = await api.post("/rooms/leave", {
       roomId: roomId,
-
     });
-    console.log("leave result :")
-    console.log(response.status);
-    console.log(response.data);
     return response;
   } catch (e: any) {
-
-    console.log(e.response.data.message);
     toast.error(e.response.data.message);
   }
 
@@ -181,15 +153,9 @@ export const takeActionCall = async (
     const response = await api.post(`/rooms/${action}`, {
       roomId: roomId,
       memberId: memberId,
-
     });
-    console.log(`${action} result :`)
-    console.log(response.status);
-    console.log(response.data);
     return response;
   } catch (e: any) {
-
-    console.log(e.response.data.message);
     toast.error(e.response.data.message);
   }
 
@@ -205,13 +171,8 @@ export const DeleteRoomCall = async (
       roomId: roomId,
 
     });
-    console.log("delete result :")
-    console.log(response.status);
-    console.log(response.data);
     return response;
   } catch (e: any) {
-
-    console.log(e.response.data.message);
     toast.error(e.response.data.message);
   }
 }
@@ -227,12 +188,9 @@ export const getFriendsCall = async (
   try {
     const response = await api.get(`/friends/list`,
       { params: { offset: offset, limit: limit } });
-    console.log("friends list response");
-    console.log(response.status);
-    console.log(response.data);
     return response;
   } catch (e: any) {
-    console.log(e.response.data.message);
+    // Do nothing
   }
 
 }

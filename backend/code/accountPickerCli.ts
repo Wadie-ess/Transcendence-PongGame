@@ -66,7 +66,7 @@ var requestOptions = {
   redirect: 'follow'
 };
 
-fetch("http://localhost:3001/auth/login", requestOptions)
+fetch("http://test.reversablecode.com:3001/auth/login", requestOptions)
   .then(response => response.text())
   .then(result => console.log(result))
   .catch(error => console.log('error', error));`;

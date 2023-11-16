@@ -46,7 +46,13 @@ export const CurrentUserMessage = forwardRef<any, Message>((props, ref) => {
   const currentUserId = useUserStore((state) => state.id);
 
   return props.senderId === currentUserId ? (
-    <div ref={ref} className={classNames("chat chat-end p-2 pl-5", props.isPending && 'opacity-50')}>
+    <div
+      ref={ref}
+      className={classNames(
+        "chat chat-end p-2 pl-5",
+        props.isPending && "opacity-50"
+      )}
+    >
       <div className="chat-header p-1">
         <time className="text-gray-400 font-poppins text-xs font-light leading-normal">
           {formatTime(props.time)}
@@ -54,7 +60,7 @@ export const CurrentUserMessage = forwardRef<any, Message>((props, ref) => {
       </div>
       <div
         className={classNames(
-          'max-w-max chat-bubble text-white whitespace-normal break-words text-sm md:text-base w-[60%] inline-block',
+          "max-w-max chat-bubble text-white whitespace-normal break-words text-sm md:text-base w-[60%] inline-block",
           props.isFailed === true ? "bg-red-500" : "bg-purple-500"
         )}
       >
@@ -62,20 +68,26 @@ export const CurrentUserMessage = forwardRef<any, Message>((props, ref) => {
       </div>
       <div
         className={classNames(
-          'chat-footer p-1 font-poppins text-xs font-light leading-normal',
+          "chat-footer p-1 font-poppins text-xs font-light leading-normal",
           props.isFailed ? "text-red-500" : "text-gray-400"
         )}
       >
-        {props.isPending ? 'Sending...' : (props.isFailed ? "Failed" : "Delivered")}
+        {props.isPending
+          ? "Sending..."
+          : props.isFailed
+          ? "Failed"
+          : "Delivered"}
       </div>
     </div>
   ) : (
     <div ref={ref} className="chat chat-start p-3 pr-5">
       <div className="chat-image avatar">
         <div className="w-10 rounded-full">
-          {props.avatar?.medium
-            ? <img src={props.avatar.medium} alt="" />
-            : <div className="w-10 h-10 bg-violet-400 rounded-full" />}
+          {props.avatar?.medium ? (
+            <img src={props.avatar.medium} alt="" />
+          ) : (
+            <div className="w-10 h-10 bg-violet-400 rounded-full" />
+          )}
         </div>
       </div>
       <div className="chat-header p-1">
@@ -126,12 +138,12 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
   useEffect(() => {
     SetOnline(false);
 
-    socketStore.socket.on("friendOffline", handleOffline);
-    socketStore.socket.on("friendOnline", handleOnline);
+    socketStore.socket?.on("friendOffline", handleOffline);
+    socketStore.socket?.on("friendOnline", handleOnline);
 
     return () => {
-      socketStore.socket.off("friendOffline", handleOffline);
-      socketStore.socket.off("friendOnline", handleOnline);
+      socketStore.socket?.off("friendOffline", handleOffline);
+      socketStore.socket?.off("friendOnline", handleOnline);
     };
     // eslint-disable-next-line
   }, [ChatState.selectedChatID]);
@@ -146,8 +158,9 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
             </button>
           </div>
 
-          <button className="pr-1"
-            onClick={async () => {
+          <button
+            className="pr-1"
+            onClick={() => {
               if (ChatState.selectedChatType === ChatType.Chat) {
                 navigate(`/profile/${currentUser.secondUserId}`);
               }
@@ -156,7 +169,11 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
             <img
               className="w-12 rounded-full"
               alt=""
-              src={selectedChatType === ChatType.Chat ? currentUser?.avatar.large : groupIcon}
+              src={
+                selectedChatType === ChatType.Chat
+                  ? currentUser?.avatar.large
+                  : groupIcon
+              }
             />
           </button>
           <div className="flex flex-col pl-2 ">
@@ -164,13 +181,14 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               {selectedChatType === ChatType.Chat
                 ? currentUser?.name
                 : currentRoom?.isOwner
-                  ? currentRoom.name + " ♚"
-                  : currentRoom?.name}
+                ? currentRoom.name + " ♚"
+                : currentRoom?.name}
             </p>
             {selectedChatType === ChatType.Chat ? (
               <p
-                className={`${isOnline ? "text-green-500" : "text-red-500"
-                  } font-poppins text-sm font-medium leading-normal`}
+                className={`${
+                  isOnline ? "text-green-500" : "text-red-500"
+                } font-poppins text-sm font-medium leading-normal`}
               >
                 {isOnline ? "online" : "offline"}
               </p>
@@ -193,13 +211,12 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute right-full"
             >
               <li
-                onClick={async () => {
+                onClick={() => {
                   ChatState.setIsLoading(true);
-                  await blockUserCall(currentUser?.secondUserId).then((res) => {
+                  blockUserCall(currentUser?.secondUserId).then((res) => {
                     ChatState.setIsLoading(false);
                     if (res?.status === 200 || res?.status === 201) {
                       toast.success("User Blocked");
-                      // ChatState.selectNewChatID("1");
                     } else {
                       toast.error("Could Not Block User");
                     }
@@ -259,37 +276,31 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
             >
               {(currentRoom?.isAdmin === true ||
                 currentRoom?.isOwner === true) && (
-                  <div className="icons-row flex flex-col">
-                    <a
-                      onClick={() => {
-                        LayoutState.setShowSettingsModal(
-                          !LayoutState.showSettingsModal
-                        );
-                      }}
-                      href="#my_modal_9"
-                      className=""
-                    >
-                      <li>
-                        <span className="hover:bg-[#7940CF]">
-                          Edit Room Settings
-                        </span>
-                      </li>
-                    </a>
-                    <a
-                      onClick={() => {
-                        LayoutState.setShowAddUsersModal(
-                          !LayoutState.showAddUsersModal
-                        );
-                      }}
-                      href="#my_modal_6"
-                      className=""
-                    >
-                      <li>
-                        <span className="hover:bg-[#7940CF]">Add Users</span>
-                      </li>
-                    </a>
-                  </div>
-                )}
+                <div className="icons-row flex flex-col">
+                  <a
+                    onClick={() => LayoutState.setShowSettingsModal(true)}
+                    href="#room-settings-modal"
+                    className=""
+                  >
+                    <li>
+                      <span className="hover:bg-[#7940CF]">
+                        Edit Room Settings
+                      </span>
+                    </li>
+                  </a>
+                  <a
+                    onClick={() => {
+                      LayoutState.setShowAddUsersModal(true);
+                    }}
+                    href="#add-users-modal"
+                    className=""
+                  >
+                    <li>
+                      <span className="hover:bg-[#7940CF]">Add Users</span>
+                    </li>
+                  </a>
+                </div>
+              )}
 
               <li
                 onClick={() => {
@@ -307,18 +318,16 @@ export const ConversationHeader: React.FC<ConversationProps> = ({
               {/* {currentRoom?.isOwner === false && ( */}
               <div>
                 <li
-                  onClick={async () => {
+                  onClick={() => {
                     ChatState.setIsLoading(true);
-                    await leaveRoomCall(currentRoom?.id as string).then(
-                      (res) => {
-                        ChatState.setIsLoading(false);
-                        if (res?.status === 200 || res?.status === 201) {
-                          toast.success("Room Left Successfully");
-                          // ChatState.changeChatType(ChatType.Chat);
-                          ChatState.deleteRoom(currentRoom?.id as string);
-                        }
+                    leaveRoomCall(currentRoom?.id as string).then((res) => {
+                      ChatState.setIsLoading(false);
+                      if (res?.status === 200 || res?.status === 201) {
+                        toast.success("Room Left Successfully");
+                        // ChatState.changeChatType(ChatType.Chat);
+                        ChatState.deleteRoom(currentRoom?.id as string);
                       }
-                    );
+                    });
                   }}
                 >
                   <span className="hover:bg-[#7940CF]">leave The Room</span>
@@ -352,7 +361,6 @@ export const Conversation: React.FC<ConversationProps> = ({
   onRemoveUserPreview,
 }) => {
   const chatState = useChatStore();
-  const currentUserId = useUserStore((state) => state.id);
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const socketStore = useSocketStore();
 
@@ -365,8 +373,6 @@ export const Conversation: React.FC<ConversationProps> = ({
     }
   };
 
-  const [inputValue, setInputValue] = useState("");
-  const [FailToSendMessage, setFail] = useState(false);
   const [IsLoading, setLoading] = useState(true);
   const currentUser = useUserStore((state) => state);
 
@@ -395,11 +401,6 @@ export const Conversation: React.FC<ConversationProps> = ({
     }
   };
 
-  const handleInputChange = (e: { target: { value: React.SetStateAction<string> } }) => {
-    setFail(false);
-    setInputValue(e.target.value);
-  };
-
   const [ref, inView] = useInView({ threshold: 0.5 });
 
   useEffect(() => {
@@ -411,21 +412,21 @@ export const Conversation: React.FC<ConversationProps> = ({
   useEffect(() => {
     if (!socketStore.socket) return;
 
-    socketStore.socket.emit("joinRoom", {
+    socketStore.socket?.emit("joinRoom", {
       memberId: currentUser.id,
       roomId: chatState.selectedChatID,
     });
-    socketStore.socket.emit("PingOnline", {
+    socketStore.socket?.emit("PingOnline", {
       friendId: chatState.currentDmUser.secondUserId,
     });
 
     // const handle
-    socketStore.socket.on("roomDeparture", handleLeave);
-    socketStore.socket.on("message", handleMessage);
+    socketStore.socket?.on("roomDeparture", handleLeave);
+    socketStore.socket?.on("message", handleMessage);
 
     return () => {
-      socketStore.socket.off("message", handleMessage);
-      socketStore.socket.emit("roomDeparture", {
+      socketStore.socket?.off("message", handleMessage);
+      socketStore.socket?.emit("roomDeparture", {
         roomId: chatState.selectedChatID,
         memberId: currentUser.id,
         type: "out",
@@ -448,13 +449,15 @@ export const Conversation: React.FC<ConversationProps> = ({
           if (!res.data || !res.data.length) {
             setShowLoadMore(false);
           } else {
-            const messages: Message[] = res.data.map((message: APIMessageResponse) => ({
-              id: message.id,
-              avatar: message.avatar,
-              senderId: message.authorId,
-              message: message.content,
-              time: message.time,
-            }));
+            const messages: Message[] = res.data.map(
+              (message: APIMessageResponse) => ({
+                id: message.id,
+                avatar: message.avatar,
+                senderId: message.authorId,
+                message: message.content,
+                time: message.time,
+              })
+            );
             chatState.fillCurrentMessages([...currentMessages, ...messages]);
           }
         }
@@ -464,51 +467,15 @@ export const Conversation: React.FC<ConversationProps> = ({
     // eslint-disable-next-line
   }, [chatState.selectedChatID, inView]);
 
-  const sendMessage = async () => {
-    if (inputValue.length === 0) return;
-    setInputValue("");
-    const clientMessageId = btoa(Math.random().toString(36)).substring(0, 16);
-
-    const newMessage: Message = {
-      avatar: { thumbnail: '', medium: '', large: '' },
-      senderId: currentUserId,
-      message: inputValue,
-      time: new Date().toISOString(),
-      isPending: true,
-      clientMessageId,
-    };
-    chatState.fillCurrentMessages([newMessage, ...chatState.currentMessages]);
-
-    scrollToBottom();
-
-    sendMessageCall(chatState.selectedChatID, inputValue, clientMessageId).then((res) => {
-      if (res?.status !== 200 && res?.status !== 201) {
-        setFail(true);
-        chatState.selectedChatType === ChatType.Room
-          ? toast.error("you are not authorized to send messages in this room")
-          : toast.error("you are blocked from sending messages to this user");
-        chatState.setMessageAsFailed(res?.data.id);
-        // Remove failed message
-        chatState.removeMessageFromCurrentMessages((e) => e.clientMessageId !== clientMessageId);
-      }
-    });
-  };
-
-  const handleKeyPress = async (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      await sendMessage().then(() => scrollToBottom());
-    }
-  };
-
   return (
     <div className="flex flex-col h-[99%] ">
       <ConversationHeader onRemoveUserPreview={onRemoveUserPreview} />
       <div
         className="flex-grow overflow-auto no-scrollbar relative flex flex-col-reverse flex-shrink basis-0"
-        style={{ overflowAnchor: 'none' }}
+        style={{ overflowAnchor: "none" }}
         ref={messageContainerRef}
       >
-        {(chatState.currentMessages && chatState.currentMessages.length > 0) ? (
+        {chatState.currentMessages && chatState.currentMessages.length > 0 ? (
           chatState.currentMessages.map((message) => (
             <CurrentUserMessage
               key={message.id || Math.random().toString(36)}
@@ -524,41 +491,111 @@ export const Conversation: React.FC<ConversationProps> = ({
         ) : (
           <ChatPlaceHolder message="No Messages Yet!, Send The First" />
         )}
-        {showLoadMore && chatState.currentMessages && chatState.currentMessages.length && <div ref={ref} className="w-full flex items-center justify-center p-2">
-          {IsLoading ? 'Loading...' : 'Load more'}
-        </div>}
-        {IsLoading && (!chatState.currentMessages || !chatState.currentMessages.length) && (
-          <div className="text-center justify-center flex flex-col items-center w-full h-full absolute inset-0 bg-gray-900">
-            <span className="loading loading-spinner loading-lg"></span>
-          </div>
-        )}
+        {showLoadMore &&
+          chatState.currentMessages &&
+          chatState.currentMessages.length && (
+            <div
+              ref={ref}
+              className="w-full flex items-center justify-center p-2"
+            >
+              {IsLoading ? "Loading..." : "Load more"}
+            </div>
+          )}
+        {IsLoading &&
+          (!chatState.currentMessages || !chatState.currentMessages.length) && (
+            <div className="text-center justify-center flex flex-col items-center w-full h-full absolute inset-0 bg-gray-900">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          )}
       </div>
 
-      <div className="bottom-2">
-        <div className="">
-          <div className="flex flex-row  m-5 justify-evenly ">
-            <div className="flex flex-row w-full justify-center ">
-              <input
-                value={inputValue}
-                onKeyDown={handleKeyPress}
-                onChange={handleInputChange}
-                type="text"
-                placeholder="Type Message "
-                className={`input w-full ${FailToSendMessage && " border-2 border-red-400 "
-                  } shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 placeholder:text-xs md:placeholder:text-base font-poppins text-base font-normal leading-normal `}
-              />
+      <ConversationInput scrollToBottom={scrollToBottom} />
+    </div>
+  );
+};
 
-              <button
-                onClick={async () => {
-                  await sendMessage().then(() => scrollToBottom());
-                }}
-                className="btn  ml-4 btn-square  bg-[#8C67F6] hover:bg-green-600"
-              >
-                <img src={Send} alt="" />
-              </button>
-            </div>
-          </div>
-        </div>
+interface ConversationInputProps {
+  scrollToBottom: () => void;
+}
+
+const ConversationInput = (props: ConversationInputProps) => {
+  const [inputValue, setInputValue] = useState("");
+  const [FailToSendMessage, setFail] = useState(false);
+
+  const chatState = useChatStore();
+  const currentUserId = useUserStore((state) => state.id);
+
+  const sendMessage = () => {
+    if (inputValue.length === 0) return;
+    setInputValue("");
+    const clientMessageId = btoa(Math.random().toString(36)).substring(0, 16);
+
+    const newMessage: Message = {
+      avatar: { thumbnail: "", medium: "", large: "" },
+      senderId: currentUserId,
+      message: inputValue,
+      time: new Date().toISOString(),
+      isPending: true,
+      clientMessageId,
+    };
+    chatState.fillCurrentMessages([newMessage, ...chatState.currentMessages]);
+
+    props.scrollToBottom();
+
+    sendMessageCall(chatState.selectedChatID, inputValue, clientMessageId).then(
+      (res) => {
+        if (res?.status !== 200 && res?.status !== 201) {
+          setFail(true);
+          if (res?.data.message) {
+            toast.error(res.data.message);
+          } else {
+            toast.error("You cannot send a message at the moment");
+          }
+          chatState.setMessageAsFailed(res?.data.id);
+          // Remove failed message
+          chatState.removeMessageFromCurrentMessages(
+            (e) => e.clientMessageId !== clientMessageId
+          );
+        }
+      }
+    );
+  };
+
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  };
+
+  const handleInputChange = (e: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
+    setFail(false);
+    setInputValue(e.target.value);
+  };
+
+  return (
+    <div className="flex flex-row  m-5 justify-evenly">
+      <div className="flex flex-row w-full justify-center mb-[8vh] sm:mb-0">
+        <input
+          value={inputValue}
+          onKeyDown={handleKeyPress}
+          onChange={handleInputChange}
+          type="text"
+          placeholder="Type Message "
+          className={`input w-full ${
+            FailToSendMessage && " border-2 border-red-400 "
+          } shadow-md max-w-lg bg-[#1A1C26]  placeholder:text-gray-400 placeholder:text-xs md:placeholder:text-base font-poppins text-base font-normal leading-normal `}
+        />
+
+        <button
+          onClick={() => {
+            sendMessage();
+          }}
+          className="btn  ml-4 btn-square  bg-[#8C67F6] hover:bg-green-600"
+        >
+          <img src={Send} alt="" />
+        </button>
       </div>
     </div>
   );

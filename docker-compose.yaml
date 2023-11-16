@@ -10,6 +10,8 @@ services :
     networks:
       - pongnet
     init: true
+    restart: always
+
   database:
     image: postgres
     restart: always
@@ -19,6 +21,8 @@ services :
       - database:/var/lib/postgresql/data
     networks:
       - pongnet
+    restart: always
+
   backend:
     build:
       context: ./backend
@@ -33,6 +37,7 @@ services :
       - 3001:3001
       - 3004:3004
     init : true
+    restart: always
     
   nginx :
     build:
@@ -49,10 +54,21 @@ services :
       - 8000:80
     init: true
     restart: always
+
+  migration:
+    build:
+      context: ./backend/code/prisma
+      dockerfile: Dockerfile
+    image: prisma_migration:local
+    networks:
+      - pongnet
+    depends_on:
+      - backend
    
 volumes: 
   front:
   database:
+
 networks:
   pongnet:
   

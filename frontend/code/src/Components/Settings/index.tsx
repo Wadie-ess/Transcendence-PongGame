@@ -29,9 +29,9 @@ export const Setting = () => {
 
   const user = useUserStore();
   const [myuser, setMyuser] = useState(user);
-  const data_names = ["First name", "Last name", "Email", "Bio"];
-  const payload_objects = ["firstName", "lastName", "email", "discreption"];
-  const data_content = [user.name.first, user.name.last, user.email, user.bio];
+  const data_names = ["First name", "Last name", "Email", "Username", "Bio"];
+  const payload_objects = ["firstName", "lastName", "email", "Username", "discreption"];
+  const data_content = [user.name.first, user.name.last, user.email, user.username, user.bio];
 
   useEffect(() => {
     setMyuser(user);
@@ -195,7 +195,6 @@ export const Setting = () => {
                                 toast.success(response.data.message);
                               } catch (e: any) {
                                 toast.error(e.response.data.message);
-                                console.log(e.response.data.message);
                               }
                             }}
                           >
@@ -254,7 +253,6 @@ export const Setting = () => {
                                 toast.success(response.data.message);
                               } catch (e: any) {
                                 toast.error(e.response.data.message);
-                                console.log(e.response.data.message);
                               }
                             }}
                           >

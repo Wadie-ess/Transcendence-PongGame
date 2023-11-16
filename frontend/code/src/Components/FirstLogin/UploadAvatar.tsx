@@ -10,6 +10,7 @@ type Inputs = {
   lastName: string;
   discreption: string;
   email: string;
+  Username: string;
 };
 const ERROR_MESSAGES = [
   "Field is required",
@@ -20,10 +21,11 @@ const payload_objects = [
   "firstName",
   "lastName",
   "email",
+  "Username",
   "phone",
   "discreption",
 ];
-const data_names = ["First name", "Last name", "Email", "Phone", "Bio"];
+const data_names = ["First name", "Last name", "Email", "Username", "Phone", "Bio"];
 export const UploadAvatar = () => {
   const userStore = useUserStore();
   const navigate = useNavigate();
@@ -89,6 +91,17 @@ export const UploadAvatar = () => {
             minLength: 4,
           })}
           defaultValue={userStore.bio}
+          className="input input-bordered input-primary w-full"
+        />
+        <input
+          type="text"
+          placeholder="Username"
+          {...register("Username", {
+            required: true,
+            maxLength: 50,
+            minLength: 4,
+          })}
+          defaultValue={userStore.username}
           className="input input-bordered input-primary w-full"
         />
         <input

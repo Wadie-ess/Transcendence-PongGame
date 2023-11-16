@@ -25,10 +25,8 @@ export const Login =  () =>
         } catch (error:any) {
             if (error.response && error.response.status === 401) {
                 // This is a 401 error; you can choose to handle it silently
-                console.log("hit")
               } else {
                 // Handle other errors
-                // console.error(error);
               }
         }
     }

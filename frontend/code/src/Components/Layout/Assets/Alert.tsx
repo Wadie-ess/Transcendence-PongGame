@@ -21,23 +21,22 @@ export const Alert = () => {
       addFriend: "sent you a friend requst",
       acceptFriend: "accepted your friend request",
     }),
-    [],
+    []
   );
 
   const unread = useMemo(() => {
     if (!user?.notifications) return 0;
     return user.notifications.filter(
-      (notification: any) => !notification.is_read,
+      (notification: any) => !notification.is_read
     ).length;
   }, [user?.notifications]);
 
   useEffect(() => {
-    socketStore.socket.on("notification", (notification: any) => {
+    socketStore.socket?.on("notification", (notification: any) => {
       if (
         notification.actorId === user.id ||
         notification.entity_type === "message"
       ) {
-        console.log(notification);
         if (notification.entity.authorId !== user.id) {
           toast.custom(
             (t) => (
@@ -87,7 +86,7 @@ export const Alert = () => {
     });
 
     return () => {
-      socketStore.socket.off("notification");
+      socketStore.socket?.off("notification");
     };
     //eslint-disable-next-line
   }, [socketStore]);
@@ -161,14 +160,14 @@ export const Alert = () => {
                     key={notification.id}
                     className={classNames(
                       "flex flex-row justify-start text-xs gap-3 p-4 hover:cursor-pointer",
-                      notification.is_read && "opacity-50",
+                      notification.is_read && "opacity-50"
                     )}
                     onClick={async () => {
                       try {
                         navigate(`/profile/${notification.actorId}`);
                         user.updateNotificationRead(notification.id);
                         await api.post(
-                          `/profile/read-notification/${notification.id}`,
+                          `/profile/read-notification/${notification.id}`
                         );
                       } catch (error) {
                         toast.error("Something went wrong");
@@ -194,8 +193,7 @@ export const Alert = () => {
                 ))}
                 <div
                   ref={ref}
-                  className="flex justify-center items-center h-2 py-5 border-t border-gray-700
-								"
+                  className="flex justify-center items-center h-2 py-5 border-t border-gray-700"
                 >
                   <span className="text-xs text-gray-400">
                     {notificationDone ? "No more notifications" : "Loading..."}

@@ -17,7 +17,7 @@ export const QueueWaitModal = forwardRef<HTMLDialogElement, any>(
                 <button
                   className="btn"
                   onClick={() => {
-                    socketStore.socket.emit("quitQueue", {
+                    socketStore.socket?.emit("quitQueue", {
                       gameMode: props.gameMode,
                     });
                     props.setGameMode("");

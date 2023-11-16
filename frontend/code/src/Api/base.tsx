@@ -1,10 +1,4 @@
 import axios from "axios";
-// import { useNavigate } from 'react-router-dom';
-// import { useUserStore } from "../Stores/stores";
-// const useNavigateCustom = () => {
-//   const navigate = useNavigate();
-//   return navigate;
-// };
 
 const apiWithoutManager = axios.create({
   baseURL: `${process.env.REACT_APP_API_ENDPOINT}`,
@@ -102,19 +96,5 @@ const api = axios.create({
 
 // init your manager.
 ConcurrencyManager(api, 1);
-
-// const errorHandler = async (error: any) => {
-//   if (error?.response?.status === 401) {
-//     try {
-//       await api.get("auth/refresh");
-//       return api.request(error.config);
-//     } catch (refreshError) {}
-//   }
-//   return Promise.reject(error);
-// };
-// api.interceptors.response.use(
-//   (response) => response,
-//   (error) => errorHandler(error)
-// );
 
 export default api;

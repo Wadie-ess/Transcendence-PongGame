@@ -20,6 +20,7 @@ import {
   CreateNewRoomModal,
   ExploreRoomsModal,
   InitChatPlaceholder,
+  RoomChatPlaceHolder,
   RoomSettingsModal,
 } from "./Components/RoomChatHelpers";
 
@@ -38,8 +39,12 @@ export const Chat = () => {
   const [showUserPreview, setShowUserPreview] = useState(false);
   const ChatState = useChatStore((state) => state);
 
+  const modalState = useModalStore();
+
   const showChatRooms = useChatStore((state) => state.showChatRooms);
   const toggleChatRooms = useChatStore((state) => state.toggleChatRooms);
+
+  const selectedChatType = useChatStore((state) => state.selectedChatType);
 
   const handleRemoveUserPreview = () => {
     setShowUserPreview(!showUserPreview);
@@ -49,10 +54,10 @@ export const Chat = () => {
     <>
       <div className="flex h-full bg-[#1A1C26] relative">
         <div>
-          <ExploreRoomsModal />
-          <RoomSettingsModal />
-          <AddUsersModal />
-          <CreateNewRoomModal />
+          {modalState.showExploreModal && <ExploreRoomsModal />}
+          {modalState.showSettingsModal && <RoomSettingsModal />}
+          {modalState.showAddUsersModal && <AddUsersModal />}
+          {modalState.showCreateChatRoomModal && <CreateNewRoomModal />}
         </div>
         <div
           className={classNames(
@@ -64,7 +69,8 @@ export const Chat = () => {
           )}
           data-mobile-show={showChatRooms}
         >
-          <RecentConversations />
+          {selectedChatType === ChatType.Chat && <RecentConversations />}
+          {selectedChatType === ChatType.Room && <RoomChatPlaceHolder />}
         </div>
         {showChatRooms && (
           <div
@@ -111,7 +117,6 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("selected chat type", selectedChatType);
         if (SelectedChat === "1" && selectedChatType !== ChatType.Room) {
           onRemoveUserPreview();
         } else {
@@ -128,7 +133,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
           );
         }
       } catch (error) {
-        console.error("Error fetching data: ", error);
+        // Do nothing
       }
     };
 
@@ -196,7 +201,6 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
         <div className="pt-4">
           <div className="flex flex-row  text-gray-400 font-poppins font-medium text-base ">
             <img alt="" src={RoomsIcon} />
-            {}
             <p className="pl-2 ">{currentRoom?.name}'s Members</p>
           </div>
           <div className="h-[350px] overflow-scroll no-scrollbar ">
@@ -208,9 +212,7 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
                       <div className="avatar">
                         <div className="mask mask-squircle w-11 h-11">
                           <button
-                            onClick={async () => {
-                              navigate(`/profile/${user.id}`);
-                            }}
+                            onClick={() => navigate(`/profile/${user.id}`)}
                           >
                             <img
                               className="w-12 rounded-full "
@@ -218,10 +220,6 @@ export const UserPreviewCard: React.FC<ConversationProps> = ({
                               src={user?.avatar?.medium ?? NullUser}
                             />
                           </button>
-                          {/* <img
-                            src={user?.avatar?.medium ?? NullUser}
-                            alt="Avatar Tailwind CSS Component"
-                          /> */}
                         </div>
                       </div>
                       <div>
