@@ -1,10 +1,4 @@
 import axios from "axios";
-// import { useNavigate } from 'react-router-dom';
-// import { useUserStore } from "../Stores/stores";
-// const useNavigateCustom = () => {
-//   const navigate = useNavigate();
-//   return navigate;
-// };
 
 const apiWithoutManager = axios.create({
   baseURL: `${process.env.REACT_APP_API_ENDPOINT}`,
@@ -17,8 +11,8 @@ const apiWithoutManager = axios.create({
 });
 
 const ConcurrencyManager = (axios: any, MAX_CONCURRENT = 10) => {
-  if (MAX_CONCURRENT < 1){
-      //eslint-disable-next-line
+  if (MAX_CONCURRENT < 1) {
+    //eslint-disable-next-line
     throw "Concurrency Manager Error: minimun concurrent requests is 1";
   }
   let instance = {
@@ -44,7 +38,7 @@ const ConcurrencyManager = (axios: any, MAX_CONCURRENT = 10) => {
     },
     // Use as interceptor. Queue outgoing requests
     requestHandler: (req: any) => {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         instance.push({ request: req, resolver: resolve });
       });
     },
@@ -57,31 +51,34 @@ const ConcurrencyManager = (axios: any, MAX_CONCURRENT = 10) => {
     responseErrorHandler: async (error: any) => {
       if (error?.response?.status === 401) {
         try {
-          const refreshError = await apiWithoutManager.get("auth/refresh").then(() => null).catch((err: any) => err);
-          if (refreshError && window.location.pathname !== '/') {
+          const refreshError = await apiWithoutManager
+            .get("auth/refresh")
+            .then(() => null)
+            .catch((err: any) => err);
+          if (refreshError && window.location.pathname !== "/") {
             instance.queue = [];
             instance.running = [];
-            window.location.href = '/';
+            window.location.href = "/";
             return;
           }
           const res = await apiWithoutManager.request(error.config);
           return instance.responseHandler(res);
-        } catch (refreshError) { }
+        } catch (refreshError) {}
       }
       return Promise.reject(instance.responseHandler(error));
     },
     interceptors: {
       request: null,
-      response: null
+      response: null,
     },
     detach: () => {
       axios.interceptors.request.eject(instance.interceptors.request);
       axios.interceptors.response.eject(instance.interceptors.response);
-    }
+    },
   };
   // queue concurrent requests
   instance.interceptors.request = axios.interceptors.request.use(
-    instance.requestHandler
+    instance.requestHandler,
   );
   instance.interceptors.response = axios.interceptors.response.use(
     instance.responseHandler,
@@ -102,19 +99,5 @@ const api = axios.create({
 
 // init your manager.
 ConcurrencyManager(api, 1);
-
-// const errorHandler = async (error: any) => {
-//   if (error?.response?.status === 401) {
-//     try {
-//       await api.get("auth/refresh");
-//       return api.request(error.config);
-//     } catch (refreshError) {}
-//   }
-//   return Promise.reject(error);
-// };
-// api.interceptors.response.use(
-//   (response) => response,
-//   (error) => errorHandler(error)
-// );
 
 export default api;

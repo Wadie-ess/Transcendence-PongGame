@@ -10,10 +10,10 @@ import {
 } from 'class-validator';
 
 export class CreateRoomDto {
-  // @IgnoreName('type', { message: 'room name is not required on type dm' })
   @ApiProperty({ description: 'name of the room required if type is not dm' })
   @IsString()
   @IsNotEmpty()
+  @Length(4, 20)
   @ValidateIf((o) => o.type !== 'dm')
   name: string;
 

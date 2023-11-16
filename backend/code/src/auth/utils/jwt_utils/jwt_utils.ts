@@ -17,7 +17,7 @@ export class JwtUtils {
         { username, sub: userId },
         {
           secret: JwtConsts.at_secret,
-          expiresIn: '15m',
+          expiresIn: '2h',
         },
       ),
       this.jwtService.signAsync(

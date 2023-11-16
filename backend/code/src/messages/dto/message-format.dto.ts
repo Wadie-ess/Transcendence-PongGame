@@ -9,7 +9,7 @@ export class MessageFormatDto {
       author: Partial<User>;
       room?: { type: $Enums.RoomType };
     },
-    clientMessageId?: string
+    clientMessageId?: string,
   ) {
     this.id = messageData.id;
     this.content = messageData.content;

@@ -8,7 +8,13 @@ import { Message } from "./Assets/Message";
 import { Profile } from "./Assets/Profile";
 import { Settings } from "./Assets/Settings";
 import { Out } from "./Assets/Out";
-import { FC, PropsWithChildren, useEffect, useLayoutEffect, useRef } from "react";
+import {
+  FC,
+  PropsWithChildren,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import { Outlet } from "react-router";
 import { matchRoutes, useLocation } from "react-router-dom";
 import { useUserStore } from "../../Stores/stores";
@@ -24,6 +30,7 @@ import { Modal } from "./Assets/Modal";
 
 import { InvitationGame } from "./Assets/Invitationmodale";
 import { useGameState } from "../Game/States/GameState";
+import { useModalStore } from "../Chat/Controllers/LayoutControllers";
 const routes = [
   { path: "Profile/:id" },
   { path: "Dm/:id" },
@@ -41,9 +48,6 @@ const useCurrentPath = () => {
   return route.path;
 };
 
-function onConnect() {
-  console.log("hello");
-}
 export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   const gameStore = useGameState();
   const user = useUserStore();
@@ -51,20 +55,30 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
   const socketStore = useSocketStore();
   const invitationGameRef = useRef<HTMLDialogElement>(null);
   const path: string = useCurrentPath();
+
+  const modalState = useModalStore();
+
   useEffect(() => {
-    console.log(gameStore)
-    console.log(`path is saads ${path}`)
-    if (gameStore.end === false && path !== "Game/:id")
-    {
-        socketStore.socket.emit("leave");
-        gameStore.setEnd(true)
+    if (gameStore.end === false && path !== "Game/:id") {
+      socketStore.socket?.emit("leave");
+      gameStore.setEnd(true);
     }
     return () => {
-      socketStore.socket.off("leave");
-    }
-     // eslint-disable-next-line
-  },[path])
+      socketStore.socket?.off("leave");
+    };
+    // eslint-disable-next-line
+  }, [path]);
   useLayoutEffect(() => {
+    // Prevent ESC key
+    const preventEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+    document.addEventListener("keydown", preventEsc, false);
+
     const log = async () => {
       try {
         await user.login();
@@ -80,112 +94,18 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
     };
 
     socketStore.socket = socketStore.setSocket();
-    socketStore.socket.on("connect", onConnect);
-
-    // socketStore.socket.on("message", (msg: any) => {
-    //   toast.custom(
-    //     (t) =>
-    //       (
-    //         // eslint-disable-next-line
-    //         (t.duration = 450),
-    //         (
-    //           <div
-    //             className={`${
-    //               t.visible ? "animate-enter" : "animate-leave"
-    //             } max-w-sm w-full transition-opacity ease-in  bg-purple-500 rounded-xl  flex flex-col  relative top-[6vh] p-4`}
-    //           >
-    //             <div className="flex flex-row justify-between  ">
-    //               <div className="  flex flex-row ">
-    //                 <img
-    //                   alt="avatar"
-    //                   className="w-10 h-10 rounded-full"
-    //                   src={msg.avatar.medium}
-    //                 />
-    //                 <div className=" pl-3 flex flex-col items-baseline">
-    //                   <p className=" text-white  font-poppins text-base font-semibold leading-5 capitalize">
-    //                     message Received
-    //                   </p>
-    //                   <p className="text-[#2F3F53] font-poppins text-base font-normal text-center max-w-[150px] truncate">
-    //                     {msg.content}
-    //                   </p>
-    //                 </div>
-    //               </div>
-
-    //               <div>
-    //                 <img
-    //                   alt="avatar"
-    //                   className=" pb-1 w-6 h-6"
-    //                   src={closeWhite}
-    //                 />
-    //               </div>
-    //             </div>
-    //           </div>
-    //         )
-    //       ),
-    //   );
-    // });
-    // socketStore.socket.on("notification", (msg: any) => {
-    //   console.log("chat id", chatState.currentDmUser.id);
-    //   console.log("chat id", chatState.selectedChatID);
-
-    //   console.log("room id", msg.roomId);
-    //   if (msg.authorId !== user.id) {
-    //     toast.custom(
-    //       (t) => (
-    //         // eslint-disable-next-line
-    //         (t.duration = 450),
-    //         (
-    //           <div
-    //             className={`${
-    //               t.visible ? "animate-enter" : "animate-leave"
-    //             } max-w-sm w-full transition-opacity ease-in  bg-purple-500 rounded-xl  flex flex-col  relative top-[6vh] p-4`}
-    //           >
-    //             <div className="flex flex-row justify-between  ">
-    //               <div className="  flex flex-row ">
-    //                 <img
-    //                   alt="avatar"
-    //                   className="w-10 h-10 rounded-full"
-    //                   src={msg.avatar.medium}
-    //                 />
-    //                 <div className=" pl-3 flex flex-col items-baseline">
-    //                   <p className=" text-white  font-poppins text-base font-semibold leading-5 capitalize">
-    //                     message Received
-    //                   </p>
-    //                   <p className="text-[#2F3F53] font-poppins text-base font-normal text-center max-w-[150px] truncate">
-    //                     {msg.content}
-    //                   </p>
-    //                 </div>
-    //               </div>
-
-    //               <div>
-    //                 <img
-    //                   alt="avatar"
-    //                   className=" pb-1 w-6 h-6"
-    //                   src={closeWhite}
-    //                 />
-    //               </div>
-    //             </div>
-    //           </div>
-    //         )
-    //       )
-    //     );
-    //   }
-    // });
 
     log();
-    socketStore.socket.on("invitedToGame", (data: any) => {
-      console.log("invitedToGame", data);
+    socketStore.socket?.on("invitedToGame", (data: any) => {
       user.setGameInvitation(data);
       invitationGameRef.current?.showModal();
     });
     return () => {
-      socketStore.socket.off("connect");
-      socketStore.socket.off("invitedToGame");
+      document.removeEventListener("keydown", preventEsc, false);
+      socketStore.socket?.off("invitedToGame");
     };
-    //eslint-disable-next-line
+    // eslint-disable-next-line
   }, []);
-
- 
 
   return (
     <>
@@ -194,14 +114,16 @@ export const Layout: FC<PropsWithChildren> = (): JSX.Element => {
       ) : (
         <div
           data-theme="mytheme"
-          className={`h-screen max-h-screen ${!user.profileComplet ? "blur-lg" : ""}`}
+          className={`h-screen max-h-screen ${
+            !user.profileComplet ? "blur-lg" : ""
+          }`}
         >
           <Modal />
           <div className="flex flex-row w-full h-16 min-h-16 bg-base-200">
             <div className="flex justify-start items-center z-50 h-full w-full">
               <ShowLogoModal />
-              <BlockedUsersModal />
-              <FriendsListModal />
+              {modalState.showBlockedListModal && <BlockedUsersModal />}
+              {modalState.showFriendsListModal && <FriendsListModal />}
               <Logo className="sm:w-30 w-20" />
             </div>
             <div className="flex items-center  justify-end pr-6 gap-6 h-full w-full">

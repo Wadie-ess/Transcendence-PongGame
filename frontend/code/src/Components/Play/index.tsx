@@ -9,9 +9,8 @@ export const Play = () => {
   const [gameMode, setGameMode] = useState("");
   const queueModalRef = useRef<HTMLDialogElement>(null);
   const subscribeToGame = async () => {
-    // socketStore.socket.emit
     try {
-      socketStore.socket.emit("startGame", { gameMode: "cassic" });
+      socketStore.socket?.emit("startGame", { gameMode: "cassic" });
       setGameMode("cassic");
       queueModalRef.current?.showModal();
       toast.success(
@@ -25,9 +24,8 @@ export const Play = () => {
     }
   };
   const subscribeToGameExtra = async () => {
-    // socketStore.socket.emit
     try {
-      socketStore.socket.emit("startGame", { gameMode: "extra" });
+      socketStore.socket?.emit("startGame", { gameMode: "extra" });
       setGameMode("extra");
       queueModalRef.current?.showModal();
       toast.success(
@@ -42,20 +40,19 @@ export const Play = () => {
   };
   return (
     <>
-      <div className="flex flex-col md:flex-row justify-center items-center gap-8 sm:gap-2  sm:justify-center sm:items-start p-10 gap-x-20">
-        <div
+      <div className="grid md:grid-cols-2 gap-4 p-10 container-lg mx-auto">
+        <img
+          src={vsUser}
+          alt="Classic Gamemode"
+          className="mx-auto"
           onClick={subscribeToGame}
-          className="max-w-[55vw] max-h-[55vh]  w-[100%]"
-        >
-          <img src={vsUser} alt="" />
-        </div>
-
-        <div
+        />
+        <img
+          src={VsBot}
+          alt="Extra Gamemode"
+          className="mx-auto"
           onClick={subscribeToGameExtra}
-          className="max-w-[55vw] max-h-[55vh]  w-[100%]"
-        >
-          <img src={VsBot} alt="" />
-        </div>
+        />
       </div>
       <QueueWaitModal
         gameMode={gameMode}

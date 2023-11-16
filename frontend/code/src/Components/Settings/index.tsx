@@ -16,8 +16,14 @@ import googleAuthenticatorIcon from "../images/google-authenticator.svg";
 
 export const Setting = () => {
   const TOTPSecretKey = useMemo(
-    () => btoa(Math.random().toString(36)).substring(0, 16),
-    []
+    () =>
+      btoa(Math.random().toString(36) + Math.random().toString(36))
+        .toUpperCase()
+        .replace(/\+/g, "")
+        .replace(/\//g, "")
+        .replace(/=/g, "")
+        .substring(0, 16),
+    [],
   );
 
   const [TOTPCode, setTOTPCode] = useState("");
@@ -29,9 +35,21 @@ export const Setting = () => {
 
   const user = useUserStore();
   const [myuser, setMyuser] = useState(user);
-  const data_names = ["First name", "Last name", "Email", "Bio"];
-  const payload_objects = ["firstName", "lastName", "email", "discreption"];
-  const data_content = [user.name.first, user.name.last, user.email, user.bio];
+  const data_names = ["First name", "Last name", "Email", "Username", "Bio"];
+  const payload_objects = [
+    "firstName",
+    "lastName",
+    "email",
+    "Username",
+    "discreption",
+  ];
+  const data_content = [
+    user.name.first,
+    user.name.last,
+    user.email,
+    user.username,
+    user.bio,
+  ];
 
   useEffect(() => {
     setMyuser(user);
@@ -70,17 +88,29 @@ export const Setting = () => {
                   }}
                 ></div>
                 <img
-                  className={`h-[9vh] md:h-[12vh] xl:h-[14vh] ${myuser?.achievement !== null && myuser?.achievement >= 0   ? "":"opacity-30"}`}
+                  className={`h-[9vh] md:h-[12vh] xl:h-[14vh] ${
+                    myuser?.achievement !== null && myuser?.achievement >= 0
+                      ? ""
+                      : "opacity-30"
+                  }`}
                   src={Newbie}
                   alt="newbie badge"
                 />
                 <img
-                  className={`h-[9vh] md:h-[12vh] xl:h-[14vh] ${myuser?.achievement !== null && myuser?.achievement >= 1   ? "":"opacity-30"}`}
+                  className={`h-[9vh] md:h-[12vh] xl:h-[14vh] ${
+                    myuser?.achievement !== null && myuser?.achievement >= 1
+                      ? ""
+                      : "opacity-30"
+                  }`}
                   src={Master}
                   alt="Master badge"
                 />
                 <img
-                  className={`h-[9vh] md:h-[12vh] xl:h-[14vh] ${myuser?.achievement !== null && myuser?.achievement >= 2   ? "":"opacity-30"}`}
+                  className={`h-[9vh] md:h-[12vh] xl:h-[14vh] ${
+                    myuser?.achievement !== null && myuser?.achievement >= 2
+                      ? ""
+                      : "opacity-30"
+                  }`}
                   src={Ultimate}
                   alt="Ultimate badge"
                 />
@@ -134,7 +164,7 @@ export const Setting = () => {
                             <img
                               alt="no"
                               src={playStoreIcon}
-                              className="w-auto h-8 object-contains" 
+                              className="w-auto h-8 object-contains"
                             />
                           </div>
                         </div>
@@ -189,13 +219,12 @@ export const Setting = () => {
                                     otp: TOTPCode,
                                     secret: TOTPSecretKey,
                                     action: "enable",
-                                  }
+                                  },
                                 );
                                 user.toggleTfa();
                                 toast.success(response.data.message);
                               } catch (e: any) {
                                 toast.error(e.response.data.message);
-                                console.log(e.response.data.message);
                               }
                             }}
                           >
@@ -248,13 +277,12 @@ export const Setting = () => {
                                   {
                                     otp: TOTPCode,
                                     action: "disable",
-                                  }
+                                  },
                                 );
                                 user.toggleTfa();
                                 toast.success(response.data.message);
                               } catch (e: any) {
                                 toast.error(e.response.data.message);
-                                console.log(e.response.data.message);
                               }
                             }}
                           >

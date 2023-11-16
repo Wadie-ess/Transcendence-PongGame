@@ -9,17 +9,14 @@ import { getDM } from "../Services/ChatServices";
 export const UserToUserChat = () => {
   const params = useParams();
   const navigator = useNavigate();
-  console.log(`params : ${params.id} type ${typeof params.id}`);
 
   const ChatState = useChatStore((state) => state);
   const [showUserPreview, setShowUserPreview] = useState(true);
 
   useEffect(() => {
-    console.log("selected chat id ", ChatState.selectedChatID);
     const fetchUser = async () => {
       try {
         await getDM(params.id as string).then((res) => {
-          console.log("res", res);
           if (res?.status === 200 || res?.status === 201) {
             const extractedData = res.data;
             if (ChatState.selectedChatID !== extractedData.id) {
@@ -32,11 +29,6 @@ export const UserToUserChat = () => {
               avatar: extractedData.avatar,
               bio: extractedData.bio,
             });
-
-            console.log("extractedData", extractedData);
-          } else {
-            // navigator("/chat");
-            // toast.error("Error getting room members");
           }
         });
       } catch (error) {
@@ -68,55 +60,3 @@ export const UserToUserChat = () => {
     </>
   );
 };
-
-<div className="overflow-x-auto relative">
-  <table className="table ">
-    <tbody>
-      <tr>
-        <td>
-          <div className="flex flex-row justify-between ">
-            <div className="flex flex-row items-center space-x-3">
-              <div className="avatar">
-                <div className="mask mask-squircle w-12 h-12">
-                  <img
-                    // src={user.image}
-                    alt="Avatar Tailwind CSS Component"
-                  />
-                </div>
-              </div>
-              {/* <div className="font-bold">{user.name}</div> */}
-            </div>
-            <div className="dropdown ">
-              <label tabIndex={0} className="">
-                <summary className="list-none p-3 cursor-pointer ">
-                  {/* <img src={More} alt="More" /> */}
-                </summary>
-              </label>
-              <ul
-                tabIndex={0}
-                className="p-2 shadow menu dropdown-content z-[0] bg-base-100 rounded-box w-52   right-full absolute  "
-              >
-                <li>
-                  <span className="hover:bg-[#7940CF]">Block</span>
-                </li>
-                <li>
-                  <span className="hover:bg-[#7940CF]">
-                    invite for a Pong Game
-                  </span>
-                </li>
-                <li>
-                  <span
-                    // onClick={onRemoveUserPreview}
-                    className="hover:bg-[#7940CF]"
-                  >
-                    Show User Info
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>;

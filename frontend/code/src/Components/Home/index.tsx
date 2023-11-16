@@ -19,8 +19,13 @@ export const Home = (): JSX.Element => {
             READY TO PLAY A GAME?
           </div>
 
-          <Link to={"/Play"} className="transition-all duration-500 hover:scale-110 ease-in-out flex justify-center items-center px-4 sm:px-8 py-2 sm:py-4 rounded-lg bg-gradient-to-t from-violet-800 to-violet-500">
-            <span className="text-white font-montserrat text-xs xl:text-[0.99vw]">PLAY NOW</span>
+          <Link
+            to={"/Play"}
+            className="transition-all duration-500 hover:scale-110 ease-in-out flex justify-center items-center px-4 sm:px-8 py-2 sm:py-4 rounded-lg bg-gradient-to-t from-violet-800 to-violet-500"
+          >
+            <span className="text-white font-montserrat text-xs xl:text-[0.99vw]">
+              PLAY NOW
+            </span>
           </Link>
         </div>
       </div>

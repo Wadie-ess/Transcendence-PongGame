@@ -10,6 +10,7 @@ type Inputs = {
   lastName: string;
   discreption: string;
   email: string;
+  Username: string;
 };
 const ERROR_MESSAGES = [
   "Field is required",
@@ -20,10 +21,18 @@ const payload_objects = [
   "firstName",
   "lastName",
   "email",
+  "Username",
   "phone",
   "discreption",
 ];
-const data_names = ["First name", "Last name", "Email", "Phone", "Bio"];
+const data_names = [
+  "First name",
+  "Last name",
+  "Email",
+  "Username",
+  "Phone",
+  "Bio",
+];
 export const UploadAvatar = () => {
   const userStore = useUserStore();
   const navigate = useNavigate();
@@ -40,7 +49,7 @@ export const UploadAvatar = () => {
     } catch (e) {}
   };
   const handleError = (errors: any) => {
-    //eslint-disable-next-line
+    // eslint-disable-next-line
     payload_objects.map((item: any, index: number) => {
       if (errors[`${item}`]?.type === "required")
         toast.error(`${data_names[index]} ${ERROR_MESSAGES[0]} `);
@@ -48,6 +57,8 @@ export const UploadAvatar = () => {
         toast.error(`${data_names[index]} ${ERROR_MESSAGES[1]} 4`);
       if (errors[`${item}`]?.type === "maxLength")
         toast.error(`${data_names[index]} ${ERROR_MESSAGES[2]} 50 `);
+      if (errors[`${item}`]?.type === "pattern")
+        toast.error(`${errors[`${item}`]?.message}`);
     });
   };
 
@@ -89,6 +100,17 @@ export const UploadAvatar = () => {
             minLength: 4,
           })}
           defaultValue={userStore.bio}
+          className="input input-bordered input-primary w-full"
+        />
+        <input
+          type="text"
+          placeholder="Username"
+          {...register("Username", {
+            required: true,
+            maxLength: 50,
+            minLength: 4,
+          })}
+          defaultValue={userStore.username}
           className="input input-bordered input-primary w-full"
         />
         <input

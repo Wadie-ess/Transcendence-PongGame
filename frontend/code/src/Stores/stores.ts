@@ -7,6 +7,7 @@ export type State = {
   id: string;
   bio: string;
   phone: string;
+  username: string;
   name: {
     first: string;
     last: string;
@@ -63,6 +64,7 @@ type Action = {
   updateEmail: (email: State["email"]) => void;
   updatePhone: (phone: State["phone"]) => void;
   updateBio: (bio: State["bio"]) => void;
+  updateUsername: (username: State["username"]) => void;
   setAvatar: (picture: State["picture"]) => void;
   updateNotificationRead: (notificationId: string) => void;
   addNotification: (notification: any) => void;
@@ -80,6 +82,7 @@ export const useUserStore = createWithEqualityFn<State & Action>()(
       id: "",
       bio: "",
       phone: "",
+      username: "",
       name: {
         first: "",
         last: "",
@@ -172,20 +175,22 @@ export const useUserStore = createWithEqualityFn<State & Action>()(
       },
       updatePhone: (phone: State["phone"]) => set(() => ({ phone: phone })),
       updateBio: (bio: State["bio"]) => set(() => ({ bio: bio })),
+      updateUsername: (username: State["username"]) =>
+        set(() => ({ username: username })),
       setAvatar: (picture: State["picture"]) =>
         set(() => ({ picture: picture })),
       login: async () => {
         const res = await api.get("/profile/me");
         var user_data = res.data;
-        // user_data.picture= null
+
         const check = user_data.picture.large.split`/`;
         if (check[check.length - 1] === "null") user_data.picture = null;
         const userInitialValue: State = {
           isLogged: true,
           id: user_data.id,
           bio: user_data?.bio ?? "default bio",
-
           phone: user_data.cell,
+          username: user_data.username,
           name: {
             first: user_data.name.first,
             last: user_data.name.last,
@@ -201,7 +206,6 @@ export const useUserStore = createWithEqualityFn<State & Action>()(
               user_data?.picture?.large ??
               `https://ui-avatars.com/api/?name=${user_data.name.first}-${user_data.name.last}&background=7940CF&color=fff`,
           },
-
           email: user_data.email,
           tfa: user_data.tfa,
           friendListIds: [],
@@ -220,11 +224,7 @@ export const useUserStore = createWithEqualityFn<State & Action>()(
             gameId: "",
           },
         };
-        // console.log(userInitialValue)
-        const state = get();
-        const notifications = await state.fetchNotifications(0, 20);
-        console.log("notifications:", notifications);
-        set({ ...userInitialValue, notifications });
+        set({ ...userInitialValue });
         return userInitialValue.isLogged;
       },
       logout: () => {
@@ -234,6 +234,7 @@ export const useUserStore = createWithEqualityFn<State & Action>()(
             id: "",
             bio: "",
             phone: "",
+            username: "",
             name: {
               first: "",
               last: "",
@@ -264,9 +265,7 @@ export const useUserStore = createWithEqualityFn<State & Action>()(
 
       fetchNotifications: async (offset: number, limit: number) => {
         const response = await api
-          .get(`/profile/notifications/?offset=${offset}&limit=${limit}`, {
-            params: { offset, limit },
-          })
+          .get(`/profile/notifications?offset=${offset}&limit=${limit}`)
           .catch(() => ({ data: [] }));
 
         return response.data;

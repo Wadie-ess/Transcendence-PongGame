@@ -4,42 +4,35 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
     "./src/**/**/*.{js,jsx,ts,tsx}",
     "./src/**/**/**/*.{js,jsx,ts,tsx}",
-
   ],
   theme: {
     extend: {
       animation: {
-        border: 'background ease infinite',
+        border: "background ease infinite",
       },
       keyframes: {
         background: {
-          '0%, 100%': { backgroundPosition: '0% 50%' },
-          '50%': { backgroundPosition: '100% 50%' },
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
         },
       },
       screens: {
-        '3xl': '1700px',
+        "3xl": "1700px",
       },
       fontFamily: {
-        poppins: ['Poppins', 'sans-serif'],
-        lexend: ['Lexend Peta', 'sans-serif'],
-        montserrat: ['Montserrat', 'sans-serif']
-
+        poppins: ["Poppins", "sans-serif"],
+        lexend: ["Lexend Peta", "sans-serif"],
+        montserrat: ["Montserrat", "sans-serif"],
       },
 
       backgroundImage: {
-        'login': "url('./Components/Login/Assets/bg.gif')",
-        'gif-error': "url('./Components/Error/Assets/Error.gif')",
-
+        login: "url('./Components/Login/Assets/bg.gif')",
+        "gif-error": "url('./Components/Error/Assets/Error.gif')",
       },
-
     },
   },
 
-  plugins: [
-    require("daisyui"),
-    require('preline/plugin'),
-  ],
+  plugins: [require("daisyui"), require("preline/plugin")],
   daisyui: {
     themes: [
       {
@@ -48,48 +41,45 @@ module.exports = {
 
           "base-200": "#272932",
 
-          "primary": "#7940CF",
+          primary: "#7940CF",
 
           "primary-content": "#5921CB",
 
-          "secondary": "#6A4CFC",
+          secondary: "#6A4CFC",
 
           "secondary-content": "#1A1C26",
 
-          "accent": "#1A1C26",
+          accent: "#1A1C26",
 
-          "neutral": "#FFFFFF",
+          neutral: "#FFFFFF",
 
-          "info": "#3e9cea",
+          info: "#3e9cea",
 
-          "success": "#1ba177",
+          success: "#1ba177",
 
-          "warning": "#99670f",
+          warning: "#99670f",
 
-          "error": "#e93f6f",
+          error: "#e93f6f",
         },
         secondtheme: {
-
-
           "base-100": "#2b2d50",
 
           "base-200": "#1d252f",
 
-          "primary": "#fcecb3",
+          primary: "#fcecb3",
 
           "primary-content": "#be8f04",
 
-          "secondary": "#4c95c9",
+          secondary: "#4c95c9",
 
           "secondary-content": "#79f289",
 
-          "accent": "#66ebd9",
+          accent: "#66ebd9",
 
-          "neutral": "#FFFFFF",
+          neutral: "#FFFFFF",
 
-          "error": "#e93535",
+          error: "#e93535",
         },
-
       },
       "light",
       "dark",
@@ -103,6 +93,6 @@ module.exports = {
     prefix: "", // prefix for daisyUI classnames (components, modifiers and responsive class names. Not colors)
     tailwindcss: {},
     autoprefixer: {},
-    cssnano: {}
+    cssnano: {},
   },
-}
+};

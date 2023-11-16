@@ -12,7 +12,7 @@ export const Game = ({ selected, className, ...props }: GameProps) => {
         className={classNames(
           "h-10 w-10 hover:bg-secondary rounded-xl flex justify-center items-center hover:cursor-pointer",
           selected && "bg-secondary",
-          className
+          className,
         )}
         {...props}
       >

@@ -16,7 +16,6 @@ const router = createBrowserRouter([
     children: [
       {
         path: "Home",
-        // loader : async () => { return await dataLoader()}, it was expermintal it's good for multi compononet fetching but not good for only one because in case of multi  fetch it launches fetch paraller and not waiting  each compononet to laod
         lazy: async () => {
           let { Home } = await import("../Components/Home");
           return { Component: Home };
@@ -37,7 +36,7 @@ const router = createBrowserRouter([
           return { Component: Setting };
         },
       },
-      
+
       {
         path: "Profile/:id",
         lazy: async () => {
@@ -55,17 +54,19 @@ const router = createBrowserRouter([
       {
         path: "Dm/:id",
         lazy: async () => {
-          let { UserToUserChat } = await import("../Components/Chat/Components/UserToUserChat");
+          let { UserToUserChat } = await import(
+            "../Components/Chat/Components/UserToUserChat"
+          );
           return { Component: UserToUserChat };
         },
       },
       {
         path: "Game/:id",
         lazy: async () => {
-          let { Game } = await import("../Components/Game")
-          return { Component: Game};
+          let { Game } = await import("../Components/Game");
+          return { Component: Game };
         },
-      }
+      },
     ],
   },
   {

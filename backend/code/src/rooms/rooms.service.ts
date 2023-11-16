@@ -1,8 +1,8 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -150,7 +150,7 @@ export class RoomsService {
         room.password,
       );
       if (!isPasswordCorrect) {
-        throw new UnauthorizedException('wrong password');
+        throw new BadRequestException('wrong password');
       }
     }
     await this.prisma.roomMember.create({
@@ -185,7 +185,7 @@ export class RoomsService {
       },
     });
     if (ownerId === userId && !newOwner)
-      throw new UnauthorizedException(
+      throw new BadRequestException(
         'You cannot leave this room because you are the only admin in it',
       );
 
@@ -213,7 +213,7 @@ export class RoomsService {
     });
     if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
     if (room.ownerId !== userId) {
-      throw new UnauthorizedException('you are not the owner of this room');
+      throw new BadRequestException('You are not the owner of this room');
     }
     await this.prisma.room.delete({ where: { id: roomData.roomId } });
     return { message: 'deleted room successfully' };
@@ -236,7 +236,7 @@ export class RoomsService {
     if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
 
     if (room.ownerId !== userId) {
-      throw new UnauthorizedException('you are not the owner of this room');
+      throw new BadRequestException('You are not the owner of this room');
     }
 
     if (roomData.type == 'protected' && !roomData.password) {
@@ -284,9 +284,9 @@ export class RoomsService {
       select: { id: true },
     });
     if (room.ownerId !== userId)
-      throw new UnauthorizedException('You are not the owner of this room');
+      throw new BadRequestException('You are not the owner of this room');
     if (!member)
-      throw new UnauthorizedException('user is not a member of this room');
+      throw new BadRequestException('user is not a member of this room');
     await this.prisma.room.update({
       where: { id: roomData.roomId },
       data: { owner: { connect: { userId: roomData.memberId } } },
@@ -314,11 +314,11 @@ export class RoomsService {
     });
     if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
     if (room.ownerId !== userId)
-      throw new UnauthorizedException('You are not the owner of this room');
+      throw new BadRequestException('You are not the owner of this room');
     if (!user)
-      throw new UnauthorizedException('user is not a member of this room');
+      throw new BadRequestException('User is not a member of this room');
     if (user.is_admin || room.ownerId === roomData.memberId)
-      throw new UnauthorizedException(
+      throw new BadRequestException(
         'new admin is already an admin of this room',
       );
     return await this.prisma.roomMember.update({
@@ -352,13 +352,11 @@ export class RoomsService {
     if (!member)
       throw new HttpException('member not found', HttpStatus.NOT_FOUND);
     if (!user.is_admin || user.is_banned)
-      throw new UnauthorizedException('You are not admin of this room');
+      throw new BadRequestException('You are not admin of this room');
     if (member.userId === room.ownerId)
-      throw new UnauthorizedException(
-        'You can not kick the owner of this room',
-      );
+      throw new BadRequestException('You can not kick the owner of this room');
     if (member.userId === userId)
-      throw new UnauthorizedException('You can not kick yourself');
+      throw new BadRequestException('You can not kick yourself');
     return await this.prisma.roomMember.delete({
       where: {
         unique_user_room: {
@@ -409,13 +407,13 @@ export class RoomsService {
     if (!member)
       throw new HttpException('member not found', HttpStatus.NOT_FOUND);
     if (!user.is_admin || user.is_banned)
-      throw new UnauthorizedException('You are not admin of this room');
+      throw new BadRequestException('You are not admin of this room');
     if (member.is_mueted)
-      throw new UnauthorizedException('member is already muted');
+      throw new BadRequestException('Member is already muted');
     if (member.room.ownerId === roomData.memberId)
-      throw new UnauthorizedException('You cannot mute the owner');
+      throw new BadRequestException('You cannot mute the owner');
     if (member.userId === userId)
-      throw new UnauthorizedException('You can not mute yourself');
+      throw new BadRequestException('You can not mute yourself');
     const afterFiveMin = new Date(Date.now() + 5 * 60 * 1000);
     await this.prisma.roomMember.update({
       where: {
@@ -455,7 +453,7 @@ export class RoomsService {
       where: { unique_user_room: { userId: userId, roomId: roomId } },
     });
     if (!user)
-      throw new UnauthorizedException('You are not a member of this room');
+      throw new BadRequestException('You are not a member of this room');
     const members = await this.prisma.roomMember.findMany({
       skip: offset,
       take: limit,
@@ -507,11 +505,11 @@ export class RoomsService {
     });
 
     if (!user || !user.is_admin || user.is_banned)
-      throw new UnauthorizedException('You are not the admin of this Room');
+      throw new BadRequestException('You are not the admin of this Room');
     if (userId == memberData.memberId)
-      throw new UnauthorizedException('You cannot ban yourself');
+      throw new BadRequestException('You cannot ban yourself');
     if (ownerId == memberData.memberId)
-      throw new UnauthorizedException('You cannot ban the Owner of this Room');
+      throw new BadRequestException('You cannot ban the Owner of this Room');
     await this.prisma.roomMember.update({
       where: {
         unique_user_room: {
@@ -546,7 +544,7 @@ export class RoomsService {
     if (!member.is_banned)
       throw new HttpException('member is not banned', HttpStatus.BAD_REQUEST);
     if (!user.is_admin)
-      throw new UnauthorizedException('You are not admin of this room');
+      throw new BadRequestException('You are not admin of this room');
     await this.prisma.roomMember.update({
       where: {
         unique_user_room: {
@@ -589,8 +587,8 @@ export class RoomsService {
     if (count._count.userId >= 20)
       throw new HttpException('Room is full', HttpStatus.BAD_REQUEST);
     if (!user || !user.is_admin || user.is_banned)
-      throw new UnauthorizedException('You are not the admin of this Room');
-    if (member) throw new UnauthorizedException('User already Exist');
+      throw new BadRequestException('You are not the admin of this Room');
+    if (member) throw new BadRequestException('User already Exist');
     await this.prisma.roomMember.create({
       data: {
         user: {
@@ -618,7 +616,10 @@ export class RoomsService {
           members: { some: { userId: userId } },
           NOT: { type: 'dm' },
         }),
-        ...(!joined && { OR: [{ type: 'public' }, { type: 'protected' }] }),
+        ...(!joined && {
+          NOT: { members: { some: { userId } } },
+          OR: [{ type: 'public' }, { type: 'protected' }],
+        }),
       },
       select: {
         id: true,
@@ -665,11 +666,13 @@ export class RoomsService {
             authorId: true,
           },
         });
-        const blocked = await this.prisma.blockedUsers.findFirst({
-          where: {
-            id: [userId, last_message.authorId].sort().join('-'),
-          },
-        });
+        const blocked = last_message
+          ? await this.prisma.blockedUsers.findFirst({
+              where: {
+                id: [userId, last_message.authorId].sort().join('-'),
+              },
+            })
+          : null;
 
         const is_owner = room.ownerId === userId;
         return {
@@ -786,7 +789,7 @@ export class RoomsService {
     if (!room) throw new HttpException('room not found', HttpStatus.NOT_FOUND);
     const member = room.members.find((member) => member.user.userId === userId);
     if (!member)
-      throw new UnauthorizedException('you are not a member of this room');
+      throw new BadRequestException('You are not a member of this room');
     const secondMember = room.members.find(
       (member) => member.user.userId !== userId,
     );

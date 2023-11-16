@@ -6,7 +6,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  MinLength,
+  Length,
 } from 'class-validator';
 
 export class UpdateProfileDto {
@@ -28,20 +28,21 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  @MinLength(4)
+  @Length(4, 50)
   firstName?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  @MinLength(4)
+  @Length(4, 50)
   lastName?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   @IsNotEmpty()
+  @Length(4, 50)
   discreption?: string;
 
   @ApiProperty({ required: true })
@@ -53,5 +54,6 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
+  @Length(4, 50)
   Username: string;
 }

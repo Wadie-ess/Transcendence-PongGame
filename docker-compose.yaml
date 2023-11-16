@@ -10,15 +10,7 @@ services :
     networks:
       - pongnet
     init: true
-  database:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: test
-    volumes:
-      - database:/var/lib/postgresql/data
-    networks:
-      - pongnet
+
   backend:
     build:
       context: ./backend
@@ -28,11 +20,11 @@ services :
       - pongnet
     depends_on: 
       - database
-    restart: always
     ports:
       - 3001:3001
       - 3004:3004
     init : true
+    restart: always
     
   nginx :
     build:
@@ -49,10 +41,33 @@ services :
       - 8000:80
     init: true
     restart: always
+
+  database:
+    image: postgres
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - database:/var/lib/postgresql/data
+    networks:
+      - pongnet
+
+  migration:
+    build:
+      context: ./backend/code/prisma
+      dockerfile: Dockerfile
+    image: prisma_migration:local
+    env_file:
+      - ./.env
+    networks:
+      - pongnet
+    depends_on:
+      - database
    
 volumes: 
   front:
   database:
+
 networks:
   pongnet:
   

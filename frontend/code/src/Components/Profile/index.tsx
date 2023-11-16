@@ -38,7 +38,6 @@ export const Profile = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState<FRIENDSHIP>(undefined);
   const [disabled, setDisabled] = useState("");
-  console.log(`params : ${params.id} type ${typeof params.id}`);
   const [profile, setProfile] = useState<null | any>(undefined);
   const ChatState = useChatStore();
   const LayoutState = useModalStore();
@@ -65,14 +64,17 @@ export const Profile = () => {
           setStatus("recive");
       } catch (error) {
         if (error instanceof AxiosError) {
-          if (error?.response?.status !== 401) navigate("/NotFound");
+          if (error?.response?.status !== 401) {
+            toast.error("The user does not exist or has blocked you");
+            navigate("/home", { replace: true });
+          }
         }
       }
     };
     if (params.id !== user.id || params.id !== "me") fetchUser();
     else setProfile(user);
 
-    //eslint-disable-next-line
+    // eslint-disable-next-line
   }, [params, user]);
 
   useEffect(() => {
@@ -83,7 +85,6 @@ export const Profile = () => {
       "status",
       { userId: params.id },
       (data: { status: string; inGame: boolean }) => {
-        console.log(data);
         if (data.status === "online" && !data.inGame) {
           setOnlineStatus("online");
         } else if (data.status === "online" && data.inGame) {
@@ -91,11 +92,10 @@ export const Profile = () => {
         } else {
           setOnlineStatus("offline");
         }
-      }
+      },
     );
   }, [params.id, socketStore?.socket, user.id]);
 
-  console.log(status);
   const sendRequest = async () => {
     setDisabled("btn-disabled");
     const fetchFunc = async () => {
@@ -108,7 +108,6 @@ export const Profile = () => {
       success: `request sent to ${profile.name.first}`,
       error: "could not send friend request",
     });
-    // setDisbaled("")
   };
   const cancelRequest = async () => {
     setDisabled("btn-disabled");
@@ -196,8 +195,8 @@ export const Profile = () => {
                       onlineStatus === "online"
                         ? "text-green-500 border-green-500"
                         : onlineStatus === "inGame"
-                        ? "text-yellow-500 border-yellow-500"
-                        : "text-red-500 border-red-500"
+                          ? "text-yellow-500 border-yellow-500"
+                          : "text-red-500 border-red-500",
                     )}
                   >
                     {onlineStatus}
@@ -211,37 +210,6 @@ export const Profile = () => {
             </div>
 
             <div className="flex flex-col gap-y-0 items-center h-full sm:flex-row sm:gap-x-4 justify-center sm:justify-start sm:items-end pb-4 sm:w-[25vw]">
-              {/* for debug */}
-              <button
-                className={`btn btn-primary text-neutral ${disabled}`}
-                onClick={async () => {
-                  ChatState.setIsLoading(true);
-                  await createNewRoomCall("", "dm", undefined, params.id).then(
-                    (res) => {
-                      ChatState.setIsLoading(false);
-                      if (res?.status === 200 || res?.status === 201) {
-                        ChatState.changeChatType(ChatType.Chat);
-                        ChatState.selectNewChatID(res?.data?.id);
-                        ChatState.setCurrentDmUser({
-                          secondUserId: profile.id,
-                          id: profile.id,
-                          name: `${profile.name.first} `,
-                          avatar: profile?.picture,
-                          bio: profile?.bio,
-                        });
-                        navigate(`/Dm/${res?.data.id}`);
-                      } else {
-                        toast.error(
-                          "You Can't Send Message To this User For Now, try Again later"
-                        );
-                      }
-                    }
-                  );
-                }}
-              >
-                <VscComment />
-                Message
-              </button>
               {params.id !== "me" &&
                 params.id !== user.id &&
                 status === "none" && (
@@ -265,16 +233,16 @@ export const Profile = () => {
                       >
                         <span className="hover:bg-[#7940CF] hover:rounded">
                           <li
-                            onClick={async () => {
+                            onClick={() => {
                               ChatState.setIsLoading(true);
-                              await blockUserCall(profile.id).then((res) => {
+                              blockUserCall(profile.id).then((res) => {
                                 ChatState.setIsLoading(false);
                                 if (
                                   res?.status === 200 ||
                                   res?.status === 201
                                 ) {
                                   toast.success("User Blocked");
-                                  navigate("/chat");
+                                  navigate("/chat", { replace: true });
                                 } else {
                                   toast.error("Could Not Block User");
                                 }
@@ -333,7 +301,7 @@ export const Profile = () => {
                           "",
                           "dm",
                           undefined,
-                          params.id
+                          params.id,
                         ).then((res) => {
                           ChatState.setIsLoading(false);
                           if (res?.status === 200 || res?.status === 201) {
@@ -349,7 +317,7 @@ export const Profile = () => {
                             navigate(`/Dm/${res?.data.id}`);
                           } else {
                             toast.error(
-                              "You Can't Send Message To this User For Now, try Again later"
+                              "You Can't Send Message To this User For Now, try Again later",
                             );
                           }
                         });
@@ -388,7 +356,7 @@ export const Profile = () => {
                                 }
                                 user.setGameWaitingId(data.gameId);
                                 inviteWaitingModalRef.current?.showModal();
-                              }
+                              },
                             );
                           }}
                         >
@@ -414,7 +382,7 @@ export const Profile = () => {
                                 }
                                 user.setGameWaitingId(data.gameId);
                                 inviteWaitingModalRef.current?.showModal();
-                              }
+                              },
                             );
                           }}
                         >
@@ -431,7 +399,7 @@ export const Profile = () => {
                                   res?.status === 201
                                 ) {
                                   toast.success("User Blocked");
-                                  navigate("/chat");
+                                  navigate("/chat", { replace: true });
                                 } else {
                                   toast.error("Could Not Block User");
                                 }
@@ -458,8 +426,7 @@ export const Profile = () => {
                 <div className=" flex items-center w-[60%] gap-x-5 h-20">
                   <Link to={"/Settings"}>
                     <button
-                      className={`btn btn-primary text-neutral ${disabled}`}
-                      //  onClick={cancelRequest}
+                      className={`btn btn-primary text-neutral ${disabled} flex-row flex-nowrap whitespace-nowrap`}
                     >
                       <VscEdit />
                       Edit Profile
@@ -476,27 +443,23 @@ export const Profile = () => {
                       className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52 absolute bottom-16  "
                     >
                       <li
-                        onClick={() => {
-                          LayoutState.setShowFriendsModal(
-                            !LayoutState.showFriendsListModal
-                          );
-                        }}
+                        onClick={() =>
+                          LayoutState.setShowFriendsListModal(true)
+                        }
                       >
                         <span className="hover:bg-[#7940CF]">
-                          <a href="#my_modal_1" className="pr-2">
+                          <a href="#friends-list-modal" className="pr-2">
                             <div>See Friends List</div>
                           </a>
                         </span>
                       </li>
                       <li
-                        onClick={() => {
-                          LayoutState.setShowBlockedList(
-                            !LayoutState.showBlockedLIstModal
-                          );
-                        }}
+                        onClick={() =>
+                          LayoutState.setShowBlockedListModal(true)
+                        }
                       >
                         <span className="hover:bg-[#7940CF]">
-                          <a href="#my_modal_3" className="pr-2">
+                          <a href="#blocked-users-modal" className="pr-2">
                             <div>See Blocked List</div>
                           </a>
                         </span>

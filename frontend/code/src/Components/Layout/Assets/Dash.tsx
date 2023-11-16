@@ -12,7 +12,7 @@ export const Dash = ({ selected, className, ...props }: DashProps) => {
         className={classNames(
           "h-10 w-10 hover:bg-secondary p-1 rounded-xl flex justify-center items-center hover:cursor-pointer",
           selected && "bg-secondary",
-          className
+          className,
         )}
         {...props}
       >

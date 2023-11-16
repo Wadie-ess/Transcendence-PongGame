@@ -43,8 +43,6 @@ export class Game {
     const scale2 = player2.h / this.h;
 
     const newPos = this.p1PaddleY * scale2;
-    // let scale_y = player2.h / this.h;
-    // let center = this.paddleHeight * scale_y;
 
     if (p2PaddleY - player2.h / 6 / 6 < 0) {
       p2PaddleY = 0;
@@ -72,9 +70,6 @@ export class Game {
     const scale2 = player1.h / this.h;
 
     const newPos = this.p2PaddleY * scale2;
-    // let scale_y = player1.h / this.h;
-
-    // let center = this.paddleHeight * scale_y;
 
     if (p1PaddleY - player1.h / 6 / 6 < 0) {
       p1PaddleY = 0;
@@ -114,13 +109,7 @@ export class Game {
 
   private async loop() {
     if (this.closeGame) return;
-    console.log('loop');
 
-    // if (
-    //   this.x + this.dx + this.ballSize / 2 >= this.w ||
-    //   this.x + this.dx - this.ballSize / 2 <= 0
-    // )
-    //   this.dx *= -1;
     if (
       this.y + this.dy + this.ballSize / 2 >= this.h ||
       this.y + this.dy - this.ballSize / 2 <= 0
@@ -151,7 +140,6 @@ export class Game {
         this.y > this.p2PaddleY + this.paddleHeight) &&
       this.x + this.ballSize / 2 >= this.w
     ) {
-      console.log(`${this.p1PaddleY} ${this.x} ${this.y} ${this.ballSize}`);
       this.p1Score += 1;
       this.init();
       this.checkForWinner();
@@ -162,33 +150,15 @@ export class Game {
         this.y > this.p1PaddleY + this.paddleHeight) &&
       this.x - this.ballSize / 2 <= 0
     ) {
-      console.log(`${this.p1PaddleY} ${this.x} ${this.y} ${this.ballSize}`);
       this.p2Score += 1;
       this.init();
       this.checkForWinner();
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    console.log(this.x);
-    console.log(this.y);
-
-    // const forwardx = this.x + this.dx;
-    // const forwardy = this.y + this.dy
-    // if (forwardx > this.) {
-    // }
     this.x += this.dx;
     this.y += this.dy;
 
-    // if (
-    //   parseFloat((this.p1Res.w / this.p1Res.h).toFixed(1)) !== 1.8 &&
-    //   parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.9
-    // ) {
-    //   this.p1socket.emit('screen Error');
-
-    //   this.emitGameEnd('p1Leave');
-    //   this.p1socket.emit('lose', 'trying cheat');
-    //   this.p2socket.emit('win', 'you win other player try to cheat');
-    // } else {
     this.p1socket.emit(
       'ball',
       this.screenAdapter(this.p1Res, this.x, this.y, this.ballSize),
@@ -203,18 +173,7 @@ export class Game {
         true,
       ),
     );
-    // }
 
-    // if (
-    //   parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.8 &&
-    //   parseFloat((this.p2Res.w / this.p2Res.h).toFixed(1)) !== 1.9
-    // ) {
-    //   this.p1socket.emit('screen Error');
-
-    //   this.emitGameEnd('p2Leave');
-    //   this.p1socket.emit('win', 'you win other player try to cheat');
-    //   this.p2socket.emit('lose', 'trying cheat');
-    // } else {
     this.p2socket.emit(
       'ball',
       this.screenAdapter(this.p2Res, this.x, this.y, this.ballSize),
@@ -229,7 +188,6 @@ export class Game {
         true,
       ),
     );
-    // }
 
     await this.sleep(this.frames);
 
@@ -247,10 +205,8 @@ export class Game {
     }
   }
   async start(ngameid: string) {
-    console.log('game started', ngameid);
     this.gameid = ngameid;
     await this.sleepCounter();
-    // await this.setplayerScokets(this.p1socket, this.p2socket ,)
     this.loop();
   }
 
@@ -264,10 +220,7 @@ export class Game {
     this.p2socket = p2socket;
     this.p1Data = p1Data;
     this.p2Data = p2Data;
-    console.log(p1Data);
-    console.log(p2Data);
     this.server.emit('players', [p1Data, p2Data]);
-    console.log('newfunc');
 
     if (this.mode === 'extra') {
       let l = 1;
@@ -323,53 +276,50 @@ export class Game {
     this.p2socket.on('screen', (data) => {
       this.p2Res = data;
     });
-    this.p1socket.on('disconnect', () => {
-      this.emitGameEnd('p1Leave');
-      this.p2socket.emit('win', 'you win other player leave the game');
-      this.p1socket.emit('lose', 'you win other player leave the game');
-    });
-    this.p2socket.on('disconnect', () => {
-      this.emitGameEnd('p2Leave');
-      this.p1socket.emit('win', 'you win other player leave the game');
-      this.p2socket.emit('lose', 'you lost other player leave the game');
-    });
-    this.p1socket.on('leave', () => {
-      this.emitGameEnd('p1Leave');
-      this.p2socket.emit('win', 'you win other player leave the game');
-      this.p1socket.emit('lose', 'you win other player leave the game');
-    });
-    this.p2socket.on('leave', () => {
-      this.emitGameEnd('p2Leave');
-      this.p1socket.emit('win', 'you win other player leave the game');
-      this.p2socket.emit('lose', 'you lost other player leave the game');
-    });
+    this.p1socket.once('disconnect', this.handleP1Disconnect);
+    this.p2socket.once('disconnect', this.handleP2Disconnect);
+    this.p1socket.once('leave', this.handleP1Disconnect);
+    this.p2socket.once('leave', this.handleP2Disconnect);
   }
   private checkForWinner() {
     if (this.p1Score >= 5) {
-      this.p1socket.emit('win', 'you win');
-      this.p2socket.emit('lose', 'you lose');
+      this.p1socket.emit('win', 'you won');
+      this.p2socket.emit('lose', 'you lost');
       this.emitGameEnd('end');
     }
     if (this.p2Score >= 5) {
-      this.p2socket.emit('win', 'you win');
-      this.p1socket.emit('lose', 'you lose');
+      this.p2socket.emit('win', 'you won');
+      this.p1socket.emit('lose', 'you lost');
       this.emitGameEnd('end');
     }
   }
 
+  private handleP1Disconnect = () => {
+    this.p2socket.emit('win', 'you won, the other player left the game');
+    this.p1socket.emit('lose', 'you lost');
+    this.emitGameEnd('p1Leave');
+  };
+
+  private handleP2Disconnect = () => {
+    this.p1socket.emit('win', 'you won, the other player left the game');
+    this.p2socket.emit('lose', 'you lost');
+    this.emitGameEnd('p2Leave');
+  };
+
   private removeListeners(socket: Socket) {
-    socket.removeAllListeners('disconnect');
-    socket.removeAllListeners('leave');
     socket.removeAllListeners('screen');
     socket.removeAllListeners('mouse');
     socket.removeAllListeners('up');
     socket.removeAllListeners('down');
   }
   private emitGameEnd(message: string) {
-    console.log`asdaqwe Game end`;
     this.closeGame = true;
     this.removeListeners(this.p1socket);
+    this.p1socket.off('leave', this.handleP1Disconnect);
+    this.p1socket.off('disconnect', this.handleP1Disconnect);
     this.removeListeners(this.p2socket);
+    this.p2socket.off('leave', this.handleP2Disconnect);
+    this.p2socket.off('disconnect', this.handleP2Disconnect);
 
     if (message === 'p1Leave') {
       this.eventEmitter.emit('game.end', {

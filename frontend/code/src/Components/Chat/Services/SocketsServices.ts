@@ -1,5 +1,5 @@
-import {  io } from 'socket.io-client';
-import { create } from 'zustand'
+import { io } from "socket.io-client";
+import { create } from "zustand";
 
 interface SocketStore {
   socket: any;
@@ -8,7 +8,7 @@ interface SocketStore {
   setSocket: () => any;
 }
 
-export const useSocketStore = create<SocketStore>((set, get) => ({
+export const useSocketStore = create<SocketStore>((set) => ({
   socket: null,
   connected: false,
   setSocket: () => {
@@ -16,30 +16,34 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
     set((state) => {
       if (state.socket === null) {
-        newSocket = io("http://localhost:3004", {
-          transports: ['websocket'],
-          'reconnection': true,
-          'reconnectionDelay': 1000,
-          'reconnectionDelayMax': 1000,
-          'reconnectionAttempts': 5
-        });
+        newSocket = io(
+          process.env.REACT_APP_SOCKET_ENDPOINT || "http://localhost:3004",
+          {
+            transports: ["websocket"],
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 1000,
+            reconnectionAttempts: 5,
+          },
+        );
 
         // Set socket
         set({ ...state, socket: newSocket });
 
-        newSocket.on('connect', () => {
-          console.log('Connected!');
+        newSocket.on("connect", () => {
           // Set connected state
           set({ ...state, connected: true });
         });
 
-        newSocket.on('connect_error', async () => {
-          await new Promise((resolve) => setTimeout(() => {
-            // Set connected state
-            set({ ...state, connected: false });
-            newSocket.connect();
-            resolve(newSocket);
-          }, 1000))
+        newSocket.on("connect_error", async () => {
+          await new Promise((resolve) =>
+            setTimeout(() => {
+              // Set connected state
+              set({ ...state, connected: false });
+              newSocket.connect();
+              resolve(newSocket);
+            }, 1000),
+          );
         });
 
         return { ...state, socket: newSocket };
@@ -49,6 +53,5 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     return newSocket;
-  }
-}))
-
+  },
+}));

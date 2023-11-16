@@ -53,10 +53,14 @@ Table blocked_friends {
   createdAt DateTime [default: `now()`, not null]
   id String [pk]
   Blcoked_by users [not null]
-  blocked_by_id String [unique, not null]
+  blocked_by_id String [not null]
   Blocked users [not null]
-  blocked_id String [unique, not null]
+  blocked_id String [not null]
   dmRoomId String
+
+  indexes {
+    (blocked_by_id, blocked_id) [unique]
+  }
 }
 
 Table matches {

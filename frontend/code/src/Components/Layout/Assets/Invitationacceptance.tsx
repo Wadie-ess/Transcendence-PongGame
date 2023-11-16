@@ -13,25 +13,25 @@ export const InvitationWaiting = forwardRef<HTMLDialogElement, any>(
     useEffect(() => {
       if (!userStore.gameId)
         return () => {
-          socketStore.socket.off("game.declined");
-          socketStore.socket.off("game.accepted");
+          socketStore.socket?.off("game.declined");
+          socketStore.socket?.off("game.accepted");
         };
 
-      socketStore.socket.on("game.declined", () => {
+      socketStore.socket?.on("game.declined", () => {
         toast.error("Game declined");
         userStore.setGameWaitingId("");
         (ref as RefObject<HTMLDialogElement>).current?.close();
       });
-      socketStore.socket.on("game.accepted", () => {
+      socketStore.socket?.on("game.accepted", () => {
         toast.success("Game accepted");
         userStore.setGameWaitingId("");
         (ref as RefObject<HTMLDialogElement>).current?.close();
       });
       return () => {
-        socketStore.socket.off("game.declined");
-        socketStore.socket.off("game.accepted");
+        socketStore.socket?.off("game.declined");
+        socketStore.socket?.off("game.accepted");
       };
-	//eslint-disable-next-line
+      // eslint-disable-next-line
     }, [userStore.gameId, socketStore.socket, ref]);
 
     return (

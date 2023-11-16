@@ -4,11 +4,8 @@ import reportWebVitals from "./reportWebVitals";
 import { Toaster } from "react-hot-toast";
 import { AllRouters } from "./Routes";
 
-// console.log = () => {}
-// console.error = () => {}
-
 const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
+  document.getElementById("root") as HTMLElement,
 );
 
 root.render(
@@ -26,7 +23,7 @@ root.render(
       }}
     />
     <AllRouters />
-  </>
+  </>,
 );
 
 reportWebVitals();

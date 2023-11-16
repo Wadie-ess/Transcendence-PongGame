@@ -12,9 +12,10 @@ export class MessagesService {
   ) {}
 
   async sendMessages(userId: string, channelId: string, messageDto: any) {
-    console.log(messageDto);
     if (messageDto.content.length > 1000) {
       throw new HttpException('Message is too long', HttpStatus.BAD_REQUEST);
+    } else if (messageDto.content === '[REDACTED]') {
+      throw new HttpException('Message is not allowed', HttpStatus.BAD_REQUEST);
     }
 
     const room = await this.prisma.room.findUnique({
@@ -40,8 +41,8 @@ export class MessagesService {
       });
       if (blocked) {
         throw new HttpException(
-          'You are blocked from this dm',
-          HttpStatus.UNAUTHORIZED,
+          'You are blocked from sending messages to this user',
+          HttpStatus.FORBIDDEN,
         );
       }
     }
@@ -50,22 +51,27 @@ export class MessagesService {
 
     if (!roomMember) {
       throw new HttpException(
-        'User is not in channel',
-        HttpStatus.UNAUTHORIZED,
+        'You are not in this channel',
+        HttpStatus.FORBIDDEN,
       );
     }
 
     if (roomMember.is_banned) {
       throw new HttpException(
-        'you are banned from this channel',
-        HttpStatus.UNAUTHORIZED,
+        'You are banned from this channel',
+        HttpStatus.FORBIDDEN,
       );
     }
 
     if (roomMember.is_mueted) {
       const now = new Date();
       if (now < roomMember.mute_expires) {
-        throw new HttpException('User is muted', HttpStatus.UNAUTHORIZED);
+        throw new HttpException(
+          `You are muted for ${Math.round(
+            (roomMember.mute_expires.valueOf() - now.valueOf()) / 1000,
+          )} seconds`,
+          HttpStatus.FORBIDDEN,
+        );
       }
       await this.prisma.roomMember.update({
         where: {
@@ -99,14 +105,45 @@ export class MessagesService {
       },
     });
 
-    const responseMessage: MessageFormatDto = new MessageFormatDto(messageData, messageDto.clientMessageId);
-    this.eventEmitter.emit('sendNotification', {
-      actorId: userId,
-      type: $Enums.NotifType.message,
-      entityId: messageData.id,
-      entity_type: 'message',
+    const roomMembersIds = await this.prisma.roomMember.findMany({
+      where: { roomId: channelId, NOT: { userId } },
+      select: { userId: true },
     });
-    this.eventEmitter.emit('sendMessages', responseMessage);
+    const blockedUsersIds = await this.prisma.blockedUsers.findMany({
+      where: { OR: [{ blocked_by_id: userId }, { blocked_id: userId }] },
+      select: { blocked_by_id: true, blocked_id: true },
+    });
+
+    const blockedRoomMembersIds = roomMembersIds
+      .filter((member) => {
+        return blockedUsersIds.some((blocked) => {
+          return (
+            blocked.blocked_by_id === member.userId ||
+            blocked.blocked_id === member.userId
+          );
+        });
+      })
+      .map((member) => member.userId);
+
+    const responseMessage: MessageFormatDto = new MessageFormatDto(
+      messageData,
+      messageDto.clientMessageId,
+    );
+    this.eventEmitter.emit(
+      'sendNotification',
+      {
+        actorId: userId,
+        type: $Enums.NotifType.message,
+        entityId: messageData.id,
+        entity_type: 'message',
+      },
+      blockedRoomMembersIds.length ? blockedRoomMembersIds : undefined,
+    );
+    this.eventEmitter.emit(
+      'sendMessages',
+      responseMessage,
+      blockedRoomMembersIds.length ? blockedRoomMembersIds : undefined,
+    );
     return responseMessage;
   }
 
@@ -125,8 +162,8 @@ export class MessagesService {
 
     if (!roomMember) {
       throw new HttpException(
-        'User is not in channel',
-        HttpStatus.UNAUTHORIZED,
+        'You are not in this channel',
+        HttpStatus.FORBIDDEN,
       );
     }
     const messages = await this.prisma.message.findMany({
@@ -156,7 +193,7 @@ export class MessagesService {
       take: limit,
     });
 
-    // get rppm type of room
+    // get room type of room
     const room = await this.prisma.room.findUnique({
       where: {
         id: channelId,
@@ -175,7 +212,7 @@ export class MessagesService {
       if (blocked) {
         messages.forEach((message) => {
           if (message.authorId !== userId) {
-            message.content = '[REDUCTED]';
+            message.content = '[REDACTED]';
           }
         });
       }
@@ -200,7 +237,7 @@ export class MessagesService {
       );
       messages.forEach((message) => {
         if (blockedUsersIds.includes(message.authorId)) {
-          message.content = '[REDUCTED]';
+          message.content = '[REDACTED]';
         }
       });
     }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, UseGuards, Param } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, Param } from '@nestjs/common';
 import { GameService } from './game.service';
 import { AtGuard } from 'src/auth/guards/at.guard';
 import { GetCurrentUser } from 'src/auth/decorator/get_current_user.decorator';
@@ -9,11 +9,6 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('game')
 export class GameController {
   constructor(private readonly gameService: GameService) {}
-
-  @Post('start')
-  startGame() {
-    // return this.gameService.startGame();
-  }
 
   @Get('history')
   @UseGuards(AtGuard)
