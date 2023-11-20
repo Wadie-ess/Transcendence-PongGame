@@ -1,9 +1,24 @@
-# PongGame-WebApp
+## PongGame-WebApp
 ![cover](https://github.com/Wadie-ess/Wadie-ess/blob/main/iPhone%2014%20Pro%20(3).png)
 
-<b>
-  PongGame is a collaborative project developed by a team of four developers. It is a web application that combines the classic Pong Game with real-time chat functionality, a leaderboard, user profiles, and more.
+
+<b>PongGame is a collaborative project developed by a team of four developers. It is a web application that combines the classic Pong Game with real-time chat functionality, a leaderboard, user profiles, and more.<br>
 <br>
+<img align="right" src="https://github.com/Wadie-ess/Wadie-ess/blob/main/PongGif.gif" width="480" />
+
+<p>
+  <p>
+    <p>
+<!-- <a href="https://exyte.com/contacts"><img src="https://i.imgur.com/vGjsQPt.png" width="134" height="34"></a> <a href="https://twitter.com/exyteHQ"><img src="https://i.imgur.com/DngwSn1.png" width="165" height="34"></a> -->
+
+
+
+
+
+
+
+
+
 ## Table of Contents
 
 - [Features](#features)
@@ -11,6 +26,10 @@
 - [Screenshots](#screenshots)
 - [Contributors](#usage)
 - [License](#license)
+
+  
+<br>
+<br>
 
 ## Features
 
