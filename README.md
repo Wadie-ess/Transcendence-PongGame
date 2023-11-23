@@ -20,9 +20,7 @@
 
 - [Features](#features)
 - [Technologies](#technologies)
-- [Screenshots](#screenshots)
-- [Contributors](#usage)
-- [License](#license)
+
 
   
 <br>
@@ -44,6 +42,31 @@
 - **Frontend:** [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [Tailwind CSS](https://tailwindcss.com/)
 - **Web Sockets:** [Socket.IO](https://socket.io/)
 
-## Screenshots
+## Demo And ShowCase
 
+
+
+- **Chat - DMS**
+
+
+  
+<img align="center" src="https://github.com/Wadie-ess/Wadie-ess/blob/main/ChatGif.gif"  />
+
+
+
+
+- **Rooms - OverView**
+  
+
+
+<img align="center" src="https://github.com/Wadie-ess/Wadie-ess/blob/main/roms-OverView.gif"  />
+
+
+
+
+- **The PongGame**
+  
+  
+
+<img align="center" src="https://github.com/Wadie-ess/Wadie-ess/blob/main/game.gif"  />
 
